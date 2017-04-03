@@ -20,7 +20,7 @@ public class MMC1 extends Mapper {
 	@Override
 	public void cartridgeWrite(int index, byte b){
 		if(index>=0x6000&&index<0x8000)
-			PRG_RAM[index-0x6000]=b;
+			PRG_RAM[index-0x6000]=b; 
 		if(index>=0x8000&&index<=0xffff){
 			if(b<0){
 				shiftregister=0b10000;

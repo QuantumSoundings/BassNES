@@ -107,7 +107,7 @@ public class Pulse extends Channel {
 	}
 	public double frequency(){
 			if(targetperiod<1)
-				targetperiod = 0;
+				targetperiod = 0; 
 			return 1789773/(16*((targetperiod)+1));
 	}
 	public void updateWave(){

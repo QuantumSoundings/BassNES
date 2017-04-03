@@ -195,7 +195,7 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 		}
 		else if(index ==0x2006){//PPUADDR
 			if(write&&!blockppu)
-				ppu.writeRegisters(index, x);
+				ppu.writeRegisters(index, x); 
 		}
 		else if(index ==0x2007){
 			if(write)

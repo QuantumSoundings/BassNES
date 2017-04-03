@@ -24,7 +24,7 @@ public class SystemUI {
 	
 	public SystemUI(){
 		frame = new JFrame();
-		//rom = new File("ff");
+		//rom = new File("ff"); 
 		display = new NesDisplay();
 		JPanel panel = new JPanel();
 		b1 = new JButton("Pick Rom");
