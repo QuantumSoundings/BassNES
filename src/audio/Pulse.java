@@ -101,11 +101,13 @@ public class Pulse extends Channel {
 					targetperiod= timer + change;
 				sdivider--;
 			}
-			timer = targetperiod;
+			timer = targetperiod&0b111111111111;
 			updateWave();
 		}
 	}
 	public double frequency(){
+			if(targetperiod<1)
+				targetperiod = 0;
 			return 1789773/(16*((targetperiod)+1));
 	}
 	public void updateWave(){

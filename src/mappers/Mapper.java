@@ -105,11 +105,13 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 	}
 	
 	public void ppuwrite(int index,byte b){
-		if(index<0x2000&&CHR_ram)
+		if(index<0x2000&&CHR_ram){
+			//System.out.println("Wwriting to char ram");
 			if(index<0x1000)
 				CHR_ROM[0][index]=b;
 			else
-				CHR_ROM[1][index-0x1000]=b;
+				CHR_ROM[1][index%0x1000]=b;
+		}
 		else if(index>=0x2000&&index<=0x2fff)
 			ppu_ram[ppuNameTableMirror(index)]=b;
 		else if(index>=0x3000&&index<=0x3eff){
