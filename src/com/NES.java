@@ -28,22 +28,11 @@ public class NES implements Runnable {
 	public volatile boolean flag = true;
 	//Master clock speed.
 	public NES(NesDisplay disp,JFrame f,File rom){
-		//mem = new Memory();
-		//display = new NesDisplay();
-		//display.setSize(256, 240);
-		//frame = new JFrame();
 		display = disp;
-		//frame=f;
 		controller = new Controller();
 		controller.setframe(f);
 		controller2 = new Controller();
 		controller2.setframe(f);
-		/*frame.setTitle("Nes Emulator");
-		frame.setContentPane(display);
-		frame.setSize(400, 400);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
-		*/
 		try {
 			loadrom(rom);
 		} catch (IOException e) {
@@ -119,13 +108,7 @@ public class NES implements Runnable {
 			c++;
 		}
 		p++;
-		//long start = System.nanoTime();
-
 		ppu.render();
-		//long stop = System.nanoTime()-start;
-		//System.out.println(stop);
-		//ppu.render();
-		//ppu.render();
 		if(ppu.oddskip){
 			c+=(1/3.0);
 			ppu.oddskip=false;
@@ -133,55 +116,22 @@ public class NES implements Runnable {
 		if(ppu.scanline%65==0&&ppu.pcycle==1){
 			apu.doFrameStep=true;
 		}
-		//memory things
-		/*if(Memory.PPUADDRw){
-			ppu.writeT(0x2006);
-			Memory.PPUADDRw=false;
-		}
-		if(Memory.PPUSCRLw){
-			ppu.writeT(0x2005);
-			Memory.PPUSCRLw=false;
-		}
-		if(Memory.PPUDATAw){
-			ppu.writeDATA();
-			Memory.PPUDATAw=false;
-		}
-		if(Memory.PPUDATAr){
-			ppu.incv();
-			Memory.PPUDATAr=false;
-		}*/
-		/*if(Memory.DMAflag){
-			//System.out.println("DMA WRITE");
-			//skip=false;
-			cpu.writeDMA=true;
-			Memory.DMAflag=false;
-		}*/
 		if(i>29658){
 			map.blockppu=false;
-		}
-		/*if(ppu.doNMI){
-			cpu.doNMI=true;
-			cpu.old_inst=cpu.current_instruction;
-			cpu.old_cycle=cpu.instruction_cycle;
-			//skip=false;
-			ppu.doNMI=false;
-		}*/
-		//if(ppu.scanline==250&&ppu.pcycle==50)
+		}		
 		if(controller.checkDebug())
 			ppu.dodebug=true;
 		if(ppu.vfresh){
 			stop = System.currentTimeMillis()-start;
-			//z++;
 			display.sendFrame(ppu.ntsc.bi);
 			ppu.ntsc.submit();
 			//stop =17;
 			//if(framecount%2==0)
 			//apu.update();
 			//mem.printMemoryppu(0x2000, 0x400);
-			if(stop<16)
+			if(stop<17)
 				try {
-					//System.in.read();
-					Thread.sleep(16-stop);
+					Thread.sleep(17-stop);
 				} catch ( InterruptedException e){//  | IOException e) {
 					e.printStackTrace();
 				}
@@ -208,7 +158,9 @@ public class NES implements Runnable {
 		int id = Byte.toUnsignedInt(header[6])>>4;
 		id|= Byte.toUnsignedInt(header[7])&0xf0;
 		map = Mapper.getmapper(id);
+		System.out.println("PRG_ROM:"+(PRG_ROM.length/0x400)+"KB");
 		map.setPRG(PRG_ROM);
+		System.out.println("CHR_ROM:"+(CHR_ROM.length/0x400)+"KB");
 		map.setCHR(CHR_ROM);
 		map.setMirror(header[6]&1);
 		//mapperSetup();

@@ -6,6 +6,7 @@ public class CNROM extends Mapper{
 	byte[][] CHRbanks;
 	public CNROM(){
 		super();
+		System.out.println("Mapper 3 Fully Supported!");
 	}
 	@Override
 	public void cartridgeWrite(int i, byte b){

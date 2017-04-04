@@ -13,6 +13,7 @@ public class MMC1 extends Mapper {
 	//byte[][] CHR_ROM= new byte[2][0x1000];
 	byte[][] CHRbanks;
 	public MMC1(){
+		System.out.println("Mapper 1 (SNROM) Fully Supported!"); 
 		PRG_RAM = new byte[0x2000];
 	}
 	
@@ -138,12 +139,12 @@ public class MMC1 extends Mapper {
 			Mirror_mode = shiftregister&0b11;
 			PRG_ROM_mode = (shiftregister&0b1100)>>2;
 			CHR_ROM_mode = (shiftregister&0b10000)>>4;
-			System.out.println("Setting CHR_mode to :"+CHR_ROM_mode+
-					" Mirror mode: "+Mirror_mode);
+			//System.out.println("Setting CHR_mode to :"+CHR_ROM_mode+
+			//		" Mirror mode: "+Mirror_mode);
 			
 		}
 		else if(index>=0xa000&&index<=0xbfff){// CHR bank 0 select
-			System.out.println("CHANGING LOWER CHR bank");
+			//System.out.println("CHANGING LOWER CHR bank");
 			if(!CHR_ram)
 				if(CHR_ROM_mode ==0){
 					System.out.println("Changing two at once!");
@@ -154,7 +155,7 @@ public class MMC1 extends Mapper {
 					CHR_ROM[0]=CHRbanks[shiftregister&CHRbanks.length];
 		}
 		else if(index>=0xc000&&index<=0xdfff){// CHR bank 1 select
-			System.out.println("CHANGING UPPER CHR bank");
+			//System.out.println("CHANGING UPPER CHR bank");
 			if(!CHR_ram)
 				if(CHR_ROM_mode==1)
 					CHR_ROM[1]=CHRbanks[shiftregister&(CHRbanks.length-1)];

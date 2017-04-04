@@ -23,7 +23,7 @@ public class NTSC_Converter{
 			int y = -1;
 			int[] p = new int[pixels.length];
 			for(byte b:pixels){
-				p[i]=colorarray[b];
+				p[i]=colorarray[b&(colorarray.length-1)];
 				//bi.setRGB(i%255, i/256, colorarray[Byte.toUnsignedInt(b)]);
 				i++;
 			}

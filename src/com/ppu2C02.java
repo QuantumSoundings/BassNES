@@ -596,7 +596,7 @@ public class ppu2C02 {
 		if((scanline)-(y)>=0)
 			return scanline-(y);
 		else
-			return 9;
+			return 20;
 	}
 	boolean dodebug=false;
 	private int stage = 1;
@@ -626,7 +626,7 @@ public class ppu2C02 {
 				//System.out.println("in stage 1: " +inrange(y));
 				y=Byte.toUnsignedInt(map.ppureadoam(4*n));
 				oambuffer[4*oamBCounter]=map.ppureadoam(4*n);
-				if(inrange(y)<8){
+				if((PPUCTRL_ss?inrange(y)<16:inrange(y)<8)){//&&y<scanline){
 					oambuffer[4*oamBCounter+1]=map.ppureadoam(4*n+1);
 					oambuffer[4*oamBCounter+2]=map.ppureadoam(4*n+2);
 					oambuffer[4*oamBCounter+3]=map.ppureadoam(4*n+3);
@@ -664,7 +664,7 @@ public class ppu2C02 {
 			case 3: //3
 				//System.out.println("in stage 3");
 				y = Byte.toUnsignedInt(map.ppureadoam((4*n+m)));
-				if(inrange(y)<8){
+				if((PPUCTRL_ss?inrange(y)<16:inrange(y)<8)){//&&y<scanline){
 					if((PPUMASK_ss||PPUMASK_sb)&&y<240)
 						PPUSTATUS_so = true;
 					if(m==3){
@@ -727,24 +727,33 @@ public class ppu2C02 {
 					spritepalette[spritec] = b&3;
 					spritepriority[spritec] = (b&32)>0?false:true;
 					int y = inrange(Byte.toUnsignedInt(oambuffer[4*oamBCounter]));
-					int tileindex=Byte.toUnsignedInt(oambuffer[4*oamBCounter+1])<<4;
-					//tileindex+=y;
-					//if((b&0x80)!=0){
-					//	tileindex = (Byte.toUnsignedInt(oambuffer[4*oamBCounter+1])<<4);
-					//}
-					//else
-					//	tileindex = (Byte.toUnsignedInt(oambuffer[4*oamBCounter+1])<<4);
-					tileindex+= PPUCTRL_spta?0x1000:0;
-					//int y = inrange(oambuffer[4*oamBCounter]);
-					//int tileindex = (Byte.toUnsignedInt(oambuffer[4*oamBCounter+1])<<4)+y;
-					//if((mem.read(0x2000)&0b1000)!=0)
-					//	tileindex+=0x1000;
-					//System.out.println("Tile index of sprite "+oamBCounter+": "+Integer.toHexString(tileindex));
+					int tileindex;
+					int temp = 0;
+					if(PPUCTRL_ss){
+						temp = Byte.toUnsignedInt(oambuffer[4*oamBCounter+1]);
+						tileindex = (temp&1)*0x1000+(temp&0xfe)*16;
+						
+					}
+					else{
+						tileindex=Byte.toUnsignedInt(oambuffer[4*oamBCounter+1])<<4;
+						tileindex+= PPUCTRL_spta?0x1000:0;
+					}
+					if(y>=8){
+						y=y%8;
+						tileindex+=0x10;
+					}
+					
 					if((b&0x80)!=0){
+						if(y<8&&PPUCTRL_ss)
+							tileindex+=0x10;
+						else if(PPUCTRL_ss){
+							tileindex-=0x10;
+						}
 						tileindex+=(7-y);
 					}
-					else
-						tileindex+=y;
+					else{
+							tileindex+=y;
+					}
 					if((b&0x40)!=0){
 						int z = Byte.toUnsignedInt(map.ppuread(tileindex));
 						int flip = 0;
@@ -757,7 +766,8 @@ public class ppu2C02 {
 						flip|=z&1;z>>>=1;flip<<=1;
 						flip|=z&1;
 						x = flip<<8;
-						z = Byte.toUnsignedInt(map.ppuread(tileindex+8));
+						
+						z = Byte.toUnsignedInt(map.ppuread(tileindex+(8)));
 						flip=0;
 						flip|=z&1;z>>>=1;flip<<=1;
 						flip|=z&1;z>>>=1;flip<<=1;
