@@ -102,18 +102,8 @@ public class NES implements Runnable {
 				}
 				}
 			//if(cpu.program_counter==0x0){//&&ppu.scanline>234){
-				//mem.printMemorypu(0x3f00, 0x20);
-				//mem.printMemoryppu(0x2000, 0x400);
 				//skip = false;
 				//cpu.debug(0);
-				
-				//z++;
-				//mem.printMemory(0x3a0, 0x6);
-				//mem.printMemory(0x6000, 0x200);
-				//System.out.println(Integer.toHexString(cpu.current_instruction));
-				//mem.printMemoryppu(0x3f00, 0x20);
-				//mem.write(0x2000, (byte)(0));
-				//mem.printMemoryppu(0x2000, 0x400);
 			//}*/
 				
 		if(i%3==0){
@@ -144,9 +134,9 @@ public class NES implements Runnable {
 			//if(framecount%2==0)
 			//apu.update();
 			//mem.printMemoryppu(0x2000, 0x400);
-			if(stop<17)
+			if(stop<16)
 				try {
-					Thread.sleep(17-stop);
+					Thread.sleep(16-stop);
 				} catch ( InterruptedException e){//  | IOException e) {
 					e.printStackTrace();
 				}
@@ -191,7 +181,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//File rom = new File(System.getProperty("user.dir")+"/dkj.nes");
+		//rom = new File(System.getProperty("user.dir")+"/smb.nes");
 		FileInputStream sx = new FileInputStream(rom);
 		byte[] header = new byte[16];
 		sx.read(header);
@@ -208,12 +198,6 @@ public class NES implements Runnable {
 		System.out.println("CHR_ROM:"+(CHR_ROM.length/0x400)+"KB");
 		map.setCHR(CHR_ROM);
 		map.setMirror(header[6]&1);
-		//mapperSetup();
 		sx.close();
-		//mem.writeppu(0, CHR_ROM);
-		//mem.writeppu(0x1000, CHR_ROM2);
-		//mem.printMemory(0xc000,50);
-		//mem.printMemoryppu(0, 0x1fff);
-		//System.out.println("Loaded the rom!");
 	}
 }

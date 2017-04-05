@@ -4,6 +4,7 @@ import mappers.Mapper;
 
 import com.jsyn.*;
 import com.jsyn.unitgen.LineOut;
+import com.jsyn.unitgen.LinearRamp;
 import com.jsyn.unitgen.PulseOscillator;
 import com.jsyn.unitgen.TriangleOscillator;
 import com.jsyn.unitgen.WhiteNoise;
@@ -11,8 +12,9 @@ import com.jsyn.unitgen.WhiteNoise;
 
 
 public class APU {
-	Synthesizer synth = JSyn.createSynthesizer();
+	Synthesizer synth;
 	LineOut lineout;
+	LinearRamp lag;
 	Triangle triangle = new Triangle(new TriangleOscillator());
 	Pulse pulse1 = new Pulse(new PulseOscillator(),true);
 	Pulse pulse2 = new Pulse( new PulseOscillator(),false);
@@ -28,28 +30,22 @@ public class APU {
 	
 	public APU(Mapper m){
 		map = m;
+		synth = JSyn.createSynthesizer();
 		addGenerators();
+		//synth.add(lag = new LinearRamp());
 		synth.add(lineout=new LineOut());
 		pulse1.wave.output.connect(0,lineout.input,0);
 		pulse1.wave.output.connect(0,lineout.input,1);
-		//pulse1.wave.amplitude.set(.5);
 		pulse2.wave.output.connect(0,lineout.input,0);
 		pulse2.wave.output.connect(0,lineout.input,1);
-
-		//pulse2.wave.output.connect(lineout);
-		//pulse2.wave.amplitude.set(.5);
-		//triangle.wave.output.connect(lineout);
 		triangle.wave.output.connect(0,lineout.input,0);
 		triangle.wave.output.connect(0,lineout.input,1);
-
-		//triangle.wave.amplitude.set(.5);
-		//noise.wave.output.connect(lineout);
 		noise.wave.output.connect(0,lineout.input,0);
 		noise.wave.output.connect(0,lineout.input,1);
-
-		//noise.wave.amplitude.set(.35);
+		//lag.output.connect(pulse1.wave.amplitude);
 		synth.start();
 		lineout.start();
+		
 		/*timer = new Timer(0,new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
@@ -86,15 +82,40 @@ public class APU {
 		else if(index==0x4015){
 			status = b;
 			//System.out.println("Writing to the control reg"+Integer.toBinaryString(Byte.toUnsignedInt(b)));
-			pulse1.wave.setEnabled((b&1)==0?false:true);
-			pulse2.wave.setEnabled((b&2)==0?false:true);
-			triangle.wave.setEnabled((b&4)==0?false:true);
-			noise.wave.setEnabled((b&8)==0?false:true);
+			if((b&1)==0){
+				pulse1.wave.setEnabled(false);
+				pulse1.lengthcount=0;
+			}
+			else
+				pulse1.wave.setEnabled(true);
+			if((b&2)==0){
+				pulse2.wave.setEnabled(false);
+				pulse2.lengthcount=0;
+			}
+			else
+				pulse2.wave.setEnabled(true);
+			if((b&4)==0){
+				triangle.wave.setEnabled(false);
+				triangle.lengthcount=0;
+			}
+			else
+				triangle.wave.setEnabled(true);
+			if((b&8)==0){
+				noise.wave.setEnabled(false);
+				noise.lengthcount=0;
+			}
+			else
+				noise.wave.setEnabled(true);
 		}
 		else if(index==0x4017){
 			stepmode4 = (b&0x80)==0?true:false;
 			stepNumber = 0;
 			IRQFlag = (b&0x40)==0?false:true;
+		}
+	}
+	public void readRegisters(int index){
+		if(index == 0x4015){
+			
 		}
 	}
 	public void update(){
@@ -106,6 +127,7 @@ public class APU {
 	public void frameClock(){
 		//System.out.println("In framestep mode4:"+stepmode4);
 		if(stepmode4){
+			//map.cpu.doIRQ=false;
 			if(stepNumber%4==1||stepNumber%4==3){
 			pulse1.lengthClock();
 			pulse1.sweepClock();
@@ -121,7 +143,8 @@ public class APU {
 			doFrameStep = false;
 			stepNumber++;
 			if(stepNumber%4==3&&!IRQFlag){
-				//send irq to cpu
+				//System.out.println("DOing an IRQ");
+				map.cpu.doIRQ=true;
 			}
 			
 		}
@@ -158,6 +181,7 @@ public class APU {
 			//pulse1.clockTimer();
 			//pulse2.clockTimer();
 			noise.clockTimer();
+			//noise.updateWave();
 		}
 		if(doFrameStep){
 			frameClock();

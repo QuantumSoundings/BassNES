@@ -150,6 +150,7 @@ e0 immediate 0 CPX
 e4 zero 0 CPX
 ec absolute 0 CPX
 02 implied 0 NMI
+12 implied 0 IRQ
 eb immediate 0 SBC
 04 implied 3 SKB
 44 implied 3 SKB

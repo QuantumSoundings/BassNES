@@ -78,29 +78,35 @@ public class Pulse extends Channel {
 	}
 	public void sweepClock(){
 		if(dosweep){
+			//System.out.println("doing a sweep tp:"+targetperiod+" dividerp: "+dividerperiod
+			//		+" Divider: "+sdivider
+			//		+" timer: "+timer
+			//		+" shift: "+shift
+			//		+" negate: "+negate);
 			if(sweepreload){
 				sdivider = dividerperiod+1;
-				targetperiod=timer;
+				if(sdivider ==0)
+					targetperiod=timer;
 				sweepreload=false;
 			}
-			else if(sdivider ==0){
-				timer = targetperiod;
-				//divider--;
-			}
-			else{
-				int change = timer>>shift;
-				if(negate){
-					if(p1)
-						targetperiod =  timer - change -1;
-					else
-						targetperiod = timer - change;
-				}
-				else
-					targetperiod= timer + change;
+			else if(sdivider !=0){
 				sdivider--;
 			}
-			timer = targetperiod&0b111111111111;
-			updateWave();
+			else if(sdivider ==0){
+				sdivider = dividerperiod+1;
+				int change = targetperiod>>shift;
+				if(negate){
+					if(p1)
+						targetperiod =  targetperiod - change -1;
+					else
+						targetperiod = targetperiod - change;
+				}
+				else
+					targetperiod= targetperiod + change;
+				//sdivider--;
+				updateWave();
+			}
+			//timer = targetperiod&0b111111111111;
 		}
 	}
 	public double frequency(){
@@ -116,10 +122,9 @@ public class Pulse extends Channel {
 		//+" cVolume?: "+constantvolume
 		//+" targetperiod: "+targetperiod
 		//+" timer: "+timer);
-		if(lengthcount==0&&!loop)
-			wave.setEnabled(false);
+		if((lengthcount==0&&!loop)||decay==0||targetperiod<8)
+			wave.amplitude.set(0);
 		else{
-			wave.setEnabled(true);
 			wave.amplitude.set(decay/30.0);
 		}
 		//System.out.println(frequency());

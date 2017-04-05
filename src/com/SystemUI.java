@@ -175,6 +175,7 @@ public class SystemUI {
 			}
 		});
 		keyconfig.add(key);
+		
 	}
 	void debugWindow(){
 		JPanel p1 = new JPanel();

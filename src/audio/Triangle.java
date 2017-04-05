@@ -60,10 +60,8 @@ public class Triangle extends Channel {
 	public void updateWave(){
 		//debug();
 		if(linearcount==0||lengthcount==0)
-			wave.setEnabled(false);
+			wave.amplitude.set(0);
 		else{
-			if(!wave.isEnabled())
-				wave.setEnabled(true);
 			wave.amplitude.set(.35);
 		}
 		wave.frequency.set(frequency());

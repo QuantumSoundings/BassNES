@@ -36,6 +36,7 @@ public class CPU_6502 {
 	
 	public boolean writeDMA = false;
 	public boolean doNMI = false;
+	public boolean doIRQ = false;
 	//private Memory memory;
 	private Hashtable<Byte,Integer> inst_type;//read/write/both
 	private Hashtable<Byte,String> inst_mode;//memory access
@@ -150,7 +151,9 @@ public class CPU_6502 {
 		
 	}
 	private byte getNextInstruction(){
-		oldaddr = Byte.toUnsignedInt(current_instruction);
+		//oldaddr = Byte.toUnsignedInt(current_instruction);
+		if(irqlatency>0)
+			irqlatency--;
 		if(nmi&&nmirecieved==0){
 			program_counter--;
 			nmi=false;
@@ -160,12 +163,19 @@ public class CPU_6502 {
 			nmirecieved--;
 			return map.cpuread(program_counter);
 		}
+		else if(doIRQ&&!IFlag&&irqlatency==0){
+			program_counter--;
+			doIRQ = false;
+			return 0x12;
+		}
 		else
 			return map.cpuread(program_counter);
 	}
 	boolean oldnmi = false;
+	int irqlatency=0;
 	boolean nmi=false;
 	public int nmirecieved;
+	public int irqrecieved;
 	private void executeInstruction(){
 		/*if(doNMI&&(old_inst!=current_instruction||instruction_cycle<old_cycle)){
 				if(map.cpuread(program_counter-1)==current_instruction)
@@ -991,6 +1001,7 @@ public class CPU_6502 {
 		case "CLI": {
 			IFlag = false;
 			instruction_cycle=1;
+			irqlatency = 2;
 		};break;
 		case "CLV": {
 			VFlag = false;
@@ -1054,6 +1065,40 @@ public class CPU_6502 {
 			if(y_index_register<0) NFlag = true;else NFlag = false;
 			instruction_cycle = 1;
 			
+		};break;
+		case "IRQ": {
+			switch(instruction_cycle){
+			case 2: {
+				//program_counter++;
+				instruction_cycle++;
+			}
+			case 3: {
+				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter>>8));
+				stack_pointer--;
+				instruction_cycle++;break;
+			}
+			case 4: {
+				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter&0xff));
+				stack_pointer--;
+				instruction_cycle++;break;
+			}
+			case 5: {
+				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, buildFlags());
+				stack_pointer--;
+				instruction_cycle++;break;
+			}
+			case 6: {
+				//System.out.println(Integer.toHexString(map.cpureadu(0xfffa)));
+				program_counter = map.cpureadu(0xfffe);
+				instruction_cycle++;break;
+			}
+			case 7: {
+				//System.out.println(Integer.toHexString(map.cpureadu(0xfffb)));
+				program_counter = (map.cpureadu(0xffff)<<8)|program_counter;
+				//System.out.println(Integer.toHexString(program_counter));
+				instruction_cycle = 1;break;
+			}
+			}
 		};break;
 		case "JMP": {
 			switch(instruction_cycle){

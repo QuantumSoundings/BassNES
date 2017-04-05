@@ -60,10 +60,10 @@ public class Noise extends Channel{
 		//+" cVolume?: "+constantvolume
 		//+" targetperiod: "+targetperiod
 		//+" timer: "+timer);
-	if(lengthcount==0||(shiftreg&1)==0)
-		wave.setEnabled(false);
+	if(lengthcount==0||(shiftreg&1)==0||volume==0)
+		wave.amplitude.set(0);
 	else
-		wave.setEnabled(true);
+		//wave.setEnabled(true);
 		wave.amplitude.set(decay/30.0);
 	}
 }
