@@ -216,9 +216,9 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 		if(index<0x8000&&index>=0x6000)
 			return PRG_RAM[index-0x6000];
 		else if(index<0xc000)
-			return PRG_ROM[1][index%0x4000];
-		else
 			return PRG_ROM[0][index%0x4000];
+		else
+			return PRG_ROM[1][index%0x4000];
 	}
 	
 	
@@ -231,8 +231,8 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 	
 	public void setPRG(byte[] prg){
 		if(prg.length ==16384*2){
-			PRG_ROM[1]=Arrays.copyOfRange(prg, 0,0x4000);
-			PRG_ROM[0]=Arrays.copyOfRange(prg, 0x4000, 0x8000);
+			PRG_ROM[0]=Arrays.copyOfRange(prg, 0,0x4000);
+			PRG_ROM[1]=Arrays.copyOfRange(prg, 0x4000, 0x8000);
 			PRG_32k = true;
 		}
 		else{
@@ -279,6 +279,8 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 			return new NROM();
 		case 1:
 			return new MMC1();
+		case 2:
+			return new UxROM();
 		case 3:
 			return new CNROM();
 		default:

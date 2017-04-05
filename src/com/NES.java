@@ -66,7 +66,7 @@ public class NES implements Runnable {
 				e1.printStackTrace();
 			}
 		int i = 0;
-		//boolean skip = true;
+		boolean skip = true;
 		//boolean skip2=false;
 		//int z = 0;
 		long start = 0,stop = 0;
@@ -74,7 +74,7 @@ public class NES implements Runnable {
 		//mem.printMemory(0x8000, 0x200);
 		while(flag){
 			
-			/*if(!skip){
+			if(!skip){
 				try {
 					
 					
@@ -91,7 +91,7 @@ public class NES implements Runnable {
 
 						//mem.printMemoryppu(0x3f00, 0x20);
 					}
-					//int g =System.in.read();
+					int g =System.in.read();
 					//if(z<8)
 					//skip=true;
 					
@@ -104,7 +104,7 @@ public class NES implements Runnable {
 			//if(cpu.program_counter==0x0){//&&ppu.scanline>234){
 				//skip = false;
 				//cpu.debug(0);
-			//}*/
+			//}
 				
 		if(i%3==0){
 			cpu.run_cycle();
@@ -181,7 +181,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//rom = new File(System.getProperty("user.dir")+"/smb.nes");
+		rom = new File(System.getProperty("user.dir")+"/smb.nes");
 		FileInputStream sx = new FileInputStream(rom);
 		byte[] header = new byte[16];
 		sx.read(header);
