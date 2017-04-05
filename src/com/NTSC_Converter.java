@@ -20,7 +20,7 @@ public class NTSC_Converter{
             0xf0f986, 0xd6ff90, 0xbdffaf, 0xb3ffd7, 0xb3ffff, 0xbcbcbc, 0x000000, 0x000000};
 		public void makeframe(byte[] pixels){
 			int i = 0;
-			int y = -1;
+			//int y = -1;
 			int[] p = new int[pixels.length];
 			for(byte b:pixels){
 				p[i]=colorarray[b&(colorarray.length-1)];

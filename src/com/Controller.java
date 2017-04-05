@@ -1,10 +1,8 @@
 package com;
 
 import java.awt.event.*;
-import java.util.Arrays;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 public class Controller {
 	Keychecker keys;

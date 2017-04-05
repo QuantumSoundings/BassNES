@@ -1,8 +1,6 @@
 package audio;
 
-import com.jsyn.ports.UnitInputPort;
 import com.jsyn.unitgen.PulseOscillator;
-import com.jsyn.unitgen.UnitGenerator;
 
 public class Pulse extends Channel {
 	int dutynumber=7;

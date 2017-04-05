@@ -1,7 +1,4 @@
 package com;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.URISyntaxException;
 import java.util.Hashtable;
 import java.util.Scanner;
 

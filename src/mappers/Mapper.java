@@ -222,7 +222,12 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 	}
 	
 	
-	
+	public void restoreSave(byte[] save){
+		PRG_RAM = save;
+	}
+	public byte[] getSave(){
+		return PRG_RAM;
+	}
 	
 	public void setPRG(byte[] prg){
 		if(prg.length ==16384*2){

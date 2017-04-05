@@ -59,13 +59,13 @@ public class Memory {
 		currentbank=0;
 	}
 	
-	private void swaptables(byte b){
+	/*private void swaptables(byte b){
 		System.out.println("SWAPPING TABLES!!!!!!!!!!!!!!!!!!!!!!!");
 		int i = Byte.toUnsignedInt(b)&3;
 		writeppu(0,banks[i]);
 		currentbank = i;
 		
-	}
+	}*/
 	public void setPPU(ppu2C02 pp){
 		ppu =pp;
 	}
@@ -182,7 +182,7 @@ public class Memory {
 		//System.out.println("Doing a ppu write to ADDR: " + Integer.toHexString(index)
 		//+" with value: "
 		//		+Integer.toHexString(Byte.toUnsignedInt(x)));
-		int i = doppumirror(index);
+		//int i = doppumirror(index);
 		ppumem[doppumirror(index)]=x;
 	}
 	byte readppud(int index){

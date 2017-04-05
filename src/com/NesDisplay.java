@@ -1,12 +1,13 @@
 package com;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 public class NesDisplay extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	BufferedImage frame;
     public NesDisplay(BufferedImage img){
     	frame = new BufferedImage(256, 240, BufferedImage.TYPE_INT_RGB);

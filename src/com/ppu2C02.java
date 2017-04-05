@@ -32,8 +32,6 @@ public class ppu2C02 {
 	int[] spritebm = new int[8];//bitmaps
 	//int[] spritela = new int[8];//attribute bytes
 	int[] spriteco = new int[8];//xpos counter
-	//boolean[] spriteflipv = new boolean[8];
-	//boolean[] spritefliph = new boolean[8];
 	boolean[] spritepriority = new boolean[8];
 	int[] spritepalette = new int[8];
 	
@@ -576,6 +574,7 @@ public class ppu2C02 {
 	void shiftSprites(){
 		for(int i = 0;i<8;i++){
 			if(spriteco[i]==0){
+				spritebm[i]&=0b0111111101111111;
 				spritebm[i]<<=1;
 			}
 			else{
@@ -739,19 +738,21 @@ public class ppu2C02 {
 						tileindex+= PPUCTRL_spta?0x1000:0;
 					}
 					if(y>=8){
-						y=y%8;
 						tileindex+=0x10;
 					}
 					
 					if((b&0x80)!=0){
 						if(y<8&&PPUCTRL_ss)
 							tileindex+=0x10;
-						else if(PPUCTRL_ss){
+						else if(y>=8&&PPUCTRL_ss){
+							//System.out.println("in here");
 							tileindex-=0x10;
 						}
-						tileindex+=(7-y);
+						y=y%8;
+						tileindex+=((7)-y);
 					}
 					else{
+							y%=8;
 							tileindex+=y;
 					}
 					if((b&0x40)!=0){

@@ -8,8 +8,11 @@ import javax.swing.JFrame;
 import mappers.Mapper;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 //import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Scanner;
 //import java.io.InputStream;
 //import java.util.Arrays;
 //import java.util.Scanner;
@@ -19,15 +22,19 @@ public class NES implements Runnable {
 	private ppu2C02 ppu;
 	private APU apu;
 	private Mapper map;
+	private String romName;
 	private Controller controller;
 	private Controller controller2;
+	File save;
 	int systemclock = 21477272;
+	boolean batteryExists;
 	private NesDisplay display;
 	//private JFrame frame;
 	//private Graphics g;
 	public volatile boolean flag = true;
 	//Master clock speed.
 	public NES(NesDisplay disp,JFrame f,File rom){
+		romName = rom.getName().substring(0,rom.getName().length()-4);
 		display = disp;
 		controller = new Controller();
 		controller.setframe(f);
@@ -51,11 +58,19 @@ public class NES implements Runnable {
 	int framecount=0;
 	public void run(){
 		System.out.println("NES STARTED RUNNING");
+		if(batteryExists)
+			try {
+				loadSave();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		int i = 0;
 		//boolean skip = true;
 		//boolean skip2=false;
 		//int z = 0;
 		long start = 0,stop = 0;
+		
 		//mem.printMemory(0x8000, 0x200);
 		while(flag){
 			
@@ -142,19 +157,49 @@ public class NES implements Runnable {
 		i++;
 		}
 		apu.synth.stop();
+		if(batteryExists)
+			try {
+				saveGame();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+	public void loadSave() throws IOException{
+		save = new File(romName+".sav");
+		if(save.exists()){
+				System.out.println("Save Found! Loading...");
+				FileInputStream sx = new FileInputStream(save);
+				byte[] savearray = new byte[0x2000];
+				sx.read(savearray);
+				map.restoreSave(savearray);
+				sx.close();
+		}
+		else
+			System.out.println("Save not found!");
+	}
+	public void saveGame() throws IOException{
+		System.out.println("Attempting to save game.");
+		save = new File(romName+".sav");
+		if(save.exists()){
+			save.delete();
+		}
+		save.createNewFile();
+		FileOutputStream sx = new FileOutputStream(save);
+		byte[] savearray = map.getSave();
+		sx.write(savearray);
+		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
 		//File rom = new File(System.getProperty("user.dir")+"/dkj.nes");
 		FileInputStream sx = new FileInputStream(rom);
 		byte[] header = new byte[16];
-		for(int i=0;i<header[4];i++){
-			
-		}
 		sx.read(header);
 		byte[] PRG_ROM = new byte[16384*Byte.toUnsignedInt(header[4])];
 		sx.read(PRG_ROM);
 		byte[] CHR_ROM = new byte[8192*Byte.toUnsignedInt(header[5])];
 		sx.read(CHR_ROM);
+		batteryExists = (header[6]&2)!=0?true:false;
 		int id = Byte.toUnsignedInt(header[6])>>4;
 		id|= Byte.toUnsignedInt(header[7])&0xf0;
 		map = Mapper.getmapper(id);

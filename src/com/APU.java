@@ -6,13 +6,9 @@ import com.jsyn.*;
 import com.jsyn.unitgen.LineOut;
 import com.jsyn.unitgen.PulseOscillator;
 import com.jsyn.unitgen.TriangleOscillator;
-import com.jsyn.unitgen.UnitGenerator;
 import com.jsyn.unitgen.WhiteNoise;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.Timer;
 
 public class APU {
 	Synthesizer synth = JSyn.createSynthesizer();
@@ -28,7 +24,6 @@ public class APU {
 	boolean IRQFlag;
 	boolean doFrameStep;
 	int stepNumber;
-	private Timer timer;
 	
 	
 	public APU(Mapper m){
