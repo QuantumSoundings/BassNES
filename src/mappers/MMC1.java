@@ -147,7 +147,7 @@ public class MMC1 extends Mapper {
 			//System.out.println("CHANGING LOWER CHR bank");
 			if(!CHR_ram)
 				if(CHR_ROM_mode ==0){
-					System.out.println("Changing two at once!");
+					//System.out.println("Changing two at once!");
 					CHR_ROM[0]=CHRbanks[((shiftregister&0b11110)&(CHRbanks.length-1))];
 					CHR_ROM[1]=CHRbanks[((shiftregister&0b11110)&(CHRbanks.length-1))+1];			
 				}

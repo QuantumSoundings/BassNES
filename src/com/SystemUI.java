@@ -87,7 +87,7 @@ public class SystemUI {
 		});
 		frame.pack();
 		frame.setVisible(true);
-		//debugWindow();
+		debugWindow();
 	}
 	public void start(){
 		
