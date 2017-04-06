@@ -9,7 +9,11 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Properties;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -35,10 +39,12 @@ public class SystemUI {
 	JMenuBar menu;
 	JMenu system,cpu,audio,graphics,control,debug;
 	Thread current;
+	Properties prop;
 	public boolean begin;
 	boolean autoload = true;
 	
 	public SystemUI(){
+		prop = new Properties();
 		frame = new JFrame();
 		debugframe = new JFrame();
 		keyconfig = new JFrame();
@@ -61,10 +67,18 @@ public class SystemUI {
 		frame.addWindowListener(new WindowAdapter(){
 			@Override
 			public void windowClosing(WindowEvent evt){
-				nes.flag=false;
+				if(nes!=null)
+					nes.flag=false;
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				try {
+					FileOutputStream output = new FileOutputStream("config.properties");
+					prop.store(output, null);
+				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -92,7 +106,7 @@ public class SystemUI {
 					if(autoload){
 						if(nes!=null)
 							nes.flag=false;
-						nes = new NES(display,frame,rom);
+						nes = new NES(display,frame,rom,prop);
 						current = new Thread(nes);
 						current.start();
 					}
@@ -109,7 +123,7 @@ public class SystemUI {
 					begin = true;
 					if(nes!=null)
 						nes.flag=false;
-					nes = new NES(display,frame,rom);
+					nes = new NES(display,frame,rom,prop);
 					current = new Thread(nes);
 					current.start();
 					//System.out.println(begin);
@@ -152,28 +166,23 @@ public class SystemUI {
 		
 	}
 	void keyconfigsetup(){
-		JPanel key = new JPanel();
-		JButton b = new JButton("Test button");
-		key.add(b);
-		b.addActionListener(new ActionListener(){
+		UIkeys key = new UIkeys();
+		prop = key.prop;
+		JButton apply = new JButton("Apply");
+		apply.addActionListener(new ActionListener(){
+
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				awaitingkey=true;
-			}		
+			public void actionPerformed(ActionEvent e) {
+				if(nes!=null){
+					
+						nes.controller.updateKeys(prop);
+					
+				}
+			}
+			
 		});
-		b.addKeyListener(new KeyListener(){
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if(awaitingkey)
-					b.setText(e.getKeyChar()+"");
-			}
-			@Override
-			public void keyReleased(KeyEvent e) {
-			}
-			@Override
-			public void keyTyped(KeyEvent e) {
-			}
-		});
+		key.add(apply);
+		keyconfig.setSize(250, 250);
 		keyconfig.add(key);
 		
 	}

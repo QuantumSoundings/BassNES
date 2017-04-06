@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 //import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Properties;
 import java.util.Scanner;
 //import java.io.InputStream;
 //import java.util.Arrays;
@@ -23,7 +24,7 @@ public class NES implements Runnable {
 	private APU apu;
 	private Mapper map;
 	private String romName;
-	private Controller controller;
+	public Controller controller;
 	private Controller controller2;
 	File save;
 	int systemclock = 21477272;
@@ -33,12 +34,12 @@ public class NES implements Runnable {
 	//private Graphics g;
 	public volatile boolean flag = true;
 	//Master clock speed.
-	public NES(NesDisplay disp,JFrame f,File rom){
+	public NES(NesDisplay disp,JFrame f,File rom,Properties prop){
 		romName = rom.getName().substring(0,rom.getName().length()-4);
 		display = disp;
-		controller = new Controller();
+		controller = new Controller(prop);
 		controller.setframe(f);
-		controller2 = new Controller();
+		controller2 = new Controller(prop);
 		controller2.setframe(f);
 		try {
 			loadrom(rom);
@@ -181,7 +182,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/smb.nes");
+		//rom = new File(System.getProperty("user.dir")+"/smb.nes");
 		FileInputStream sx = new FileInputStream(rom);
 		byte[] header = new byte[16];
 		sx.read(header);

@@ -1,6 +1,10 @@
 package com;
 
 import java.awt.event.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
 
 import javax.swing.JFrame;
 
@@ -12,12 +16,25 @@ public class Controller {
 	int nextKey;
 	boolean debug;
 	
-	public Controller(){
+	public Controller(Properties prop){
 		strobe = false;
 		output = 0;
 		keysPressed=0;
 		nextKey = 0;
 		keys = new Keychecker();
+		updateKeys(prop);
+		
+	}
+	public void updateKeys(Properties prop){
+			keys.akey = Integer.parseInt(prop.getProperty("a"));
+			keys.bkey = Integer.parseInt(prop.getProperty("b"));
+			keys.upkey = Integer.parseInt(prop.getProperty("up"));
+			keys.downkey = Integer.parseInt(prop.getProperty("down"));
+			keys.startkey = Integer.parseInt(prop.getProperty("start"));
+			keys.selectkey = Integer.parseInt(prop.getProperty("select"));
+			keys.leftkey = Integer.parseInt(prop.getProperty("left"));
+			keys.rightkey = Integer.parseInt(prop.getProperty("right"));
+		
 	}
 	
 	public void setframe(JFrame f){
