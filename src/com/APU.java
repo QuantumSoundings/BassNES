@@ -12,7 +12,7 @@ import com.jsyn.unitgen.WhiteNoise;
 
 
 public class APU {
-	Synthesizer synth;
+	public Synthesizer synth;
 	LineOut lineout;
 	LinearRamp lag;
 	Triangle triangle = new Triangle(new TriangleOscillator());

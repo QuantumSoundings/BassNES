@@ -10,30 +10,44 @@ import javax.swing.JFrame;
 
 public class Controller {
 	Keychecker keys;
+	int controllerNum;
 	boolean strobe;
 	int output;
 	int keysPressed;
 	int nextKey;
 	boolean debug;
 	
-	public Controller(Properties prop){
+	public Controller(Properties prop,int num){
 		strobe = false;
 		output = 0;
 		keysPressed=0;
+		controllerNum=num;
 		nextKey = 0;
 		keys = new Keychecker();
 		updateKeys(prop);
 		
 	}
 	public void updateKeys(Properties prop){
-			keys.akey = Integer.parseInt(prop.getProperty("a"));
-			keys.bkey = Integer.parseInt(prop.getProperty("b"));
-			keys.upkey = Integer.parseInt(prop.getProperty("up"));
-			keys.downkey = Integer.parseInt(prop.getProperty("down"));
-			keys.startkey = Integer.parseInt(prop.getProperty("start"));
-			keys.selectkey = Integer.parseInt(prop.getProperty("select"));
-			keys.leftkey = Integer.parseInt(prop.getProperty("left"));
-			keys.rightkey = Integer.parseInt(prop.getProperty("right"));
+		if(controllerNum==1){
+			keys.akey = Integer.parseInt(prop.getProperty("c1a"));
+			keys.bkey = Integer.parseInt(prop.getProperty("c1b"));
+			keys.upkey = Integer.parseInt(prop.getProperty("c1up"));
+			keys.downkey = Integer.parseInt(prop.getProperty("c1down"));
+			keys.startkey = Integer.parseInt(prop.getProperty("c1start"));
+			keys.selectkey = Integer.parseInt(prop.getProperty("c1select"));
+			keys.leftkey = Integer.parseInt(prop.getProperty("c1left"));
+			keys.rightkey = Integer.parseInt(prop.getProperty("c1right"));
+		}
+		else{
+			keys.akey = Integer.parseInt(prop.getProperty("c2a"));
+			keys.bkey = Integer.parseInt(prop.getProperty("c2b"));
+			keys.upkey = Integer.parseInt(prop.getProperty("c2up"));
+			keys.downkey = Integer.parseInt(prop.getProperty("c2down"));
+			keys.startkey = Integer.parseInt(prop.getProperty("c2start"));
+			keys.selectkey = Integer.parseInt(prop.getProperty("c2select"));
+			keys.leftkey = Integer.parseInt(prop.getProperty("c2left"));
+			keys.rightkey = Integer.parseInt(prop.getProperty("c2right"));
+		}
 		
 	}
 	

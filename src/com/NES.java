@@ -21,11 +21,11 @@ public class NES implements Runnable {
 	//Different system components
 	private CPU_6502 cpu;
 	private ppu2C02 ppu;
-	private APU apu;
-	private Mapper map;
+	public APU apu;
+	public Mapper map;
 	private String romName;
 	public Controller controller;
-	private Controller controller2;
+	public Controller controller2;
 	File save;
 	int systemclock = 21477272;
 	boolean batteryExists;
@@ -33,13 +33,14 @@ public class NES implements Runnable {
 	//private JFrame frame;
 	//private Graphics g;
 	public volatile boolean flag = true;
+	public volatile boolean doaudio = true;
 	//Master clock speed.
 	public NES(NesDisplay disp,JFrame f,File rom,Properties prop){
 		romName = rom.getName().substring(0,rom.getName().length()-4);
 		display = disp;
-		controller = new Controller(prop);
+		controller = new Controller(prop,1);
 		controller.setframe(f);
-		controller2 = new Controller(prop);
+		controller2 = new Controller(prop,2);
 		controller2.setframe(f);
 		try {
 			loadrom(rom);
@@ -74,11 +75,8 @@ public class NES implements Runnable {
 		
 		//mem.printMemory(0x8000, 0x200);
 		while(flag){
-			
 			if(!skip){
 				try {
-					
-					
 					if(i%3==0){
 						System.out.println("Timing: "
 								+" PPU scanline:"+ppu.scanline
@@ -88,16 +86,8 @@ public class NES implements Runnable {
 								+" PPUCTRL:"+Integer.toBinaryString(map.cpureadu(0x2000))
 								+" PPUSTATUS:"+Integer.toBinaryString(map.cpureadu(0x2002)));
 						cpu.debug(0);
-						//mem.printMemory(0, 0x6);
-
-						//mem.printMemoryppu(0x3f00, 0x20);
 					}
 					int g =System.in.read();
-					//if(z<8)
-					//skip=true;
-					
-					//mem.printMemoryppu(0x2000, 0x400);
-					
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -109,7 +99,8 @@ public class NES implements Runnable {
 				
 		if(i%3==0){
 			cpu.run_cycle();
-			apu.doCycle(cpuclock);
+			if(doaudio)
+				apu.doCycle(cpuclock);
 			cpuclock++;
 			c++;
 		}
@@ -119,7 +110,7 @@ public class NES implements Runnable {
 			c+=(1/3.0);
 			ppu.oddskip=false;
 		}
-		if(ppu.scanline%65==0&&ppu.pcycle==1){
+		if(ppu.scanline%65==0&&ppu.pcycle==1&&doaudio){
 			apu.doFrameStep=true;
 		}
 		if(i>29658){

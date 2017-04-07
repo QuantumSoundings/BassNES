@@ -1,4 +1,5 @@
 package com;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -7,6 +8,7 @@ public class NesDisplay extends JPanel {
 	/**
 	 * 
 	 */
+	int scaling=1;
 	private static final long serialVersionUID = 1L;
 	BufferedImage frame;
     public NesDisplay(BufferedImage img){
@@ -23,7 +25,15 @@ public class NesDisplay extends JPanel {
 		g2d.drawImage(frame, 0, 0, this);
 		//this.repaint();
 		g2d.dispose();*/
-		g.drawImage(frame, 0, 0,256,240, this);
+		//if(scaling>1)
+		//	frame = (BufferedImage) frame.getScaledInstance(256*scaling, 240*scaling, 0);
+		g.setColor(Color.white);
+		g.fillRect(0, 0, 256*scaling, 240*scaling);
+		g.drawImage(frame.getScaledInstance(256*scaling, 240*scaling, 0), 0, 0,256*scaling,240*scaling, this);
+	}
+	public void updateScaling(int i){
+		scaling = i;
+		this.setMinimumSize(new Dimension(256*i,240*i));
 	}
 	
 	public void sendFrame(BufferedImage f) {
