@@ -144,8 +144,8 @@ class Keychecker implements KeyListener{
 			start = false;
 		else if(key == selectkey)
 			select = false;
-		else if(key == debugkey)
-			debug = !debug;
+		//else if(key == debugkey)
+		//	debug = !debug;
 	}
 	public boolean[] currentKeys(){
 		//System.out.println("Reading the controller register");

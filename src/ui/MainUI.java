@@ -20,11 +20,11 @@ import javax.swing.JRadioButtonMenuItem;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class Main extends JFrame {
+public class MainUI extends JFrame {
 
 	private JPanel contentPane;
 	SystemUI sys;
-	public Main(SystemUI s) {
+	public MainUI(SystemUI s) {
 		setTitle("Nes Emulator");
 		sys = s;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import mappers.Mapper;
+import mappers.MMC3;
 
 public class ppu2C02 {
 	//memory map
@@ -43,8 +44,8 @@ public class ppu2C02 {
 	int shiftreg8a = 0;
 	int shiftreg8b = 0;
 	int palettelatch = 0;
-	int scanline;
-	int pcycle;
+	public int scanline;
+	public int pcycle;
 	int scanlinephase;
 	int nametablebyte;//16bit
 	int atablebyte;//16bit
@@ -95,7 +96,7 @@ public class ppu2C02 {
 	||| || +++++-------- coarse Y scroll
 	||| ++-------------- nametable select
 	+++----------------- fine Y scroll*/
-	int v,t,x,w;
+	public int v,t,x,w;
 	NTSC_Converter ntsc;
 	byte[] pixels;
 	int pixelnum;
@@ -181,6 +182,7 @@ public class ppu2C02 {
 				t &=0x7f00;
 				t|= Byte.toUnsignedInt(b);
 				v=t;
+				//check(v);
 				even = true;
 			}
 			break;
@@ -204,7 +206,6 @@ public class ppu2C02 {
 			}
 			else
 				v+=0x1000;
-			v&=0x7fff;
 			break;
 		default: System.out.println("Something went wrong in ppureg write");
 		}
@@ -245,6 +246,7 @@ public class ppu2C02 {
 				incx();
 				incy();
 			}
+			//check(v);
 			return b;
 		default: System.out.println("Something broke in readreg");
 			return 0;
@@ -302,7 +304,7 @@ public class ppu2C02 {
 		//System.out.println("IM IN GETBG!");
 		shiftreg8a |= (palettelatch>>1)&1;
 		shiftreg8b |= (palettelatch)&1;
-		switch((pcycle-1)%8){
+		switch((pcycle-1)&7){
 		case 1:{//name table
 			//nametablebyte = map.ppuread()
 			//nametablebyte = (0x2000|(v&(0x400*PPUCTRL_bna)));
@@ -324,23 +326,14 @@ public class ppu2C02 {
 			}
 		};break;
 		case 5:{//tile low
-			//if(PPUCTRL_bpta)
-			//nametablebyte+=0x1000;
 				ptablemap0 = Byte.toUnsignedInt(map.ppuread((nametablebyte+((v&0x7000)>>>12))));//
-				//ptablemap0 = Byte.toUnsignedInt(map.ppuread((nametablebyte)+scanline%8));
-			//else
-				//ptablemap0 = Byte.toUnsignedInt(mem.readppud(((nametablebyte)+((v&0x7000)>>12))));//
-				//ptablemap0 = Byte.toUnsignedInt(map.ppuread((nametablebyte<<4)+0x1000));
+				
 		};break;
 		case 7:{//tile high
-			//if(PPUCTRL_bpta)
 				ptablemap1 = Byte.toUnsignedInt(map.ppuread((nametablebyte)+8+((v&0x7000)>>>12)));
-				//ptablemap1 = Byte.toUnsignedInt(map.ppuread((nametablebyte)+8+scanline%8));
-			//else
-		//		ptablemap1 = Byte.toUnsignedInt(mem.readppud((nametablebyte)+8+(v>>12)));
-			//if(scanline>=8)
+				
 			//	dodebug=true;
-			if(map.control.checkDebug())
+			/*if(map.control.checkDebug())
 				try {
 					System.in.read();
 	
@@ -358,19 +351,15 @@ public class ppu2C02 {
 							+" sr16a: "+shiftreg16a
 							+" scanline: "+scanline
 							+" pcycle: "+pcycle);
-					//debugSprites();
-					//mem.printMemoryppu(0x3f00, 0x20);
-					//System.out.println(Arrays.toString(oambuffer));
-					//mem.printMemoryoam();
-					//cpu.debug();
 				} catch (IOException e) {
 					e.printStackTrace();
-				}
+				}*/
 			if(pcycle !=256){
 				incx();
 			}
 			else
 				incy();
+			//check(v);
 			//v = (v&0xf000)|((v&0xFFF)%0x400);
 			shiftreg16a |= ptablemap1;			
 			shiftreg16b |= ptablemap0;
@@ -385,40 +374,41 @@ public class ppu2C02 {
 		
 	}
 	boolean thiscycle= false;
+	boolean olda12;
+	boolean cura12;
+	public boolean doscanline;
 	void render(){
-		if(PPUCTRL_genNmi&&PPUSTATUS_vb){
-			//doNMI=true;
-			map.cpu.doNMI=true;
-			
-		}
-		else{
-			map.cpu.doNMI=false;
-		}
-
+		check(v);
 		
+		if(PPUCTRL_genNmi&&PPUSTATUS_vb)
+			map.cpu.doNMI=true;		
+		else
+			map.cpu.doNMI=false;
 		if(scanline<240){
-			if(scanline>=-1)
-				spriteEvaluation();
+			spriteEvaluation();
 			if(pcycle==0){}//idle
 			else if(((pcycle>=1 &&pcycle<=256)||(pcycle>=321&&pcycle<=336))&&dorender()){
-				getBG();			
+				getBG();
+				//check(v);
 			}
 			else if(pcycle==257&&dorender()){
-				v &= ~0x41f;
-				v|=t&0x41f;// useful soon prolly
+				v &=~0x41f;
+				v|=t&0x41f;
 			}
 			else if(pcycle>257&&pcycle<=341)
 				OAMADDR=0;
 			if(pcycle<=256&&pcycle>=1&&scanline>=0)
 				drawpixel();
 			if(scanline == -1){
-				if(pcycle==2){
+				if(pcycle==1){
 					PPUSTATUS_vb = false;
 					PPUSTATUS_sz = false;
 					PPUSTATUS_so = false;
 				}
-				else if(pcycle >=280 &&pcycle<=304&&dorender())
+				else if(pcycle >=280 && pcycle<=304 && dorender()){
 					v = t;
+					//check(v);
+				}
 			}
 			if(pcycle ==340){
 				oldspritezero = spritezero;
@@ -426,6 +416,7 @@ public class ppu2C02 {
 				spritezero=false;
 				szhl=-1;
 			}
+
 			
 		}
 		else if(scanline ==240){
@@ -440,11 +431,8 @@ public class ppu2C02 {
 			pixelnum = 0;
 			vfresh=true;
 		}
-		else if(scanline==-1&&pcycle ==1){
-			//PPUSTATUS_vb = false;
-			//PPUSTATUS_sz = false;
-			//PPUSTATUS_so = false;
-			
+		if(!dorender()||scanline>240){
+			//map.check(v&0x3fff);
 		}
 		
 		if(pcycle ==340){
@@ -454,32 +442,27 @@ public class ppu2C02 {
 				pcycle=0;
 			}
 			else{
+				if(scanline<240){
+					//map.check(0);
+				}	
 			scanline++;
+			
 			pcycle = 0;
 			}
 		}
 		else if(!oddframe&&scanline==-1&&pcycle==339&&dorender()){
-			//System.out.println("MADE THE ODD FRAME JUMP");
 			oddskip = true;
+			//map.check(0);
 			pcycle =0;
 			scanline=0;			
 		}
 		else
 			pcycle++;
 		
+		
 	}
 	void updateShiftRegisters(){
-		/*shiftreg16ah<<=1;
-		shiftreg16ah|=(shiftreg16bh&0x80)>>7;
-		shiftreg16bh<<=1;
-		shiftreg16al<<=1;
-		shiftreg16al|=(shiftreg16bl&0x80)>>7;
-		shiftreg16bl<<=1;
-		shiftreg8a<<=1;
-		shiftreg8b<<=1;*/
-		//shiftreg16a&=0b0111111101111111;
 		shiftreg16a<<=1;
-		//shiftreg16b&=0b0111111101111111;
 		shiftreg16b<<=1;
 		shiftreg8a<<=1;
 		shiftreg8b<<=1;
@@ -494,22 +477,15 @@ public class ppu2C02 {
 		int bx = 0;
 		int left = (!PPUMASK_bl)?8:0;
 		if(PPUMASK_sb&&left<pcycle){
-			//System.out.println(fineX);
 			int x = (((shiftreg16a>>-fineX + 16)&1)<<1);//((shiftreg16a>>>-fineX+8)&0x8000)>>14;
 			x+=((shiftreg16b>>-fineX +16)&1);
-			//x |= ((shiftreg16b>>>-fineX+8)&0x8000)>>15;
-
 			int y = ((shiftreg8a>>>-fineX+8)&1)<<1;
 			y |= ((shiftreg8b>>>-fineX+8)&1)&1;
 			int p = (y<<2)|x;
-			//System.out.println(p + " "+x+" "+y);
 			bx = x;
 			if(x!=0)
 				bgp =map.ppuread(0x3f00+p);//ntsc.ntsc_to_rgb((map.ppuread(0x3f00+p)),PPUMASK);
-				//bgp =ntsc.ntsc_to_rgb((map.ppuread(0x3f00+p)),PPUMASK);
-
-				//}
-			
+				//bgp =ntsc.ntsc_to_rgb((map.ppuread(0x3f00+p)),PPUMASK);			
 		}
 		updateShiftRegisters();
 		//byte[] sp = new byte[0];
@@ -582,15 +558,15 @@ public class ppu2C02 {
 			}
 		}
 	}
-	/*boolean getSP(int i){//sprite priority
-		int x = spritela[i]&0b00100000;
-		return x==0?true:false;
+	void check(int x){
+		
+		cura12 = (x&0x1000)!=0?true:false;
+		if(cura12&&(!olda12)){
+			//System.out.println("v :"+Integer.toHexString(v));
+			map.scanlinecounter();
+		}
+		olda12 = cura12;
 	}
-	int getSC(int i){
-		int x = spritela[i];
-		x&=0x3;
-		return x;
-	}*/
 	private int inrange(int y){
 		if((scanline)-(y)>=0)
 			return scanline-(y);
@@ -707,6 +683,7 @@ public class ppu2C02 {
 			if(pcycle==257){
 				oamBCounter=0;
 			}
+			//getBG();
 			switch((pcycle)%8){
 			case 0:
 				oamBCounter++;
@@ -718,6 +695,8 @@ public class ppu2C02 {
 					spritepalette[spritec]=0;
 					spritepriority[spritec]=false;
 					spritebm[spritec]=0;
+					//if(oamBCounter==0)
+					//	check(0x1000);
 				}
 				else{
 					spriteco[spritec] = Byte.toUnsignedInt(oambuffer[4*oamBCounter+3]);
@@ -728,15 +707,25 @@ public class ppu2C02 {
 					int y = inrange(Byte.toUnsignedInt(oambuffer[4*oamBCounter]));
 					int tileindex;
 					int temp = 0;
+					if(PPUCTRL_spta){
+						//System.out.println("Bumping at sL: "+scanline);
+						//v|=0x1000;
+					}
 					if(PPUCTRL_ss){
 						temp = Byte.toUnsignedInt(oambuffer[4*oamBCounter+1]);
 						tileindex = (temp&1)*0x1000+(temp&0xfe)*16;
+						//check(tileindex);
 						
 					}
 					else{
 						tileindex=Byte.toUnsignedInt(oambuffer[4*oamBCounter+1])<<4;
 						tileindex+= PPUCTRL_spta?0x1000:0;
+						if(PPUCTRL_spta){
+							//System.out.println("Bumping at sL: "+scanline);
+							//v|=0x1000;
+						}
 					}
+					//check(tileindex);
 					if(y>=8){
 						tileindex+=0x10;
 					}
@@ -755,6 +744,8 @@ public class ppu2C02 {
 							y%=8;
 							tileindex+=y;
 					}
+					if(oamBCounter==0)
+						check(tileindex);
 					if((b&0x40)!=0){
 						int z = Byte.toUnsignedInt(map.ppuread(tileindex));
 						int flip = 0;
@@ -790,6 +781,7 @@ public class ppu2C02 {
 				break;
 			default: break;
 			}
+			
 		}
 		else{
 			stage=1;

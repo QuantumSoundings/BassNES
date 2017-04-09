@@ -111,11 +111,13 @@ public class APU {
 			stepmode4 = (b&0x80)==0?true:false;
 			stepNumber = 0;
 			IRQFlag = (b&0x40)==0?false:true;
+			if(IRQFlag)
+				map.cpu.doIRQ=false;
 		}
 	}
 	public void readRegisters(int index){
 		if(index == 0x4015){
-			
+			map.cpu.doIRQ=false;
 		}
 	}
 	public void update(){

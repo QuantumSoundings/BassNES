@@ -56,7 +56,7 @@ public class SystemUI {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-		frame = new Main(this);
+		frame = new MainUI(this);
 		debugframe = new DebugUI();
 		keyconfig = new ControlUI(prop,this);
 		addapply();
@@ -234,33 +234,6 @@ public class SystemUI {
 		key.add(apply);
 		//keyconfig.setSize(250, 250);
 		//keyconfig.add(key);
-		
-	}*/
-	/*void debugWindow(){
-		JPanel p1 = new JPanel();
-		JTextArea text = new JTextArea(30,35);
-		text.setEditable(true);
-		JScrollPane scroll = new JScrollPane(text);
-		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		p1.add(scroll);
-		
-		debugframe.add(p1);
-		debugframe.pack();
-		PrintStream x = new PrintStream(System.out){
-			@Override
-			public void println(String x){
-				text.append(x);
-				text.append("\n");
-			}
-			@Override
-			public void print(String x){
-				text.append(x);
-			}
-		};
-		System.setOut(x);
-		System.setErr(x);
-		//debugframe.setVisible(true);
-		
 		
 	}*/
 }

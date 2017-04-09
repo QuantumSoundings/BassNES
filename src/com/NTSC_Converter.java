@@ -27,6 +27,8 @@ public class NTSC_Converter{
 				//bi.setRGB(i%255, i/256, colorarray[Byte.toUnsignedInt(b)]);
 				i++;
 			}
+			if(pixels.length!=(256*240))
+				System.out.println("WARNING ++++++++++++++++++++++++++++");
 			bi.setRGB(0, 0, 256, 240,p, 0, 256);
 			
 		}

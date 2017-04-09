@@ -37,6 +37,7 @@ public class CPU_6502 {
 	public boolean writeDMA = false;
 	public boolean doNMI = false;
 	public boolean doIRQ = false;
+	boolean nmihijack;
 	//private Memory memory;
 	private Hashtable<Byte,Integer> inst_type;//read/write/both
 	private Hashtable<Byte,String> inst_mode;//memory access
@@ -133,8 +134,8 @@ public class CPU_6502 {
 		if(IFlag)temp = (byte) (temp|(1<<2));
 		if(DFlag)temp = (byte) (temp|(1<<3));
 		//temp|=(1<<3);
-		temp|=(1<<4);
-		//if(BFlag)temp = (byte) (temp|(1<<4));
+		//temp|=(1<<4);
+		if(BFlag)temp = (byte) (temp|(1<<4));
 		temp = (byte) (temp|(1<<5));
 		if(VFlag)temp = (byte) (temp|(1<<6));
 		if(NFlag)temp = (byte) (temp|(1<<7));
@@ -150,10 +151,20 @@ public class CPU_6502 {
 		CFlag = (x&1)>0?true:false;
 		
 	}
+	boolean dodebug;
+	int irqsetdelay=0;
 	private byte getNextInstruction(){
 		//oldaddr = Byte.toUnsignedInt(current_instruction);
-		if(irqlatency>0)
+		if(irqlatency>0){
 			irqlatency--;
+			//System.out.println("Im in here "+ IFlag);
+		}
+		if(irqsetdelay==0){
+			IFlag = true;
+			irqsetdelay =-1;
+		}
+		else
+			irqsetdelay--;
 		if(nmi&&nmirecieved==0){
 			program_counter--;
 			nmi=false;
@@ -163,15 +174,28 @@ public class CPU_6502 {
 			nmirecieved--;
 			return map.cpuread(program_counter);
 		}
-		else if(doIRQ&&!IFlag&&irqlatency==0){
+		else if(doIRQ&&irqrecieved!=0){
+			irqrecieved--;
+			return map.cpuread(program_counter);
+		}
+		else if(doIRQ&&!IFlag&&irqlatency==0&&irqrecieved==0){
+			//System.out.println("Executing IRQ ppu SL: "+map.ppu.scanline+" cycle: "+map.ppu.pcycle 
+			//		+" Prev inst: "+inst_name.get(current_instruction));
 			program_counter--;
-			doIRQ = false;
+			//doIRQ= false;
 			return 0x12;
 		}
-		else
+		else{
+			if(current_instruction == 0x12)
+				dodebug = true;
+			else
+				dodebug = false;
+				//System.out.println("waiting for irqlatency");
 			return map.cpuread(program_counter);
+		}
 	}
 	boolean oldnmi = false;
+	boolean oldirq = false;
 	int irqlatency=0;
 	boolean nmi=false;
 	public int nmirecieved;
@@ -191,6 +215,10 @@ public class CPU_6502 {
 			nmi=true;
 		}
 		oldnmi=doNMI;
+		if(doIRQ&&!oldirq){
+			irqrecieved=1;
+		}
+		oldirq = doIRQ;
 		if(instruction_cycle ==1){
 			current_instruction = getNextInstruction();
 			//System.out.println(memory[program_counter]);
@@ -950,21 +978,33 @@ public class CPU_6502 {
 		case "BRK": {
 			switch(instruction_cycle){
 			case 2: {
+				if(nmi&&doNMI)
+					nmihijack=true;
 				program_counter++;
 				instruction_cycle++;break;
 			}
 			case 3: {
+				if(!(doNMI&&nmi))
+					nmihijack = false;
 				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter>>8));
 				stack_pointer--;
 				instruction_cycle++;break;
 			}
 			case 4: {
+				if(!(doNMI&&nmi))
+					nmihijack = false;
 				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter&0xff));
 				stack_pointer--;
 				instruction_cycle++;break;
 			}
 			case 5: {
+				BFlag = true;
 				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, buildFlags());
+				BFlag = false;
+				if(nmihijack){
+					current_instruction = 0x02;
+					nmihijack=false;
+				}
 				stack_pointer--;
 				instruction_cycle++;break;
 			}
@@ -1067,6 +1107,7 @@ public class CPU_6502 {
 			
 		};break;
 		case "IRQ": {
+			//System.out.println("Doing the IRQ cycle: "+instruction_cycle);
 			switch(instruction_cycle){
 			case 2: {
 				//program_counter++;
@@ -1083,7 +1124,10 @@ public class CPU_6502 {
 				instruction_cycle++;break;
 			}
 			case 5: {
+				if(irqsetdelay==0)
+					IFlag = true;
 				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, buildFlags());
+				IFlag = true;
 				stack_pointer--;
 				instruction_cycle++;break;
 			}
@@ -1192,7 +1236,9 @@ public class CPU_6502 {
 				instruction_cycle++;break;
 			}
 			case 5: {
+				BFlag = false;
 				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, buildFlags());
+				IFlag = true;
 				stack_pointer--;
 				instruction_cycle++;break;
 			}
@@ -1266,7 +1312,9 @@ public class CPU_6502 {
 			}
 			case 3: {
 				byte x =buildFlags();
+				BFlag = true;
 				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x0100,x);
+				BFlag = false;
 				stack_pointer--;
 				//memory.printMemory(0x0100+Byte.toUnsignedInt(stack_pointer), 50);
 				instruction_cycle = 1;break;
@@ -1302,7 +1350,15 @@ public class CPU_6502 {
 				instruction_cycle++;break;
 			}
 			case 4: {
+				boolean temp = IFlag;
 				setFlags( map.cpuread(Byte.toUnsignedInt(stack_pointer)+0x0100));
+				if(IFlag !=temp&&IFlag==true){
+					IFlag = false;
+					irqsetdelay = 1;
+				}
+				else if(IFlag!=temp&&IFlag ==false){
+					irqlatency = 2;
+				}
 				instruction_cycle = 1;break;
 			}
 			}
@@ -1405,7 +1461,8 @@ public class CPU_6502 {
 			instruction_cycle = 1;
 		};break;
 		case "SEI": {
-			IFlag = true;
+			//IFlag = true;
+			irqsetdelay = 1;
 			instruction_cycle = 1;
 		};break;
 		case "STA": {

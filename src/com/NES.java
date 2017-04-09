@@ -69,14 +69,15 @@ public class NES implements Runnable {
 			}
 		int i = 0;
 		boolean skip = true;
+		Scanner s = new Scanner(System.in);
 		//boolean skip2=false;
 		//int z = 0;
 		long start = 0,stop = 0;
 		
 		//mem.printMemory(0x8000, 0x200);
 		while(flag){
-			if(!skip){
-				try {
+			if((cpu.dodebug||!skip)&&controller.checkDebug()){
+				
 					if(i%3==0){
 						System.out.println("Timing: "
 								+" PPU scanline:"+ppu.scanline
@@ -87,10 +88,13 @@ public class NES implements Runnable {
 								+" PPUSTATUS:"+Integer.toBinaryString(map.cpureadu(0x2002)));
 						cpu.debug(0);
 					}
-					int g =System.in.read();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+					String t = s.nextLine();
+					if(t.equals("c"))
+						skip = true;
+					else
+						skip = false;
+					
+				
 				}
 			//if(cpu.program_counter==0x0){//&&ppu.scanline>234){
 				//skip = false;
@@ -116,8 +120,8 @@ public class NES implements Runnable {
 		if(i>29658){
 			map.blockppu=false;
 		}		
-		if(controller.checkDebug())
-			ppu.dodebug=true;
+		//if(controller.checkDebug())
+		//	ppu.dodebug=true;
 		if(ppu.vfresh){
 			stop = System.currentTimeMillis()-start;
 			display.sendFrame(ppu.ntsc.bi);
@@ -173,7 +177,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//rom = new File(System.getProperty("user.dir")+"/smb.nes");
+		rom = new File(System.getProperty("user.dir")+"/smb3.nes");
 		FileInputStream sx = new FileInputStream(rom);
 		byte[] header = new byte[16];
 		sx.read(header);
