@@ -182,7 +182,7 @@ public class ppu2C02 {
 				t &=0x7f00;
 				t|= Byte.toUnsignedInt(b);
 				v=t;
-				//check(v);
+				//map.check(v);
 				even = true;
 			}
 			break;
@@ -378,7 +378,8 @@ public class ppu2C02 {
 	boolean cura12;
 	public boolean doscanline;
 	void render(){
-		check(v);
+		//if(!doingSprites)
+			map.check(v);
 		
 		if(PPUCTRL_genNmi&&PPUSTATUS_vb)
 			map.cpu.doNMI=true;		
@@ -584,6 +585,7 @@ public class ppu2C02 {
 	boolean spritezero;
 	int oldszhl;
 	int szhl;
+	boolean doingSprites;
 	void spriteEvaluation(){
 		//PPUSTATUS_sz=false;
 		if(pcycle>=1 &&pcycle<=64){
@@ -682,6 +684,7 @@ public class ppu2C02 {
 		else if(pcycle>=257&&pcycle<=320){
 			if(pcycle==257){
 				oamBCounter=0;
+				doingSprites=true;
 			}
 			//getBG();
 			switch((pcycle)%8){
@@ -745,7 +748,7 @@ public class ppu2C02 {
 							tileindex+=y;
 					}
 					if(oamBCounter==0)
-						check(tileindex);
+						map.check(tileindex);
 					if((b&0x40)!=0){
 						int z = Byte.toUnsignedInt(map.ppuread(tileindex));
 						int flip = 0;
@@ -784,6 +787,7 @@ public class ppu2C02 {
 			
 		}
 		else{
+			doingSprites=false;
 			stage=1;
 			n = 0;
 			m =0;

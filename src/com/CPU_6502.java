@@ -233,7 +233,7 @@ public class CPU_6502 {
 				map.printMemory(0,0x20);
 				//memory.printMemory(0x3a0, 0x20);
 				//memory.printMemory(0, 0x100);
-				System.out.println(Integer.toHexString(current_instruction));
+				System.out.println(Integer.toHexString(current_instruction)+" Scanline: "+map.ppu.scanline+" cycle: "+map.ppu.pcycle);
 			}
 		switch(inst_mode.get(current_instruction)){
 		case "immediate":{
@@ -549,7 +549,10 @@ public class CPU_6502 {
 				}
 				case 3: {
 					address = address | (map.cpureadu(program_counter)<<8);
-					address+= Byte.toUnsignedInt(x_index_register);
+					if(inst_mode.get(current_instruction).equals("absolutex"))
+						address+= Byte.toUnsignedInt(x_index_register);
+					else
+						address+= Byte.toUnsignedInt(y_index_register);
 					program_counter++;
 					instruction_cycle++;break;
 				}
@@ -780,7 +783,12 @@ public class CPU_6502 {
 					instruction_cycle++;break;
 				}
 				case 4: {
-					address = address | (map.cpureadu(pointer+1)<<8);
+					if(pointer+1>0xff){
+						address |= (map.cpureadu(0)<<8);
+					}
+					else
+						address = address | (map.cpureadu(pointer+1)<<8);
+					lowpc = address&0xff00;
 					address += Byte.toUnsignedInt(y_index_register);
 					instruction_cycle++;break;
 				}
@@ -817,7 +825,11 @@ public class CPU_6502 {
 					instruction_cycle++;break;
 				}
 				case 4: {
-					address = address | (map.cpureadu(pointer+1)<<8);
+					if(pointer+1>0xff){
+						address |= (map.cpureadu(0)<<8);
+					}
+					else
+						address = address | (map.cpureadu(pointer+1)<<8);
 					lowpc=address&0xff00;
 					address += Byte.toUnsignedInt(y_index_register);
 					instruction_cycle++;break;
@@ -898,6 +910,13 @@ public class CPU_6502 {
 	}
 	private void executeOp(){
 		switch(inst_name.get(current_instruction)){
+		case "AAC": {
+			//System.out.println("IN HERE BOYS");
+			accumulator= (byte)(accumulator &tempregister);
+			if(accumulator==0) ZFlag=true;else ZFlag = false;
+			if(accumulator<0) NFlag=true;else NFlag = false;
+			CFlag = NFlag;
+		};break;
 		case "ADC": {
 			//System.out.println("IM IN ADC!");
 			int sum = Byte.toUnsignedInt(accumulator) + Byte.toUnsignedInt(tempregister) + (CFlag?1:0);
@@ -923,6 +942,18 @@ public class CPU_6502 {
 			if(accumulator<0) NFlag=true;else NFlag = false;
 			break;
 		}
+		case "ARR": {
+			accumulator=(byte) (accumulator&tempregister);
+			int result = Byte.toUnsignedInt(accumulator);
+			result>>=1;
+			if(CFlag) result|= 0x80;
+			accumulator = (byte) result;
+			NFlag = accumulator<0;
+			ZFlag = result==0;
+			CFlag = ((accumulator&(0b1000000))!=0);
+			VFlag = CFlag ^ ((accumulator&0b100000)!=0);
+			
+		};break;
 		case "ASL": {
 			int temp = Byte.toUnsignedInt(tempregister);
 			if((tempregister&0x80)!=0) CFlag=true; else CFlag=false;
@@ -931,6 +962,29 @@ public class CPU_6502 {
 			if(tempregister<0) NFlag = true;else NFlag = false;
 			break;
 		}
+		case "ASR": {
+			accumulator = (byte) (accumulator & tempregister);
+			CFlag = (accumulator&1)!=0;
+			accumulator= (byte)(Byte.toUnsignedInt(accumulator)>>1);
+			if(accumulator==0) ZFlag=true;else ZFlag = false;
+			if(accumulator<0) NFlag=true;else NFlag = false;
+			
+		};break;
+		case "ATX": {
+			x_index_register = accumulator=tempregister;
+			//accumulator = (byte) (accumulator & tempregister);
+			if(accumulator==0) ZFlag=true;else ZFlag = false;
+			if(accumulator<0) NFlag=true;else NFlag = false;
+		};break;
+		case "AXS": {
+			int result = Byte.toUnsignedInt(x_index_register);
+			result &= Byte.toUnsignedInt(accumulator);
+			CFlag = result>=Byte.toUnsignedInt(tempregister);
+			result-= tempregister;
+			x_index_register = (byte) result;
+			NFlag = x_index_register<0;
+			ZFlag = x_index_register==0;
+		};break;
 		case "BCC": {
 			if(!CFlag)
 				branchtaken=true;
@@ -980,6 +1034,7 @@ public class CPU_6502 {
 			case 2: {
 				if(nmi&&doNMI)
 					nmihijack=true;
+				//System.out.println("IN the BRK instruction!");
 				program_counter++;
 				instruction_cycle++;break;
 			}
@@ -1014,6 +1069,7 @@ public class CPU_6502 {
 			}
 			case 7: {
 				program_counter |= map.cpureadu(0xffff)<<8;
+				IFlag = true;
 				instruction_cycle = 1;break;
 			}
 			}
@@ -1061,6 +1117,12 @@ public class CPU_6502 {
 			if(Byte.toUnsignedInt(y_index_register)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
 			if(y_index_register == tempregister) ZFlag = true;else ZFlag = false;
 			if(((Byte.toUnsignedInt(y_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
+		};break;
+		case "DCP": {
+			tempregister--;
+			if(Byte.toUnsignedInt(accumulator)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
+			if(accumulator == tempregister) ZFlag = true;else ZFlag = false;
+			if(((Byte.toUnsignedInt(accumulator)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
 		};break;
 		case "DEC": {
 			tempregister--;
@@ -1144,6 +1206,17 @@ public class CPU_6502 {
 			}
 			}
 		};break;
+		case "ISB": {
+			tempregister++;
+			
+			int sum = Byte.toUnsignedInt(accumulator) - Byte.toUnsignedInt(tempregister) - (CFlag?0:1);
+			CFlag = (sum>>8 ==0);
+			VFlag = (((accumulator^tempregister)&0x80)!=0)&&(((accumulator^sum)&0x80)!=0);
+			accumulator=(byte) (sum&0xff);
+			NFlag = accumulator<0?true:false;
+			ZFlag = accumulator==0?true:false;
+
+		};break;
 		case "JMP": {
 			switch(instruction_cycle){
 			case 2: {
@@ -1198,6 +1271,11 @@ public class CPU_6502 {
 			}
 			}
 		}; break;
+		case "LAX": {
+			x_index_register = accumulator = tempregister;
+			NFlag = accumulator<0;
+			ZFlag = accumulator==0;
+		};break;
 		case "LDA": {
 			accumulator = tempregister;
 			if(accumulator == 0) ZFlag = true;else ZFlag = false;
@@ -1287,7 +1365,7 @@ public class CPU_6502 {
 			}
 			else
 				instruction_cycle++;
-		}
+		};break;
 		case "ORA": {
 			accumulator = (byte) (accumulator | tempregister);
 			if(accumulator == 0) ZFlag = true;else ZFlag = false;
@@ -1311,8 +1389,9 @@ public class CPU_6502 {
 				instruction_cycle++;break;
 			}
 			case 3: {
-				byte x =buildFlags();
 				BFlag = true;
+				byte x =buildFlags();
+				
 				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x0100,x);
 				BFlag = false;
 				stack_pointer--;
@@ -1353,7 +1432,7 @@ public class CPU_6502 {
 				boolean temp = IFlag;
 				setFlags( map.cpuread(Byte.toUnsignedInt(stack_pointer)+0x0100));
 				if(IFlag !=temp&&IFlag==true){
-					IFlag = false;
+					//IFlag = false;
 					irqsetdelay = 1;
 				}
 				else if(IFlag!=temp&&IFlag ==false){
@@ -1362,6 +1441,20 @@ public class CPU_6502 {
 				instruction_cycle = 1;break;
 			}
 			}
+		};break;
+		case "RLA": {
+			//System.out.println("IM IN HERE RLA");
+			int tcarry = tempregister<0?1:0;
+			tempregister = (byte) (tempregister<<1);
+			tempregister = (byte) (tempregister | (CFlag?1:0));
+			CFlag = tcarry==1?true:false;
+			if(tempregister ==0)ZFlag = true;else ZFlag = false;
+			if(tempregister<0)NFlag = true; else NFlag = false;
+			
+			accumulator = (byte) (accumulator & tempregister);
+			if(accumulator==0) ZFlag=true;else ZFlag = false;
+			if(accumulator<0) NFlag=true;else NFlag = false;
+			
 		};break;
 		case "ROL": {
 			int tcarry = tempregister<0?1:0;
@@ -1378,6 +1471,24 @@ public class CPU_6502 {
 			CFlag = tcarry!=0?true:false;
 			if(tempregister==0)ZFlag = true; else ZFlag = false;
 			if(tempregister<0)NFlag = true; else NFlag = false;
+		};break;
+		case "RRA": {
+			if(CFlag){
+				CFlag = (tempregister&1)!=0;
+				tempregister = (byte) ((Byte.toUnsignedInt(tempregister)>>1) | 0x80);
+			}
+			else{
+				CFlag = (tempregister&1)!=0;
+				tempregister = (byte) (Byte.toUnsignedInt(tempregister)>>1);
+			}
+			
+			int sum = Byte.toUnsignedInt(accumulator) + Byte.toUnsignedInt(tempregister) + (CFlag?1:0);
+			CFlag = sum>0xff?true:false;
+			VFlag = (~(accumulator^tempregister)&(accumulator^sum)&0x80)==0?false:true;
+			accumulator=(byte) sum;
+			NFlag = accumulator<0?true:false;
+			ZFlag = accumulator==0?true:false;
+			
 		};break;
 		case "RTI": {
 			switch(instruction_cycle){
@@ -1432,6 +1543,10 @@ public class CPU_6502 {
 			}
 			}
 		};break;
+		case "SAX": {
+			tempregister = (byte) (x_index_register&accumulator);
+			map.cpuwrite(address, tempregister);
+		};break;
 		case "SBC": {//flags are broken
 			tempregister=(byte) ~tempregister;
 			int sum = Byte.toUnsignedInt(accumulator) + Byte.toUnsignedInt(tempregister) + (CFlag?1:0);
@@ -1464,6 +1579,76 @@ public class CPU_6502 {
 			//IFlag = true;
 			irqsetdelay = 1;
 			instruction_cycle = 1;
+		};break;
+		case "SHX": {
+			switch(instruction_cycle){
+			case 2: 
+				address = map.cpureadu(program_counter);
+				program_counter++;
+				instruction_cycle++;
+				break;
+			case 3:
+				address|= map.cpureadu(program_counter)<<8;
+				program_counter++;
+				instruction_cycle++;
+				break;
+			case 4:
+				map.cpureadu(address);
+				instruction_cycle++;
+				break;
+			case 5:
+				int t =(Byte.toUnsignedInt(x_index_register)&((address>>8)+1))&0xff;
+				lowpc = address&0xff00;
+				address+=Byte.toUnsignedInt(y_index_register);
+				address = (address&0xff)|lowpc;
+				map.cpuwrite(address&0xffff,(byte)t);
+				instruction_cycle=1;
+				break;	
+			}
+		};break;
+		case "SHY": {
+			switch(instruction_cycle){
+			case 2: 
+				address = map.cpureadu(program_counter);
+				program_counter++;
+				instruction_cycle++;
+				break;
+			case 3:
+				address|= map.cpureadu(program_counter)<<8;
+				program_counter++;
+				instruction_cycle++;
+				break;
+			case 4:
+				map.cpureadu(address);
+				instruction_cycle++;
+				break;
+			case 5:
+				int t =(Byte.toUnsignedInt(y_index_register)&((address>>8)+1))&0xff;
+				lowpc = address&0xff00;
+				address+=Byte.toUnsignedInt(x_index_register);
+				address = (address&0xff)|lowpc;
+				map.cpuwrite(address&0xffff,(byte)t);
+				instruction_cycle=1;
+				break;		
+			}
+			
+		};break;
+		case "SLO": {
+			CFlag = (tempregister&0x80)!=0;
+			tempregister<<=1;
+			accumulator|=tempregister;
+			NFlag = accumulator<0;
+			ZFlag = accumulator==0;
+		};break;
+		case "SRE": {
+			int result = Byte.toUnsignedInt(tempregister);
+			CFlag = (result&1)!=0;
+			result>>=1;
+			accumulator ^=(byte)result;
+			tempregister = (byte)result;
+			//map.cpuwrite(address, (byte)result);
+			NFlag = accumulator<0;
+			ZFlag = accumulator==0;
 		};break;
 		case "STA": {
 			//tempregister=accumulator;
@@ -1537,7 +1722,8 @@ public class CPU_6502 {
 		};break;
 		default: {
 			//System.out.println("INVALID INSTRUCTION:"+Integer.toHexString(Byte.toUnsignedInt(current_instruction))
-			//+" "+inst_name.get(current_instruction));
+			//+" "+inst_name.get(current_instruction)
+			//+" program counter: "+Integer.toHexString(program_counter));
 			//memory.printMemory(0, 0x5);
 			//program_counter++;
 			//instruction_cycle=1;

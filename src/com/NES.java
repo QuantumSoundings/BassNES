@@ -76,7 +76,7 @@ public class NES implements Runnable {
 		
 		//mem.printMemory(0x8000, 0x200);
 		while(flag){
-			if((cpu.dodebug||!skip)&&controller.checkDebug()){
+			if(((cpu.program_counter==0x3a1&&ppu.scanline==188)||!skip)&&controller.checkDebug()){
 				
 					if(i%3==0){
 						System.out.println("Timing: "
@@ -87,11 +87,12 @@ public class NES implements Runnable {
 								+" PPUCTRL:"+Integer.toBinaryString(map.cpureadu(0x2000))
 								+" PPUSTATUS:"+Integer.toBinaryString(map.cpureadu(0x2002)));
 						cpu.debug(0);
+						map.printMemory(0x3a0, 0x10);
 					}
-					String t = s.nextLine();
-					if(t.equals("c"))
-						skip = true;
-					else
+					//String t = s.nextLine();
+					//if(t.equals("c"))
+					//	skip = true;
+					//else
 						skip = false;
 					
 				

@@ -168,12 +168,14 @@ public class MMC1 extends Mapper {
 				PRG_ROM[1] = PRGbanks[(shiftregister&0b1110)+1];
 				break;
 			case 2:
-				PRG_ROM[1] = PRGbanks[(shiftregister&0b1111)&PRGbanks.length-1];
+				PRG_ROM[0]= PRGbanks[0];
+				PRG_ROM[1] = PRGbanks[(shiftregister&0b1111)&(PRGbanks.length-1)];
 				break;
 			case 3:
 				//System.out.println("DOING THIS ONE");
 
 				PRG_ROM[0] = PRGbanks[shiftregister&(PRGbanks.length-1)];
+				PRG_ROM[1] = PRGbanks[PRGbanks.length-1];
 				break;
 			}
 		}

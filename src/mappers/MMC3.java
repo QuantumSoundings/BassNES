@@ -284,6 +284,17 @@ public class MMC3 extends Mapper {
 		
 	}
 	*/
+	boolean cura12;
+	boolean olda12;
+	@Override
+	public void check(int x){
+		
+		cura12 = (x&0x1000)!=0?true:false;
+		if(cura12&&(!olda12)){
+			scanlinecounter();
+		}
+		olda12 = cura12;
+	}
 	public void scanlinecounter(){
 		if(reloadirq||(scanlinecount==0)){
 			scanlinecount = irqreload;
