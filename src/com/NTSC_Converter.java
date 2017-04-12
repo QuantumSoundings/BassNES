@@ -68,7 +68,7 @@ public class NTSC_Converter{
 		}
 		public void pushPixel(byte[] rgb, int x, int y) {
 			//System.out.println(x+" "+y);
-			bi.setRGB(x, y,0xFFffffff& (Byte.toUnsignedInt(rgb[0]) << 16) | (Byte.toUnsignedInt(rgb[1]) << 8) | Byte.toUnsignedInt(rgb[2]));
+			bi.setRGB(x%256, y%240,0xFFffffff& (Byte.toUnsignedInt(rgb[0]) << 16) | (Byte.toUnsignedInt(rgb[1]) << 8) | Byte.toUnsignedInt(rgb[2]));
 			//bi.setRGB(x, y, 0xFFFF00FF);
 		}
 		public void submit() {

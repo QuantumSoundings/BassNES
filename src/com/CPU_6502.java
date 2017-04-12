@@ -16,7 +16,7 @@ public class CPU_6502 {
 	//flags
 	private boolean NFlag;
 	private boolean VFlag;
-	private boolean BFlag=true;
+	private boolean BFlag;
 	private boolean DFlag;
 	private boolean IFlag;
 	private boolean ZFlag;
@@ -92,15 +92,18 @@ public class CPU_6502 {
 	int cpuinc=0;
 	void run_cycle(){
 		if(writeDMA){
+			//System.out.println("WRITE DMA IS TRUE!");
 			if(dmac ==513){
 				dmac =0;
 				dmain=0;
 				cpuinc=0;
 				writeDMA=false;
+				//map.printOAMPPU(0, 256);
 			}
 			else if(dmac==0){
 				dmac++;
 				dxx = map.cpureadu(0x4014);
+				dxx<<=8;
 				dmain = map.ppu.OAMADDR;
 			}
 			else if(dmac%2==1){
@@ -109,7 +112,8 @@ public class CPU_6502 {
 			}
 			else{
 				//System.out.println("read location: "+map.cpureadu(0x4014)*0x100+dmain);
-				map.cpuwriteoam(dmain,map.cpuread(dxx*0x100+cpuinc));
+				map.cpuwriteoam(dmain,map.cpuread(dxx+cpuinc));
+				//map.cpuwrite(0x2004, map.cpuread(dxx*0x100+cpuinc));
 				if(dmain==255)
 					dmain=0;
 				else
@@ -153,6 +157,24 @@ public class CPU_6502 {
 	}
 	boolean dodebug;
 	int irqsetdelay=0;
+	boolean nmiInter;
+	private void pollInterrupts(){
+		//if(irqlatency>0){
+		//	irqlatency--;
+		//	//System.out.println("Im in here "+ IFlag);
+		//}
+		//if(irqsetdelay==0){
+		//	IFlag = true;
+		//	irqsetdelay =-1;
+		//}
+		//else
+		//	irqsetdelay--;
+		if(nmi){
+			nmiInter = true;
+			nmi = false;
+		}
+		//if()
+	}
 	private byte getNextInstruction(){
 		//oldaddr = Byte.toUnsignedInt(current_instruction);
 		if(irqlatency>0){
@@ -166,6 +188,7 @@ public class CPU_6502 {
 		else
 			irqsetdelay--;
 		if(nmi&&nmirecieved==0){
+			//nmiInter = false;
 			program_counter--;
 			nmi=false;
 			return 0x02;
@@ -176,6 +199,7 @@ public class CPU_6502 {
 		}
 		else if(doIRQ&&irqrecieved!=0){
 			irqrecieved--;
+			byte b = map.cpuread(program_counter);
 			return map.cpuread(program_counter);
 		}
 		else if(doIRQ&&!IFlag&&irqlatency==0&&irqrecieved==0){
@@ -191,6 +215,7 @@ public class CPU_6502 {
 			else
 				dodebug = false;
 				//System.out.println("waiting for irqlatency");
+			
 			return map.cpuread(program_counter);
 		}
 	}
@@ -211,7 +236,18 @@ public class CPU_6502 {
 			doNMI = false;
 		}*/
 		if(doNMI&&!oldnmi){
-			nmirecieved=1;
+			//if(instruction_cycle==2){//||instruction_cycle==2)
+			//	System.out.println("In here");
+			//	nmirecieved=0;
+			//}
+			//else if(inst_mode.get(current_instruction).equals("immediate")&&instruction_cycle<=2){
+			//	System.out.println("no in this one. INstruction: "+inst_name.get(current_instruction));
+			//	nmirecieved=0;
+			//}
+			//else{
+				//System.out.println("Normal one INstruction: "+inst_name.get(current_instruction) +" mode "+inst_mode.get(current_instruction)+" cycle: "+instruction_cycle);
+				nmirecieved=1;
+			//}
 			nmi=true;
 		}
 		oldnmi=doNMI;
@@ -240,6 +276,14 @@ public class CPU_6502 {
 			switch(instruction_cycle){
 			case 2: {
 				tempregister = map.cpuread(program_counter);
+				//if(inst_name.get(current_instruction).equals("LDX")){
+				//	System.out.println("In hererere");
+				//	executeOp();
+				//	instruction_cycle=1;
+				//	program_counter++;
+				//	break;
+				//}
+					
 				program_counter++;
 				instruction_cycle++;break;
 			}
@@ -251,240 +295,237 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "zero":{
+		case "zero":
 			switch(inst_type.get(current_instruction)){
-			case 0:{ 
+			case 0:
 				switch(instruction_cycle){
-				case 2: {
+				case 2:
 					address = map.cpureadu(program_counter);
 					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
+					instruction_cycle++;
+					break;
+				case 3: 
 					tempregister = map.cpuread(address);
-					instruction_cycle++;break;
-				}
-				case 4: {
+					instruction_cycle++;
+					break;
+				case 4:
 					executeOp();
 					address = 0;
 					instruction_cycle=2;
 					current_instruction = getNextInstruction();
 					program_counter++;
+					break;
 				}
-				}
-			};break;
-			case 1:{
+				break;
+			case 1:
 				switch(instruction_cycle){
-				case 2: {
+				case 2:
 					address = map.cpureadu(program_counter);
 					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
+					instruction_cycle++;
+					break;
+				case 3:
 					tempregister = map.cpuread(address);
-					instruction_cycle++;break;
-				}
-				case 4: {
+					instruction_cycle++;
+					break;
+				case 4:
 					map.cpuwrite(address, tempregister);
 					executeOp();
 					instruction_cycle++;
-				}
-				case 5: {
+					break;
+				case 5:
 					map.cpuwrite(address, tempregister);
 					address = 0;
 					instruction_cycle=1;
-					
+					break;
 				}
-				}
-			};break;
-			case 2:{
+				break;
+			case 2:
 				switch(instruction_cycle){
-				case 2: {
+				case 2:
 					address = map.cpureadu(program_counter);
 					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3:{
+					instruction_cycle++;
+					break;
+				case 3:
 					executeOp();
 					address = 0;
-					instruction_cycle =1;break;
+					instruction_cycle =1;
+					break;
 				}
-				}
-				
-			};break;
+				break;
 			}
-		};break;
-		case "zerox": case "zeroy":{
+			break;
+		case "zerox": case "zeroy":
 			switch(inst_type.get(current_instruction)){
-			case 0: {
+			case 0:
 				switch(instruction_cycle){
-				case 2: {
+				case 2:
 					address = map.cpureadu(program_counter);
 					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
+					instruction_cycle++;
+					break;
+				case 3:
 					if(inst_mode.get(current_instruction).equals("zerox"))
 						address += Byte.toUnsignedInt(x_index_register);
 					else
 						address += Byte.toUnsignedInt(y_index_register);
-					instruction_cycle++;break;		
-				}
-				case 4:{
+					instruction_cycle++;
+					break;		
+				case 4:
 					address&=0xff;
 					tempregister= map.cpuread(address);
-					instruction_cycle++;break;
-				}
-				case 5: {
+					instruction_cycle++;
+					break;
+				case 5:
 					executeOp();
 					instruction_cycle = 2;
 					current_instruction = getNextInstruction();
-					program_counter++;break;			
+					program_counter++;
+					break;			
 				}
-				}
-			};break;
-			case 1: {
+				break;
+			case 1:
 				switch(instruction_cycle){
-				case 2: {
+				case 2:
 					address = map.cpureadu(program_counter);
 					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
+					instruction_cycle++;
+					break;
+				case 3:
 					address +=Byte.toUnsignedInt(x_index_register);
-					instruction_cycle++;break;
-				}
-				case 4: {
+					instruction_cycle++;
+					break;
+				case 4:
 					address&=0xff;
 					tempregister = map.cpuread(address);
-					instruction_cycle++;break;
-				}
-				case 5: {
+					instruction_cycle++;
+					break;
+				case 5:
 					map.cpuwrite(address, tempregister);
 					executeOp();
-					instruction_cycle++;break;
-				}
-				case 6: {
+					instruction_cycle++;
+					break;
+				case 6:
 					map.cpuwrite(address, tempregister);
 					instruction_cycle = 1;
-					address = 0;break;
+					address = 0;
+					break;
 				}
-				}
-			};break;
-			case 2: {
+				break;
+			case 2:
 				switch(instruction_cycle){
-				case 2: {
+				case 2:
 					address = map.cpureadu(program_counter);
 					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
+					instruction_cycle++;
+					break;
+				case 3:
 					if(inst_mode.get(current_instruction).equals("zerox"))
 						address += Byte.toUnsignedInt(x_index_register);
 					else
 						address += Byte.toUnsignedInt(y_index_register);
-					instruction_cycle++;break;		
-				}
-				case 4: {
+					instruction_cycle++;
+					break;		
+				case 4:
 					address&=0xff;
 					executeOp();
-					instruction_cycle = 1;break;
+					instruction_cycle = 1;
+					break;
 				}
-				}
-			};break;
+				break;
 			}
-		};break;
-		case "absolute":{
+			break;
+		case "absolute":
 			switch(inst_type.get(current_instruction)){
-			case 0: {
+			case 0:
 				switch(instruction_cycle){
-				case 2:{
+				case 2:
 					address = map.cpureadu(program_counter);
 					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3:{
+					instruction_cycle++;
+					break;
+				case 3:
 					address = address|(map.cpureadu(program_counter)<<8);
 					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 4:{
+					instruction_cycle++;
+					break;
+				case 4:
 					tempregister = map.cpuread(address);
-					instruction_cycle++;break;
-				}
-				case 5:{
+					instruction_cycle++;
+					break;
+				case 5:
 					executeOp();
 					address = 0;
 					current_instruction = getNextInstruction();
 					program_counter++;
-					instruction_cycle=2;break;
-					
+					instruction_cycle=2;
+					break;
 				}
-				}
-			};break;
-			case 1: {
+				break;
+			case 1:
 				switch(instruction_cycle){
-				case 2:{
+				case 2:
 					address = map.cpureadu(program_counter);
 					program_counter+=1;
-					instruction_cycle++;break;
-				}
-				case 3:{
+					instruction_cycle++;
+					break;
+				case 3:
 					address = address|(map.cpureadu(program_counter)<<8);
 					program_counter+=1;
-					instruction_cycle++;break;
-				}
-				case 4:{
+					instruction_cycle++;
+					break;
+				case 4:
 					tempregister = map.cpuread(address);
-					instruction_cycle++;break;
-				}
-				case 5:{
+					instruction_cycle++;
+					break;
+				case 5:
 					executeOp();
-					instruction_cycle++;break;
-				}
-				case 6:{
+					instruction_cycle++;
+					break;
+				case 6:
 					map.cpuwrite(address, tempregister);
 					instruction_cycle = 1;
 					address = 0;
+					break;
 				}
-				}
-			};break;
-			case 2:{
+				break;
+			case 2:
 				switch(instruction_cycle){
-				case 2: {
+				case 2:
 					address = (map.cpureadu(program_counter));
 					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
+					instruction_cycle++;
+					break;
+				case 3:
 					address = address|(map.cpureadu(program_counter)<<8);
 					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 4: {
+					instruction_cycle++;
+					break;
+				case 4:
 					executeOp();
 					address = 0;
-					instruction_cycle=1;break;
+					instruction_cycle=1;
+					break;
 				}
-				}
-			};break;
-			case 4: {
+				break;
+			case 4:
 				switch(instruction_cycle){
-				case 2: {
+				case 2:
 					address = map.cpureadu(program_counter);
 					//System.out.println(address);
 					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
+					instruction_cycle++;
+					break;
+				case 3:
 					address = address|(map.cpureadu(program_counter)<<8);
 					program_counter= address;
-					instruction_cycle=1;break;
+					instruction_cycle=1;
+					break;
 				}
-				}
-			}break;
+				break;
 			}
-		};break;
+			break;
 		case "absolutex": case "absolutey": {
 			switch(inst_type.get(current_instruction)){
 			case 0: {
@@ -513,6 +554,7 @@ public class CPU_6502 {
 						instruction_cycle++;break;
 					}
 					else{
+						address&=0xffff;
 						tempregister = map.cpuread(address);
 						instruction_cycle++;break;
 					}
@@ -871,6 +913,10 @@ public class CPU_6502 {
 				executeOp();
 				if(branchtaken){
 					//program_counter+=tempregister;
+					int high = program_counter&0xff00;
+					int chigh = (program_counter+tempregister)&0xff00;
+					if(nmirecieved!=0&&chigh!=high)
+						nmirecieved=0;
 					instruction_cycle++;break;
 				}
 				else{
@@ -886,12 +932,14 @@ public class CPU_6502 {
 				
 				if(chigh!=high){
 					//System.out.println("uhoh in the broken part");
+					
 					program_counter+=tempregister;
 					instruction_cycle++;break;
 					
 				}
 				else{
 					program_counter+=tempregister;
+					program_counter&=0xffff;
 					current_instruction = getNextInstruction();
 					program_counter++;
 					instruction_cycle = 2;break;
@@ -899,6 +947,7 @@ public class CPU_6502 {
 				
 			}
 			case 5: {
+				program_counter&=0xffff;
 				current_instruction = getNextInstruction();
 				program_counter++;
 				instruction_cycle = 2; break;
@@ -911,7 +960,7 @@ public class CPU_6502 {
 	private void executeOp(){
 		switch(inst_name.get(current_instruction)){
 		case "AAC": {
-			//System.out.println("IN HERE BOYS");
+			System.out.println("Invalid instruction AAC");
 			accumulator= (byte)(accumulator &tempregister);
 			if(accumulator==0) ZFlag=true;else ZFlag = false;
 			if(accumulator<0) NFlag=true;else NFlag = false;
@@ -943,6 +992,7 @@ public class CPU_6502 {
 			break;
 		}
 		case "ARR": {
+			System.out.println("Invalid instruction ARR");
 			accumulator=(byte) (accumulator&tempregister);
 			int result = Byte.toUnsignedInt(accumulator);
 			result>>=1;
@@ -971,12 +1021,15 @@ public class CPU_6502 {
 			
 		};break;
 		case "ATX": {
+			System.out.println("Invalid instruction ATX");
+
 			x_index_register = accumulator=tempregister;
 			//accumulator = (byte) (accumulator & tempregister);
 			if(accumulator==0) ZFlag=true;else ZFlag = false;
 			if(accumulator<0) NFlag=true;else NFlag = false;
 		};break;
 		case "AXS": {
+			System.out.println("Invalid instruction AXS");
 			int result = Byte.toUnsignedInt(x_index_register);
 			result &= Byte.toUnsignedInt(accumulator);
 			CFlag = result>=Byte.toUnsignedInt(tempregister);
@@ -1119,6 +1172,7 @@ public class CPU_6502 {
 			if(((Byte.toUnsignedInt(y_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
 		};break;
 		case "DCP": {
+			System.out.println("Invalid instruction DCP");
 			tempregister--;
 			if(Byte.toUnsignedInt(accumulator)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
 			if(accumulator == tempregister) ZFlag = true;else ZFlag = false;
@@ -1208,7 +1262,7 @@ public class CPU_6502 {
 		};break;
 		case "ISB": {
 			tempregister++;
-			
+			System.out.println("BROKEN");
 			int sum = Byte.toUnsignedInt(accumulator) - Byte.toUnsignedInt(tempregister) - (CFlag?0:1);
 			CFlag = (sum>>8 ==0);
 			VFlag = (((accumulator^tempregister)&0x80)!=0)&&(((accumulator^sum)&0x80)!=0);
@@ -1272,6 +1326,7 @@ public class CPU_6502 {
 			}
 		}; break;
 		case "LAX": {
+			System.out.println("Invalid instruction LAX");
 			x_index_register = accumulator = tempregister;
 			NFlag = accumulator<0;
 			ZFlag = accumulator==0;
@@ -1346,6 +1401,7 @@ public class CPU_6502 {
 			}
 		};break;
 		case "SKB": {
+			System.out.println("Invalid instruction SKB");
 			if(instruction_cycle==inst_type.get(current_instruction)){
 				program_counter++;
 				current_instruction = getNextInstruction();
@@ -1357,6 +1413,7 @@ public class CPU_6502 {
 			}
 		};break;
 		case "SKW": {
+			System.out.println("Invalid instruction SKW");
 			if(instruction_cycle==inst_type.get(current_instruction)){
 				program_counter+=2;
 				current_instruction= getNextInstruction();
@@ -1443,7 +1500,7 @@ public class CPU_6502 {
 			}
 		};break;
 		case "RLA": {
-			//System.out.println("IM IN HERE RLA");
+			System.out.println("Invalid instruction RLA");
 			int tcarry = tempregister<0?1:0;
 			tempregister = (byte) (tempregister<<1);
 			tempregister = (byte) (tempregister | (CFlag?1:0));
@@ -1473,6 +1530,7 @@ public class CPU_6502 {
 			if(tempregister<0)NFlag = true; else NFlag = false;
 		};break;
 		case "RRA": {
+			System.out.println("Invalid instruction RRA");
 			if(CFlag){
 				CFlag = (tempregister&1)!=0;
 				tempregister = (byte) ((Byte.toUnsignedInt(tempregister)>>1) | 0x80);
@@ -1544,6 +1602,7 @@ public class CPU_6502 {
 			}
 		};break;
 		case "SAX": {
+			System.out.println("Invalid instruction SAX");
 			tempregister = (byte) (x_index_register&accumulator);
 			map.cpuwrite(address, tempregister);
 		};break;
@@ -1581,6 +1640,7 @@ public class CPU_6502 {
 			instruction_cycle = 1;
 		};break;
 		case "SHX": {
+			System.out.println("Invalid instruction SHX");
 			switch(instruction_cycle){
 			case 2: 
 				address = map.cpureadu(program_counter);
@@ -1607,6 +1667,7 @@ public class CPU_6502 {
 			}
 		};break;
 		case "SHY": {
+			System.out.println("Invalid instruction SHY");
 			switch(instruction_cycle){
 			case 2: 
 				address = map.cpureadu(program_counter);
@@ -1634,6 +1695,7 @@ public class CPU_6502 {
 			
 		};break;
 		case "SLO": {
+			System.out.println("Invalid instruction SLO");
 			CFlag = (tempregister&0x80)!=0;
 			tempregister<<=1;
 			accumulator|=tempregister;
@@ -1641,6 +1703,7 @@ public class CPU_6502 {
 			ZFlag = accumulator==0;
 		};break;
 		case "SRE": {
+			System.out.println("Invalid instruction SRE");
 			int result = Byte.toUnsignedInt(tempregister);
 			CFlag = (result&1)!=0;
 			result>>=1;

@@ -76,7 +76,7 @@ public class NES implements Runnable {
 		
 		//mem.printMemory(0x8000, 0x200);
 		while(flag){
-			if(((cpu.program_counter==0x3a1&&ppu.scanline==188)||!skip)&&controller.checkDebug()){
+			if(!skip){
 				
 					if(i%3==0){
 						System.out.println("Timing: "
@@ -84,23 +84,26 @@ public class NES implements Runnable {
 								+" VRAM ADDR: " +Integer.toHexString(ppu.v)
 								+" Ticks: "+ ppu.pcycle+"/"+(c%(341/3.0))
 								+" Rendering?: "+ppu.dorender()
-								+" PPUCTRL:"+Integer.toBinaryString(map.cpureadu(0x2000))
-								+" PPUSTATUS:"+Integer.toBinaryString(map.cpureadu(0x2002)));
+								+" PPUCTRL:"+Integer.toBinaryString(ppu.PPUCTRL)
+								+" PPUSTATUS:"+Integer.toBinaryString(ppu.PPUSTATUS));
 						cpu.debug(0);
-						map.printMemory(0x3a0, 0x10);
+						//map.printMemory(0x3a0, 0x10);
+						//map.printMemoryPPU(0x3f00, 0x20);
+						//map.printMemoryPPU(0x2040, 0x20);
+						//map.printMemoryPPU(0, 0x200);
 					}
-					//String t = s.nextLine();
-					//if(t.equals("c"))
-					//	skip = true;
-					//else
+					String t = s.nextLine();
+					if(t.equals("c"))
+						skip = true;
+					else
 						skip = false;
 					
 				
 				}
-			//if(cpu.program_counter==0x0){//&&ppu.scanline>234){
+			if(cpu.program_counter==0xe018){//&&ppu.scanline>234){
 				//skip = false;
 				//cpu.debug(0);
-			//}
+			}
 				
 		if(i%3==0){
 			cpu.run_cycle();
@@ -118,7 +121,7 @@ public class NES implements Runnable {
 		if(ppu.scanline%65==0&&ppu.pcycle==1&&doaudio){
 			apu.doFrameStep=true;
 		}
-		if(i>29658){
+		if(i>29600){
 			map.blockppu=false;
 		}		
 		//if(controller.checkDebug())
@@ -178,7 +181,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/smb3.nes");
+		rom = new File(System.getProperty("user.dir")+"/demo_ntsc.nes");
 		FileInputStream sx = new FileInputStream(rom);
 		byte[] header = new byte[16];
 		sx.read(header);

@@ -76,21 +76,22 @@ public class MMC3 extends Mapper {
 		else if(index>=0xc000&&index<0xe000){
 			if(index%2==0){
 				irqreload = Byte.toUnsignedInt(b);
-				//System.out.println("Setting reload to : "+irqreload+" SL: "+ppu.scanline);
+				System.out.println("Setting reload to : "+irqreload+" SL: "+ppu.scanline);
 			}
 			else{
-				//System.out.println("Triggering irq reload");
-				reloadirq = true;
+				System.out.println("Triggering irq reload");
+				//reloadirq = true;
+				scanlinecount=0;
 			}
 		}
 		else if(index>=0xe000&&index<=0xffff){
 			if(index%2==0){
-				//System.out.println("setting irq enable to false");
+				System.out.println("setting irq enable to false");
 				cpu.doIRQ=false;
 				irqenable = false;
 			}
 			else{
-				//System.out.println("Setting irq enable to true");
+				System.out.println("Setting irq enable to true");
 				irqenable = true;
 			}
 		}
@@ -144,15 +145,18 @@ public class MMC3 extends Mapper {
 			break;
 		case 6://select 8kb prg bank at PRG_ROM[0] (2)
 			if(PRG_mode){
+				//System.out.println("Case 6 Switching 2 to :"+(b&(PRGbanks.length-1)));
 				PRG_ROM[2] = PRGbanks[(b&(PRGbanks.length-1))];
 				PRG_ROM[0] = PRGbanks[PRGbanks.length-2];
 			}
 			else{
+				//System.out.println("Case 6 Switching 0 to :"+(b&(PRGbanks.length-1)));
 				PRG_ROM[0] = PRGbanks[(b&(PRGbanks.length-1))];
 				PRG_ROM[2] = PRGbanks[PRGbanks.length-2];
 			}
 			break;
 		case 7://select 8kb prg bank at PRG_rom[1]
+			//System.out.println("Case 7 Switching a to :"+(b&(PRGbanks.length-1)));
 			PRG_ROM[1] = PRGbanks[(b&(PRGbanks.length-1))];
 			break;
 		default:break;
@@ -177,7 +181,9 @@ public class MMC3 extends Mapper {
 	
 	@Override
 	public byte ppuread(int index){
-		if(index<0x2000)
+		if(index<0x2000){
+			//check(index);
+
 			if(index<0x400)
 				return CHR_ROM[0][index];
 			else if(index>=0x400&&index<0x800)
@@ -194,6 +200,7 @@ public class MMC3 extends Mapper {
 				return CHR_ROM[6][index-0x1800];
 			else
 				return CHR_ROM[7][index-0x1c00];
+		}
 		else if(index>=0x2000&&index<0x2fff)
 			return ppu_ram[ppuNameTableMirror(index)];
 		else if(index>=0x3000&&index<=0x3eff)
@@ -204,6 +211,7 @@ public class MMC3 extends Mapper {
 	@Override
 	public void ppuwrite(int index,byte b){
 		if(index<0x2000&&CHR_ram){
+			//check(index);
 			switch(index/0x400){
 			case 0: CHR_ROM[0][index%0x400] =b;break;
 			case 1: CHR_ROM[1][index%0x400] =b;break;
@@ -231,29 +239,7 @@ public class MMC3 extends Mapper {
 		}
 	}
 	
-	@Override
-	int ppuNameTableMirror(int index){
-		if(mirrormode){//default is horizontal
-			if(index>=0x2000&&index<0x2400)
-				return index-0x2000;
-			else if(index>=0x2400&&index<0x2800)
-				return index-0x2400;
-			else if(index>=0x2800&&index<0x2c00)
-				return index-0x2400;
-			else
-				return index-0x2800;
-		}
-		else{
-			if(index>=0x2000&&index<0x2400)
-				return index-0x2000;
-			else if(index>=0x2400&&index<0x2800)
-				return index-0x2000;
-			else if(index>=0x2800&&index<0x2c00)
-				return index-0x2800;
-			else
-				return index-0x2800;
-		}
-	}
+	
 	/* Credit for this method belongs to Andrew Hoffman and his nes
 	 * emulator halfnes. I couldn't find any documentation on this 
 	 * timer but it seems to work. I have another implementation I'm
@@ -264,11 +250,8 @@ public class MMC3 extends Mapper {
 	 */
 	/*int a12timer = 0;
 	@Override
-	public void check(int index){
-		
-		//scanlinecounter();
-		
-		
+	public void check(int index){		
+		//scanlinecounter();		
 		
 		boolean cur = ((index&0x1000)!=0);
 		if(cur && (!oldsignal)){
@@ -282,31 +265,48 @@ public class MMC3 extends Mapper {
 		--a12timer;
 		oldsignal = cur;
 		
-	}
-	*/
+	}*/
 	boolean cura12;
-	boolean olda12;
-	@Override
+	public boolean olda12;
+	//@Override
 	public void check(int x){
 		
-		cura12 = (x&0x1000)!=0?true:false;
+		cura12 = (x&0x1000)!=0;
 		if(cura12&&(!olda12)){
 			scanlinecounter();
 		}
 		olda12 = cura12;
 	}
+	boolean x;
+	@Override
 	public void scanlinecounter(){
-		if(reloadirq||(scanlinecount==0)){
+		//int t = scanlinecount;
+		
+		System.out.println("scanline: " + ppu.scanline+" counter: "+scanlinecount+" rendering: "+ppu.dorender()+ " v:"+Integer.toHexString(ppu.v));
+		/*if(reloadirq||(scanlinecount==0)){
+			
 			scanlinecount = irqreload;
+			//x=false;
 			reloadirq = false;
 		}
 		else{
 			scanlinecount--;
+			//x=true;
+			//x=false;
+			
+			
+		}*/
+		
+		if(scanlinecount--==0){
+			scanlinecount = irqreload;
 		}
-		if(scanlinecount==0&&irqenable){
-			cpu.doIRQ=true;
+		if(scanlinecount==0){
+			cpu.doIRQ=irqenable;
 			//System.out.println("Generating IRQ at scanline: "+ppu.scanline+" pcycle: "+ppu.pcycle);
 		}
+		
+		
+		
 	}
 }
 

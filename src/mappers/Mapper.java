@@ -31,7 +31,7 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 	public Controller control;
 	public Controller control2;
 	
-	
+	public boolean olda12;
 	
 	public Mapper(){
 		ppu_palette[0]=0xf;
@@ -50,7 +50,7 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 	}
 	public void cpuwrite(int index,byte b){
 		if(index<0x2000){
-			cpu_ram[index]=b;
+			cpu_ram[index%0x800]=b;
 		}
 		else if(index>=0x2000&&index<0x4000)
 			ppuregisterhandler((index%8)+0x2000,b,true);
@@ -72,9 +72,7 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 		ppu_oam[index]=b;
 		//ppuregisterhandler(0x2004,b,true);
 	}
-	public void ppuwriteoam(int index,byte b){
-		ppu_oam[index]=b;
-	}
+	
 	public byte cpuread(int index){
 		if(index<0x2000)
 			return cpu_ram[index%0x800];
@@ -123,38 +121,39 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 			ppu_ram[ppuNameTableMirror(index-0x1000)]=b;
 		}
 		else{
-			int i = (index&0xff)%0x20;
+			int i = (index&0x1f);//%0x20;
 			//System.out.println("Writeing to palette:"+Integer.toHexString(i) + " "+Integer.toHexString(Byte.toUnsignedInt(b)));
 			if(i%4==0){
-				ppu_palette[i]=b;
-				i+= i<0x10?0x10:-0x10;
-				ppu_palette[i]=b;
+				//ppu_palette[i]=b;
+				i+= i>=0x10?-0x10:0;
+				//ppu_palette[i]=b;
 			}
 			//System.out.println(Integer.toHexString(index));
-			ppu_palette[(index&0xff)%0x20]=b;
+			ppu_palette[i]=b;
 		}
 	}
 	int ppuNameTableMirror(int index){
 		if(mirrormode){//default is horizontal
-			if(index>=0x2400&&index<0x2800)
+			if(index>=0x2000&&index<0x2400)
+				return index-0x2000;
+			else if(index>=0x2400&&index<0x2800)
 				return index-0x2400;
 			else if(index>=0x2800&&index<0x2c00)
 				return index-0x2400;
-			else if(index>0x2c00)
-				return index-0x2800;
 			else
-				return index-0x2000;
+				return index-0x2800;
 		}
 		else{
-			if(index>=0x2800&&index<0x2c00)
-				return index-0x2800;
-			else if(index>=0x2c00)
+			if(index>=0x2000&&index<0x2400)
+				return index-0x2000;
+			else if(index>=0x2400&&index<0x2800)
+				return index-0x2000;
+			else if(index>=0x2800&&index<0x2c00)
 				return index-0x2800;
 			else
-				return index-0x2000;
+				return index-0x2800;
 		}
 	}
-
 	public byte ppuread(int index){
 		if(index<0x2000)
 			if(index<0x1000)
@@ -165,28 +164,47 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 			return ppu_ram[ppuNameTableMirror(index)];
 		else if(index>=0x3000&&index<=0x3eff)
 			return ppu_ram[ppuNameTableMirror(index-0x1000)];
-		else
-			return ppu_palette[(index&0xff)%0x20];
+		else{
+			index = index&0x1f;
+			index-= (index>=0x10&&(index&3)==0)?0x10:0;
+			return ppu_palette[index];
+		}
 	}
 	public byte ppureadoam(int index){
 		return ppu_oam[index%256];
+	}
+	public void ppuwriteoam(int index,byte b){
+		ppu_oam[index]=b;
 	}
 	byte ppuregisterhandler(int index,byte x,boolean write){
 		if(index ==0x2000){//PPUCTRL
 			if(write&&!blockppu)
 				ppu.writeRegisters(index, x);
+			else if(write&&blockppu)
+				ppu.OPEN_BUS=x;
+			else
+				return ppu.OPEN_BUS;
 		}
 		else if(index ==0x2001){//PPUMASK
 			if(write&&!blockppu)
 				ppu.writeRegisters(index, x);
+			else if(write&&blockppu)
+				ppu.OPEN_BUS=x;
+			else
+				return ppu.OPEN_BUS;
 		}
 		else if(index ==0x2002){//PPUSTATUS
-			if(!write)
+			if(write)
+				ppu.OPEN_BUS=x;
+			else
 				return ppu.readRegister(index);
+			
 		}
 		else if(index ==0x2003){//OAMADDR
 			if(write)
 				ppu.writeRegisters(index, x);
+			else
+				return ppu.OPEN_BUS;
 		}
 		else if(index ==0x2004){//needs work for full accuracy OAMDATA
 			if(write)
@@ -197,10 +215,18 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 		else if(index ==0x2005){//PPUSCRL
 			if(write&&!blockppu)
 				ppu.writeRegisters(index, x);
+			else if(write&&blockppu)
+				ppu.OPEN_BUS=x;
+			else
+				return ppu.OPEN_BUS;
 		}
 		else if(index ==0x2006){//PPUADDR
 			if(write&&!blockppu)
-				ppu.writeRegisters(index, x); 
+				ppu.writeRegisters(index, x);
+			else if(write&&blockppu)
+				ppu.OPEN_BUS=x;
+			else
+				return ppu.OPEN_BUS;
 		}
 		else if(index ==0x2007){
 			if(write)
