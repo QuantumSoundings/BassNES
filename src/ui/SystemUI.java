@@ -57,7 +57,7 @@ public class SystemUI {
 			e1.printStackTrace();
 		}
 		frame = new MainUI(this);
-		//debugframe = new DebugUI();
+		debugframe = new DebugUI();
 		keyconfig = new ControlUI(prop,this);
 		addapply();
 		rom = new File("zelda.nes"); 
@@ -93,7 +93,7 @@ public class SystemUI {
 			}
 		});
 		frame.pack();
-		frame.setBounds(100, 100, 256+20, 240+60);
+		frame.setBounds(100, 100, 256+10, 240+60);
 		frame.setVisible(true);
 		//debugWindow();
 	}
