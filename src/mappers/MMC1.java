@@ -152,7 +152,7 @@ public class MMC1 extends Mapper {
 					CHR_ROM[1]=CHRbanks[((shiftregister&0b11110)&(CHRbanks.length-1))+1];			
 				}
 				else
-					CHR_ROM[0]=CHRbanks[shiftregister&CHRbanks.length];
+					CHR_ROM[0]=CHRbanks[shiftregister&(CHRbanks.length-1)];
 		}
 		else if(index>=0xc000&&index<=0xdfff){// CHR bank 1 select
 			//System.out.println("CHANGING UPPER CHR bank");

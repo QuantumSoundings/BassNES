@@ -529,7 +529,8 @@ public class ppu2C02 {
 		//Needs to have priority added
 		//byte[] bgc = ntsc.ntsc_to_rgb((map.ppuread(0x3f00)),PPUMASK);
 		//byte[] bgp = new byte[0];
-		byte bgc = map.ppuread((v>=0x3f00&&v<=0x3fff)?v:0x3f00);
+		byte bgc = map.ppuread((v>=0x3f00&&v<=0x3fff&&!dorender())?v:0x3f00);
+		//byte bgc = map.ppuread(0x3f00);
 		byte bgp =bgc;
 		int bx = 0;
 		int left = (!PPUMASK_bl)?8:0;
@@ -754,10 +755,10 @@ public class ppu2C02 {
 					spritepalette[spritec]=0;
 					spritepriority[spritec]=false;
 					spritebm[spritec]=0;
-					if(oamBCounter==0&&dorender()){
+					//if(oamBCounter==0&&dorender()){
 						//System.out.println("Calling the empty one");
 						//map.check(0x1000);
-					}
+					//}
 				}
 				else{
 					spriteco[spritec] = Byte.toUnsignedInt(oambuffer[4*oamBCounter+3]);
@@ -768,10 +769,6 @@ public class ppu2C02 {
 					int y = inrange(Byte.toUnsignedInt(oambuffer[4*oamBCounter]));
 					int tileindex;
 					int temp = 0;
-					if(PPUCTRL_spta){
-						//System.out.println("Bumping at sL: "+scanline);
-						//v|=0x1000;
-					}
 					if(PPUCTRL_ss){
 						temp = Byte.toUnsignedInt(oambuffer[4*oamBCounter+1]);
 						tileindex = (temp&1)*0x1000+(temp&0xfe)*16;
@@ -781,10 +778,6 @@ public class ppu2C02 {
 					else{
 						tileindex=Byte.toUnsignedInt(oambuffer[4*oamBCounter+1])<<4;
 						tileindex+= PPUCTRL_spta?0x1000:0;
-						if(PPUCTRL_spta){
-							//System.out.println("Bumping at sL: "+scanline);
-							//v|=0x1000;
-						}
 					}
 					//check(tileindex);
 					if(y>=8&&PPUCTRL_ss){
@@ -805,10 +798,10 @@ public class ppu2C02 {
 							y%=8;
 							tileindex+=y;
 					}
-					if(oamBCounter==0&&dorender()){
+					//if(oamBCounter==0&&dorender()){
 						//System.out.println("Scanline: "+scanline+" ti>0x1000:"+Integer.toHexString(tileindex)+ " v?"+Integer.toHexString(v) + " olda12: "+map.olda12+" Sprite 16?"+PPUCTRL_ss);
 						//map.check(tileindex);
-					}
+					//}
 					if((b&0x40)!=0){
 						int z = Byte.toUnsignedInt(map.ppuread(tileindex));
 						int flip = 0;

@@ -91,6 +91,8 @@ public class NES implements Runnable {
 						//map.printMemoryPPU(0x3f00, 0x20);
 						//map.printMemoryPPU(0x2040, 0x20);
 						//map.printMemoryPPU(0, 0x200);
+						map.printOAMPPU(0, 256);
+						map.printMemoryPPU(0x7b0, 0x40);
 					}
 					String t = s.nextLine();
 					if(t.equals("c"))
@@ -100,8 +102,8 @@ public class NES implements Runnable {
 					
 				
 				}
-			if(cpu.program_counter==0xe018){//&&ppu.scanline>234){
-				//skip = false;
+			if(controller.checkDebug()){//cpu.program_counter==0xe018){//&&ppu.scanline>234){
+				skip = false;
 				//cpu.debug(0);
 			}
 				
@@ -181,7 +183,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//rom = new File(System.getProperty("user.dir")+"/demo_ntsc.nes");
+		rom = new File(System.getProperty("user.dir")+"/tetris.nes");
 		FileInputStream sx = new FileInputStream(rom);
 		byte[] header = new byte[16];
 		sx.read(header);
