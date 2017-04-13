@@ -57,7 +57,7 @@ public class SystemUI {
 			e1.printStackTrace();
 		}
 		frame = new MainUI(this);
-		//debugframe = new DebugUI();
+		debugframe = new DebugUI();
 		keyconfig = new ControlUI(prop,this);
 		addapply();
 		rom = new File("zelda.nes"); 
@@ -142,98 +142,4 @@ public class SystemUI {
 			prop.load(input);
 		}
 	}
-	/*void menuSetup(){
-		menu = new JMenuBar();
-		system = new JMenu("System");cpu = new JMenu("CPU");audio = new JMenu("Audio");graphics = new JMenu("Graphics");control = new JMenu("Controls");debug = new JMenu("Debug");
-		menu.add(system);menu.add(cpu);menu.add(audio);menu.add(graphics);menu.add(control);menu.add(debug);
-		JMenuItem item = new JMenuItem("Load Rom");
-		item.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				int returnval = fc.showOpenDialog(frame);
-				if(returnval == JFileChooser.APPROVE_OPTION){
-					rom = fc.getSelectedFile();
-					if(autoload){
-						if(nes!=null)
-							nes.flag=false;
-						nes = new NES(display,frame,rom,prop);
-						current = new Thread(nes);
-						current.start();
-					}
-				}
-			}			
-		});
-		system.add(item);
-		item = new JMenuItem("Start CPU");
-		item.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(!rom.equals(null)){
-					begin = true;
-					if(nes!=null)
-						nes.flag=false;
-					nes = new NES(display,frame,rom,prop);
-					current = new Thread(nes);
-					current.start();
-					//System.out.println(begin);
-				}
-				else
-					begin = false;	
-			}	
-		});
-		cpu.add(item);
-		JCheckBoxMenuItem xitem = new JCheckBoxMenuItem("Enable Audio");
-		audio.add(xitem);		
-		xitem = new JCheckBoxMenuItem("Auto Load Rom");
-		xitem.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				autoload = !autoload;
-			}	
-		});
-		xitem.setSelected(true);
-		system.add(xitem);
-		xitem= new JCheckBoxMenuItem("Show Debug Window");
-		xitem.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				debugframe.setVisible(true);
-			}
-			
-		});
-		debug.add(xitem);
-		item = new JMenuItem("Configure");
-		item.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				keyconfig.setVisible(true);
-			}
-			
-		});
-		control.add(item);
-		
-	}*/
-	/*void keyconfigsetup(){
-		UIkeys key = new UIkeys();
-		prop = key.prop;
-		JButton apply = new JButton("Apply");
-		apply.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(nes!=null){
-					
-						nes.controller.updateKeys(prop);
-					
-				}
-			}
-			
-		});
-		key.add(apply);
-		//keyconfig.setSize(250, 250);
-		//keyconfig.add(key);
-		
-	}*/
 }

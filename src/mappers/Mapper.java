@@ -160,7 +160,7 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 				return CHR_ROM[0][index];
 			else
 				return CHR_ROM[1][index%0x1000];
-		else if(index>=0x2000&&index<0x2fff)
+		else if(index>=0x2000&&index<=0x2fff)
 			return ppu_ram[ppuNameTableMirror(index)];
 		else if(index>=0x3000&&index<=0x3eff)
 			return ppu_ram[ppuNameTableMirror(index-0x1000)];

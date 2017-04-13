@@ -365,6 +365,8 @@ public class ppu2C02 {
 			tempx =0x23C0 | (v & 0x0C00) | ((v >> 4) & 0x38) | ((v >> 2) & 0x07);
 			//atablebyte=Byte.toUnsignedInt(map.ppuread(tempx));
 			//System.out.println("Attr location"+Integer.toHexString(tempx));
+			//if(tempx>0x3000)
+			//	tempx-=0x1000;
 			byte attbyte = map.ppuread(tempx);
 			int sel = ((v & 2) >> 1) | ((v & 0x40) >> 5);
 			switch (sel){
@@ -384,7 +386,7 @@ public class ppu2C02 {
 				ptablemap1 = Byte.toUnsignedInt(map.ppuread((nametablebyte)+8+((v&0x7000)>>>12)));
 				
 			//	dodebug=true;
-			/*if(map.control.checkDebug())
+			/*if(map.control.checkDebug()&&scanline>230)
 				try {
 					System.in.read();
 	
@@ -396,12 +398,13 @@ public class ppu2C02 {
 							//+" NT attempt: " +Integer.toHexString((0x2000)|((v&0xFFF)%0x400))
 							//+" atablebyte:"+atablebyte
 							+" AtrributeB:"+Integer.toBinaryString(Byte.toUnsignedInt(map.ppuread(0x23C0 | (v & 0x0C00) | ((v >> 4) & 0x38) | ((v >> 2) & 0x07))))
-							+" ptablemap0:"+ptablemap0
+							+" attbyte:"
 							//+" pt attempt:"+Integer.toHexString(((nametablebyte<<4)+(v>>12)))
 							+" ptablemap1:"+ptablemap1
 							+" sr16a: "+shiftreg16a
 							+" scanline: "+scanline
 							+" pcycle: "+pcycle);
+					map.printMemoryPPU(0x2ff0, 0x15);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}*/
@@ -531,7 +534,7 @@ public class ppu2C02 {
 		//byte[] bgp = new byte[0];
 		byte bgc = map.ppuread((v>=0x3f00&&v<=0x3fff&&!dorender())?v:0x3f00);
 		//byte bgc = map.ppuread(0x3f00);
-		byte bgp =bgc;
+		byte bgp =0;
 		int bx = 0;
 		int left = (!PPUMASK_bl)?8:0;
 		if(PPUMASK_sb&&left<pcycle){

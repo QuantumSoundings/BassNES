@@ -80,12 +80,12 @@ public class MMC1 extends Mapper {
 		switch(Mirror_mode){
 		case 0:
 			if(index>=0x2400&&index<0x2800)
-				return index-0x2400;
+				return index%0x400;
 			else if(index>=0x2800&&index<0x2c00)
-				return index-0x2800;
+				return index%0x400;
 			else if(index>=0x2c00)
-				return index-0x2c00;
-			else return index-0x2000;
+				return index%0x400;
+			else return index%0x400;
 		case 1:
 			if(index>=0x2000&&index<0x2400)
 				return index-0x1600;
