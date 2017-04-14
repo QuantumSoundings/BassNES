@@ -188,7 +188,7 @@ public class NES implements Runnable {
 	}
 	public void loadrom(File rom) throws IOException{
 		rom = new File(System.getProperty("user.dir")+"/mmc3_test/4-scanline_timing.nes");
-		FileInputStream sx = new FileInputStream(rom);
+		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);
 		byte[] PRG_ROM = new byte[16384*Byte.toUnsignedInt(header[4])];
