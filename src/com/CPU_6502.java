@@ -18,7 +18,7 @@ public class CPU_6502 {
 	private boolean VFlag;
 	private boolean BFlag;
 	private boolean DFlag;
-	private boolean IFlag;
+	public boolean IFlag;
 	private boolean ZFlag;
 	private boolean CFlag;
 	int oldaddr;
@@ -156,7 +156,7 @@ public class CPU_6502 {
 		
 	}
 	boolean dodebug;
-	int irqsetdelay=0;
+	int irqsetdelay=-1;
 	boolean nmiInter;
 	private void pollInterrupts(){
 		//if(irqlatency>0){
@@ -182,6 +182,8 @@ public class CPU_6502 {
 			//System.out.println("Im in here "+ IFlag);
 		}
 		if(irqsetdelay==0){
+			if(map.control.checkDebug())
+				System.out.println("Setting IFlag=true instruction: "+inst_name.get(current_instruction)+" scanline: "+map.ppu.scanline);
 			IFlag = true;
 			irqsetdelay =-1;
 		}
@@ -202,7 +204,7 @@ public class CPU_6502 {
 			byte b = map.cpuread(program_counter);
 			return map.cpuread(program_counter);
 		}
-		else if(doIRQ&&!IFlag&&irqlatency==0&&irqrecieved==0){
+		else if(doIRQ&&!IFlag&&irqlatency==0){//&&irqrecieved==0){
 			//System.out.println("Executing IRQ ppu SL: "+map.ppu.scanline+" cycle: "+map.ppu.pcycle 
 			//		+" Prev inst: "+inst_name.get(current_instruction));
 			program_counter--;
@@ -251,10 +253,10 @@ public class CPU_6502 {
 			nmi=true;
 		}
 		oldnmi=doNMI;
-		if(doIRQ&&!oldirq){
-			irqrecieved=1;
-		}
-		oldirq = doIRQ;
+		//if(doIRQ&&!oldirq){
+		//	irqrecieved=1;
+		//}
+		//oldirq = doIRQ;
 		if(instruction_cycle ==1){
 			current_instruction = getNextInstruction();
 			//System.out.println(memory[program_counter]);
@@ -1148,6 +1150,8 @@ public class CPU_6502 {
 			instruction_cycle = 1;
 		};break;
 		case "CLI": {
+			//if(map.control.checkDebug())
+			//	System.out.println("Clearing IFlag scanline: "+map.ppu.scanline);
 			IFlag = false;
 			instruction_cycle=1;
 			irqlatency = 2;
@@ -1240,10 +1244,10 @@ public class CPU_6502 {
 				instruction_cycle++;break;
 			}
 			case 5: {
-				if(irqsetdelay==0)
-					IFlag = true;
+				//if(irqsetdelay==0)
+				//	IFlag = true;
+				//IFlag = false;
 				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, buildFlags());
-				IFlag = true;
 				stack_pointer--;
 				instruction_cycle++;break;
 			}
@@ -1256,6 +1260,7 @@ public class CPU_6502 {
 				//System.out.println(Integer.toHexString(map.cpureadu(0xfffb)));
 				program_counter = (map.cpureadu(0xffff)<<8)|program_counter;
 				//System.out.println(Integer.toHexString(program_counter));
+				IFlag = true;
 				instruction_cycle = 1;break;
 			}
 			}
@@ -1371,7 +1376,6 @@ public class CPU_6502 {
 			case 5: {
 				BFlag = false;
 				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, buildFlags());
-				IFlag = true;
 				stack_pointer--;
 				instruction_cycle++;break;
 			}
@@ -1384,6 +1388,7 @@ public class CPU_6502 {
 				//System.out.println(Integer.toHexString(map.cpureadu(0xfffb)));
 				program_counter = (map.cpureadu(0xfffb)<<8)|program_counter;
 				//System.out.println(Integer.toHexString(program_counter));
+				IFlag = true;
 				instruction_cycle = 1;break;
 			}
 			}
@@ -1448,6 +1453,8 @@ public class CPU_6502 {
 			case 3: {
 				BFlag = true;
 				byte x =buildFlags();
+				//if(map.control.checkDebug()&&IFlag)
+				//	System.out.println("PHP with IFlag=true  Scanline: "+map.ppu.scanline);
 				
 				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x0100,x);
 				BFlag = false;
@@ -1489,10 +1496,11 @@ public class CPU_6502 {
 				boolean temp = IFlag;
 				setFlags( map.cpuread(Byte.toUnsignedInt(stack_pointer)+0x0100));
 				if(IFlag !=temp&&IFlag==true){
-					//IFlag = false;
+					IFlag = false;
 					irqsetdelay = 1;
 				}
 				else if(IFlag!=temp&&IFlag ==false){
+					//IFlag = true;
 					irqlatency = 2;
 				}
 				instruction_cycle = 1;break;
@@ -1571,7 +1579,10 @@ public class CPU_6502 {
 			}
 			case 6: {
 				program_counter = program_counter| (map.cpureadu(Byte.toUnsignedInt(stack_pointer)+0x0100)<<8);
-				instruction_cycle = 1;break;
+				instruction_cycle = 1;
+				irqsetdelay=-1;
+				break;
+				
 			}
 			}
 		};break;
@@ -1636,6 +1647,8 @@ public class CPU_6502 {
 		};break;
 		case "SEI": {
 			//IFlag = true;
+			if(map.control.checkDebug())
+				System.out.println("Setting IFlag to true scanline: "+map.ppu.scanline);
 			irqsetdelay = 1;
 			instruction_cycle = 1;
 		};break;

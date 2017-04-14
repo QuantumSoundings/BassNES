@@ -122,13 +122,8 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 		}
 		else{
 			int i = (index&0x1f);//%0x20;
-			//System.out.println("Writeing to palette:"+Integer.toHexString(i) + " "+Integer.toHexString(Byte.toUnsignedInt(b)));
-			if(i%4==0){
-				//ppu_palette[i]=b;
+			if(i%4==0)
 				i+= i>=0x10?-0x10:0;
-				//ppu_palette[i]=b;
-			}
-			//System.out.println(Integer.toHexString(index));
 			ppu_palette[i]=b;
 		}
 	}

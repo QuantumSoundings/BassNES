@@ -18,32 +18,7 @@ public class CNROM extends Mapper{
 			//System.out.println("Changing chrom to: "+Byte.toUnsignedInt(b));
 			CHR_ROM[0] = Arrays.copyOfRange(CHRbanks[b&(CHRbanks.length-1)],0,0x1000);
 			CHR_ROM[1] = Arrays.copyOfRange(CHRbanks[b&(CHRbanks.length-1)],0x1000,0x2000);
-		}
-		
-		
-	}
-	@Override
-	int ppuNameTableMirror(int index){
-		if(mirrormode){//default is horizontal
-			if(index>=0x2000&&index<0x2400)
-				return index-0x2000;
-			else if(index>=0x2400&&index<0x2800)
-				return index-0x2400;
-			else if(index>=0x2800&&index<0x2c00)
-				return index-0x2400;
-			else
-				return index-0x2800;
-		}
-		else{
-			if(index>=0x2000&&index<0x2400)
-				return index-0x2000;
-			else if(index>=0x2400&&index<0x2800)
-				return index-0x2000;
-			else if(index>=0x2800&&index<0x2c00)
-				return index-0x2800;
-			else
-				return index-0x2800;
-		}
+		}	
 	}
 	@Override
 	public void setPRG(byte[] prg){
