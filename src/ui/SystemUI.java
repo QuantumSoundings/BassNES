@@ -57,7 +57,7 @@ public class SystemUI {
 			e1.printStackTrace();
 		}
 		frame = new MainUI(this);
-		//debugframe = new DebugUI();
+		debugframe = new DebugUI();
 		keyconfig = new ControlUI(prop,this);
 		addapply();
 		rom = new File("zelda.nes"); 

@@ -73,6 +73,12 @@ public class MainUI extends JFrame {
 					sys.begin = true;
 					if(sys.nes!=null)
 						sys.nes.flag=false;
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					sys.nes = new NES(sys.display,sys.frame,sys.rom,sys.prop);
 					sys.current = new Thread(sys.nes);
 					sys.current.start();

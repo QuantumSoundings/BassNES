@@ -8,7 +8,6 @@ import javax.swing.JFrame;
 import mappers.Mapper;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 //import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -187,7 +186,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/smb3.nes");
+		//rom = new File(System.getProperty("user.dir")+"/smb3.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

@@ -1267,7 +1267,7 @@ public class CPU_6502 {
 		};break;
 		case "ISB": {
 			tempregister++;
-			System.out.println("BROKEN");
+			System.out.println("Invalid instruction ISB");
 			int sum = Byte.toUnsignedInt(accumulator) - Byte.toUnsignedInt(tempregister) - (CFlag?0:1);
 			CFlag = (sum>>8 ==0);
 			VFlag = (((accumulator^tempregister)&0x80)!=0)&&(((accumulator^sum)&0x80)!=0);
