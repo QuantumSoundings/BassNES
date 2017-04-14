@@ -202,8 +202,12 @@ public class MMC3 extends Mapper {
 			else
 				return CHR_ROM[7][index-0x1c00];
 		}
+		else if(index>=0x2000&&index<=0x2fff)
+			return ppu_ram[ppuNameTableMirror(index)];
+		else if(index>=0x3000&&index<=0x3eff)
+			return ppu_ram[ppuNameTableMirror(index-0x1000)];
 		else
-			return super.ppuread(index);
+			return ppu_palette[(index&0xff)%0x20];
 	}
 	@Override
 	public void ppuwrite(int index,byte b){
@@ -220,11 +224,45 @@ public class MMC3 extends Mapper {
 			case 7: CHR_ROM[7][index%0x400] =b;break;
 			}
 		}
-		else
-			super.ppuwrite(index, b);
+		else if(index>=0x2000&&index<=0x2fff)
+			ppu_ram[ppuNameTableMirror(index)]=b;
+		else if(index>=0x3000&&index<=0x3eff){
+			ppu_ram[ppuNameTableMirror(index-0x1000)]=b;
+		}
+		else{
+			int i = (index&0xff)%0x20;
+			if(i%4==0){
+				ppu_palette[i]=b;
+				i+= i<0x10?0x10:-0x10;
+				ppu_palette[i]=b;
+			}
+			ppu_palette[(index&0xff)%0x20]=b;
+		}
 	}
 	
-	
+	@Override
+	int ppuNameTableMirror(int index){
+		if(mirrormode){//default is horizontal
+			if(index>=0x2000&&index<0x2400)
+				return index-0x2000;
+			else if(index>=0x2400&&index<0x2800)
+				return index-0x2400;
+			else if(index>=0x2800&&index<0x2c00)
+				return index-0x2400;
+			else
+				return index-0x2800;
+		}
+		else{
+			if(index>=0x2000&&index<0x2400)
+				return index-0x2000;
+			else if(index>=0x2400&&index<0x2800)
+				return index-0x2000;
+			else if(index>=0x2800&&index<0x2c00)
+				return index-0x2800;
+			else
+				return index-0x2800;
+		}
+	}
 	/* Credit for this method belongs to Andrew Hoffman and his nes
 	 * emulator halfnes. I couldn't find any documentation on this 
 	 * timer but it seems to work. I have another implementation I'm
