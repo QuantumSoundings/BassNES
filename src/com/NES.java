@@ -97,13 +97,17 @@ public class NES implements Runnable {
 					String t = s.nextLine();
 					if(t.equals("c"))
 						skip = true;
+					else if(t.equals("i"))
+						cpu.IFlag=false;
+					else if(t.equals("e"))
+						map.cpuwrite(0xe000, (byte)1);
 					else
 						skip = false;
 					
 				
 				}
-			if(controller.checkDebug()){//cpu.program_counter==0xe018){//&&ppu.scanline>234){
-				//skip = false;
+			if(cpu.current_instruction==0x12&&controller.checkDebug()){//cpu.program_counter==0xe018){//&&ppu.scanline>234){
+				skip = false;
 				//cpu.debug(0);
 			}
 				
@@ -183,7 +187,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//rom = new File(System.getProperty("user.dir")+"/oam_stress.nes");
+		rom = new File(System.getProperty("user.dir")+"/mmc3_test/4-scanline_timing.nes");
 		FileInputStream sx = new FileInputStream(rom);
 		byte[] header = new byte[16];
 		sx.read(header);

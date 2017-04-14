@@ -502,9 +502,9 @@ public class ppu2C02 {
 				pcycle=0;
 			}
 			else{
-				if(scanline<240){
+				//if(scanline<240){
 					//map.check(0);
-				}	
+				//}	
 			scanline++;
 			
 			pcycle = 0;

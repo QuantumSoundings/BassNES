@@ -76,7 +76,8 @@ public class MMC3 extends Mapper {
 		else if(index>=0xc000&&index<0xe000){
 			if(index%2==0){
 				irqreload = Byte.toUnsignedInt(b);
-				//System.out.println("Setting reload to : "+irqreload+" SL: "+ppu.scanline);
+				if(control.checkDebug())
+					System.out.println("Setting reload to : "+irqreload+" SL: "+ppu.scanline);
 			}
 			else{
 				//System.out.println("Triggering irq reload");
@@ -86,12 +87,14 @@ public class MMC3 extends Mapper {
 		}
 		else if(index>=0xe000&&index<=0xffff){
 			if(index%2==0){
-				//System.out.println("setting irq enable to false");
-				cpu.doIRQ=false;
+				if(control.checkDebug())
+				System.out.println("setting irq enable to false scanline: "+ppu.scanline);
+				cpu.doIRQ = false;
 				irqenable = false;
 			}
 			else{
-				//System.out.println("Setting irq enable to true");
+				if(control.checkDebug())
+				System.out.println("Setting irq enable to true scanline: "+ppu.scanline);
 				irqenable = true;
 			}
 		}
@@ -182,8 +185,6 @@ public class MMC3 extends Mapper {
 	@Override
 	public byte ppuread(int index){
 		if(index<0x2000){
-			//check(index);
-
 			if(index<0x400)
 				return CHR_ROM[0][index];
 			else if(index>=0x400&&index<0x800)
@@ -201,12 +202,8 @@ public class MMC3 extends Mapper {
 			else
 				return CHR_ROM[7][index-0x1c00];
 		}
-		else if(index>=0x2000&&index<0x2fff)
-			return ppu_ram[ppuNameTableMirror(index)];
-		else if(index>=0x3000&&index<=0x3eff)
-			return ppu_ram[ppuNameTableMirror(index-0x1000)];
 		else
-			return ppu_palette[(index&0xff)%0x20];
+			return super.ppuread(index);
 	}
 	@Override
 	public void ppuwrite(int index,byte b){
@@ -223,20 +220,8 @@ public class MMC3 extends Mapper {
 			case 7: CHR_ROM[7][index%0x400] =b;break;
 			}
 		}
-		else if(index>=0x2000&&index<=0x2fff)
-			ppu_ram[ppuNameTableMirror(index)]=b;
-		else if(index>=0x3000&&index<=0x3eff){
-			ppu_ram[ppuNameTableMirror(index-0x1000)]=b;
-		}
-		else{
-			int i = (index&0xff)%0x20;
-			if(i%4==0){
-				ppu_palette[i]=b;
-				i+= i<0x10?0x10:-0x10;
-				ppu_palette[i]=b;
-			}
-			ppu_palette[(index&0xff)%0x20]=b;
-		}
+		else
+			super.ppuwrite(index, b);
 	}
 	
 	
@@ -283,26 +268,13 @@ public class MMC3 extends Mapper {
 		//int t = scanlinecount;
 		
 		//System.out.println("scanline: " + ppu.scanline+" counter: "+scanlinecount+" rendering: "+ppu.dorender()+ " v:"+Integer.toHexString(ppu.v));
-		/*if(reloadirq||(scanlinecount==0)){
-			
-			scanlinecount = irqreload;
-			//x=false;
-			reloadirq = false;
-		}
-		else{
-			scanlinecount--;
-			//x=true;
-			//x=false;
-			
-			
-		}*/
-		
 		if(scanlinecount--==0){
 			scanlinecount = irqreload;
 		}
-		if(scanlinecount==0){
-			cpu.doIRQ=irqenable;
-			//System.out.println("Generating IRQ at scanline: "+ppu.scanline+" pcycle: "+ppu.pcycle);
+		if(scanlinecount==0&&irqenable){
+			cpu.doIRQ=true;
+			if(control.checkDebug())
+				System.out.println("Generating IRQ at scanline: "+ppu.scanline+" pcycle: "+ppu.pcycle+" iflag: "+cpu.IFlag );
 		}
 		
 		
