@@ -13,11 +13,13 @@ public class MMC1 extends Mapper {
 		System.out.println("Mapper 1 (SNROM) Fully Supported!"); 
 		PRG_RAM = new byte[0x2000];
 	}
-	
+	int lastwrite=0;
 	@Override
 	public void cartridgeWrite(int index, byte b){
 		if(index>=0x6000&&index<0x8000)
 			PRG_RAM[index-0x6000]=b; 
+		if(lastwrite == nes.cpuclock-1)
+			return;
 		if(index>=0x8000&&index<=0xffff){
 			if(b<0){
 				shiftregister=0b10000;
@@ -35,7 +37,9 @@ public class MMC1 extends Mapper {
 				writeRegister(index);
 				shiftregister = 0b10000;
 			}
+			lastwrite = nes.cpuclock;
 		}	
+		
 	}
 	@Override
 	public void setPRG(byte[] prg){
@@ -125,8 +129,8 @@ public class MMC1 extends Mapper {
 		else if(index>=0xe000&&index<=0xffff){
 			switch(PRG_ROM_mode){
 			case 0: case 1:
-				PRG_ROM[0] = PRGbanks[(shiftregister&0b1110)];
-				PRG_ROM[1] = PRGbanks[(shiftregister&0b1110)+1];
+				PRG_ROM[0] = PRGbanks[(shiftregister&0b1110)&(PRGbanks.length-1)];
+				PRG_ROM[1] = PRGbanks[((shiftregister&0b1110)&(PRGbanks.length-1))+1];
 				break;
 			case 2:
 				PRG_ROM[0]= PRGbanks[0];

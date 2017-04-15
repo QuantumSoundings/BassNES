@@ -4,12 +4,13 @@ import java.util.Arrays;
 import com.APU;
 import com.CPU_6502;
 import com.Controller;
+import com.NES;
 import com.ppu2C02;
 public class Mapper {//There will be class that inheriet this class. Better to have all reads and writes go through this
 	
 	public CPU_6502 cpu;
 	byte[] cpu_ram= new byte[0x1fff];
-
+	NES nes;
 	public ppu2C02 ppu;
 	byte[] ppu_ram= new byte[0x1fff];
 	byte[] ppu_palette = new byte[]{63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63};
@@ -44,6 +45,7 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 		control = cont;
 		control2 = cont2;
 	}
+	public void setNes(NES n){ nes = n;}
 	public void setMirror(int i){
 		mirrormode=(i==0)?true:false;
 		System.out.println("Mode set to:"+mirrormode);
@@ -315,6 +317,8 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 			return new CNROM();
 		case 4:
 			return new MMC3();
+		case 7:
+			return new AxROM();
 		default:
 			System.err.println("Unsupported Mapper id: "+i);
 		}

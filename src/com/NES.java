@@ -50,12 +50,13 @@ public class NES implements Runnable {
 		cpu = new CPU_6502(map);
 		apu = new APU(map);
 		map.setcomponents(cpu, ppu,controller,controller2,apu);
+		map.setNes(this);
 		cpu.setPC(((map.cpureadu(0xfffd)<<8)|(map.cpureadu(0xfffc))));
 		//cpu.setPC(0xc000);//cpu.setPC(0x8706);
 	}
 	int p=0;
 	double c =0.0;
-	int cpuclock=0;
+	public int cpuclock=0;
 	int framecount=0;
 	public void run(){
 		System.out.println("NES STARTED RUNNING");
@@ -186,7 +187,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//rom = new File(System.getProperty("user.dir")+"/smb3.nes");
+		rom = new File(System.getProperty("user.dir")+"/battletoads.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

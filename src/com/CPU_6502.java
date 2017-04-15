@@ -482,6 +482,7 @@ public class CPU_6502 {
 					instruction_cycle++;
 					break;
 				case 5:
+					map.cpuwrite(address,tempregister);
 					executeOp();
 					instruction_cycle++;
 					break;

@@ -15,7 +15,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Properties;
 
 import javax.swing.JButton;
@@ -57,7 +61,7 @@ public class SystemUI {
 			e1.printStackTrace();
 		}
 		frame = new MainUI(this);
-		debugframe = new DebugUI();
+		//debugframe = new DebugUI();
 		keyconfig = new ControlUI(prop,this);
 		addapply();
 		rom = new File("zelda.nes"); 
@@ -84,9 +88,15 @@ public class SystemUI {
 					e.printStackTrace();
 				}
 				try {
-					FileOutputStream output = new FileOutputStream("config.properties");
+					//FileOutputStream output = new FileOutputStream("config.properties");
+					URL resourceUrl = getClass().getResource("config.properties");
+					File file = new File(resourceUrl.toURI().toString());
+					OutputStream output = new FileOutputStream(file);
 					prop.store(output, null);
 				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				System.exit(0);
@@ -118,7 +128,9 @@ public class SystemUI {
 	}
 	public void loadProperties() throws IOException{
 		prop = new Properties();
-		File t = new File("config.properties");
+		InputStream input =this.getClass().getResourceAsStream("config.properties");
+		prop.load(input);
+		/*File t = new File("config.properties");
 		if(!t.exists()){
 			prop.setProperty("c1up", KeyEvent.VK_UP+"");
 			prop.setProperty("c1down", KeyEvent.VK_DOWN+"");
@@ -140,6 +152,6 @@ public class SystemUI {
 		else{
 			FileInputStream input = new FileInputStream("config.properties");
 			prop.load(input);
-		}
+		}*/
 	}
 }
