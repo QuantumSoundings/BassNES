@@ -1,8 +1,8 @@
-package com;
+package video;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 public class NTSC_Converter{
-	BufferedImage bi = new BufferedImage(256,240,BufferedImage.TYPE_INT_RGB);
+	public BufferedImage bi = new BufferedImage(256,240,BufferedImage.TYPE_INT_RGB);
 	Graphics2D big = null;
 	public NTSC_Converter(){
 		bi = new BufferedImage(256,240,BufferedImage.TYPE_INT_RGB);
@@ -32,12 +32,32 @@ public class NTSC_Converter{
 			bi.setRGB(0, 0, 256, 240,p, 0, 256);
 			
 		}
-		public byte[] ntsc_to_rgb(int pixel, int PPUMASK) {
+		int[] ntscpixels = new int[256*240];
+		public void makentscframe(byte[] pixels,int[] maskpixels){
+			//for(int i = 0; i<61440;i++)
+			//	ntscpixels[i] = ntsc_to_rgb(pixels[i],maskpixels[i]);
+			//bi.setRGB(0, 0, 256, 240, ntscpixels, 0, 256);
+			
+		}
+		public void test(byte[] pixels, int[] mask){
+			Thread r = new Thread(new Runnable(){
+
+				@Override
+				public void run() {
+					
+					
+				}
+				
+			});
+		}
+		final float levels[] = {.350f,.518f,.962f,1.550f,1.094f,1.506f,1.962f,1.962f};
+		final float black = .518F, white = 1.962F, attenuation = .746F;
+		public int ntsc_to_rgb(int pixel, int PPUMASK) {
 			int color = (pixel & 0x0F);
 			if ((PPUMASK & 1) != 0) color = 0;
 			int level = color < 0x0E ? (pixel>>4) & 3 : 1;
-			final float black = .518F, white = 1.962F, attenuation = .746F;
-			final float levels[] = {.350f,.518f,.962f,1.550f,1.094f,1.506f,1.962f,1.962f};
+			//final float levels[] = {.350f,.518f,.962f,1.550f,1.094f,1.506f,1.962f,1.962f};
+			//final float black = .518F, white = 1.962F, attenuation = .746F;
 			final float lh[] = {levels[level+4*i2b(color==0x0)],levels[level+4*i2b(color<0xD)]};
 			float y = 0.f, gamma = 1.8f, i = y, q = y;
 			for (int p = 0; p < 12; p++) {
@@ -51,8 +71,12 @@ public class NTSC_Converter{
 				i += v * Math.cos(Math.PI * p / 6.0);
 				q += v * Math.sin(Math.PI * p / 6.0);
 			}
-			byte[] rgb = {(byte) clamp(255 * gammafix(y + 0.946882f*i + 0.623557f*q, gamma)),(byte) clamp(255 * gammafix(y + -0.274788f*i + -0.635691f*q,gamma)),(byte) clamp(255 * gammafix(y + -1.108545f*i +  1.709007f*q,gamma))};
-			return rgb;
+			//byte[] rgb = {(byte) clamp(255 * gammafix(y + 0.946882f*i + 0.623557f*q, gamma)),(byte) clamp(255 * gammafix(y + -0.274788f*i + -0.635691f*q,gamma)),(byte) clamp(255 * gammafix(y + -1.108545f*i +  1.709007f*q,gamma))};
+			int x = 0xFFffffff& (clamp(255 * gammafix(y + 0.946882f*i + 0.623557f*q, gamma))<< 16) |
+					(clamp(255 * gammafix(y + -0.274788f*i + -0.635691f*q,gamma)) << 8) |
+					clamp(255 * gammafix(y + -1.108545f*i +  1.709007f*q,gamma));
+			//int x = 0xFFffffff& (Byte.toUnsignedInt(rgb[0]) << 16) | (Byte.toUnsignedInt(rgb[1]) << 8) | Byte.toUnsignedInt(rgb[2]);
+			return x;
 		}
 		private boolean wave(int x, int y) {
 			return ((x+y+8)%12)<6;

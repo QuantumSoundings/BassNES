@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import mappers.Mapper;
+import video.NTSC_Converter;
+import video.Renderer;
 import mappers.MMC3;
 
 public class ppu2C02 {
@@ -98,8 +100,8 @@ public class ppu2C02 {
 	||| ++-------------- nametable select
 	+++----------------- fine Y scroll*/
 	public int v,t,x,w;
-	NTSC_Converter ntsc;
-	byte[] pixels;
+	Renderer renderer;
+	int[] pixels;
 	int pixelnum;
 	//registers	
 	Mapper map;
@@ -110,7 +112,8 @@ public class ppu2C02 {
 	public ppu2C02(Mapper m) {
 		//mem = new Memory(0);
 		map = m;
-		pixels = new byte[256*240];
+		pixels = new int[256*240];
+		maskpixels= new int[256*240];
 		framec=0;
 		scanline = 0;
 		pcycle = 0;
@@ -118,7 +121,7 @@ public class ppu2C02 {
 		ptablemap0=0;
 		//PPUSTATUS_so=true;
 		//PPUSTATUS_vb=true;
-		ntsc = new NTSC_Converter();
+		renderer= new Renderer();
 	}
 	public void setmapper(Mapper m){
 		map = m;
@@ -242,34 +245,17 @@ public class ppu2C02 {
 				map.cpu.nmi=false;
 			}
 			b|= (OPEN_BUS&0x1f);
-			
-				//else
-			//	map.cpu.doNMI=false;
-					
-			//PPUSTATUS&=0b01111111;
 			even=true;
 			PPUSTATUS_vb = false;
 			OPEN_BUS = b;
 			break;
 		case 0x2004:
 			OPEN_BUS = map.ppureadoam(Byte.toUnsignedInt(OAMADDR));
-			if(dorender() && scanline<=240){
-				if(pcycle<64)
-					return (byte) 0xff;
-				else if(pcycle <=256)
-					return 0;
-				else if(pcycle <320)
-					return (byte) 0xff;
-				else
-					return oambuffer[0];
+			if(dorender()&&pcycle<=65&&scanline<241)
+				return (byte)0xff;
+			else{
+				return map.ppureadoam(Byte.toUnsignedInt(OAMADDR));
 			}
-			//if(dorender()&&pcycle<=65&&scanline<241)
-			//	return (byte)0xff;
-			//else{
-				//System.out.println("reading :"+map.ppureadoam(Byte.toUnsignedInt(OAMADDR))+" at:"+Byte.toUnsignedInt(OAMADDR));
-			//	return map.ppureadoam(Byte.toUnsignedInt(OAMADDR));
-			//}
-			break;
 		case 0x2007:
 			if((v&0x3fff)<0x3f00){
 				b = PPUDATA_readbuffer;
@@ -290,9 +276,7 @@ public class ppu2C02 {
 			}
 			if((v&0x1000)!=0&&(tv&0x1000)==0)
 				map.scanlinecounter();
-			//check(v);
 			OPEN_BUS = b;
-			//return OPEN_BUS;
 			break;
 		default: 
 			System.out.println("Something broke in readreg");
@@ -311,62 +295,42 @@ public class ppu2C02 {
 	}
 	
 	private void incx(){
-		if ((v & 0x001F) == 31){ // if coarse X == 31
-			v &= ~0x001F;         // coarse X = 0
-			v ^= 0x0400;           // switch horizontal nametable
+		if ((v & 0x001F) == 31){
+			v &= ~0x001F;
+			v ^= 0x0400;
 		}
 		else
-			v += 1;                // increment coarse X
+			v += 1;
 	}
 	private void incy(){
-		if ((v & 0x7000) != 0x7000)        // if fine Y < 7
-			  v += 0x1000;                      // increment fine Y
+		if ((v & 0x7000) != 0x7000)
+			  v += 0x1000;
 		else{
-			  v &= ~0x7000;                     // fine Y = 0
-			  int y = (v & 0x03E0) >> 5;       // let y = coarse Y
+			  v &= ~0x7000;
+			  int y = (v & 0x03E0) >> 5;
 			  if (y == 29){
-			    y = 0;                   // coarse Y = 0
-			    v ^= 0x0800;                    // switch vertical nametable
+			    y = 0;
+			    v ^= 0x0800;
 			  }
 			  else{
 				  y =(y+1)&31;
-			  }                      // increment coarse Y
+			  }
 			  v = (v & ~0x03E0) | (y << 5);
 		}
 	}
-
-	/*void debugSprites(){
-		System.out.println("Sprite 1: "+spritebm[0] +" x:"+spriteco[0]+" palette:"+spritela[0]+"\n"
-				+"Sprite 2: "+spritebm[1] +" x:"+spriteco[1]+" palette:"+spritela[1]+"\n"
-				+"Sprite 3: "+spritebm[2] +" x:"+spriteco[2]+" palette:"+spritela[2]+"\n"
-				+"Sprite 4: "+spritebm[3] +" x:"+spriteco[3]+" palette:"+spritela[3]+"\n"
-				+"Sprite 5: "+spritebm[4] +" x:"+spriteco[4]+" palette:"+spritela[4]+"\n"
-				+"Sprite 6: "+spritebm[5] +" x:"+spriteco[5]+" palette:"+spritela[5]+"\n"
-				+"Sprite 7: "+spritebm[6] +" x:"+spriteco[6]+" palette:"+spritela[6]+"\n"
-				+"Sprite 8: "+spritebm[7] +" x:"+spriteco[7]+" palette:"+spritela[7]+"\n"
-				);
-	}*/
+	
 	int test =0;
 	int tempx;
 	void getBG(){
-		//System.out.println("IM IN GETBG!");
 		shiftreg8a |= (palettelatch>>1)&1;
 		shiftreg8b |= (palettelatch)&1;
 		switch((pcycle-1)&7){
 		case 1:{//name table
-			//nametablebyte = map.ppuread()
-			//nametablebyte = (0x2000|(v&(0x400*PPUCTRL_bna)));
-			//v= v&0b111001111111111;
-			//v|=(PPUCTRL_bna&3)<<10;
 			nametablebyte = Byte.toUnsignedInt(map.ppuread(0x2000|(v&0x0fff)))<<4;
 			nametablebyte+=(PPUCTRL_bpta?0x1000:0);
 		};break;
 		case 3:{//attribute table
 			tempx =0x23C0 | (v & 0x0C00) | ((v >> 4) & 0x38) | ((v >> 2) & 0x07);
-			//atablebyte=Byte.toUnsignedInt(map.ppuread(tempx));
-			//System.out.println("Attr location"+Integer.toHexString(tempx));
-			//if(tempx>0x3000)
-			//	tempx-=0x1000;
 			byte attbyte = map.ppuread(tempx);
 			int sel = ((v & 2) >> 1) | ((v & 0x40) >> 5);
 			switch (sel){
@@ -377,10 +341,7 @@ public class ppu2C02 {
 			}
 		};break;
 		case 5:{//tile low
-				ptablemap0 = Byte.toUnsignedInt(map.ppuread((nametablebyte+((v&0x7000)>>>12))));//
-				//map.check(nametablebyte);
-
-				
+				ptablemap0 = Byte.toUnsignedInt(map.ppuread((nametablebyte+((v&0x7000)>>>12))));	
 		};break;
 		case 7:{//tile high
 				ptablemap1 = Byte.toUnsignedInt(map.ppuread((nametablebyte)+8+((v&0x7000)>>>12)));
@@ -413,8 +374,6 @@ public class ppu2C02 {
 			}
 			else
 				incy();
-			//check(v);
-			//v = (v&0xf000)|((v&0xFFF)%0x400);
 			shiftreg16a |= ptablemap1;			
 			shiftreg16b |= ptablemap0;
 			palettelatch = atablebyte;
@@ -432,10 +391,6 @@ public class ppu2C02 {
 	boolean cura12;
 	public boolean doscanline;
 	void render(){
-		//if(scanline>=0)
-		//if(!(pcycle>=257&&pcycle<=320)||!dorender()||scanline==-1)
-		//	map.check(v);
-		
 		if(PPUCTRL_genNmi&&PPUSTATUS_vb)
 			map.cpu.doNMI=true;		
 		else
@@ -464,7 +419,6 @@ public class ppu2C02 {
 				}
 				else if(pcycle >=280 && pcycle<=304 && dorender()){
 					v = t;
-					//check(v);
 				}
 			}
 			if(pcycle ==340){
@@ -478,22 +432,19 @@ public class ppu2C02 {
 
 			
 		}
-		else if(scanline ==240){
-			//clear sprites
-			
-			
-		}
 		else if(scanline==241 &&pcycle == 1){
 			//if(!block)
 			PPUSTATUS_vb = true;
 			//submit frame
-			ntsc.makeframe(pixels);
+			//long start = System.nanoTime();
+			//ntsc.makentscframe(pixels,maskpixels);
+			//ntsc.makeframe(pixels);
+			renderer.buildFrame(pixels, maskpixels, 2);
+			//long stop = System.nanoTime()-start;
+			//System.out.println("Time to make frame: "+stop+"ns  or "+(stop/1000)+"us  or "+ (stop/1000/1000)+"ms");
 			pixelnum = 0;
 			vfresh=true;
 		}
-		//if(!dorender()||scanline>240){
-		//	map.check(v);
-		//}
 		
 		if(pcycle ==340){
 			if(scanline==260){
@@ -502,25 +453,19 @@ public class ppu2C02 {
 				pcycle=0;
 			}
 			else{
-				//if(scanline<240){
-					//map.check(0);
-				//}	
-			scanline++;
+
+				scanline++;
 			
-			pcycle = 0;
+				pcycle = 0;
 			}
 		}
 		else if(!oddframe&&scanline==-1&&pcycle==339&&dorender()){
 			oddskip = true;
-			//map.check(0);
 			pcycle =0;
 			scanline=0;			
 		}
 		else
-			pcycle++;
-		//block=false;
-		
-		
+			pcycle++;		
 	}
 	void updateShiftRegisters(){
 		shiftreg16a<<=1;
@@ -528,38 +473,30 @@ public class ppu2C02 {
 		shiftreg8a<<=1;
 		shiftreg8b<<=1;	
 	}
+	int[] maskpixels;
 	void drawpixel(){
-		//Needs to have priority added
-		//byte[] bgc = ntsc.ntsc_to_rgb((map.ppuread(0x3f00)),PPUMASK);
-		//byte[] bgp = new byte[0];
 		byte bgc = map.ppuread((v>=0x3f00&&v<=0x3fff&&!dorender())?v:0x3f00);
-		//byte bgc = map.ppuread(0x3f00);
 		byte bgp =0;
 		int bx = 0;
 		int left = (!PPUMASK_bl)?8:0;
 		if(PPUMASK_sb&&left<pcycle){
-			int x = (((shiftreg16a>>-fineX + 16)&1)<<1);//((shiftreg16a>>>-fineX+8)&0x8000)>>14;
+			int x = (((shiftreg16a>>-fineX + 16)&1)<<1);
 			x+=((shiftreg16b>>-fineX +16)&1);
 			int y = ((shiftreg8a>>>-fineX+8)&1)<<1;
 			y |= ((shiftreg8b>>>-fineX+8)&1)&1;
 			int p = (y<<2)|x;
 			bx = x;
 			if(x!=0)
-				bgp =map.ppuread(0x3f00+p);//ntsc.ntsc_to_rgb((map.ppuread(0x3f00+p)),PPUMASK);
-				//bgp =ntsc.ntsc_to_rgb((map.ppuread(0x3f00+p)),PPUMASK);			
+				bgp =map.ppuread(0x3f00+p);			
 		}
 		updateShiftRegisters();
-		//byte[] sp = new byte[0];
 		byte sp = bgc;
 		int sx = 0;
 		boolean spp=false;
 		left = (!PPUMASK_sl||!PPUMASK_bl)?8:0;
 		if(PPUMASK_ss){
-			//System.out.println("Drawing a sprite!");
-			//debugSprites();
 			for(int i = 0;i<8;i++){
 				if(spriteco[i]==0){
-					//System.out.println("FOUND A SPRITE IN THE X RANGE");
 					x = (spritebm[i]&0x80)!=0?1:0;
 					x<<=1;
 					x=(spritebm[i]&0x8000)!=0?(x|1):(x);
@@ -571,9 +508,7 @@ public class ppu2C02 {
 						
 						spp = spritepriority[i];
 						sx = x;
-						//sp =ntsc.ntsc_to_rgb((map.ppuread(0x3f10+4*spritepalette[i]+x)),PPUMASK);
-						sp =map.ppuread(0x3f10+4*spritepalette[i]+x);//ntsc.ntsc_to_rgb((map.ppuread(0x3f10+4*getSC(i)+x)),PPUMASK);
-
+						sp =map.ppuread(0x3f10+4*spritepalette[i]+x);
 						spritebm[i]&=0b0111111101111111;
 						break;
 					
@@ -583,29 +518,26 @@ public class ppu2C02 {
 		}
 		shiftSprites();	
 
-		//byte[] finalp = new byte[0];
 		if(bx==0&&sx==0){
-			//finalp=bgc;
-			pixels[pixelnum++] = bgc;
+			maskpixels[pixelnum]= PPUMASK;
+			pixels[pixelnum++] = Byte.toUnsignedInt(bgc);			
 		}
 		else if(bx==0&&sx>0&&PPUMASK_ss){
-			//finalp=sp;
-			pixels[pixelnum++] = sp;
+			maskpixels[pixelnum]= PPUMASK;
+			pixels[pixelnum++] = Byte.toUnsignedInt(sp);
 		}
 		else if(bx>0&&sx==0){
-			//finalp = bgp;
-			pixels[pixelnum++] = bgp;
+			maskpixels[pixelnum]= PPUMASK;
+			pixels[pixelnum++] = Byte.toUnsignedInt(bgp);
 		}
 		else if(spp&&PPUMASK_ss){
-			//finalp = sp;
-			pixels[pixelnum++] = sp;
+			maskpixels[pixelnum]= PPUMASK;
+			pixels[pixelnum++] = Byte.toUnsignedInt(sp);
 		}
 		else{
-			//finalp = bgp;
-			pixels[pixelnum++] = bgp;
-		}
-		//ntsc.pushPixel(finalp, pcycle, scanline);
-			
+			maskpixels[pixelnum]= PPUMASK;
+			pixels[pixelnum++] = Byte.toUnsignedInt(bgp);
+		}			
 		
 	}
 	void shiftSprites(){
@@ -618,15 +550,6 @@ public class ppu2C02 {
 				spriteco[i]--;
 			}
 		}
-	}
-	void check(int x){
-		
-		cura12 = (x&0x1000)!=0?true:false;
-		if(cura12&&(!olda12)){
-			//System.out.println("v :"+Integer.toHexString(v));
-			map.scanlinecounter();
-		}
-		olda12 = cura12;
 	}
 	private int inrange(int y){
 		if((scanline)-(y)>=0)
@@ -647,13 +570,9 @@ public class ppu2C02 {
 	int szhl;
 	boolean doingSprites;
 	void spriteEvaluation(){
-		//PPUSTATUS_sz=false;
 		if(pcycle>=1 &&pcycle<=64){
-			if(pcycle==1){
+			if(pcycle==1)
 				Arrays.fill(oambuffer,(byte) 0xff);
-				//oamsignal = true;
-			}
-			
 		}
 		else if(pcycle>=65 &&pcycle<=256){
 			oamsignal = false;
@@ -746,7 +665,6 @@ public class ppu2C02 {
 				oamBCounter=0;
 				doingSprites=true;
 			}
-			//getBG();
 			switch((pcycle)%8){
 			case 0:
 				oamBCounter++;
@@ -758,14 +676,9 @@ public class ppu2C02 {
 					spritepalette[spritec]=0;
 					spritepriority[spritec]=false;
 					spritebm[spritec]=0;
-					//if(oamBCounter==0&&dorender()){
-						//System.out.println("Calling the empty one");
-						//map.check(0x1000);
-					//}
 				}
 				else{
 					spriteco[spritec] = Byte.toUnsignedInt(oambuffer[4*oamBCounter+3]);
-					//spritela[spritec] = oambuffer[4*oamBCounter+2];
 					byte b = oambuffer[4*oamBCounter+2];
 					spritepalette[spritec] = b&3;
 					spritepriority[spritec] = (b&32)>0?false:true;
@@ -775,14 +688,11 @@ public class ppu2C02 {
 					if(PPUCTRL_ss){
 						temp = Byte.toUnsignedInt(oambuffer[4*oamBCounter+1]);
 						tileindex = (temp&1)*0x1000+(temp&0xfe)*16;
-						//check(tileindex);
-						
 					}
 					else{
 						tileindex=Byte.toUnsignedInt(oambuffer[4*oamBCounter+1])<<4;
 						tileindex+= PPUCTRL_spta?0x1000:0;
 					}
-					//check(tileindex);
 					if(y>=8&&PPUCTRL_ss){
 						tileindex+=0x10;
 					}
@@ -791,7 +701,6 @@ public class ppu2C02 {
 						if(y<8&&PPUCTRL_ss)
 							tileindex+=0x10;
 						else if(y>=8&&PPUCTRL_ss){
-							//System.out.println("in here");
 							tileindex-=0x10;
 						}
 						y=y%8;
@@ -801,10 +710,6 @@ public class ppu2C02 {
 							y%=8;
 							tileindex+=y;
 					}
-					//if(oamBCounter==0&&dorender()){
-						//System.out.println("Scanline: "+scanline+" ti>0x1000:"+Integer.toHexString(tileindex)+ " v?"+Integer.toHexString(v) + " olda12: "+map.olda12+" Sprite 16?"+PPUCTRL_ss);
-						//map.check(tileindex);
-					//}
 					if((b&0x40)!=0){
 						int z = Byte.toUnsignedInt(map.ppuread(tileindex));
 						int flip = 0;
@@ -835,8 +740,6 @@ public class ppu2C02 {
 					else
 						spritebm[spritec] = (Byte.toUnsignedInt((map.ppuread(tileindex)))<<8)|Byte.toUnsignedInt((map.ppuread(tileindex+8)));
 				}
-				//int x = Integer.reverse(Byte.toUnsignedInt(map.ppuread(tileindex)))>>>24;
-				//spritebm[spritec] = (x<<8)|(Integer.reverse(Byte.toUnsignedInt(map.ppuread(tileindex+8)))>>>24);
 				break;
 			default: break;
 			}

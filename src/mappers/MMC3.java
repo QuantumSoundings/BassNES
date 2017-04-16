@@ -3,8 +3,8 @@ package mappers;
 import java.util.Arrays;
 
 public class MMC3 extends Mapper {
-	byte[][] PRGbanks;
-	byte[][] CHRbanks;
+	//byte[][] PRGbanks;
+	//byte[][] CHRbanks;
 	public MMC3(){
 		System.out.println("Making an MMC3!");
 	}
@@ -80,8 +80,6 @@ public class MMC3 extends Mapper {
 					System.out.println("Setting reload to : "+irqreload+" SL: "+ppu.scanline);
 			}
 			else{
-				//System.out.println("Triggering irq reload");
-				//reloadirq = true;
 				scanlinecount=0;
 			}
 		}
@@ -148,18 +146,15 @@ public class MMC3 extends Mapper {
 			break;
 		case 6://select 8kb prg bank at PRG_ROM[0] (2)
 			if(PRG_mode){
-				//System.out.println("Case 6 Switching 2 to :"+(b&(PRGbanks.length-1)));
 				PRG_ROM[2] = PRGbanks[(b&(PRGbanks.length-1))];
 				PRG_ROM[0] = PRGbanks[PRGbanks.length-2];
 			}
 			else{
-				//System.out.println("Case 6 Switching 0 to :"+(b&(PRGbanks.length-1)));
 				PRG_ROM[0] = PRGbanks[(b&(PRGbanks.length-1))];
 				PRG_ROM[2] = PRGbanks[PRGbanks.length-2];
 			}
 			break;
 		case 7://select 8kb prg bank at PRG_rom[1]
-			//System.out.println("Case 7 Switching a to :"+(b&(PRGbanks.length-1)));
 			PRG_ROM[1] = PRGbanks[(b&(PRGbanks.length-1))];
 			break;
 		default:break;
@@ -263,32 +258,6 @@ public class MMC3 extends Mapper {
 				return index-0x2800;
 		}
 	}
-	/* Credit for this method belongs to Andrew Hoffman and his nes
-	 * emulator halfnes. I couldn't find any documentation on this 
-	 * timer but it seems to work. I have another implementation I'm
-	 * working on. When its done I will be removing this code.
-	 * 
-	 * As of 4/9/17 I have my own solution. I will be leaving this here
-	 * just in case;
-	 */
-	/*int a12timer = 0;
-	@Override
-	public void check(int index){		
-		//scanlinecounter();		
-		
-		boolean cur = ((index&0x1000)!=0);
-		if(cur && (!oldsignal)){
-			if(a12timer<=0){
-				scanlinecounter();
-			}
-		}
-		else if(!cur &&oldsignal){
-			a12timer = 8;
-		}
-		--a12timer;
-		oldsignal = cur;
-		
-	}*/
 	boolean cura12;
 	public boolean olda12;
 	//@Override

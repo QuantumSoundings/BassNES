@@ -1,21 +1,16 @@
 package com;
-//import java.awt.Graphics;
-//import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.swing.JFrame;
-//import javax.swing.JPanel;
 
 import mappers.Mapper;
+import video.NesDisplay;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-//import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Scanner;
-//import java.io.InputStream;
-//import java.util.Arrays;
-//import java.util.Scanner;
+
 public class NES implements Runnable {
 	//Different system components
 	private CPU_6502 cpu;
@@ -29,8 +24,6 @@ public class NES implements Runnable {
 	int systemclock = 21477272;
 	boolean batteryExists;
 	private NesDisplay display;
-	//private JFrame frame;
-	//private Graphics g;
 	public volatile boolean flag = true;
 	public volatile boolean doaudio = true;
 	//Master clock speed.
@@ -52,7 +45,6 @@ public class NES implements Runnable {
 		map.setcomponents(cpu, ppu,controller,controller2,apu);
 		map.setNes(this);
 		cpu.setPC(((map.cpureadu(0xfffd)<<8)|(map.cpureadu(0xfffc))));
-		//cpu.setPC(0xc000);//cpu.setPC(0x8706);
 	}
 	int p=0;
 	double c =0.0;
@@ -134,8 +126,8 @@ public class NES implements Runnable {
 		//	ppu.dodebug=true;
 		if(ppu.vfresh){
 			stop = System.currentTimeMillis()-start;
-			display.sendFrame(ppu.ntsc.bi);
-			ppu.ntsc.submit();
+			display.sendFrame(ppu.renderer.frame);
+			//ppu.ntsc.submit();
 			//stop =17;
 			//if(framecount%2==0)
 			//apu.update();
@@ -187,7 +179,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/battletoads.nes");
+		rom = new File(System.getProperty("user.dir")+"/smb3.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

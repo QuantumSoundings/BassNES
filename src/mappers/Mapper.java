@@ -9,7 +9,7 @@ import com.ppu2C02;
 public class Mapper {//There will be class that inheriet this class. Better to have all reads and writes go through this
 	
 	public CPU_6502 cpu;
-	byte[] cpu_ram= new byte[0x1fff];
+	byte[] cpu_ram= new byte[0x800];
 	NES nes;
 	public ppu2C02 ppu;
 	byte[] ppu_ram= new byte[0x1fff];
@@ -21,9 +21,11 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 
 	
 	byte[][] PRG_ROM = new byte[2][0x4000];
-	boolean PRG_32k;
+	byte[][] PRGbanks;
+	//boolean PRG_32k;
 	byte[] PRG_RAM=new byte[0x2000];
 	byte[][] CHR_ROM = new byte[2][0x1000];
+	byte[][] CHRbanks;
 	boolean CHR_ram = false;
 	
 	boolean mirrormode;
@@ -35,8 +37,7 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 	public boolean olda12;
 	
 	public Mapper(){
-		ppu_palette[0]=0xf;
-		
+		ppu_palette[0]=0xf;		
 	}
 	public void setcomponents(CPU_6502 c,ppu2C02 p,Controller cont,Controller cont2, APU a){
 		cpu = c;
@@ -73,8 +74,7 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 		//System.out.println("WRITING: "+b+" to oam");
 		ppu_oam[index]=b;
 		//ppuregisterhandler(0x2004,b,true);
-	}
-	
+	}	
 	public byte cpuread(int index){
 		if(index<0x2000)
 			return cpu_ram[index%0x800];
@@ -107,8 +107,7 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 	public void controllerWrite(int index, byte b){
 		control.inputRegister(b);
 		control2.inputRegister(b);
-	}
-	
+	}	
 	public void ppuwrite(int index,byte b){
 		if(index<0x2000&&CHR_ram){
 			//System.out.println("Wwriting to char ram");
@@ -233,14 +232,11 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 		}
 		return 0;
 	}
-	
 	void cartridgeWrite(int index,byte b){
 		if(index<0x8000&&index>=0x6000)
 			PRG_RAM[index-0x6000]=b;
-		//System.out.println("ATTEMPTING TO WRITE TO CARTRIDGE");
 	}
 	byte cartridgeRead(int index){
-		//System.out.println(index);
 		if(index<0x8000&&index>=0x6000)
 			return PRG_RAM[index-0x6000];
 		else if(index<0xc000)
@@ -248,20 +244,17 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 		else
 			return PRG_ROM[1][index%0x4000];
 	}
-	
-	
 	public void restoreSave(byte[] save){
 		PRG_RAM = save;
 	}
 	public byte[] getSave(){
 		return PRG_RAM;
 	}
-	
 	public void setPRG(byte[] prg){
 		if(prg.length ==16384*2){
 			PRG_ROM[0]=Arrays.copyOfRange(prg, 0,0x4000);
 			PRG_ROM[1]=Arrays.copyOfRange(prg, 0x4000, 0x8000);
-			PRG_32k = true;
+			//PRG_32k = true;
 		}
 		else{
 			PRG_ROM[0]=Arrays.copyOfRange(prg, 0,0x4000);
@@ -280,7 +273,7 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 			CHR_ROM[1]=Arrays.copyOfRange(chr, 0x1000, 0x2000);
 		}
 	}
-
+	//Debug functions
 	public void printMemory(int offset,int length){
 		System.out.print("[");
 		for(int i = offset;i<offset+length-1;i++){
@@ -302,9 +295,7 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 		}
 		System.out.println("]");
 	}
-	public void scanlinecounter(){
-		
-	}
+	public void scanlinecounter(){}
 	public static Mapper getmapper(int i){
 		switch(i){
 		case 0:

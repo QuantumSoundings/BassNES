@@ -177,13 +177,8 @@ public class APU {
 		update();
 	}
 	public void doCycle(int cycle){
-		//triangle.linearClock();
-		//triangle.lengthClock();
 		if(cycle%2==0){
-			//pulse1.clockTimer();
-			//pulse2.clockTimer();
 			noise.clockTimer();
-			//noise.updateWave();
 		}
 		if(doFrameStep){
 			frameClock();

@@ -1,13 +1,10 @@
-package com;
+package video;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 public class NesDisplay extends JPanel {
-	/**
-	 * 
-	 */
 	int scaling=1;
 	private static final long serialVersionUID = 1L;
 	BufferedImage frame;
@@ -20,13 +17,6 @@ public class NesDisplay extends JPanel {
     
 	@Override
 	public void paintComponent(Graphics g) {
-		/*super.paintComponent(g);
-		Graphics2D g2d = (Graphics2D) g.create();
-		g2d.drawImage(frame, 0, 0, this);
-		//this.repaint();
-		g2d.dispose();*/
-		//if(scaling>1)
-		//	frame = (BufferedImage) frame.getScaledInstance(256*scaling, 240*scaling, 0);
 		g.setColor(Color.white);
 		g.fillRect(0, 0, 256*scaling, 240*scaling);
 		g.drawImage(frame.getScaledInstance(256*scaling, 240*scaling, 0), 0, 0,256*scaling,240*scaling, this);
@@ -39,7 +29,6 @@ public class NesDisplay extends JPanel {
 	public void sendFrame(BufferedImage f) {
 		this.frame = f;
 		this.repaint();
-		//System.out.println("FRAME IS GOOD");
 	}
 	@Override
 	public Dimension getPreferredSize() {

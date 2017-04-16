@@ -35,9 +35,11 @@ import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 
 import com.NES;
-import com.NesDisplay;
+
+import video.NesDisplay;
 
 public class SystemUI {
+	public final String version = "0.1.3";
 	public NES nes;
 	final JFileChooser fc = new JFileChooser();
 	public JFrame frame,debugframe,keyconfig;
@@ -69,10 +71,6 @@ public class SystemUI {
 		panel = new JPanel();
 		panel.setLayout(new FlowLayout());
 		display.setSize(256, 240);
-		//frame.setTitle("Nes Emulator");
-
-		//panel.add(display);
-		//panel.setFocusable(true);
 		display.setFocusable(true);
 		frame.getContentPane().add(display);
 		display.requestFocusInWindow();
@@ -88,17 +86,14 @@ public class SystemUI {
 					e.printStackTrace();
 				}
 				try {
-					//FileOutputStream output = new FileOutputStream("config.properties");
-					URL resourceUrl = getClass().getResource("config.properties");
-					File file = new File(resourceUrl.toURI().toString());
-					OutputStream output = new FileOutputStream(file);
+					FileOutputStream output = new FileOutputStream("config.properties");
+					//URL resourceUrl = getClass().getResource("config.properties");
+					//File file = new File(resourceUrl.toURI().toString());
+					//OutputStream output = new FileOutputStream(file);
 					prop.store(output, null);
 				} catch (IOException e) {
 					e.printStackTrace();
-				} catch (URISyntaxException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				} 
 				System.exit(0);
 			}
 		});
@@ -128,10 +123,11 @@ public class SystemUI {
 	}
 	public void loadProperties() throws IOException{
 		prop = new Properties();
-		InputStream input =this.getClass().getResourceAsStream("config.properties");
-		prop.load(input);
-		/*File t = new File("config.properties");
+		//InputStream input =this.getClass().getResourceAsStream("config.properties");
+		//prop.load(input);
+		File t = new File("config.properties");
 		if(!t.exists()){
+			prop.setProperty("version", version);
 			prop.setProperty("c1up", KeyEvent.VK_UP+"");
 			prop.setProperty("c1down", KeyEvent.VK_DOWN+"");
 			prop.setProperty("c1left", KeyEvent.VK_LEFT+"");
@@ -152,6 +148,10 @@ public class SystemUI {
 		else{
 			FileInputStream input = new FileInputStream("config.properties");
 			prop.load(input);
-		}*/
+			if(!prop.getProperty("version").equals(version)||!prop.containsKey("version")){
+				t.delete();
+				loadProperties();
+			}
+		}
 	}
 }
