@@ -68,8 +68,7 @@ public class NES implements Runnable {
 		
 		//mem.printMemory(0x8000, 0x200);
 		while(flag){
-			if(!skip){
-				
+			/*if(!skip){
 					if(i%3==0){
 						System.out.println("Timing: "
 								+" PPU scanline:"+ppu.scanline
@@ -79,12 +78,6 @@ public class NES implements Runnable {
 								+" PPUCTRL:"+Integer.toBinaryString(ppu.PPUCTRL)
 								+" PPUSTATUS:"+Integer.toBinaryString(ppu.PPUSTATUS));
 						cpu.debug(0);
-						//map.printMemory(0x3a0, 0x10);
-						//map.printMemoryPPU(0x3f00, 0x20);
-						//map.printMemoryPPU(0x2040, 0x20);
-						//map.printMemoryPPU(0, 0x200);
-						map.printOAMPPU(0, 256);
-						map.printMemoryPPU(0x2fc0, 0x50);
 					}
 					String t = s.nextLine();
 					if(t.equals("c"))
@@ -94,55 +87,55 @@ public class NES implements Runnable {
 					else if(t.equals("e"))
 						map.cpuwrite(0xe000, (byte)1);
 					else
-						skip = false;
-					
-				
-				}
+						skip = false;	
+			}
 			if(cpu.current_instruction==0x12&&controller.checkDebug()){//cpu.program_counter==0xe018){//&&ppu.scanline>234){
 				skip = false;
-				//cpu.debug(0);
-			}
-				
-		if(i%3==0){
-			cpu.run_cycle();
-			if(doaudio)
-				apu.doCycle(cpuclock);
-			cpuclock++;
-			c++;
-		}
-		p++;
-		ppu.render();
-		if(ppu.oddskip){
-			c+=(1/3.0);
-			ppu.oddskip=false;
-		}
-		if(ppu.scanline%65==0&&ppu.pcycle==1&&doaudio){
-			apu.doFrameStep=true;
-		}
-		if(i>29600){
-			map.blockppu=false;
-		}		
-		//if(controller.checkDebug())
-		//	ppu.dodebug=true;
-		if(ppu.vfresh){
-			stop = System.currentTimeMillis()-start;
-			display.sendFrame(ppu.renderer.frame);
-			//ppu.ntsc.submit();
-			//stop =17;
-			//if(framecount%2==0)
-			//apu.update();
-			//mem.printMemoryppu(0x2000, 0x400);
-			if(stop<16)
-				try {
-					Thread.sleep(16-stop);
-				} catch ( InterruptedException e){//  | IOException e) {
-					e.printStackTrace();
-				}
+			}*/	
 			
-			ppu.vfresh=false;
-			start = System.currentTimeMillis();
-		}
-		i++;
+			if(i%12==0){
+				cpu.run_cycle();
+				if(doaudio&&i%24==0)
+					apu.doCycle(cpuclock);
+				cpuclock++;
+				c++;
+				if(cpuclock>29600){
+					map.blockppu=false;
+				}	
+			}
+			if(i%4==0){
+				p++;
+				ppu.render();
+				if(ppu.vfresh){
+					stop = System.currentTimeMillis()-start;
+					display.sendFrame(ppu.renderer.frame);
+					if(stop<16)
+						try {
+							Thread.sleep(16-stop);
+						} catch ( InterruptedException e){
+							e.printStackTrace();
+						}
+				
+					ppu.vfresh=false;
+					start = System.currentTimeMillis();
+				}
+				if(ppu.oddskip){
+					c+=(1/3.0);
+					ppu.oddskip=false;
+				}
+			}
+			
+			//if(ppu.scanline%65==0&&ppu.pcycle==1&&doaudio){
+			//	apu.doFrameStep=true;
+			//}
+			if(doaudio&&i%89490==0)
+				apu.doFrameStep=true;
+			//if(controller.checkDebug())
+			//	ppu.dodebug=true;
+			
+			i++;
+			if(i==systemclock)
+				i=0;
 		}
 		apu.synth.stop();
 		if(batteryExists)
@@ -179,7 +172,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/smb3.nes");
+		rom = new File(System.getProperty("user.dir")+"/blarggapu/03.irq_flag.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

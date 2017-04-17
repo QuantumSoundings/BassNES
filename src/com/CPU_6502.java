@@ -36,7 +36,7 @@ public class CPU_6502 {
 	
 	public boolean writeDMA = false;
 	public boolean doNMI = false;
-	public boolean doIRQ = false;
+	public int doIRQ = 0;
 	boolean nmihijack;
 	//private Memory memory;
 	private Hashtable<Byte,Integer> inst_type;//read/write/both
@@ -199,12 +199,12 @@ public class CPU_6502 {
 			nmirecieved--;
 			return map.cpuread(program_counter);
 		}
-		else if(doIRQ&&irqrecieved!=0){
+		else if(doIRQ>0&&irqrecieved!=0){
 			irqrecieved--;
 			byte b = map.cpuread(program_counter);
 			return map.cpuread(program_counter);
 		}
-		else if(doIRQ&&!IFlag&&irqlatency==0){//&&irqrecieved==0){
+		else if(doIRQ>0&&!IFlag&&irqlatency==0){//&&irqrecieved==0){
 			//System.out.println("Executing IRQ ppu SL: "+map.ppu.scanline+" cycle: "+map.ppu.pcycle 
 			//		+" Prev inst: "+inst_name.get(current_instruction));
 			program_counter--;
@@ -961,15 +961,17 @@ public class CPU_6502 {
 		}}
 	}
 	private void executeOp(){
-		switch(inst_name.get(current_instruction)){
-		case "AAC": {
+		switch(Byte.toUnsignedInt(current_instruction)){
+		case 0x0b: case 0x2b:{
+		//case "AAC": {
 			System.out.println("Invalid instruction AAC");
 			accumulator= (byte)(accumulator &tempregister);
 			if(accumulator==0) ZFlag=true;else ZFlag = false;
 			if(accumulator<0) NFlag=true;else NFlag = false;
 			CFlag = NFlag;
 		};break;
-		case "ADC": {
+		case 0x69: case 0x65: case 0x75: case 0x6d: case 0x7d: case 0x79:case 0x61: case 0x71:{
+		//case "ADC": {
 			//System.out.println("IM IN ADC!");
 			int sum = Byte.toUnsignedInt(accumulator) + Byte.toUnsignedInt(tempregister) + (CFlag?1:0);
 			CFlag = sum>0xff?true:false;
@@ -988,13 +990,14 @@ public class CPU_6502 {
 			if(out>0xff)CFlag = true;else CFlag = false;
 			if(accumulator==0)ZFlag = true;else ZFlag = false;*/
 		};break;
-		case "AND": {
+		case 0x29: case 0x25: case 0x35: case 0x2d: case 0x3d: case 0x39: case 0x21: case 0x31:{
+		//case "AND":  {
 			accumulator = (byte) (accumulator & tempregister);
 			if(accumulator==0) ZFlag=true;else ZFlag = false;
 			if(accumulator<0) NFlag=true;else NFlag = false;
-			break;
-		}
-		case "ARR": {
+		};break;
+		case 0x6b:{
+		//case "ARR": {
 			System.out.println("Invalid instruction ARR");
 			accumulator=(byte) (accumulator&tempregister);
 			int result = Byte.toUnsignedInt(accumulator);
@@ -1007,15 +1010,16 @@ public class CPU_6502 {
 			VFlag = CFlag ^ ((accumulator&0b100000)!=0);
 			
 		};break;
-		case "ASL": {
+		case 0x0a: case 0x06: case 0x16: case 0x0e: case 0x1e:{
+		//case "ASL": {
 			int temp = Byte.toUnsignedInt(tempregister);
 			if((tempregister&0x80)!=0) CFlag=true; else CFlag=false;
 			tempregister = (byte) (temp<<1);
 			if(tempregister==0) ZFlag = true;else ZFlag = false;
 			if(tempregister<0) NFlag = true;else NFlag = false;
-			break;
-		}
-		case "ASR": {
+		};break;
+		case 0x4b:{
+		//case "ASR": {
 			accumulator = (byte) (accumulator & tempregister);
 			CFlag = (accumulator&1)!=0;
 			accumulator= (byte)(Byte.toUnsignedInt(accumulator)>>1);
@@ -1023,7 +1027,8 @@ public class CPU_6502 {
 			if(accumulator<0) NFlag=true;else NFlag = false;
 			
 		};break;
-		case "ATX": {
+		case 0xab:{
+		//case "ATX": {
 			System.out.println("Invalid instruction ATX");
 
 			x_index_register = accumulator=tempregister;
@@ -1031,7 +1036,8 @@ public class CPU_6502 {
 			if(accumulator==0) ZFlag=true;else ZFlag = false;
 			if(accumulator<0) NFlag=true;else NFlag = false;
 		};break;
-		case "AXS": {
+		case 0xcb:{
+		//case "AXS": {
 			System.out.println("Invalid instruction AXS");
 			int result = Byte.toUnsignedInt(x_index_register);
 			result &= Byte.toUnsignedInt(accumulator);
@@ -1041,51 +1047,56 @@ public class CPU_6502 {
 			NFlag = x_index_register<0;
 			ZFlag = x_index_register==0;
 		};break;
-		case "BCC": {
+		case 0x90:{
+		//case "BCC": {
 			if(!CFlag)
 				branchtaken=true;
 			else
 				branchtaken=false;
-			break;
-		}
-		case "BCS": {
+		};break;
+		case 0xb0:{
+		//case "BCS": {
 			if(CFlag)
 				branchtaken=true;
 			else
 				branchtaken=false;
-			break;
-		}
-		case "BEQ": {
+		};break;
+		case 0xf0:{
+		//case "BEQ": {
 			if(ZFlag)
 				branchtaken=true;
 			else
 				branchtaken=false;
-			break;
-		}
-		case "BIT": {
+		};break;
+		case 0x24: case 0x2c:{
+		//case "BIT": {
 			if((accumulator&tempregister)==0)ZFlag = true; else ZFlag = false;
 			if((tempregister&0x80)!=0)NFlag = true; else NFlag = false;
 			if((tempregister&0x40)!=0)VFlag = true; else VFlag = false;
 		};break;
-		case "BMI":{
+		case 0x30:{
+		//case "BMI":{
 			if(NFlag)
 				branchtaken=true;
 			else
 				branchtaken=false;
 		};break;
-		case "BNE": {
+		case 0xd0:{
+		//case "BNE": {
 			if(!ZFlag)
 				branchtaken=true;
 			else
 				branchtaken=false;
 		};break;
-		case "BPL": {
+		case 0x10:{
+		//case "BPL": {
 			if(!NFlag)
 				branchtaken=true;
 			else
 				branchtaken=false;
 		};break;
-		case "BRK": {
+		case 0x0:{
+		//case "BRK": {
 			switch(instruction_cycle){
 			case 2: {
 				if(nmi&&doNMI)
@@ -1130,65 +1141,77 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "BVC": {
+		case 0x50:{
+		//case "BVC": {
 			if(!VFlag)
 				branchtaken=true;
 			else
 				branchtaken=false;
 		};break;
-		case "BVS": {
+		case 0x70:{
+		//case "BVS": {
 			if(VFlag)
 				branchtaken=true;
 			else
 				branchtaken=false;
 		};break;
-		case "CLC": {
+		case 0x18:{
+		//case "CLC": {
 			CFlag = false;
 			instruction_cycle = 1;
 		};break;
-		case "CLD": {
+		case 0xd8:{
+		//case "CLD": {
 			DFlag = false;
 			instruction_cycle = 1;
 		};break;
-		case "CLI": {
+		case 0x58:{
+		//case "CLI": {
 			//if(map.control.checkDebug())
 			//	System.out.println("Clearing IFlag scanline: "+map.ppu.scanline);
 			IFlag = false;
 			instruction_cycle=1;
 			irqlatency = 2;
 		};break;
-		case "CLV": {
+		case 0xb8:{
+		//case "CLV": {
 			VFlag = false;
 			instruction_cycle=1;
 		};break;
-		case "CMP": {
+		case 0xc9: case 0xc5: case 0xd5: case 0xcd: case 0xdd: case 0xd9: case 0xc1: case 0xd1:{
+		//case "CMP": {
 			if(Byte.toUnsignedInt(accumulator)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
 			if(accumulator == tempregister) ZFlag = true;else ZFlag = false;
 			if(((Byte.toUnsignedInt(accumulator)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
 		};break;
-		case "CPX": {
+		case 0xe0: case 0xe4: case 0xec:{
+		//case "CPX": {
 			if(Byte.toUnsignedInt(x_index_register)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
 			if(x_index_register == tempregister) ZFlag = true;else ZFlag = false;
 			if(((Byte.toUnsignedInt(x_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
 		};break;
-		case "CPY": {
+		case 0xc0: case 0xc4: case 0xcc:{
+		//case "CPY": {
 			if(Byte.toUnsignedInt(y_index_register)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
 			if(y_index_register == tempregister) ZFlag = true;else ZFlag = false;
 			if(((Byte.toUnsignedInt(y_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
 		};break;
-		case "DCP": {
+		case 0xc3: case 0xc7: case 0xcf: case 0xd3: case 0xd7: case 0xdb: case 0xdf:{
+		//case "DCP": {
 			System.out.println("Invalid instruction DCP");
 			tempregister--;
 			if(Byte.toUnsignedInt(accumulator)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
 			if(accumulator == tempregister) ZFlag = true;else ZFlag = false;
 			if(((Byte.toUnsignedInt(accumulator)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
 		};break;
-		case "DEC": {
+		case 0xc6: case 0xd6: case 0xce: case 0xde:{
+		//case "DEC": {
 			tempregister--;
 			if(tempregister==0) ZFlag = true;else ZFlag = false;
 			if(tempregister<0) NFlag = true;else NFlag = false;
 		};break;
-		case "DEX": {
+		case 0xca:{
+		//case "DEX": {
 			x_index_register--;
 			if(x_index_register==0) ZFlag = true;else ZFlag = false;
 			if(x_index_register<0) NFlag = true;else NFlag = false;
@@ -1196,7 +1219,8 @@ public class CPU_6502 {
 			//program_counter++;
 			instruction_cycle = 1;
 		};break;
-		case "DEY": {
+		case 0x88:{
+		//case "DEY": {
 			y_index_register--;
 			if(y_index_register==0) ZFlag = true;else ZFlag = false;
 			if(y_index_register<0) NFlag = true;else NFlag = false;
@@ -1204,30 +1228,35 @@ public class CPU_6502 {
 			//program_counter++;
 			instruction_cycle = 1;
 		};break;
-		case "EOR": {
+		case 0x49: case 0x45: case 0x55: case 0x4d: case 0x5d: case 0x59: case 0x41: case 0x51:{
+		//case "EOR": {
 			accumulator = (byte) (accumulator ^ tempregister);
 			if(accumulator == 0) ZFlag = true; else ZFlag = false;
 			if(accumulator<0)NFlag = true;else NFlag = false;
 		};break;
-		case "INC": {
+		case 0xe6: case 0xf6: case 0xee: case 0xfe:{
+		//case "INC": {
 			tempregister++;
 			if(tempregister==0) ZFlag = true;else ZFlag = false;
 			if(tempregister<0) NFlag = true;else NFlag = false;
 		};break;
-		case "INX": {
+		case 0xe8:{
+		//case "INX": {
 			x_index_register++;
 			if(x_index_register==0) ZFlag = true;else ZFlag = false;
 			if(x_index_register<0) NFlag = true;else NFlag = false;
 			instruction_cycle = 1;
 		};break;
-		case "INY": {
+		case 0xc8:{
+		//case "INY": {
 			y_index_register++;
 			if(y_index_register==0) ZFlag = true;else ZFlag = false;
 			if(y_index_register<0) NFlag = true;else NFlag = false;
 			instruction_cycle = 1;
 			
 		};break;
-		case "IRQ": {
+		case 0x12:{
+		//case "IRQ": {
 			//System.out.println("Doing the IRQ cycle: "+instruction_cycle);
 			switch(instruction_cycle){
 			case 2: {
@@ -1266,7 +1295,8 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "ISB": {
+		case 0xe3: case 0xe7: case 0xef: case 0xf3: case 0xf7: case 0xfb: case 0xff:{
+		//case "ISB": {
 			tempregister++;
 			System.out.println("Invalid instruction ISB");
 			int sum = Byte.toUnsignedInt(accumulator) - Byte.toUnsignedInt(tempregister) - (CFlag?0:1);
@@ -1277,7 +1307,8 @@ public class CPU_6502 {
 			ZFlag = accumulator==0?true:false;
 
 		};break;
-		case "JMP": {
+		case 0x6c:{
+		//case "JMP": {
 			switch(instruction_cycle){
 			case 2: {
 				address = map.cpureadu(program_counter);
@@ -1300,7 +1331,8 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "JSR": {
+		case 0x20:{
+		//case "JSR": {
 			switch(instruction_cycle){
 			case 2: {
 				address = map.cpureadu(program_counter);
@@ -1331,34 +1363,40 @@ public class CPU_6502 {
 			}
 			}
 		}; break;
-		case "LAX": {
+		case 0xa3: case 0xa7: case 0xaf: case 0xb3: case 0xb7: case 0xbf:{
+		//case "LAX": {
 			System.out.println("Invalid instruction LAX");
 			x_index_register = accumulator = tempregister;
 			NFlag = accumulator<0;
 			ZFlag = accumulator==0;
 		};break;
-		case "LDA": {
+		case 0xa9: case 0xa5: case 0xb5: case 0xad: case 0xbd: case 0xb9: case 0xa1: case 0xb1:{
+		//case "LDA": {
 			accumulator = tempregister;
 			if(accumulator == 0) ZFlag = true;else ZFlag = false;
 			if(accumulator <0)NFlag = true;else NFlag = false;
 		};break;
-		case "LDX": {
+		case 0xa2: case 0xa6: case 0xb6: case 0xae: case 0xbe:{
+		//case "LDX": {
 			x_index_register = tempregister;
 			if(x_index_register == 0) ZFlag = true;else ZFlag = false;
 			if(x_index_register<0)NFlag = true;else NFlag = false;
 		};break;
-		case "LDY": {
+		case 0xa0: case 0xa4: case 0xb4: case 0xac: case 0xbc: {
+		//case "LDY": {
 			y_index_register = tempregister;
 			if(y_index_register == 0) ZFlag = true;else ZFlag = false;
 			if(y_index_register<0)NFlag = true;else NFlag = false;
 		};break;
-		case "LSR": {
+		case 0x4a: case 0x46: case 0x56: case 0x4e: case 0x5e:{
+		//case "LSR": {
 			if((tempregister&1) >0)CFlag = true;else CFlag = false;
 			tempregister=(byte) (Byte.toUnsignedInt(tempregister)>>>1);
 			if(tempregister==0) ZFlag = true;else ZFlag = false;
 			if(tempregister<0) NFlag = true;else NFlag = false;
 		};break;
-		case "NMI": {
+		case 0x2:{
+		//case "NMI": {
 			switch(instruction_cycle){
 			case 2: {
 				//program_counter++;
@@ -1394,7 +1432,8 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "NOP":case "NOP12":case "NOP13":case "NOP14":case "NOP15":case "NOP16":case "NOP17": {
+		case 0xea: case 0x1a: case 0x3a: case 0x5a: case 0x7a: case 0xda: case 0xfa:{
+		//case "NOP":case "NOP12":case "NOP13":case "NOP14":case "NOP15":case "NOP16":case "NOP17": {
 			switch(instruction_cycle){
 			case 2: {
 				instruction_cycle++;break;
@@ -1406,35 +1445,23 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "SKB": {
+		case 0x04: case 0x14: case 0x34: case 0x44: case 0x54: case 0x64: case 0x74: case 0x80:
+		case 0x82: case 0x89: case 0xc2: case 0xd4: case 0xe2: case 0xf4:{
+		//case "SKB": {
 			System.out.println("Invalid instruction SKB");
-			if(instruction_cycle==inst_type.get(current_instruction)){
-				program_counter++;
-				current_instruction = getNextInstruction();
-				program_counter++;
-				instruction_cycle=2;
-			}
-			else{
-				instruction_cycle++;
-			}
 		};break;
-		case "SKW": {
+		case 0x0c: case 0x1c: case 0x3c: case 0x5c: case 0x7c: case 0xdc: case 0xfc:{
+		//case "SKW": {
 			System.out.println("Invalid instruction SKW");
-			if(instruction_cycle==inst_type.get(current_instruction)){
-				program_counter+=2;
-				current_instruction= getNextInstruction();
-				program_counter++;
-				instruction_cycle=2;
-			}
-			else
-				instruction_cycle++;
 		};break;
-		case "ORA": {
+		case 0x09: case 0x05: case 0x15: case 0x0d: case 0x1d: case 0x19: case 0x01: case 0x11:{
+		//case "ORA": {
 			accumulator = (byte) (accumulator | tempregister);
 			if(accumulator == 0) ZFlag = true;else ZFlag = false;
 			if(accumulator<0)NFlag = true;else NFlag = false;
 		};break;
-		case "PHA": {
+		case 0x48:{
+		//case "PHA": {
 			switch(instruction_cycle){
 			case 2: {
 				instruction_cycle++;break;
@@ -1446,7 +1473,8 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "PHP": {
+		case 0x8:{
+		//case "PHP": {
 			switch(instruction_cycle){
 			case 2: {
 				instruction_cycle++;break;
@@ -1466,7 +1494,8 @@ public class CPU_6502 {
 			}
 			
 		};break;
-		case "PLA": {
+		case 0x68:{
+		//case "PLA": {
 			switch(instruction_cycle){
 			case 2: {
 				instruction_cycle++;break;
@@ -1484,7 +1513,8 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "PLP": {
+		case 0x28:{
+		//case "PLP": {
 			switch(instruction_cycle){
 			case 2: {
 				instruction_cycle++;break;
@@ -1508,7 +1538,8 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "RLA": {
+		case 0x23: case 0x27: case 0x2f: case 0x33: case 0x37: case 0x3b: case 0x3f:{
+		//case "RLA": {
 			System.out.println("Invalid instruction RLA");
 			int tcarry = tempregister<0?1:0;
 			tempregister = (byte) (tempregister<<1);
@@ -1522,7 +1553,8 @@ public class CPU_6502 {
 			if(accumulator<0) NFlag=true;else NFlag = false;
 			
 		};break;
-		case "ROL": {
+		case 0x2a: case 0x26: case 0x36: case 0x2e: case 0x3e:{
+		//case "ROL": {
 			int tcarry = tempregister<0?1:0;
 			tempregister = (byte) (tempregister<<1);
 			tempregister = (byte) (tempregister | (CFlag?1:0));
@@ -1530,7 +1562,8 @@ public class CPU_6502 {
 			if(tempregister ==0)ZFlag = true;else ZFlag = false;
 			if(tempregister<0)NFlag = true; else NFlag = false;
 		};break;
-		case "ROR": {
+		case 0x6a: case 0x66: case 0x76: case 0x6e: case 0x7e:{
+		//case "ROR": {
 			int tcarry = tempregister&0x01;
 			tempregister= (byte) (Byte.toUnsignedInt(tempregister)>>>1);
 			tempregister = (byte) (tempregister | (CFlag?0x80:0));
@@ -1538,7 +1571,8 @@ public class CPU_6502 {
 			if(tempregister==0)ZFlag = true; else ZFlag = false;
 			if(tempregister<0)NFlag = true; else NFlag = false;
 		};break;
-		case "RRA": {
+		case 0x63: case 0x67: case 0x6f: case 0x73: case 0x77: case 0x7b: case 0x7f:{
+		//case "RRA": {
 			System.out.println("Invalid instruction RRA");
 			if(CFlag){
 				CFlag = (tempregister&1)!=0;
@@ -1557,7 +1591,8 @@ public class CPU_6502 {
 			ZFlag = accumulator==0?true:false;
 			
 		};break;
-		case "RTI": {
+		case 0x40:{
+		//case "RTI": {
 			switch(instruction_cycle){
 			case 2:{
 				//program_counter++;
@@ -1587,7 +1622,8 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "RTS":{
+		case 0x60:{
+		//case "RTS":{
 			switch(instruction_cycle){
 			case 2: {
 				instruction_cycle++;break;
@@ -1613,12 +1649,14 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "SAX": {
+		case 0x83: case 0x87: case 0x8f: case 0x97:{
+		//case "SAX": {
 			System.out.println("Invalid instruction SAX");
 			tempregister = (byte) (x_index_register&accumulator);
 			map.cpuwrite(address, tempregister);
 		};break;
-		case "SBC": {//flags are broken
+		case 0xe9: case 0xe5: case 0xf5: case 0xed: case 0xfd: case 0xf9: case 0xe1: case 0xf1: case 0xeb:{
+		//case "SBC": {//flags are broken
 			tempregister=(byte) ~tempregister;
 			int sum = Byte.toUnsignedInt(accumulator) + Byte.toUnsignedInt(tempregister) + (CFlag?1:0);
 			CFlag = sum>0xff?true:false;
@@ -1638,22 +1676,26 @@ public class CPU_6502 {
 			//if((sign!=0&&sign2==0)||(sign!=0&&sign2==0&&tempregister>0)) CFlag = false; else CFlag = true;
 			*/
 		};break;
-		case "SEC": {
+		case 0x38:{
+		//case "SEC": {
 			CFlag = true;
 			instruction_cycle = 1;
 		};break;
-		case "SED": {
+		case 0xf8:{
+		//case "SED": {
 			DFlag = true;
 			instruction_cycle = 1;
 		};break;
-		case "SEI": {
+		case 0x78:{
+		//case "SEI": {
 			//IFlag = true;
 			if(map.control.checkDebug())
 				System.out.println("Setting IFlag to true scanline: "+map.ppu.scanline);
 			irqsetdelay = 1;
 			instruction_cycle = 1;
 		};break;
-		case "SHX": {
+		case 0x9e:{
+		//case "SHX": {
 			System.out.println("Invalid instruction SHX");
 			switch(instruction_cycle){
 			case 2: 
@@ -1680,7 +1722,8 @@ public class CPU_6502 {
 				break;	
 			}
 		};break;
-		case "SHY": {
+		case 0x9c:{
+		//case "SHY": {
 			System.out.println("Invalid instruction SHY");
 			switch(instruction_cycle){
 			case 2: 
@@ -1708,7 +1751,8 @@ public class CPU_6502 {
 			}
 			
 		};break;
-		case "SLO": {
+		case 0x03: case 0x07: case 0xf: case 0x13: case 0x17: case 0x1b: case 0x1f:{
+		//case "SLO": {
 			System.out.println("Invalid instruction SLO");
 			CFlag = (tempregister&0x80)!=0;
 			tempregister<<=1;
@@ -1716,7 +1760,8 @@ public class CPU_6502 {
 			NFlag = accumulator<0;
 			ZFlag = accumulator==0;
 		};break;
-		case "SRE": {
+		case 0x43: case 0x47: case 0x4f: case 0x53: case 0x57: case 0x5b: case 0x5f:{
+		//case "SRE": {
 			System.out.println("Invalid instruction SRE");
 			int result = Byte.toUnsignedInt(tempregister);
 			CFlag = (result&1)!=0;
@@ -1727,19 +1772,23 @@ public class CPU_6502 {
 			NFlag = accumulator<0;
 			ZFlag = accumulator==0;
 		};break;
-		case "STA": {
+		case 0x85: case 0x95: case 0x8d: case 0x9d: case 0x99: case 0x81: case 0x91:{
+		//case "STA": {
 			//tempregister=accumulator;
 			map.cpuwrite(address, accumulator);
 		};break;
-		case "STX": {
+		case 0x86: case 0x96: case 0x8e:{
+		//case "STX": {
 			//tempregister=x_index_register;
 			map.cpuwrite(address, x_index_register);
 		};break;
-		case "STY": {
+		case 0x84: case 0x94: case 0x8c:{
+		//case "STY": {
 			//tempregister=y_index_register;
 			map.cpuwrite(address, y_index_register);
 		};break;
-		case "TAX": {
+		case 0xaa:{
+		//case "TAX": {
 			switch(instruction_cycle){
 			case 2: {
 				x_index_register= accumulator;
@@ -1749,7 +1798,8 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "TAY": {
+		case 0xa8:{
+		//case "TAY": {
 			switch(instruction_cycle){
 			case 2: {
 				y_index_register=accumulator;
@@ -1759,7 +1809,8 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "TSX": {
+		case 0xba:{
+		//case "TSX": {
 			switch(instruction_cycle){
 			case 2: {
 				x_index_register = stack_pointer;
@@ -1769,7 +1820,8 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "TXA": {
+		case 0x8a:{
+		//case "TXA": {
 			switch(instruction_cycle){
 			case 2: {
 				accumulator = x_index_register;
@@ -1779,7 +1831,8 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "TXS": {
+		case 0x9a:{
+		//case "TXS": {
 			switch(instruction_cycle){
 			case 2: {
 				stack_pointer = x_index_register;				
@@ -1787,7 +1840,8 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "TYA": {
+		case 0x98:{
+		//case "TYA": {
 			switch(instruction_cycle){
 			case 2: {
 				accumulator = y_index_register;

@@ -38,16 +38,17 @@ public class Pulse extends Channel {
 		}
 	}
 	
-	
+	//double[] dutylook = new double[]{10.0,5.0,0.0,5.0};
 	public void registerWrite(int index,byte b){
 		//System.out.println("Writing to pulse1 index: "+Integer.toHexString(index)+" byte:"+Integer.toBinaryString(Byte.toUnsignedInt(b)));
 		switch(index%4){
 		case 0: 
-			duty = b>>6;
+			duty = Byte.toUnsignedInt(b)>>>6;
 			loop=(b&0b100000)!=0?true:false;
 			constantvolume=(b&0b10000)!=0?true:false;
 			volume=b&0xf;
 			estart = true;
+			//wave.width.set(dutylook[duty]/100);
 			//System.out.println("Loop"+loop+" Volume:"+volume+" constV:"+constantvolume);
 		break;
 		case 1: 
@@ -68,7 +69,8 @@ public class Pulse extends Channel {
 			break;
 		case 3: 
 			int x = Byte.toUnsignedInt(b)>>3;
-			lengthcount = lengthlookup[x];
+			if(enable)
+				lengthcount = lengthlookup[x];
 			timer&=0b11111111;
 			timer |= (b&0b111)<<8;
 			targetperiod = timer;
@@ -77,36 +79,38 @@ public class Pulse extends Channel {
 		
 	}
 	public void sweepClock(){
-		if(dosweep){
-			//System.out.println("doing a sweep tp:"+targetperiod+" dividerp: "+dividerperiod
-			//		+" Divider: "+sdivider
-			//		+" timer: "+timer
-			//		+" shift: "+shift
-			//		+" negate: "+negate);
-			if(sweepreload){
-				sdivider = dividerperiod+1;
-				if(sdivider ==0)
-					targetperiod=timer;
-				sweepreload=false;
-			}
-			else if(sdivider !=0){
-				sdivider--;
-			}
-			else if(sdivider ==0){
-				sdivider = dividerperiod+1;
-				int change = targetperiod>>shift;
-				if(negate){
-					if(p1)
-						targetperiod =  targetperiod - change -1;
-					else
-						targetperiod = targetperiod - change;
+		if(enable){
+			if(dosweep){
+				//System.out.println("doing a sweep tp:"+targetperiod+" dividerp: "+dividerperiod
+				//		+" Divider: "+sdivider
+				//		+" timer: "+timer
+				//		+" shift: "+shift
+				//		+" negate: "+negate);
+				if(sweepreload){
+					sdivider = dividerperiod+1;
+					if(sdivider ==0)
+						targetperiod=timer;
+					sweepreload=false;
 				}
-				else
-					targetperiod= targetperiod + change;
-				//sdivider--;
-				updateWave();
+				else if(sdivider !=0){
+					sdivider--;
+				}
+				else if(sdivider ==0){
+					sdivider = dividerperiod+1;
+					int change = targetperiod>>shift;
+					if(negate){
+						if(p1)
+							targetperiod =  targetperiod - change -1;
+						else
+							targetperiod = targetperiod - change;
+					}
+					else
+						targetperiod= targetperiod + change;
+					//sdivider--;
+					updateWave();
+				}
+				//timer = targetperiod&0b111111111111;
 			}
-			//timer = targetperiod&0b111111111111;
 		}
 	}
 	public double frequency(){

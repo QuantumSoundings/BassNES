@@ -27,7 +27,8 @@ public class Triangle extends Channel {
 			break;
 		case 3: 
 			int x = Byte.toUnsignedInt(b)>>3;
-			lengthcount = lengthlookup[x];
+			if(enable)
+				lengthcount = lengthlookup[x];
 			timer&=0b11111111;
 			timer |= (b&0b111)<<8;
 			linearhalt = true;
@@ -40,11 +41,13 @@ public class Triangle extends Channel {
 	int length;
 	@Override
 	public void lengthClock(){
-		if(lengthcount!=0){
-			if(linearcontrol)
-				lengthcount=1;
-			else
-				lengthcount--;
+		if(enable){
+			if(lengthcount!=0){
+				if(!linearcontrol)
+					lengthcount--;
+				//else
+				//	lengthcount--;
+			}
 		}
 	}
 	public double frequency(){

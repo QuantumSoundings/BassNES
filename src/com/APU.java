@@ -24,8 +24,10 @@ public class APU {
 	boolean stepmode4=true;
 	int stepcycle;
 	boolean IRQFlag;
+	boolean frameInterrupt;
 	boolean doFrameStep;
 	int stepNumber;
+	public int delay;
 	
 	
 	public APU(Mapper m){
@@ -82,43 +84,52 @@ public class APU {
 		else if(index==0x4015){
 			status = b;
 			//System.out.println("Writing to the control reg"+Integer.toBinaryString(Byte.toUnsignedInt(b)));
-			if((b&1)==0){
-				pulse1.wave.setEnabled(false);
-				pulse1.lengthcount=0;
-			}
+			if((b&1)==0)
+				pulse1.disable();
 			else
-				pulse1.wave.setEnabled(true);
-			if((b&2)==0){
-				pulse2.wave.setEnabled(false);
-				pulse2.lengthcount=0;
-			}
+				pulse1.enable();
+			if((b&2)==0)
+				pulse2.disable();
 			else
-				pulse2.wave.setEnabled(true);
-			if((b&4)==0){
-				triangle.wave.setEnabled(false);
-				triangle.lengthcount=0;
-			}
+				pulse2.enable();
+			if((b&4)==0)
+				triangle.disable();
 			else
-				triangle.wave.setEnabled(true);
-			if((b&8)==0){
-				noise.wave.setEnabled(false);
-				noise.lengthcount=0;
-			}
+				triangle.enable();
+			if((b&8)==0)
+				noise.disable();
 			else
-				noise.wave.setEnabled(true);
+				noise.enable();
 		}
 		else if(index==0x4017){
 			stepmode4 = (b&0x80)==0?true:false;
 			stepNumber = 0;
+			if((b&0x80)!=0)
+				frameClock();
 			IRQFlag = (b&0x40)==0?false:true;
-			if(IRQFlag)
-				map.cpu.doIRQ=false;
+			if(IRQFlag&&frameInterrupt){
+				map.cpu.doIRQ--;
+				frameInterrupt = false;
+			}
+			delay = 3;
 		}
 	}
-	public void readRegisters(int index){
+	public byte readRegisters(int index){
 		if(index == 0x4015){
-			map.cpu.doIRQ=false;
+			
+			byte b = 0;
+			b|= pulse1.lengthcount>0?1:0;
+			b|= pulse2.lengthcount>0?2:0;
+			b|= triangle.lengthcount>0?4:0;
+			b|= noise.lengthcount>0?8:0;
+			b|= frameInterrupt?64:0;
+			if(frameInterrupt){
+				map.cpu.doIRQ--;
+				frameInterrupt = false;
+			}
+			return b;
 		}
+		return 0;
 	}
 	public void update(){
 		pulse1.updateWave();
@@ -131,13 +142,14 @@ public class APU {
 		if(stepmode4){
 			//map.cpu.doIRQ=false;
 			if(stepNumber%4==1||stepNumber%4==3){
-			pulse1.lengthClock();
-			pulse1.sweepClock();
-			pulse2.lengthClock();
-			pulse2.sweepClock();			
-			triangle.lengthClock();
-			noise.lengthClock();
+				pulse1.lengthClock();
+				pulse1.sweepClock();
+				pulse2.lengthClock();
+				pulse2.sweepClock();			
+				triangle.lengthClock();
+				noise.lengthClock();
 			}
+			
 			pulse1.envelopeClock();
 			pulse2.envelopeClock();
 			triangle.linearClock();
@@ -146,7 +158,8 @@ public class APU {
 			stepNumber++;
 			if(stepNumber%4==3&&!IRQFlag){
 				//System.out.println("DOing an IRQ");
-				map.cpu.doIRQ=true;
+				frameInterrupt = true;
+				map.cpu.doIRQ++;
 			}
 			
 		}

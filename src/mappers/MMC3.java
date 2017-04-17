@@ -87,7 +87,8 @@ public class MMC3 extends Mapper {
 			if(index%2==0){
 				if(control.checkDebug())
 				System.out.println("setting irq enable to false scanline: "+ppu.scanline);
-				cpu.doIRQ = false;
+				if(cpu.doIRQ>0)
+					cpu.doIRQ--;
 				irqenable = false;
 			}
 			else{
@@ -279,7 +280,7 @@ public class MMC3 extends Mapper {
 			scanlinecount = irqreload;
 		}
 		if(scanlinecount==0&&irqenable){
-			cpu.doIRQ=true;
+			cpu.doIRQ++;
 			if(control.checkDebug())
 				System.out.println("Generating IRQ at scanline: "+ppu.scanline+" pcycle: "+ppu.pcycle+" iflag: "+cpu.IFlag );
 		}

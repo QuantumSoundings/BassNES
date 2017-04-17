@@ -31,8 +31,10 @@ public class Noise extends Channel{
 			shiftreg=1;
 			break;
 		case 3: 
-			lengthcount = (b&0b11111000)>>>3;
-			lengthcount = lengthlookup[lengthcount];
+			if(enable){
+				lengthcount = (b&0b11111000)>>>3;
+				lengthcount = lengthlookup[lengthcount];
+			}
 			break;
 		default: break;
 		}		
@@ -60,7 +62,7 @@ public class Noise extends Channel{
 		//+" cVolume?: "+constantvolume
 		//+" targetperiod: "+targetperiod
 		//+" timer: "+timer);
-	if(lengthcount==0||(shiftreg&1)==0||volume==0)
+	if(lengthcount==0||volume==0)//(shiftreg&1)==0||volume==0)
 		wave.amplitude.set(0);
 	else
 		//wave.setEnabled(true);

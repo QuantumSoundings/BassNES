@@ -3,6 +3,7 @@ package audio;
 import com.jsyn.unitgen.UnitGenerator;
 
 public class Channel {
+	public boolean enable;
 	UnitGenerator wave;
 	int tcount;
 	int timer;
@@ -50,34 +51,48 @@ public class Channel {
 			tcount--;
 	}
 	public void lengthClock(){
-		if(lengthcount!=0){
-			if(!loop)
-				lengthcount--;
-			else
-				lengthcount=0;
+		if(enable){
+			if(lengthcount!=0){
+				if(!loop)
+					lengthcount--;
+				//else
+				//	lengthcount=0;
+			}
 		}
 	}
+	public void disable(){
+		enable=false;
+		wave.setEnabled(false);
+		lengthcount=0;
+	}
+	public void enable(){
+		enable = true;
+		wave.setEnabled(true);
+	}
 	public void envelopeClock(){
-		if(estart){
-			estart=false;
-			decay = 15;
-			edivider = volume+1;
-		}
-		else {
-			if(edivider==0){
-				edivider=volume+1;
-				if(decay==0){
-					if(loop)
-						decay=15;
-
-				}
-				else
-					decay--;
+		if(enable){
+			if(estart){
+				estart=false;
+				decay = 15;
+				edivider = volume+1;
 			}
-			edivider--;
+			else {
+				if(edivider==0){
+					edivider=volume+1;
+					if(decay==0){
+						if(loop)
+							decay=15;
+	
+					}
+					else
+						decay--;
+				}
+				edivider--;
+			}
+			if(constantvolume)
+				decay = volume;
+		
 		}
-		if(constantvolume)
-			decay = volume;
 	}
 	/*public void sweepClock(){
 		if(dosweep){
@@ -102,15 +117,17 @@ public class Channel {
 		}
 	}*/
 	public void linearClock(){
-		if(linearhalt){
-			linearcount = linearReload;
-		}
-		else{
-			if(linearcount!=0){
-				linearcount--;
+		if(enable){
+			if(linearhalt){
+				linearcount = linearReload;
 			}
-		}
-		if(!linearcontrol)
-			linearhalt=false;
+			else{
+				if(linearcount!=0){
+					linearcount--;
+				}
+			}
+			if(!linearcontrol)
+				linearhalt=false;
+			}
 	}
 }
