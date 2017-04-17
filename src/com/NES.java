@@ -21,7 +21,14 @@ public class NES implements Runnable {
 	public Controller controller;
 	public Controller controller2;
 	File save;
+	
+	//clock settings NTSC
 	int systemclock = 21477272;
+	int cpudiv = 12;
+	int apudiv = 24;
+	int ppudiv = 4;
+	int framediv= 89490;
+	
 	boolean batteryExists;
 	private NesDisplay display;
 	public volatile boolean flag = true;
@@ -93,9 +100,9 @@ public class NES implements Runnable {
 				skip = false;
 			}*/	
 			
-			if(i%12==0){
+			if(i%cpudiv==0){
 				cpu.run_cycle();
-				if(doaudio&&i%24==0)
+				if(doaudio && i%apudiv==0)
 					apu.doCycle(cpuclock);
 				cpuclock++;
 				c++;
@@ -103,7 +110,7 @@ public class NES implements Runnable {
 					map.blockppu=false;
 				}	
 			}
-			if(i%4==0){
+			if(i%ppudiv==0){
 				p++;
 				ppu.render();
 				if(ppu.vfresh){
@@ -115,7 +122,7 @@ public class NES implements Runnable {
 						} catch ( InterruptedException e){
 							e.printStackTrace();
 						}
-				
+					//System.out.println(stop+"ms");
 					ppu.vfresh=false;
 					start = System.currentTimeMillis();
 				}
@@ -124,15 +131,8 @@ public class NES implements Runnable {
 					ppu.oddskip=false;
 				}
 			}
-			
-			//if(ppu.scanline%65==0&&ppu.pcycle==1&&doaudio){
-			//	apu.doFrameStep=true;
-			//}
 			if(doaudio&&i%89490==0)
-				apu.doFrameStep=true;
-			//if(controller.checkDebug())
-			//	ppu.dodebug=true;
-			
+				apu.doFrameStep=true;			
 			i++;
 			if(i==systemclock)
 				i=0;
@@ -142,7 +142,6 @@ public class NES implements Runnable {
 			try {
 				saveGame();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 	}
@@ -172,7 +171,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/blarggapu/03.irq_flag.nes");
+		rom = new File(System.getProperty("user.dir")+"/megaman3.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

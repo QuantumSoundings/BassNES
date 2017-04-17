@@ -391,24 +391,25 @@ public class ppu2C02 {
 	boolean cura12;
 	public boolean doscanline;
 	void render(){
-		if(PPUCTRL_genNmi&&PPUSTATUS_vb)
-			map.cpu.doNMI=true;		
-		else
-			map.cpu.doNMI=false;
+		//if(PPUCTRL_genNmi&&PPUSTATUS_vb)
+		//	map.cpu.doNMI=true;		
+		//else
+		//	map.cpu.doNMI=false;
+		map.cpu.doNMI= PPUCTRL_genNmi&&PPUSTATUS_vb;
 		if(scanline<240){
 			if(scanline>=0)
 				spriteEvaluation();
-			if(pcycle==0){}//idle
-			else if(((pcycle>=1 &&pcycle<=256)||(pcycle>=321&&pcycle<=336))&&dorender()){
+			//if(pcycle==0){}//idle
+			if(((pcycle>=1 &&pcycle<=256)||(pcycle>=321&&pcycle<=336))&&dorender()){
 				getBG();
-			}
-			else if(pcycle==257&&dorender()){
-				v &=~0x41f;
-				v|=t&0x41f;
 			}
 			else if(pcycle>257&&pcycle<=320&&dorender()){
 				OAMADDR=0;
 			}
+			else if(pcycle==257&&dorender()){
+				v &=~0x41f;
+				v|=t&0x41f;
+			}	
 			if(pcycle<=256&&pcycle>=1&&scanline>=0)
 				drawpixel();
 			if(scanline == -1){
@@ -433,15 +434,8 @@ public class ppu2C02 {
 			
 		}
 		else if(scanline==241 &&pcycle == 1){
-			//if(!block)
 			PPUSTATUS_vb = true;
-			//submit frame
-			//long start = System.nanoTime();
-			//ntsc.makentscframe(pixels,maskpixels);
-			//ntsc.makeframe(pixels);
 			renderer.buildFrame(pixels, maskpixels, 2);
-			//long stop = System.nanoTime()-start;
-			//System.out.println("Time to make frame: "+stop+"ns  or "+(stop/1000)+"us  or "+ (stop/1000/1000)+"ms");
 			pixelnum = 0;
 			vfresh=true;
 		}
@@ -453,9 +447,7 @@ public class ppu2C02 {
 				pcycle=0;
 			}
 			else{
-
-				scanline++;
-			
+				scanline++;	
 				pcycle = 0;
 			}
 		}
