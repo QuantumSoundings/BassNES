@@ -46,7 +46,7 @@ public class NES implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		ppu = new ppu2C02(map);
+		ppu = new ppu2C02(map,disp);
 		cpu = new CPU_6502(map);
 		apu = new APU(map);
 		map.setcomponents(cpu, ppu,controller,controller2,apu);
@@ -75,7 +75,7 @@ public class NES implements Runnable {
 		
 		//mem.printMemory(0x8000, 0x200);
 		while(flag){
-			/*if(!skip){
+			if(!skip){
 					if(i%3==0){
 						System.out.println("Timing: "
 								+" PPU scanline:"+ppu.scanline
@@ -98,7 +98,7 @@ public class NES implements Runnable {
 			}
 			if(cpu.current_instruction==0x12&&controller.checkDebug()){//cpu.program_counter==0xe018){//&&ppu.scanline>234){
 				skip = false;
-			}*/	
+			}
 			
 			if(i%cpudiv==0){
 				cpu.run_cycle();
@@ -113,29 +113,24 @@ public class NES implements Runnable {
 			if(i%ppudiv==0){
 				p++;
 				ppu.render();
-				if(ppu.vfresh){
-					stop = System.currentTimeMillis()-start;
-					display.sendFrame(ppu.renderer.frame);
-					if(stop<16)
-						try {
-							Thread.sleep(16-stop);
-						} catch ( InterruptedException e){
-							e.printStackTrace();
-						}
-					//System.out.println(stop+"ms");
-					ppu.vfresh=false;
-					start = System.currentTimeMillis();
-				}
-				if(ppu.oddskip){
-					c+=(1/3.0);
-					ppu.oddskip=false;
-				}
+				
+				//if(ppu.oddskip){
+				//	c+=(1/3.0);
+				//	ppu.oddskip=false;
+				//}
+				if(doaudio&&i%89490<4)
+					apu.doFrameStep=true;
+				//i+=4;
+				if(i==systemclock)
+					i=0;
+				else
+					i+=4;
 			}
-			if(doaudio&&i%89490==0)
-				apu.doFrameStep=true;			
-			i++;
-			if(i==systemclock)
-				i=0;
+			//if(doaudio&&i%89490==0)
+			//	apu.doFrameStep=true;			
+			//i++;
+			//if(i==systemclock)
+			//	i=0;
 		}
 		apu.synth.stop();
 		if(batteryExists)
@@ -171,7 +166,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/megaman3.nes");
+		rom = new File(System.getProperty("user.dir")+"/1-instr_timing.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

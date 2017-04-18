@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import mappers.Mapper;
 import video.NTSC_Converter;
+import video.NesDisplay;
 import video.Renderer;
 import mappers.MMC3;
 
@@ -101,6 +102,7 @@ public class ppu2C02 {
 	+++----------------- fine Y scroll*/
 	public int v,t,x,w;
 	Renderer renderer;
+	NesDisplay display;
 	int[] pixels;
 	int pixelnum;
 	//registers	
@@ -109,9 +111,10 @@ public class ppu2C02 {
 	int framec;
 	int tempX;
 	int tv;
-	public ppu2C02(Mapper m) {
+	public ppu2C02(Mapper m,NesDisplay disp) {
 		//mem = new Memory(0);
 		map = m;
+		display = disp;
 		pixels = new int[256*240];
 		maskpixels= new int[256*240];
 		framec=0;
@@ -321,7 +324,7 @@ public class ppu2C02 {
 	
 	int test =0;
 	int tempx;
-	void getBG(){
+	public void getBG(){
 		shiftreg8a |= (palettelatch>>1)&1;
 		shiftreg8b |= (palettelatch)&1;
 		switch((pcycle-1)&7){
@@ -390,26 +393,27 @@ public class ppu2C02 {
 	boolean olda12;
 	boolean cura12;
 	public boolean doscanline;
+	long start = 0;
+	long stop = 0;
 	void render(){
-		//if(PPUCTRL_genNmi&&PPUSTATUS_vb)
-		//	map.cpu.doNMI=true;		
-		//else
-		//	map.cpu.doNMI=false;
 		map.cpu.doNMI= PPUCTRL_genNmi&&PPUSTATUS_vb;
 		if(scanline<240){
-			if(scanline>=0)
-				spriteEvaluation();
+			spriteEvaluation();
 			//if(pcycle==0){}//idle
-			if(((pcycle>=1 &&pcycle<=256)||(pcycle>=321&&pcycle<=336))&&dorender()){
-				getBG();
-			}
-			else if(pcycle>257&&pcycle<=320&&dorender()){
-				OAMADDR=0;
-			}
-			else if(pcycle==257&&dorender()){
-				v &=~0x41f;
-				v|=t&0x41f;
-			}	
+            if(dorender()){
+            	if(((pcycle>=1 &&pcycle<=256)||(pcycle>=321&&pcycle<=336))){
+            		getBG();
+            	}
+                else if(pcycle>257&&pcycle<=320){
+                   	OAMADDR=0;
+                }   
+                else if(pcycle==257){
+                  	v &=~0x41f;
+                   	v|=t&0x41f;
+                }
+                if(pcycle ==260)//&&scanline>-1)
+                	map.scanlinecounter();
+            }
 			if(pcycle<=256&&pcycle>=1&&scanline>=0)
 				drawpixel();
 			if(scanline == -1){
@@ -428,8 +432,8 @@ public class ppu2C02 {
 				spritezero=false;
 				szhl=-1;
 			}
-			if(pcycle ==260&&dorender())//&&scanline>-1)
-				map.scanlinecounter();
+			//if(pcycle ==260&&dorender())//&&scanline>-1)
+			//	map.scanlinecounter();
 
 			
 		}
@@ -437,10 +441,28 @@ public class ppu2C02 {
 			PPUSTATUS_vb = true;
 			renderer.buildFrame(pixels, maskpixels, 2);
 			pixelnum = 0;
-			vfresh=true;
+			
+			stop = System.currentTimeMillis()-start;
+			display.sendFrame(renderer.frame);
+			if(stop<16)
+				try {
+					Thread.sleep(16-stop);
+				} catch ( InterruptedException e){
+					e.printStackTrace();
+				}
+				//System.out.println(stop+"ms");
+			start = System.currentTimeMillis();
+			
 		}
-		
-		if(pcycle ==340){
+		if(pcycle<340){
+			pcycle++;
+			if(!oddframe&&scanline==-1&&pcycle==340&&dorender()){
+				oddskip = true;
+				pcycle =0;
+				scanline=0;			
+			}
+		}
+		else if(pcycle ==340){
 			if(scanline==260){
 				oddframe=!oddframe;
 				scanline = -1;
@@ -450,14 +472,7 @@ public class ppu2C02 {
 				scanline++;	
 				pcycle = 0;
 			}
-		}
-		else if(!oddframe&&scanline==-1&&pcycle==339&&dorender()){
-			oddskip = true;
-			pcycle =0;
-			scanline=0;			
-		}
-		else
-			pcycle++;		
+		}	
 	}
 	void updateShiftRegisters(){
 		shiftreg16a<<=1;
@@ -561,7 +576,7 @@ public class ppu2C02 {
 	int oldszhl;
 	int szhl;
 	boolean doingSprites;
-	void spriteEvaluation(){
+	public void spriteEvaluation(){
 		if(pcycle>=1 &&pcycle<=64){
 			if(pcycle==1)
 				Arrays.fill(oambuffer,(byte) 0xff);

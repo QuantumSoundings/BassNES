@@ -6,6 +6,18 @@ import mappers.Mapper;
 
 public class CPU_6502 {
 	Mapper map;
+	/*immediate 0
+	zero 1
+	zerox 2
+	zeroy 3
+	absolute 4
+	absolutex 5
+	absolutey 6
+	(indirect,x) 7
+	(indirect),y 8
+	accumulator 9
+	relative 10
+	implied 11*/
 	
 	
 	int program_counter;
@@ -26,6 +38,8 @@ public class CPU_6502 {
 	private boolean brokenaddress = false;
 	int instruction_cycle;
 	public byte current_instruction;
+        int current_inst_mode;
+        int current_inst_type;
 	private byte tempregister;
 	int address;
 	private int pointer;
@@ -39,24 +53,28 @@ public class CPU_6502 {
 	public int doIRQ = 0;
 	boolean nmihijack;
 	//private Memory memory;
-	private Hashtable<Byte,Integer> inst_type;//read/write/both
-	private Hashtable<Byte,String> inst_mode;//memory access
-	public Hashtable<Byte,String> inst_name;//instruction name
+	//private Hashtable<Byte,Integer> inst_type;//read/write/both
+        private int[] inst_type = new int[256];
+	//private Hashtable<Byte, Integer> inst_mode;//memory access
+	private int[] inst_mode = new int[256];
+        public Hashtable<Byte,String> inst_name;//instruction name
 	public CPU_6502(Mapper mapper) {
 		map = mapper;
 		Scanner s;
-		inst_type= new Hashtable<Byte,Integer>();
-		inst_mode = new Hashtable<Byte,String>();
+		//inst_type= new Hashtable<Byte,Integer>();
+		//inst_mode = new Hashtable<Byte,Integer>();
 		inst_name = new Hashtable<Byte,String>();
 		//try {
 			//s = new Scanner(System.in);
 			s = new Scanner((this.getClass().getResourceAsStream("cpu_instructions.txt")));
 			while(s.hasNext()){
 				byte x = Integer.valueOf(s.next(), 16).byteValue();
-				String mode = s.next();
+				int mode = s.nextInt();
 				int type = s.nextInt();
-				inst_type.put(x,type);
-				inst_mode.put(x, mode);
+				//inst_type.put(x,type);
+                                inst_type[Byte.toUnsignedInt(x)]=type;
+				//inst_mode.put(x, mode);
+                                inst_mode[Byte.toUnsignedInt(x)]=mode;
 				inst_name.put(x, s.next());
 			}
 			s.close();
@@ -193,15 +211,27 @@ public class CPU_6502 {
 			//nmiInter = false;
 			program_counter--;
 			nmi=false;
-			return 0x02;
+            //current_inst_mode = inst_mode.get((byte)0x02);
+            current_inst_mode = inst_mode[2];
+            //current_inst_type = inst_type.get((byte)0x02);
+			current_inst_type = inst_type[2];
+                        return 0x02;
 		}
 		else if(nmi&&nmirecieved!=0){
 			nmirecieved--;
+            //current_inst_mode = inst_mode.get(map.cpuread(program_counter));
+            current_inst_mode = inst_mode[map.cpureadu(program_counter)];
+            //current_inst_type = inst_type.get(map.cpuread(program_counter));
+            current_inst_type = inst_type[map.cpureadu(program_counter)];
 			return map.cpuread(program_counter);
 		}
 		else if(doIRQ>0&&irqrecieved!=0){
 			irqrecieved--;
 			byte b = map.cpuread(program_counter);
+            //current_inst_mode = inst_mode.get(map.cpuread(program_counter));
+            current_inst_mode = inst_mode[map.cpureadu(program_counter)];
+            //current_inst_type = inst_type.get(map.cpuread(program_counter));
+            current_inst_type = inst_type[map.cpureadu(program_counter)];
 			return map.cpuread(program_counter);
 		}
 		else if(doIRQ>0&&!IFlag&&irqlatency==0){//&&irqrecieved==0){
@@ -209,6 +239,10 @@ public class CPU_6502 {
 			//		+" Prev inst: "+inst_name.get(current_instruction));
 			program_counter--;
 			//doIRQ= false;
+            //current_inst_mode = inst_mode.get((byte)0x12);
+            current_inst_mode = inst_mode[0x12];
+            //current_inst_type = inst_type.get((byte)0x12);
+            current_inst_type = inst_type[0x12];
 			return 0x12;
 		}
 		else{
@@ -216,8 +250,11 @@ public class CPU_6502 {
 				dodebug = true;
 			else
 				dodebug = false;
-				//System.out.println("waiting for irqlatency");
-			
+			//System.out.println("waiting for irqlatency");
+			//current_inst_mode = inst_mode.get(map.cpuread(program_counter));
+            current_inst_mode = inst_mode[map.cpureadu(program_counter)];
+            //current_inst_type = inst_type.get(map.cpuread(program_counter));
+            current_inst_type = inst_type[map.cpureadu(program_counter)];
 			return map.cpuread(program_counter);
 		}
 	}
@@ -266,15 +303,15 @@ public class CPU_6502 {
 		}
 		else{
 			//System.out.println("In the else");
-			if(!inst_mode.containsKey(current_instruction)){
-				debug(0);
-				map.printMemory(0,0x20);
+			//if(!inst_mode.containsKey(current_instruction)){
+			//	debug(0);
+			//	map.printMemory(0,0x20);
 				//memory.printMemory(0x3a0, 0x20);
 				//memory.printMemory(0, 0x100);
-				System.out.println(Integer.toHexString(current_instruction)+" Scanline: "+map.ppu.scanline+" cycle: "+map.ppu.pcycle);
-			}
-		switch(inst_mode.get(current_instruction)){
-		case "immediate":{
+			//	System.out.println(Integer.toHexString(current_instruction)+" Scanline: "+map.ppu.scanline+" cycle: "+map.ppu.pcycle);
+			//}
+		switch(current_inst_mode){
+		case 0:{
 			switch(instruction_cycle){
 			case 2: {
 				tempregister = map.cpuread(program_counter);
@@ -297,8 +334,8 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "zero":
-			switch(inst_type.get(current_instruction)){
+		case 1:
+			switch(current_inst_type){
 			case 0:
 				switch(instruction_cycle){
 				case 2:
@@ -358,8 +395,8 @@ public class CPU_6502 {
 				break;
 			}
 			break;
-		case "zerox": case "zeroy":
-			switch(inst_type.get(current_instruction)){
+		case 2: case 3:
+			switch(current_inst_type){
 			case 0:
 				switch(instruction_cycle){
 				case 2:
@@ -368,7 +405,7 @@ public class CPU_6502 {
 					instruction_cycle++;
 					break;
 				case 3:
-					if(inst_mode.get(current_instruction).equals("zerox"))
+					if(current_inst_mode==2)
 						address += Byte.toUnsignedInt(x_index_register);
 					else
 						address += Byte.toUnsignedInt(y_index_register);
@@ -423,7 +460,7 @@ public class CPU_6502 {
 					instruction_cycle++;
 					break;
 				case 3:
-					if(inst_mode.get(current_instruction).equals("zerox"))
+					if(current_inst_mode==2)
 						address += Byte.toUnsignedInt(x_index_register);
 					else
 						address += Byte.toUnsignedInt(y_index_register);
@@ -438,8 +475,8 @@ public class CPU_6502 {
 				break;
 			}
 			break;
-		case "absolute":
-			switch(inst_type.get(current_instruction)){
+		case 4:
+			switch(current_inst_type){
 			case 0:
 				switch(instruction_cycle){
 				case 2:
@@ -529,8 +566,8 @@ public class CPU_6502 {
 				break;
 			}
 			break;
-		case "absolutex": case "absolutey": {
-			switch(inst_type.get(current_instruction)){
+		case 5: case 6: {
+			switch(current_inst_type){
 			case 0: {
 				switch(instruction_cycle){
 				case 2: {
@@ -542,7 +579,7 @@ public class CPU_6502 {
 				case 3: {
 					address |= (map.cpureadu(program_counter)<<8);
 					lowpc = address&0xff00;
-					if(inst_mode.get(current_instruction).equals("absolutex"))
+					if(current_inst_mode==5)
 						address += Byte.toUnsignedInt(x_index_register);
 					else
 						address += Byte.toUnsignedInt(y_index_register);
@@ -594,7 +631,7 @@ public class CPU_6502 {
 				}
 				case 3: {
 					address = address | (map.cpureadu(program_counter)<<8);
-					if(inst_mode.get(current_instruction).equals("absolutex"))
+					if(current_inst_mode==5)
 						address+= Byte.toUnsignedInt(x_index_register);
 					else
 						address+= Byte.toUnsignedInt(y_index_register);
@@ -631,7 +668,7 @@ public class CPU_6502 {
 				case 3: {
 					address = address | (map.cpureadu(program_counter)<<8);
 					lowpc=address&0xff00;
-					if(inst_mode.get(current_instruction).equals("absolutex"))
+					if(current_inst_mode==5)
 						address += Byte.toUnsignedInt(x_index_register);
 					else
 						address += Byte.toUnsignedInt(y_index_register);
@@ -652,8 +689,8 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "(indirect,x)":{
-			switch(inst_type.get(current_instruction)){
+		case 7:{
+			switch(current_inst_type){
 			case 0: {
 				switch(instruction_cycle){
 				case 2: {
@@ -754,8 +791,8 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "(indirect),y":{
-			switch(inst_type.get(current_instruction)){
+		case 8:{
+			switch(current_inst_type){
 			case 0: {
 				switch(instruction_cycle){
 				case 2: {
@@ -892,7 +929,7 @@ public class CPU_6502 {
 			};break;
 			}
 		};break;
-		case "accumulator":{
+		case 9:{
 			switch(instruction_cycle){
 			case 2:{
 				tempregister=accumulator;
@@ -902,10 +939,7 @@ public class CPU_6502 {
 			}
 			}
 		};break;
-		case "implied": {
-			executeOp();
-		};break;
-		case "relative":{
+		case 10:{
 			switch(instruction_cycle){
 			case 2: {
 				tempregister = map.cpuread(program_counter);
@@ -956,6 +990,9 @@ public class CPU_6502 {
 				instruction_cycle = 2; break;
 			}
 			}
+		};break;
+		case 11: {
+			executeOp();
 		};break;
 		
 		}}
