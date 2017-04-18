@@ -22,41 +22,32 @@ public class ppu2C02 {
 	//cycles per scanline = 341
 	//one frame is 262 scanlines
 	//memory access is 2 cycles long
-	int NMI_occured = 0;
-	int NMI_output = 0;
-	boolean doNMI = false;
 	
 	boolean oddframe = false;
-	byte[] oam = new byte[256];//primary oam
 	int oamcounter = 0;
 	byte[] oambuffer = new byte[32];//secondary oam for current line sprites
 	int oamBCounter = 0;
-	boolean oamsignal = false;// signal to return 0xff during portion of sprite evaluation
 	//sprite stuff
 	int[] spritebm = new int[8];//bitmaps
-	//int[] spritela = new int[8];//attribute bytes
 	int[] spriteco = new int[8];//xpos counter
 	boolean[] spritepriority = new boolean[8];
 	int[] spritepalette = new int[8];
 	
+	public int scanline;
+	public int pcycle;
 	
-	int shiftreg16ah = 0;
+	//Rendering related Variables
 	int shiftreg16a=0;
-	int shiftreg16bh=0;
 	int shiftreg16b = 0;
 	int shiftreg8a = 0;
 	int shiftreg8b = 0;
 	int palettelatch = 0;
-	public int scanline;
-	public int pcycle;
-	int scanlinephase;
 	int nametablebyte;//16bit
 	int atablebyte;//16bit
 	int ptablemap0;//8bit
 	int ptablemap1;//8bit
 	int fineX;
 	
-	//byte[] pixels
 	//registers 0x2000
 	byte PPUCTRL;
 	int PPUCTRL_bna;//base nametable address
@@ -93,41 +84,32 @@ public class ppu2C02 {
 	
 	
 	
-	boolean vfresh = false;
-	boolean oddskip = false;
+	//boolean oddskip = false;
 	/*yyy NN YYYYY XXXXX
 	||| || ||||| +++++-- coarse X scroll
 	||| || +++++-------- coarse Y scroll
 	||| ++-------------- nametable select
 	+++----------------- fine Y scroll*/
-	public int v,t,x,w;
+	public int v,t,x;
 	Renderer renderer;
 	NesDisplay display;
 	int[] pixels;
 	int pixelnum;
 	//registers	
 	Mapper map;
-	//Memory mem;
-	int framec;
 	int tempX;
 	int tv;
 	public ppu2C02(Mapper m,NesDisplay disp) {
-		//mem = new Memory(0);
 		map = m;
 		display = disp;
 		pixels = new int[256*240];
 		maskpixels= new int[256*240];
-		framec=0;
 		scanline = 0;
 		pcycle = 0;
-		scanlinephase = 0;
 		ptablemap0=0;
 		//PPUSTATUS_so=true;
 		//PPUSTATUS_vb=true;
 		renderer= new Renderer();
-	}
-	public void setmapper(Mapper m){
-		map = m;
 	}
 	boolean even = true;
 	public void writeRegisters(int index,byte b){
@@ -399,7 +381,6 @@ public class ppu2C02 {
 		map.cpu.doNMI= PPUCTRL_genNmi&&PPUSTATUS_vb;
 		if(scanline<240){
 			spriteEvaluation();
-			//if(pcycle==0){}//idle
             if(dorender()){
             	if(((pcycle>=1 &&pcycle<=256)||(pcycle>=321&&pcycle<=336))){
             		getBG();
@@ -432,10 +413,6 @@ public class ppu2C02 {
 				spritezero=false;
 				szhl=-1;
 			}
-			//if(pcycle ==260&&dorender())//&&scanline>-1)
-			//	map.scanlinecounter();
-
-			
 		}
 		else if(scanline==241 &&pcycle == 1){
 			PPUSTATUS_vb = true;
@@ -457,7 +434,7 @@ public class ppu2C02 {
 		if(pcycle<340){
 			pcycle++;
 			if(!oddframe&&scanline==-1&&pcycle==340&&dorender()){
-				oddskip = true;
+				//oddskip = true;
 				pcycle =0;
 				scanline=0;			
 			}
@@ -569,7 +546,6 @@ public class ppu2C02 {
 	private int n,m = 0;
 	int spritec = 0;
 	int c3=0;
-	boolean spriteeven=false;
 	boolean cont = false;
 	boolean oldspritezero;
 	boolean spritezero;
@@ -582,7 +558,6 @@ public class ppu2C02 {
 				Arrays.fill(oambuffer,(byte) 0xff);
 		}
 		else if(pcycle>=65 &&pcycle<=256){
-			oamsignal = false;
 			int y = 0;
 			switch(stage){//1
 			case 1:

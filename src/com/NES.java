@@ -23,17 +23,18 @@ public class NES implements Runnable {
 	File save;
 	
 	//clock settings NTSC
+	//Master clock speed.
 	int systemclock = 21477272;
-	int cpudiv = 12;
-	int apudiv = 24;
-	int ppudiv = 4;
-	int framediv= 89490;
+	final int cpudiv = 12;
+	final int apudiv = 24;
+	final int ppudiv = 4;
+	final int framediv= 89490;
 	
 	boolean batteryExists;
 	private NesDisplay display;
 	public volatile boolean flag = true;
 	public volatile boolean doaudio = true;
-	//Master clock speed.
+	
 	public NES(NesDisplay disp,JFrame f,File rom,Properties prop){
 		romName = rom.getName().substring(0,rom.getName().length()-4);
 		display = disp;
@@ -68,14 +69,9 @@ public class NES implements Runnable {
 			}
 		int i = 0;
 		boolean skip = true;
-		Scanner s = new Scanner(System.in);
-		//boolean skip2=false;
-		//int z = 0;
-		long start = 0,stop = 0;
-		
-		//mem.printMemory(0x8000, 0x200);
+		Scanner s = new Scanner(System.in);	
 		while(flag){
-			if(!skip){
+			/*if(!skip){
 					if(i%3==0){
 						System.out.println("Timing: "
 								+" PPU scanline:"+ppu.scanline
@@ -98,7 +94,7 @@ public class NES implements Runnable {
 			}
 			if(cpu.current_instruction==0x12&&controller.checkDebug()){//cpu.program_counter==0xe018){//&&ppu.scanline>234){
 				skip = false;
-			}
+			}*/
 			
 			if(i%cpudiv==0){
 				cpu.run_cycle();
@@ -118,7 +114,7 @@ public class NES implements Runnable {
 				//	c+=(1/3.0);
 				//	ppu.oddskip=false;
 				//}
-				if(doaudio&&i%89490<4)
+				if(i%89490<4&&doaudio)
 					apu.doFrameStep=true;
 				//i+=4;
 				if(i==systemclock)
@@ -126,11 +122,6 @@ public class NES implements Runnable {
 				else
 					i+=4;
 			}
-			//if(doaudio&&i%89490==0)
-			//	apu.doFrameStep=true;			
-			//i++;
-			//if(i==systemclock)
-			//	i=0;
 		}
 		apu.synth.stop();
 		if(batteryExists)
@@ -166,7 +157,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/1-instr_timing.nes");
+		rom = new File(System.getProperty("user.dir")+"/smb2.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

@@ -33,21 +33,17 @@ public class CPU_6502 {
 	public boolean IFlag;
 	private boolean ZFlag;
 	private boolean CFlag;
-	int oldaddr;
 	//other stuff
 	private boolean brokenaddress = false;
 	int instruction_cycle;
 	public byte current_instruction;
-        int current_inst_mode;
-        int current_inst_type;
+    int current_inst_mode;
+    int current_inst_type;
 	private byte tempregister;
 	int address;
 	private int pointer;
 	private boolean branchtaken;
-	int lowpc;
-	byte old_inst;
-	int old_cycle;
-	
+	int lowpc;	
 	public boolean writeDMA = false;
 	public boolean doNMI = false;
 	public int doIRQ = 0;
