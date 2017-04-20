@@ -26,8 +26,13 @@ public class APU {
 	boolean IRQFlag;
 	boolean frameInterrupt;
 	boolean doFrameStep;
+	boolean evenclock;
+	int block;
 	int stepNumber;
-	public int delay;
+	public int delay=-1;
+	public int framecounter;
+	
+	int cpucounter;
 	
 	
 	public APU(Mapper m){
@@ -47,6 +52,7 @@ public class APU {
 		//lag.output.connect(pulse1.wave.amplitude);
 		synth.start();
 		lineout.start();
+		cpucounter = 10;
 		
 		/*timer = new Timer(0,new ActionListener(){
 			@Override
@@ -104,14 +110,21 @@ public class APU {
 		else if(index==0x4017){
 			stepmode4 = (b&0x80)==0?true:false;
 			stepNumber = 0;
-			if((b&0x80)!=0)
+			if((b&0x80)!=0){
 				frameClock();
+				cpucounter=1;
+				block=2;
+			}
 			IRQFlag = (b&0x40)==0?false:true;
 			if(IRQFlag&&frameInterrupt){
 				map.cpu.doIRQ--;
 				frameInterrupt = false;
 			}
-			delay = 3;
+			if(!evenclock)
+				delay = 0;
+			else
+				delay = 1;
+			//cpucounter = 0;
 		}
 	}
 	public byte readRegisters(int index){
@@ -141,6 +154,8 @@ public class APU {
 		//System.out.println("In framestep mode4:"+stepmode4);
 		if(stepmode4){
 			//map.cpu.doIRQ=false;
+			//System.out.println("Mode 4 Step "+stepNumber+" "+cpucounter);
+
 			if(stepNumber%4==1||stepNumber%4==3){
 				pulse1.lengthClock();
 				pulse1.sweepClock();
@@ -154,8 +169,8 @@ public class APU {
 			pulse2.envelopeClock();
 			triangle.linearClock();
 			noise.envelopeClock();
-			doFrameStep = false;
-			stepNumber++;
+			//doFrameStep = false;
+			//stepNumber++;
 			if(stepNumber%4==3&&!IRQFlag){
 				//System.out.println("DOing an IRQ");
 				if(!frameInterrupt)
@@ -163,9 +178,10 @@ public class APU {
 				frameInterrupt = true;
 				//map.cpu.doIRQ++;
 			}
-			
+			//stepNumber = (stepNumber==3)?0:stepNumber+1;			
 		}
 		else{
+			//System.out.println("Mode 5 Step "+stepNumber+" "+cpucounter);
 			if(stepNumber%5==0||stepNumber%5==2){
 				pulse1.lengthClock();
 				pulse1.sweepClock();
@@ -186,18 +202,77 @@ public class APU {
 				noise.envelopeClock();
 			}
 			else{}
-			stepNumber++;
-			doFrameStep=false;
+			//stepNumber++;
+			//doFrameStep=false;
 		}
 		update();
 	}
 	public void doCycle(int cycle){
+		if(delay>0){
+			delay--;
+		}
+		else if(delay ==0){
+			//if(stepmode4)
+				cpucounter=0;
+			//else
+			//	cpucounter=1;
+			framecounter=4;
+			delay =-1;
+		}
 		if(cycle%2==0){
 			noise.clockTimer();
+			
+			evenclock = true;
 		}
-		if(doFrameStep){
+		else
+			evenclock = false;
+		if(stepmode4){
+			switch(cpucounter){
+			case 7459: stepNumber = 0;frameClock();break;
+			case 14915:stepNumber = 1;frameClock();break;
+			case 22373:stepNumber = 2;frameClock();break;
+			case 29830:
+				if(!IRQFlag){
+					if(!frameInterrupt)
+						map.cpu.doIRQ++;
+					frameInterrupt=true;
+				}
+				break;
+			case 29831:
+				stepNumber = 3;frameClock();break;
+			case 29832:
+				if(!IRQFlag){
+					if(!frameInterrupt)
+						map.cpu.doIRQ++;
+					frameInterrupt=true;
+				}
+				cpucounter=2;
+				break;
+			default: break;
+			}
+		}
+		else{
+			switch(cpucounter){
+			case 1:
+				if(block<=0){
+					stepNumber = 0;
+					frameClock();
+				}
+				else 
+					block--;
+				break;
+			case 7459:  stepNumber = 1;frameClock();break;
+			case 14915: stepNumber = 2;frameClock();break;
+			case 22373: stepNumber = 3;frameClock();break;
+			case 29829: break;
+			case 37282: cpucounter = 0;break;
+			default:break;
+			}
+		}
+		/*if(doFrameStep){
 			frameClock();
-		}
+		}*/
+		cpucounter++;
 		
 		
 	}

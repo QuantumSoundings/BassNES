@@ -98,8 +98,8 @@ public class NES implements Runnable {
 			
 			if(i%cpudiv==0){
 				cpu.run_cycle();
-				if(doaudio && i%apudiv==0)
-					apu.doCycle(cpuclock);
+				//if(doaudio && i%apudiv==0)
+				apu.doCycle(cpuclock);
 				cpuclock++;
 				c++;
 				if(cpuclock>29600){
@@ -114,13 +114,18 @@ public class NES implements Runnable {
 				//	c+=(1/3.0);
 				//	ppu.oddskip=false;
 				//}
-				if(i%89490<4&&doaudio)
+				if((apu.framecounter)%89490<4){//&&doaudio){
 					apu.doFrameStep=true;
+					apu.framecounter=4;
+				}
+				else
+					apu.framecounter+=4;
 				//i+=4;
 				if(i==systemclock)
 					i=0;
 				else
 					i+=4;
+				//apu.framecounter+=4;
 			}
 		}
 		apu.synth.stop();
@@ -157,7 +162,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//rom = new File(System.getProperty("user.dir")+"/smb2.nes");
+		rom = new File(System.getProperty("user.dir")+"/megaman3.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

@@ -422,7 +422,8 @@ public class ppu2C02 {
 			display.sendFrame(renderer.frame);
 			if(stop<16)
 				try {
-					Thread.sleep(16-stop);
+					while(System.currentTimeMillis()-start<16)
+						Thread.sleep(1);
 				} catch ( InterruptedException e){
 					e.printStackTrace();
 				}
