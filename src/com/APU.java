@@ -158,8 +158,10 @@ public class APU {
 			stepNumber++;
 			if(stepNumber%4==3&&!IRQFlag){
 				//System.out.println("DOing an IRQ");
+				if(!frameInterrupt)
+					map.cpu.doIRQ++;
 				frameInterrupt = true;
-				map.cpu.doIRQ++;
+				//map.cpu.doIRQ++;
 			}
 			
 		}

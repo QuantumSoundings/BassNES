@@ -418,7 +418,6 @@ public class ppu2C02 {
 			PPUSTATUS_vb = true;
 			renderer.buildFrame(pixels, maskpixels, 2);
 			pixelnum = 0;
-			
 			stop = System.currentTimeMillis()-start;
 			display.sendFrame(renderer.frame);
 			if(stop<16)

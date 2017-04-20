@@ -6,6 +6,7 @@ import mappers.Mapper;
 
 public class CPU_6502 {
 	Mapper map;
+	boolean showInvalid=false;
 	/*immediate 0
 	zero 1
 	zerox 2
@@ -997,6 +998,7 @@ public class CPU_6502 {
 		switch(Byte.toUnsignedInt(current_instruction)){
 		case 0x0b: case 0x2b:{
 		//case "AAC": {
+			if(showInvalid)
 			System.out.println("Invalid instruction AAC");
 			accumulator= (byte)(accumulator &tempregister);
 			if(accumulator==0) ZFlag=true;else ZFlag = false;
@@ -1031,6 +1033,7 @@ public class CPU_6502 {
 		};break;
 		case 0x6b:{
 		//case "ARR": {
+			if(showInvalid)
 			System.out.println("Invalid instruction ARR");
 			accumulator=(byte) (accumulator&tempregister);
 			int result = Byte.toUnsignedInt(accumulator);
@@ -1062,7 +1065,7 @@ public class CPU_6502 {
 		};break;
 		case 0xab:{
 		//case "ATX": {
-			System.out.println("Invalid instruction ATX");
+			if(showInvalid)System.out.println("Invalid instruction ATX");
 
 			x_index_register = accumulator=tempregister;
 			//accumulator = (byte) (accumulator & tempregister);
@@ -1071,7 +1074,7 @@ public class CPU_6502 {
 		};break;
 		case 0xcb:{
 		//case "AXS": {
-			System.out.println("Invalid instruction AXS");
+			if(showInvalid)System.out.println("Invalid instruction AXS");
 			int result = Byte.toUnsignedInt(x_index_register);
 			result &= Byte.toUnsignedInt(accumulator);
 			CFlag = result>=Byte.toUnsignedInt(tempregister);
@@ -1231,7 +1234,7 @@ public class CPU_6502 {
 		};break;
 		case 0xc3: case 0xc7: case 0xcf: case 0xd3: case 0xd7: case 0xdb: case 0xdf:{
 		//case "DCP": {
-			System.out.println("Invalid instruction DCP");
+			if(showInvalid)System.out.println("Invalid instruction DCP");
 			tempregister--;
 			if(Byte.toUnsignedInt(accumulator)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
 			if(accumulator == tempregister) ZFlag = true;else ZFlag = false;
@@ -1331,7 +1334,7 @@ public class CPU_6502 {
 		case 0xe3: case 0xe7: case 0xef: case 0xf3: case 0xf7: case 0xfb: case 0xff:{
 		//case "ISB": {
 			tempregister++;
-			System.out.println("Invalid instruction ISB");
+			if(showInvalid)System.out.println("Invalid instruction ISB");
 			int sum = Byte.toUnsignedInt(accumulator) - Byte.toUnsignedInt(tempregister) - (CFlag?0:1);
 			CFlag = (sum>>8 ==0);
 			VFlag = (((accumulator^tempregister)&0x80)!=0)&&(((accumulator^sum)&0x80)!=0);
@@ -1398,7 +1401,7 @@ public class CPU_6502 {
 		}; break;
 		case 0xa3: case 0xa7: case 0xaf: case 0xb3: case 0xb7: case 0xbf:{
 		//case "LAX": {
-			System.out.println("Invalid instruction LAX");
+			if(showInvalid)System.out.println("Invalid instruction LAX");
 			x_index_register = accumulator = tempregister;
 			NFlag = accumulator<0;
 			ZFlag = accumulator==0;
@@ -1481,11 +1484,11 @@ public class CPU_6502 {
 		case 0x04: case 0x14: case 0x34: case 0x44: case 0x54: case 0x64: case 0x74: case 0x80:
 		case 0x82: case 0x89: case 0xc2: case 0xd4: case 0xe2: case 0xf4:{
 		//case "SKB": {
-			System.out.println("Invalid instruction SKB");
+			if(showInvalid)System.out.println("Invalid instruction SKB");
 		};break;
 		case 0x0c: case 0x1c: case 0x3c: case 0x5c: case 0x7c: case 0xdc: case 0xfc:{
 		//case "SKW": {
-			System.out.println("Invalid instruction SKW");
+			if(showInvalid)System.out.println("Invalid instruction SKW");
 		};break;
 		case 0x09: case 0x05: case 0x15: case 0x0d: case 0x1d: case 0x19: case 0x01: case 0x11:{
 		//case "ORA": {
@@ -1560,7 +1563,7 @@ public class CPU_6502 {
 				boolean temp = IFlag;
 				setFlags( map.cpuread(Byte.toUnsignedInt(stack_pointer)+0x0100));
 				if(IFlag !=temp&&IFlag==true){
-					IFlag = false;
+					//IFlag = false;
 					irqsetdelay = 1;
 				}
 				else if(IFlag!=temp&&IFlag ==false){
@@ -1573,7 +1576,7 @@ public class CPU_6502 {
 		};break;
 		case 0x23: case 0x27: case 0x2f: case 0x33: case 0x37: case 0x3b: case 0x3f:{
 		//case "RLA": {
-			System.out.println("Invalid instruction RLA");
+			if(showInvalid)System.out.println("Invalid instruction RLA");
 			int tcarry = tempregister<0?1:0;
 			tempregister = (byte) (tempregister<<1);
 			tempregister = (byte) (tempregister | (CFlag?1:0));
@@ -1606,7 +1609,7 @@ public class CPU_6502 {
 		};break;
 		case 0x63: case 0x67: case 0x6f: case 0x73: case 0x77: case 0x7b: case 0x7f:{
 		//case "RRA": {
-			System.out.println("Invalid instruction RRA");
+			if(showInvalid)System.out.println("Invalid instruction RRA");
 			if(CFlag){
 				CFlag = (tempregister&1)!=0;
 				tempregister = (byte) ((Byte.toUnsignedInt(tempregister)>>1) | 0x80);
@@ -1684,7 +1687,7 @@ public class CPU_6502 {
 		};break;
 		case 0x83: case 0x87: case 0x8f: case 0x97:{
 		//case "SAX": {
-			System.out.println("Invalid instruction SAX");
+			if(showInvalid)System.out.println("Invalid instruction SAX");
 			tempregister = (byte) (x_index_register&accumulator);
 			map.cpuwrite(address, tempregister);
 		};break;
@@ -1729,7 +1732,7 @@ public class CPU_6502 {
 		};break;
 		case 0x9e:{
 		//case "SHX": {
-			System.out.println("Invalid instruction SHX");
+			if(showInvalid)System.out.println("Invalid instruction SHX");
 			switch(instruction_cycle){
 			case 2: 
 				address = map.cpureadu(program_counter);
@@ -1757,7 +1760,7 @@ public class CPU_6502 {
 		};break;
 		case 0x9c:{
 		//case "SHY": {
-			System.out.println("Invalid instruction SHY");
+			if(showInvalid)System.out.println("Invalid instruction SHY");
 			switch(instruction_cycle){
 			case 2: 
 				address = map.cpureadu(program_counter);
@@ -1786,7 +1789,7 @@ public class CPU_6502 {
 		};break;
 		case 0x03: case 0x07: case 0xf: case 0x13: case 0x17: case 0x1b: case 0x1f:{
 		//case "SLO": {
-			System.out.println("Invalid instruction SLO");
+			if(showInvalid)System.out.println("Invalid instruction SLO");
 			CFlag = (tempregister&0x80)!=0;
 			tempregister<<=1;
 			accumulator|=tempregister;
@@ -1795,7 +1798,7 @@ public class CPU_6502 {
 		};break;
 		case 0x43: case 0x47: case 0x4f: case 0x53: case 0x57: case 0x5b: case 0x5f:{
 		//case "SRE": {
-			System.out.println("Invalid instruction SRE");
+			if(showInvalid)System.out.println("Invalid instruction SRE");
 			int result = Byte.toUnsignedInt(tempregister);
 			CFlag = (result&1)!=0;
 			result>>=1;
