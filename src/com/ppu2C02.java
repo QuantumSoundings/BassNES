@@ -84,7 +84,7 @@ public class ppu2C02 {
 	
 	
 	
-	//boolean oddskip = false;
+	boolean oddskip = false;
 	/*yyy NN YYYYY XXXXX
 	||| || ||||| +++++-- coarse X scroll
 	||| || +++++-------- coarse Y scroll
@@ -107,6 +107,7 @@ public class ppu2C02 {
 		scanline = 0;
 		pcycle = 0;
 		ptablemap0=0;
+		//oddframe=false;
 		//PPUSTATUS_so=true;
 		//PPUSTATUS_vb=true;
 		renderer= new Renderer();
@@ -128,6 +129,8 @@ public class ppu2C02 {
 			PPUCTRL_ss = (b&32) ==0?false:true;
 			PPUCTRL_ms = (b&64) ==0?false:true;
 			PPUCTRL_genNmi = (b&128)==0?false:true;
+			//PPUCTRL_genNmi=true;
+			//map.cpu.doNMI= PPUCTRL_genNmi&&PPUSTATUS_vb;
 			break;
 		case 0x2001:
 			PPUMASK=Byte.toUnsignedInt(b);
@@ -223,15 +226,14 @@ public class ppu2C02 {
 			//b = (byte) PPUSTATUS_lsb;
 			b |= PPUSTATUS_so?0x20:0;
 			b |= PPUSTATUS_sz?0x40:0;
-			if(!(scanline==241&&pcycle==2))
-				b |= PPUSTATUS_vb?0x80:0; 
-			if(scanline==241&&(pcycle==3||pcycle==4)){
-				//System.out.println(PPUSTATUS_vb);
+			if(!(scanline==241&&(pcycle==2)))
+				b |= PPUSTATUS_vb?0x80:0;
+			if(scanline==241&&(pcycle==3||pcycle==4||pcycle==2))
 				map.cpu.nmi=false;
-			}
 			b|= (OPEN_BUS&0x1f);
 			even=true;
 			PPUSTATUS_vb = false;
+			//map.cpu.doNMI= PPUCTRL_genNmi&&PPUSTATUS_vb;
 			OPEN_BUS = b;
 			break;
 		case 0x2004:
@@ -414,8 +416,9 @@ public class ppu2C02 {
 				szhl=-1;
 			}
 		}
-		else if(scanline==241 &&pcycle == 1){
+		else if(scanline==241 && pcycle == 1){
 			PPUSTATUS_vb = true;
+			map.cpu.doNMI= PPUCTRL_genNmi&&PPUSTATUS_vb;
 			renderer.buildFrame(pixels, maskpixels, 2);
 			pixelnum = 0;
 			stop = System.currentTimeMillis()-start;
@@ -436,14 +439,16 @@ public class ppu2C02 {
 			if(!oddframe&&scanline==-1&&pcycle==340&&dorender()){
 				//oddskip = true;
 				pcycle =0;
-				scanline=0;			
+				scanline=0;
 			}
+			
 		}
-		else if(pcycle ==340){
+		else if(pcycle==340){
 			if(scanline==260){
 				oddframe=!oddframe;
 				scanline = -1;
 				pcycle=0;
+		
 			}
 			else{
 				scanline++;	

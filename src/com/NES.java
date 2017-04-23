@@ -53,6 +53,7 @@ public class NES implements Runnable {
 		map.setcomponents(cpu, ppu,controller,controller2,apu);
 		map.setNes(this);
 		cpu.setPC(((map.cpureadu(0xfffd)<<8)|(map.cpureadu(0xfffc))));
+		//cpu.program_counter=0xc000;
 	}
 	int p=0;
 	double c =0.0;
@@ -71,30 +72,31 @@ public class NES implements Runnable {
 		boolean skip = true;
 		Scanner s = new Scanner(System.in);	
 		while(flag){
-			/*if(!skip){
-					if(i%3==0){
+			if(!skip){
+					if(i%ppudiv==0){
 						System.out.println("Timing: "
 								+" PPU scanline:"+ppu.scanline
 								+" VRAM ADDR: " +Integer.toHexString(ppu.v)
-								+" Ticks: "+ ppu.pcycle+"/"+(c%(341/3.0))
+								+" Ticks: "+ ppu.pcycle+"/"+(Integer.toHexString((int)c))
 								+" Rendering?: "+ppu.dorender()
-								+" PPUCTRL:"+Integer.toBinaryString(ppu.PPUCTRL)
+								+" vBlank:"+ppu.PPUSTATUS_vb
 								+" PPUSTATUS:"+Integer.toBinaryString(ppu.PPUSTATUS));
 						cpu.debug(0);
-					}
+					
 					String t = s.nextLine();
 					if(t.equals("c"))
 						skip = true;
 					else if(t.equals("i"))
-						cpu.IFlag=false;
+						cpu.nmiInterrupt=true;
 					else if(t.equals("e"))
 						map.cpuwrite(0xe000, (byte)1);
 					else
 						skip = false;	
+					}
 			}
-			if(cpu.current_instruction==0x12&&controller.checkDebug()){//cpu.program_counter==0xe018){//&&ppu.scanline>234){
+			if(controller.checkDebug()){//&&(cpu.nmiInterrupt||cpu.program_counter==0x9357||cpu.program_counter==0x9351)){//||ppu.scanline>239){//&&controller.checkDebug()){//cpu.program_counter==0xe018){//&&ppu.scanline>234){
 				skip = false;
-			}*/
+			}
 			
 			if(i%cpudiv==0){
 				cpu.run_cycle();
@@ -104,7 +106,8 @@ public class NES implements Runnable {
 				c++;
 				if(cpuclock>29600){
 					map.blockppu=false;
-				}	
+				}
+				
 			}
 			if(i%ppudiv==0){
 				p++;
@@ -120,13 +123,12 @@ public class NES implements Runnable {
 				}
 				else
 					apu.framecounter+=4;
-				//i+=4;
-				if(i==systemclock)
-					i=0;
-				else
-					i+=4;
+				i+=4;
+				//if(i==systemclock)
+				//	i=0;
 				//apu.framecounter+=4;
 			}
+			
 		}
 		apu.synth.stop();
 		if(batteryExists)
@@ -162,7 +164,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/megaman3.nes");
+		//rom = new File(System.getProperty("user.dir")+"/smb2.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

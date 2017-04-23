@@ -1,4 +1,5 @@
 package com;
+
 import java.util.Hashtable;
 import java.util.Scanner;
 
@@ -35,6 +36,7 @@ public class CPU_6502 {
 	private boolean ZFlag;
 	private boolean CFlag;
 	//other stuff
+	private boolean doOp=false;
 	private boolean brokenaddress = false;
 	int instruction_cycle;
 	public byte current_instruction;
@@ -49,57 +51,29 @@ public class CPU_6502 {
 	public boolean doNMI = false;
 	public int doIRQ = 0;
 	boolean nmihijack;
-	//private Memory memory;
-	//private Hashtable<Byte,Integer> inst_type;//read/write/both
-        private int[] inst_type = new int[256];
-	//private Hashtable<Byte, Integer> inst_mode;//memory access
-	private int[] inst_mode = new int[256];
-        public Hashtable<Byte,String> inst_name;//instruction name
+    private int[] inst_type = new int[256];//read/write/both
+	private int[] inst_mode = new int[256];//memory access
+	private int[] inst_len = new int[256];
+    public Hashtable<Byte,String> inst_name;//instruction name
 	public CPU_6502(Mapper mapper) {
 		map = mapper;
 		Scanner s;
-		//inst_type= new Hashtable<Byte,Integer>();
-		//inst_mode = new Hashtable<Byte,Integer>();
 		inst_name = new Hashtable<Byte,String>();
-		//try {
-			//s = new Scanner(System.in);
-			s = new Scanner((this.getClass().getResourceAsStream("cpu_instructions.txt")));
-			while(s.hasNext()){
-				byte x = Integer.valueOf(s.next(), 16).byteValue();
-				int mode = s.nextInt();
-				int type = s.nextInt();
-				//inst_type.put(x,type);
-                                inst_type[Byte.toUnsignedInt(x)]=type;
-				//inst_mode.put(x, mode);
-                                inst_mode[Byte.toUnsignedInt(x)]=mode;
-				inst_name.put(x, s.next());
-			}
-			s.close();
-		//} catch (FileNotFoundException e) {
-		//	e.printStackTrace();
-		//}
+		s = new Scanner((this.getClass().getResourceAsStream("cpu_instructions.txt")));
+		while(s.hasNext()){
+			byte x = Integer.valueOf(s.next(), 16).byteValue();
+			int mode = s.nextInt();
+			int type = s.nextInt();
+            inst_type[Byte.toUnsignedInt(x)]=type;
+            inst_mode[Byte.toUnsignedInt(x)]=mode;
+			inst_name.put(x, s.next());
+			int len = s.nextInt();
+            inst_len[Byte.toUnsignedInt(x)] = len;
+		}
+		s.close();
 		instruction_cycle = 1;
 		stack_pointer = (byte)0xfd;
 		setFlags((byte)0x34);
-	}
-	void debug(double i){
-		System.out.println("PC:" + Integer.toHexString(program_counter) + " Current Instruction: " + inst_name.get(current_instruction)
-				//+ " Instruction Hex: "+Integer.toHexString(Byte.toUnsignedInt(current_instruction))
-				+ " Instruction Cycle: "+instruction_cycle
-				+" total cycles: " +i
-				+" SP:"+ Integer.toHexString(Byte.toUnsignedInt(stack_pointer))
-				+" A:" + Integer.toHexString(Byte.toUnsignedInt(accumulator))
-				+" X:" + Integer.toHexString(Byte.toUnsignedInt(x_index_register))
-				+" Y:" + Integer.toHexString(Byte.toUnsignedInt(y_index_register))
-				+" T:" + Integer.toHexString(Byte.toUnsignedInt(tempregister))
-			    +" ADDR:" +Integer.toHexString(address)
-				+"     N:" +(NFlag?1:0)
-				+" V:" +(VFlag?1:0)
-				+" D:" +(DFlag?1:0)
-				+" I:" +(IFlag?1:0)
-				+" Z:" +(ZFlag?1:0)
-				+" C:" +(CFlag?1:0));
-		//memory.printMemory(program_counter, 20);
 	}
 	int dmac=0;
 	int dmain = 0;
@@ -141,23 +115,67 @@ public class CPU_6502 {
 			executeInstruction();
 		}
 	}
-	void setPC(int val){
-		program_counter =  val;
+	int irqsetdelay=-1;
+	boolean nmiInterrupt;
+	boolean irqInterrupt;
+	private void pollInterrupts(){
+		//System.out.println("polled interrupts");
+		if(nmi){
+			nmiInterrupt = true;
+			nmi = false;
+		}
+		else if(doIRQ>0&&!IFlag){
+			irqInterrupt=true;
+		}
+		
 	}
-	//Methods for setting flags.
+	public void setPC(int i){
+		program_counter=i;
+	}
+	private byte getNextInstruction(){
+		if(nmiInterrupt){
+			program_counter--;
+			nmiInterrupt=false;
+            return 0x02;
+		}
+		else if(irqInterrupt){
+			irqInterrupt=false;
+			program_counter--;
+			return 0x12;
+		}
+		else{
+			return map.cpuread(program_counter);
+		}
+	}
+	void debug(double i){
+		System.out.println("PC:" + Integer.toHexString(program_counter) + " Current Instruction: " + inst_name.get(current_instruction)
+				//+ " Instruction Hex: "+Integer.toHexString(Byte.toUnsignedInt(current_instruction))
+				+ " Instruction Cycle: "+instruction_cycle
+				+" total cycles: " +i
+				+" SP:"+ Integer.toHexString(Byte.toUnsignedInt(stack_pointer))
+				+" A:" + Integer.toHexString(Byte.toUnsignedInt(accumulator))
+				+" X:" + Integer.toHexString(Byte.toUnsignedInt(x_index_register))
+				+" Y:" + Integer.toHexString(Byte.toUnsignedInt(y_index_register))
+				+" T:" + Integer.toHexString(Byte.toUnsignedInt(tempregister))
+			    +" ADDR:" +Integer.toHexString(address)
+				+"     N:" +(NFlag?1:0)
+				+" V:" +(VFlag?1:0)
+				+" D:" +(DFlag?1:0)
+				+" I:" +(IFlag?1:0)
+				+" Z:" +(ZFlag?1:0)
+				+" C:" +(CFlag?1:0));
+		//memory.printMemory(program_counter, 20);
+	}
 	private byte buildFlags(){
 		byte temp = 0;
-		
-		if(CFlag)temp = (byte) (temp|1);
-		if(ZFlag)temp = (byte) (temp|(1<<1));
-		if(IFlag)temp = (byte) (temp|(1<<2));
-		if(DFlag)temp = (byte) (temp|(1<<3));
-		//temp|=(1<<3);
-		//temp|=(1<<4);
-		if(BFlag)temp = (byte) (temp|(1<<4));
-		temp = (byte) (temp|(1<<5));
-		if(VFlag)temp = (byte) (temp|(1<<6));
-		if(NFlag)temp = (byte) (temp|(1<<7));
+		temp|= CFlag?1:0;
+		temp|= ZFlag?2:0;
+		temp|= IFlag?4:0;
+		temp|= DFlag?8:0;
+		temp|= BFlag?16:0;
+		temp|= 32;
+		temp|= VFlag?64:0;
+		temp|= NFlag?128:0;
 		return temp;
 	}
 	private void setFlags(byte x){
@@ -167,93 +185,7 @@ public class CPU_6502 {
 		DFlag = (x&(1<<3))>0?true:false;
 		IFlag = (x&(1<<2))>0?true:false;
 		ZFlag = (x&(1<<1))>0?true:false;
-		CFlag = (x&1)>0?true:false;
-		
-	}
-	boolean dodebug;
-	int irqsetdelay=-1;
-	boolean nmiInter;
-	private void pollInterrupts(){
-		//if(irqlatency>0){
-		//	irqlatency--;
-		//	//System.out.println("Im in here "+ IFlag);
-		//}
-		//if(irqsetdelay==0){
-		//	IFlag = true;
-		//	irqsetdelay =-1;
-		//}
-		//else
-		//	irqsetdelay--;
-		if(nmi){
-			nmiInter = true;
-			nmi = false;
-		}
-		//if()
-	}
-	private byte getNextInstruction(){
-		//oldaddr = Byte.toUnsignedInt(current_instruction);
-		if(irqlatency>0){
-			irqlatency--;
-			//System.out.println("Im in here "+ IFlag);
-		}
-		if(irqsetdelay==0){
-			if(map.control.checkDebug())
-				System.out.println("Setting IFlag=true instruction: "+inst_name.get(current_instruction)+" scanline: "+map.ppu.scanline);
-			IFlag = true;
-			irqsetdelay =-1;
-		}
-		else
-			irqsetdelay--;
-		if(nmi&&nmirecieved==0){
-			//nmiInter = false;
-			program_counter--;
-			nmi=false;
-            //current_inst_mode = inst_mode.get((byte)0x02);
-            current_inst_mode = inst_mode[2];
-            //current_inst_type = inst_type.get((byte)0x02);
-			current_inst_type = inst_type[2];
-                        return 0x02;
-		}
-		else if(nmi&&nmirecieved!=0){
-			nmirecieved--;
-            //current_inst_mode = inst_mode.get(map.cpuread(program_counter));
-            current_inst_mode = inst_mode[map.cpureadu(program_counter)];
-            //current_inst_type = inst_type.get(map.cpuread(program_counter));
-            current_inst_type = inst_type[map.cpureadu(program_counter)];
-			return map.cpuread(program_counter);
-		}
-		else if(doIRQ>0&&irqrecieved!=0){
-			irqrecieved--;
-			byte b = map.cpuread(program_counter);
-            //current_inst_mode = inst_mode.get(map.cpuread(program_counter));
-            current_inst_mode = inst_mode[map.cpureadu(program_counter)];
-            //current_inst_type = inst_type.get(map.cpuread(program_counter));
-            current_inst_type = inst_type[map.cpureadu(program_counter)];
-			return map.cpuread(program_counter);
-		}
-		else if(doIRQ>0&&!IFlag&&irqlatency==0){//&&irqrecieved==0){
-			//System.out.println("Executing IRQ ppu SL: "+map.ppu.scanline+" cycle: "+map.ppu.pcycle 
-			//		+" Prev inst: "+inst_name.get(current_instruction));
-			program_counter--;
-			//doIRQ= false;
-            //current_inst_mode = inst_mode.get((byte)0x12);
-            current_inst_mode = inst_mode[0x12];
-            //current_inst_type = inst_type.get((byte)0x12);
-            current_inst_type = inst_type[0x12];
-			return 0x12;
-		}
-		else{
-			if(current_instruction == 0x12)
-				dodebug = true;
-			else
-				dodebug = false;
-			//System.out.println("waiting for irqlatency");
-			//current_inst_mode = inst_mode.get(map.cpuread(program_counter));
-            current_inst_mode = inst_mode[map.cpureadu(program_counter)];
-            //current_inst_type = inst_type.get(map.cpuread(program_counter));
-            current_inst_type = inst_type[map.cpureadu(program_counter)];
-			return map.cpuread(program_counter);
-		}
+		CFlag = (x&1)>0?true:false;	
 	}
 	boolean oldnmi = false;
 	boolean oldirq = false;
@@ -262,1640 +194,2007 @@ public class CPU_6502 {
 	public int nmirecieved;
 	public int irqrecieved;
 	private void executeInstruction(){
-		/*if(doNMI&&(old_inst!=current_instruction||instruction_cycle<old_cycle)){
-				if(map.cpuread(program_counter-1)==current_instruction)
-					program_counter--;
-				if(map.cpuread(program_counter-2)==current_instruction)
-					program_counter-=2;
-				instruction_cycle = 2;
-			current_instruction = 0x5a;
-			doNMI = false;
-		}*/
 		if(doNMI&&!oldnmi){
-			//if(instruction_cycle==2){//||instruction_cycle==2)
-			//	System.out.println("In here");
-			//	nmirecieved=0;
-			//}
-			//else if(inst_mode.get(current_instruction).equals("immediate")&&instruction_cycle<=2){
-			//	System.out.println("no in this one. INstruction: "+inst_name.get(current_instruction));
-			//	nmirecieved=0;
-			//}
-			//else{
-				//System.out.println("Normal one INstruction: "+inst_name.get(current_instruction) +" mode "+inst_mode.get(current_instruction)+" cycle: "+instruction_cycle);
-				nmirecieved=1;
-			//}
 			nmi=true;
 		}
 		oldnmi=doNMI;
-		//if(doIRQ&&!oldirq){
-		//	irqrecieved=1;
-		//}
-		//oldirq = doIRQ;
 		if(instruction_cycle ==1){
+			if(doOp){
+				executeOp();
+				doOp=false;
+			}
 			current_instruction = getNextInstruction();
-			//System.out.println(memory[program_counter]);
 			program_counter++;
-			instruction_cycle++;
-			//System.out.println("In the if: "+" "+current_instruction);
+			//instruction_cycle++;
 		}
-		else{
-			//System.out.println("In the else");
-			//if(!inst_mode.containsKey(current_instruction)){
-			//	debug(0);
-			//	map.printMemory(0,0x20);
-				//memory.printMemory(0x3a0, 0x20);
-				//memory.printMemory(0, 0x100);
-			//	System.out.println(Integer.toHexString(current_instruction)+" Scanline: "+map.ppu.scanline+" cycle: "+map.ppu.pcycle);
-			//}
-		switch(current_inst_mode){
-		case 0:{
-			switch(instruction_cycle){
-			case 2: {
-				tempregister = map.cpuread(program_counter);
-				//if(inst_name.get(current_instruction).equals("LDX")){
-				//	System.out.println("In hererere");
-				//	executeOp();
-				//	instruction_cycle=1;
-				//	program_counter++;
-				//	break;
-				//}
-					
-				program_counter++;
-				instruction_cycle++;break;
-			}
-			case 3: {
-				executeOp();
-				current_instruction = getNextInstruction();
-				program_counter++;
-				instruction_cycle = 2;break;
-			}
-			}
-		};break;
-		case 1:
-			switch(current_inst_type){
-			case 0:
-				switch(instruction_cycle){
-				case 2:
-					address = map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;
-					break;
-				case 3: 
-					tempregister = map.cpuread(address);
-					instruction_cycle++;
-					break;
-				case 4:
-					executeOp();
-					address = 0;
-					instruction_cycle=2;
-					current_instruction = getNextInstruction();
-					program_counter++;
-					break;
-				}
-				break;
-			case 1:
-				switch(instruction_cycle){
-				case 2:
-					address = map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;
-					break;
-				case 3:
-					tempregister = map.cpuread(address);
-					instruction_cycle++;
-					break;
-				case 4:
-					map.cpuwrite(address, tempregister);
-					executeOp();
-					instruction_cycle++;
-					break;
-				case 5:
-					map.cpuwrite(address, tempregister);
-					address = 0;
-					instruction_cycle=1;
-					break;
-				}
-				break;
-			case 2:
-				switch(instruction_cycle){
-				case 2:
-					address = map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;
-					break;
-				case 3:
-					executeOp();
-					address = 0;
-					instruction_cycle =1;
-					break;
-				}
-				break;
-			}
-			break;
-		case 2: case 3:
-			switch(current_inst_type){
-			case 0:
-				switch(instruction_cycle){
-				case 2:
-					address = map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;
-					break;
-				case 3:
-					if(current_inst_mode==2)
-						address += Byte.toUnsignedInt(x_index_register);
-					else
-						address += Byte.toUnsignedInt(y_index_register);
-					instruction_cycle++;
-					break;		
-				case 4:
-					address&=0xff;
-					tempregister= map.cpuread(address);
-					instruction_cycle++;
-					break;
-				case 5:
-					executeOp();
-					instruction_cycle = 2;
-					current_instruction = getNextInstruction();
-					program_counter++;
-					break;			
-				}
-				break;
-			case 1:
-				switch(instruction_cycle){
-				case 2:
-					address = map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;
-					break;
-				case 3:
-					address +=Byte.toUnsignedInt(x_index_register);
-					instruction_cycle++;
-					break;
-				case 4:
-					address&=0xff;
-					tempregister = map.cpuread(address);
-					instruction_cycle++;
-					break;
-				case 5:
-					map.cpuwrite(address, tempregister);
-					executeOp();
-					instruction_cycle++;
-					break;
-				case 6:
-					map.cpuwrite(address, tempregister);
-					instruction_cycle = 1;
-					address = 0;
-					break;
-				}
-				break;
-			case 2:
-				switch(instruction_cycle){
-				case 2:
-					address = map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;
-					break;
-				case 3:
-					if(current_inst_mode==2)
-						address += Byte.toUnsignedInt(x_index_register);
-					else
-						address += Byte.toUnsignedInt(y_index_register);
-					instruction_cycle++;
-					break;		
-				case 4:
-					address&=0xff;
-					executeOp();
-					instruction_cycle = 1;
-					break;
-				}
-				break;
-			}
-			break;
-		case 4:
-			switch(current_inst_type){
-			case 0:
-				switch(instruction_cycle){
-				case 2:
-					address = map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;
-					break;
-				case 3:
-					address = address|(map.cpureadu(program_counter)<<8);
-					program_counter++;
-					instruction_cycle++;
-					break;
-				case 4:
-					tempregister = map.cpuread(address);
-					instruction_cycle++;
-					break;
-				case 5:
-					executeOp();
-					address = 0;
-					current_instruction = getNextInstruction();
-					program_counter++;
-					instruction_cycle=2;
-					break;
-				}
-				break;
-			case 1:
-				switch(instruction_cycle){
-				case 2:
-					address = map.cpureadu(program_counter);
-					program_counter+=1;
-					instruction_cycle++;
-					break;
-				case 3:
-					address = address|(map.cpureadu(program_counter)<<8);
-					program_counter+=1;
-					instruction_cycle++;
-					break;
-				case 4:
-					tempregister = map.cpuread(address);
-					instruction_cycle++;
-					break;
-				case 5:
-					map.cpuwrite(address,tempregister);
-					executeOp();
-					instruction_cycle++;
-					break;
-				case 6:
-					map.cpuwrite(address, tempregister);
-					instruction_cycle = 1;
-					address = 0;
-					break;
-				}
-				break;
-			case 2:
-				switch(instruction_cycle){
-				case 2:
-					address = (map.cpureadu(program_counter));
-					program_counter++;
-					instruction_cycle++;
-					break;
-				case 3:
-					address = address|(map.cpureadu(program_counter)<<8);
-					program_counter++;
-					instruction_cycle++;
-					break;
-				case 4:
-					executeOp();
-					address = 0;
-					instruction_cycle=1;
-					break;
-				}
-				break;
-			case 4:
-				switch(instruction_cycle){
-				case 2:
-					address = map.cpureadu(program_counter);
-					//System.out.println(address);
-					program_counter++;
-					instruction_cycle++;
-					break;
-				case 3:
-					address = address|(map.cpureadu(program_counter)<<8);
-					program_counter= address;
-					instruction_cycle=1;
-					break;
-				}
-				break;
-			}
-			break;
-		case 5: case 6: {
-			switch(current_inst_type){
-			case 0: {
-				switch(instruction_cycle){
-				case 2: {
-					address = 0;
-					address = map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
-					address |= (map.cpureadu(program_counter)<<8);
-					lowpc = address&0xff00;
-					if(current_inst_mode==5)
-						address += Byte.toUnsignedInt(x_index_register);
-					else
-						address += Byte.toUnsignedInt(y_index_register);
-					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 4: {
-					if(lowpc!=(address&0xff00)){
-						brokenaddress = true;	
-						address&=0xffff;
-						tempregister=map.cpuread((address&0xff)|lowpc);
-						instruction_cycle++;break;
-					}
-					else{
-						address&=0xffff;
-						tempregister = map.cpuread(address);
-						instruction_cycle++;break;
-					}
-					
-				}
-				case 5: {
-					if(brokenaddress){
-						tempregister = map.cpuread(address);
-						brokenaddress = false;
-						instruction_cycle++;break;
-					}
-					else{
-						executeOp();
-						current_instruction= getNextInstruction();
-						program_counter++;
-						instruction_cycle= 2;break;
-					}
-				}
-				case 6: {
-					executeOp();
-					current_instruction= getNextInstruction();
-					program_counter++;
-					instruction_cycle= 2;break;
-				}
-				}
-			};break;
-			case 1: {
-				switch(instruction_cycle){
-				case 2: {
-					address= 0;
-					address = address | map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
-					address = address | (map.cpureadu(program_counter)<<8);
-					if(current_inst_mode==5)
-						address+= Byte.toUnsignedInt(x_index_register);
-					else
-						address+= Byte.toUnsignedInt(y_index_register);
-					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 4: { 
-					address&=0xffff;
-					tempregister=map.cpuread(program_counter);
-					instruction_cycle++;break;
-				}
-				case 5: {
-					tempregister = map.cpuread(address);
-					instruction_cycle++;break;
-				}
-				case 6: {
-					map.cpuwrite(address, tempregister);
-					executeOp();
-					instruction_cycle++;break;
-				}
-				case 7: {
-					map.cpuwrite(address, tempregister);
-					instruction_cycle = 1;break;
-				}
-				}
-			};break;
-			case 2: {
-				switch(instruction_cycle){
-				case 2: {
-					address = map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
-					address = address | (map.cpureadu(program_counter)<<8);
-					lowpc=address&0xff00;
-					if(current_inst_mode==5)
-						address += Byte.toUnsignedInt(x_index_register);
-					else
-						address += Byte.toUnsignedInt(y_index_register);
-					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 4: {
-					address&=0xffff;
-					tempregister = map.cpuread((address&0xff)|lowpc);
-					instruction_cycle++;break;
-				}
-				case 5: {
-					executeOp();
-					instruction_cycle = 1;break;
-				}
-				}
-				
-			}
-			}
-		};break;
-		case 7:{
-			switch(current_inst_type){
-			case 0: {
-				switch(instruction_cycle){
-				case 2: {
-					pointer = map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
-					pointer = pointer+Byte.toUnsignedInt(x_index_register);
-					instruction_cycle++;break;
-				}
-				case 4: {
-					pointer&=0xff;
-					address = map.cpureadu(pointer);
-					instruction_cycle++;break;
-				}
-				case 5: {
-					pointer++;pointer&=0xff;
-					address = address| (map.cpureadu(pointer)<<8);
-					instruction_cycle++;break;
-				}
-				case 6: {
-					tempregister = map.cpuread(address);
-					instruction_cycle++;break;
-				}
-				case 7: {
-					executeOp();
-					current_instruction = getNextInstruction();
-					program_counter++;
-					instruction_cycle=2;
-					address = 0;break;
-				}
-				}
-			};break;
-			case 1: {
-				switch(instruction_cycle){
-				case 2: {
-					pointer = map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
-					pointer = pointer+Byte.toUnsignedInt(x_index_register);
-					instruction_cycle++;break;
-				}
-				case 4: {
-					pointer&=0xff;
-					address = map.cpureadu(pointer);
-					instruction_cycle++;break;
-				}
-				case 5: {
-					pointer++;pointer&=0xff;
-					address = address| (map.cpureadu(pointer)<<8);
-					instruction_cycle++;break;
-				}
-				case 6: {
-					tempregister = map.cpuread(address);
-					instruction_cycle++;break;
-				}
-				case 7: {
-					map.cpuwrite(address, tempregister);
-					executeOp();
-					instruction_cycle++;break;
-				}
-				case 8: {
-					map.cpuwrite(address, tempregister);
-					instruction_cycle=1;
-				}
-				}
-			};break;
-			case 2: {
-				switch(instruction_cycle){
-				case 2: {
-					pointer = map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
-					pointer = pointer+Byte.toUnsignedInt(x_index_register);
-					instruction_cycle++;break;
-				}
-				case 4: {
-					pointer&=0xff;
-					address = map.cpureadu(pointer);
-					instruction_cycle++;break;
-				}
-				case 5: {
-					pointer++;pointer&=0xff;
-					address = address| (map.cpureadu(pointer)<<8);
-					instruction_cycle++;break;
-				}
-				case 6: {
-					tempregister=0;
-					executeOp();
-					instruction_cycle=1;
-				}
-				}
-			}
-			}
-		};break;
-		case 8:{
-			switch(current_inst_type){
-			case 0: {
-				switch(instruction_cycle){
-				case 2: {
-					pointer = map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
-					address = map.cpureadu(pointer);
-					instruction_cycle++;break;
-				}
-				case 4: {
-					if(pointer+1>0xff){
-						address |= (map.cpureadu(0)<<8);
-					}
-					else
-						address = address | (map.cpureadu(pointer+1)<<8);
-					lowpc = address&0xff00;
-					address += Byte.toUnsignedInt(y_index_register);
-					if(lowpc!=(address&0xff00)){
-						brokenaddress=true;
-					}
-					instruction_cycle++;break;
-				}
-				case 5: {
-					if(brokenaddress){
-						brokenaddress = true;
-						//System.out.println("ADDRESS IS BROKEN");
-						tempregister=map.cpuread((address&0xff)|lowpc);
-						//address-=0x100;
-						address&=0xffff;
-						instruction_cycle++;break;
-					}
-					else{
-						tempregister = map.cpuread(address);
-						instruction_cycle++;break;
-						
-					}
-				}
-				case 6: {
-					if(brokenaddress){//broken
-						tempregister=map.cpuread(address);
-						brokenaddress = false;
-						instruction_cycle++;break;
-					}
-					else{
-						executeOp();
-						current_instruction = getNextInstruction();
-						program_counter++;
-						instruction_cycle=2;break;
-					}
-				}
-				case 7: {
-					executeOp();
-					current_instruction = getNextInstruction();
-					program_counter++;
-					instruction_cycle=2;break;
-				}
-				}
-			};break;
-			case 1: {
-				switch(instruction_cycle){
-				case 2: {
-					pointer = map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
-					address = map.cpureadu(pointer);
-					instruction_cycle++;break;
-				}
-				case 4: {
-					if(pointer+1>0xff){
-						address |= (map.cpureadu(0)<<8);
-					}
-					else
-						address = address | (map.cpureadu(pointer+1)<<8);
-					lowpc = address&0xff00;
-					address += Byte.toUnsignedInt(y_index_register);
-					instruction_cycle++;break;
-				}
-				case 5: {
-					if(address>0xffff)
-						address&=0xffff;
-					tempregister= map.cpuread(address);
-					instruction_cycle++;break;
-				}
-				case 6: {
-					tempregister = map.cpuread(address);
-					instruction_cycle++;break;
-				}
-				case 7: {
-					map.cpuwrite(address, tempregister);
-					executeOp();
-					instruction_cycle++;break;
-				}
-				case 8: {
-					map.cpuwrite(address, tempregister);
-					instruction_cycle = 1; break;
-				}
-				}
-			};break;
-			case 2: {
-				switch(instruction_cycle){
-				case 2: {
-					pointer = map.cpureadu(program_counter);
-					program_counter++;
-					instruction_cycle++;break;
-				}
-				case 3: {
-					address = map.cpureadu(pointer);
-					instruction_cycle++;break;
-				}
-				case 4: {
-					if(pointer+1>0xff){
-						address |= (map.cpureadu(0)<<8);
-					}
-					else
-						address = address | (map.cpureadu(pointer+1)<<8);
-					lowpc=address&0xff00;
-					address += Byte.toUnsignedInt(y_index_register);
-					instruction_cycle++;break;
-				}
-				case 5: {
-					tempregister=map.cpuread((address&0xff)|lowpc);
-					instruction_cycle++;break;
-				}
-				case 6: {
-					executeOp();
-					//map.cpuwrite(address, tempregister);
-					instruction_cycle = 1;break;
-				}
-				}
-			};break;
-			}
-		};break;
-		case 9:{
-			switch(instruction_cycle){
-			case 2:{
-				tempregister=accumulator;
-				executeOp();
-				accumulator = tempregister;
-				instruction_cycle = 1;break;
-			}
-			}
-		};break;
-		case 10:{
-			switch(instruction_cycle){
-			case 2: {
-				tempregister = map.cpuread(program_counter);
-				program_counter++;
-				instruction_cycle++;break;
-			}
-			case 3: {
-				executeOp();
-				if(branchtaken){
-					//program_counter+=tempregister;
-					int high = program_counter&0xff00;
-					int chigh = (program_counter+tempregister)&0xff00;
-					if(nmirecieved!=0&&chigh!=high)
-						nmirecieved=0;
-					instruction_cycle++;break;
-				}
-				else{
-					//System.out.println("Going passed the branch"+map.cpuread(0x2002));
-					current_instruction = getNextInstruction();
-					program_counter++;
-					instruction_cycle=2;break;
-				}
-			}
-			case 4: {
-				int high = program_counter&0xff00;
-				int chigh = (program_counter+tempregister)&0xff00;
-				
-				if(chigh!=high){
-					//System.out.println("uhoh in the broken part");
-					
-					program_counter+=tempregister;
-					instruction_cycle++;break;
-					
-				}
-				else{
-					program_counter+=tempregister;
-					program_counter&=0xffff;
-					current_instruction = getNextInstruction();
-					program_counter++;
-					instruction_cycle = 2;break;
-				}
-				
-			}
-			case 5: {
-				program_counter&=0xffff;
-				current_instruction = getNextInstruction();
-				program_counter++;
-				instruction_cycle = 2; break;
-			}
-			}
-		};break;
-		case 11: {
-			executeOp();
-		};break;
+		switch(Byte.toUnsignedInt(current_instruction)){
+		case 0x00:brk();break;
+		case 0x01:indx_r();break;
+		case 0x02:nmi();break;
+		case 0x03:indx_rw();break;
+		case 0x04:zero_r();break;
+		case 0x05:zero_r();break;
+		case 0x06:zero_rw();break;
+		case 0x07:zero_rw();break;
+		case 0x08:php();break;
+		case 0x09:immediate();break;
+		case 0x0a:accumulator();break;
+		case 0x0b:immediate();break;
+		case 0x0c:abs_r();break;//skw
+		case 0x0d:abs_r();break;
+		case 0x0e:abs_rw();break;
+		case 0x0f:abs_rw();break;
+		case 0x10:relative();break;
+		case 0x11:indy_r();break;//ora
+		case 0x12:irq();break;//irq
+		case 0x13:indy_rw();break;//slo
+		case 0x14:zerox_r();break;//skb
+		case 0x15:zerox_r();break;//ora
+		case 0x16:zerox_rw();break;//asl
+		case 0x17:zerox_rw();break;//slo
+		case 0x18:clc();break;//clc
+		case 0x19:abs_y_r();break;//ora
+		case 0x1a:nop();break;//nop12
+		case 0x1b:abs_y_rw();break;//slo
+		case 0x1c:abs_x_r();break;//skw
+		case 0x1d:abs_x_r();break;//ora
+		case 0x1e:abs_x_rw();break;//asl
+		case 0x1f:abs_x_rw();break;//slo
+		case 0x20:jsr();break;//jsr
+		case 0x21:indx_r();break;//and
+		case 0x22:break;///////////////////////////////////////////////////////////////
+		case 0x23:indx_rw();break;//rla
+		case 0x24:zero_r();break;//bit
+		case 0x25:zero_r();break;//and
+		case 0x26:zero_rw();break;//rol
+		case 0x27:zero_rw();break;//rla
+		case 0x28:plp();break;//plp
+		case 0x29:immediate();break;//and
+		case 0x2a:accumulator();break;//rol
+		case 0x2b:immediate();break;//aac
+		case 0x2c:abs_r();break;//bit
+		case 0x2d:abs_r();break;//and
+		case 0x2e:abs_rw();break;//rol
+		case 0x2f:abs_rw();break;//rla
+		case 0x30:relative();break;//bmi
+		case 0x31:indy_r();break;//and
+		case 0x32:hlt();break;//hlt
+		case 0x33:indy_rw();break;//rla
+		case 0x34:zerox_r();break;//skb
+		case 0x35:zerox_r();break;//and
+		case 0x36:zerox_rw();break;//rol
+		case 0x37:zerox_rw();break;//rla
+		case 0x38:sec();break;//sec
+		case 0x39:abs_y_r();break;//and
+		case 0x3a:nop();break;//nop13
+		case 0x3b:abs_y_rw();break;//rla
+		case 0x3c:abs_x_r();break;//skw
+		case 0x3d:abs_x_r();break;//and
+		case 0x3e:abs_x_rw();break;//rol
+		case 0x3f:abs_x_rw();break;//rla
+		case 0x40:rti();break;//rti
+		case 0x41:indx_r();break;//eor
+		case 0x42:break;///////////////////////////////////////////////////////////////
+		case 0x43:indx_rw();break;//sre
+		case 0x44:zero_r();break;//skb
+		case 0x45:zero_r();break;//eor
+		case 0x46:zero_rw();break;//lsr
+		case 0x47:zero_rw();break;//sre
+		case 0x48:pha();break;//pha
+		case 0x49:immediate();break;//eor
+		case 0x4a:accumulator();break;//lsr
+		case 0x4b:immediate();break;//asr
+		case 0x4c:jmp_a();break;//jmp_a
+		case 0x4d:abs_r();break;//eor
+		case 0x4e:abs_rw();break;//lsr
+		case 0x4f:abs_rw();break;//sre
+		case 0x50:relative();break;//bvc
+		case 0x51:indy_r();break;//eor
+		case 0x52:break;///////////////////////////////////////////////////////////////
+		case 0x53:indy_rw();break;//sre
+		case 0x54:zerox_r();break;//skb
+		case 0x55:zerox_r();break;//eor
+		case 0x56:zerox_rw();break;//lsr
+		case 0x57:zerox_rw();break;//sre
+		case 0x58:cli();break;//cli
+		case 0x59:abs_y_r();break;//eor
+		case 0x5a:nop();break;//nop14
+		case 0x5b:abs_y_rw();break;//sre
+		case 0x5c:abs_x_r();break;//skw
+		case 0x5d:abs_x_r();break;//eor
+		case 0x5e:abs_x_rw();break;//lsr
+		case 0x5f:abs_x_rw();break;//sre
+		case 0x60:rts();break;//rts
+		case 0x61:indx_r();break;//adc
+		case 0x62:break;///////////////////////////////////////////////////////////////
+		case 0x63:indx_rw();break;//rra
+		case 0x64:zero_r();break;//skb
+		case 0x65:zero_r();break;//adc
+		case 0x66:zero_rw();break;//ror
+		case 0x67:zero_rw();break;//rra
+		case 0x68:pla();break;//pla
+		case 0x69:immediate();break;//adc
+		case 0x6a:accumulator();break;//ror
+		case 0x6b:immediate();break;//arr
+		case 0x6c:jmp();break;//jmp
+		case 0x6d:abs_r();break;//adc
+		case 0x6e:abs_rw();break;//ror
+		case 0x6f:abs_rw();break;//rra
+		case 0x70:relative();break;//bvs
+		case 0x71:indy_r();break;//adc
+		case 0x72:break;///////////////////////////////////////////////////////////////
+		case 0x73:indy_rw();break;//rra
+		case 0x74:zerox_r();break;//skb
+		case 0x75:zerox_r();break;//adc
+		case 0x76:zerox_rw();break;//ror
+		case 0x77:zerox_rw();break;//rra
+		case 0x78:sei();break;//sei
+		case 0x79:abs_y_r();break;//adc
+		case 0x7a:nop();break;//nop15
+		case 0x7b:abs_y_rw();break;//rra
+		case 0x7c:abs_x_r();break;//skw
+		case 0x7d:abs_x_r();break;//adc
+		case 0x7e:abs_x_rw();break;//ror
+		case 0x7f:abs_x_rw();break;//rra
+		case 0x80:immediate();break;//skb
+		case 0x81:indx_w();break;//sta
+		case 0x82:immediate();break;//skb
+		case 0x83:indx_w();break;//sax
+		case 0x84:zero_w();break;//sty
+		case 0x85:zero_w();break;//sta
+		case 0x86:zero_w();break;//stx
+		case 0x87:zero_w();break;//sax
+		case 0x88:dey();break;//dey
+		case 0x89:immediate();break;//skb
+		case 0x8a:txa();break;//txa
+		case 0x8b:immediate();break;//ane
+		case 0x8c:abs_w();break;//sty
+		case 0x8d:abs_w();break;//sta
+		case 0x8e:abs_w();break;//stx
+		case 0x8f:abs_w();break;//sax
+		case 0x90:relative();break;//bcc
+		case 0x91:indy_w();break;//sta
+		case 0x92:break;///////////////////////////////////////////////////////////////
+		case 0x93:indy_w();break;//sha
+		case 0x94:zerox_w();break;//sty
+		case 0x95:zerox_w();break;//sta
+		case 0x96:zeroy_w();break;//stx
+		case 0x97:zeroy_w();break;//sax
+		case 0x98:tya();break;//tya
+		case 0x99:abs_y_w();break;//sta
+		case 0x9a:txs();break;//txs
+		case 0x9b:abs_y_w();break;//shs
+		case 0x9c:shy();break;//shy
+		case 0x9d:abs_x_w();break;//sta
+		case 0x9e:shx();break;//shx
+		case 0x9f:abs_y_w();break;//sha
+		case 0xa0:immediate();break;//ldy
+		case 0xa1:indx_r();break;//lda
+		case 0xa2:immediate();break;//ldx
+		case 0xa3:indx_r();break;//lax
+		case 0xa4:zero_r();break;//ldy
+		case 0xa5:zero_r();break;//lda
+		case 0xa6:zero_r();break;//ldx
+		case 0xa7:zero_r();break;//lax
+		case 0xa8:tay();break;//tay
+		case 0xa9:immediate();break;//lda
+		case 0xaa:tax();break;//tax
+		case 0xab:immediate();break;//atx
+		case 0xac:abs_r();break;//ldy
+		case 0xad:abs_r();break;//lda
+		case 0xae:abs_r();break;//ldx
+		case 0xaf:abs_r();break;//lax
+		case 0xb0:relative();break;//bcs
+		case 0xb1:indy_r();break;//lda
+		case 0xb2:break;///////////////////////////////////////////////////////////////
+		case 0xb3:indy_r();break;//lax
+		case 0xb4:zerox_r();break;//ldy
+		case 0xb5:zerox_r();break;//lda
+		case 0xb6:zeroy_r();break;//ldx
+		case 0xb7:zeroy_r();break;//lax
+		case 0xb8:clv();break;//clv
+		case 0xb9:abs_y_r();break;//lda
+		case 0xba:tsx();break;//tsx
+		case 0xbb:abs_y_r();break;//las
+		case 0xbc:abs_x_r();break;//ldy
+		case 0xbd:abs_x_r();break;//lda
+		case 0xbe:abs_y_r();break;//ldx
+		case 0xbf:abs_y_r();break;//lax
+		case 0xc0:immediate();break;//cpy
+		case 0xc1:indx_r();break;//cmp
+		case 0xc2:immediate();break;//skb
+		case 0xc3:indx_rw();break;//dcp
+		case 0xc4:zero_r();break;//cpy
+		case 0xc5:zero_r();break;//cmp
+		case 0xc6:zero_rw();break;//dec
+		case 0xc7:zero_rw();break;//dcp
+		case 0xc8:iny();break;//iny
+		case 0xc9:immediate();break;//cmp
+		case 0xca:dex();break;//dex
+		case 0xcb:immediate();break;//axs
+		case 0xcc:abs_r();break;//cpy
+		case 0xcd:abs_r();break;//cmp
+		case 0xce:abs_rw();break;//dec
+		case 0xcf:abs_rw();break;//dcp
+		case 0xd0:relative();break;//bne
+		case 0xd1:indy_r();break;//cmp
+		case 0xd2:break;///////////////////////////////////////////////////////////////
+		case 0xd3:indy_rw();break;//dcp
+		case 0xd4:zerox_r();break;//skb
+		case 0xd5:zerox_r();break;//cmp
+		case 0xd6:zerox_rw();break;//dec
+		case 0xd7:zerox_rw();break;//dcp
+		case 0xd8:cld();break;//cld
+		case 0xd9:abs_y_r();break;//cmp
+		case 0xda:nop();break;//nop16
+		case 0xdb:abs_y_rw();break;//dcp
+		case 0xdc:abs_x_r();break;//skw
+		case 0xdd:abs_x_r();break;//cmp
+		case 0xde:abs_x_rw();break;//dec
+		case 0xdf:abs_x_rw();break;//dcp
+		case 0xe0:immediate();break;//cpx
+		case 0xe1:indx_r();break;//sbc
+		case 0xe2:immediate();break;//skb
+		case 0xe3:indx_rw();break;//isb
+		case 0xe4:zero_r();break;//cpx
+		case 0xe5:zero_r();break;//sbc
+		case 0xe6:zero_rw();break;//inc
+		case 0xe7:zero_rw();break;//isb
+		case 0xe8:inx();break;//inx
+		case 0xe9:immediate();break;//sbc
+		case 0xea:nop();break;//nop
+		case 0xeb:immediate();break;//sbc
+		case 0xec:abs_r();break;//cpx
+		case 0xed:abs_r();break;//sbc
+		case 0xee:abs_rw();break;//inc
+		case 0xef:abs_rw();break;//isb
+		case 0xf0:relative();break;//beq
+		case 0xf1:indy_r();break;//sbc
+		case 0xf2:break;///////////////////////////////////////////////////////////////
+		case 0xf3:indy_rw();break;//isb
+		case 0xf4:zerox_r();break;//skb
+		case 0xf5:zerox_r();break;//sbc
+		case 0xf6:zerox_rw();break;//inc
+		case 0xf7:zerox_rw();break;//isb
+		case 0xf8:sed();break;//sed
+		case 0xf9:abs_y_r();break;//sbc
+		case 0xfa:nop();break;//nop17
+		case 0xfb:abs_y_rw();break;//isb
+		case 0xfc:abs_x_r();break;//skw
+		case 0xfd:abs_x_r();break;//sbc
+		case 0xfe:abs_x_rw();break;//inc
+		case 0xff:abs_x_rw();break;//isb
+		}
 		
-		}}
 	}
 	private void executeOp(){
 		switch(Byte.toUnsignedInt(current_instruction)){
-		case 0x0b: case 0x2b:{
-		//case "AAC": {
-			if(showInvalid)
-			System.out.println("Invalid instruction AAC");
-			accumulator= (byte)(accumulator &tempregister);
-			if(accumulator==0) ZFlag=true;else ZFlag = false;
-			if(accumulator<0) NFlag=true;else NFlag = false;
-			CFlag = NFlag;
-		};break;
-		case 0x69: case 0x65: case 0x75: case 0x6d: case 0x7d: case 0x79:case 0x61: case 0x71:{
-		//case "ADC": {
-			//System.out.println("IM IN ADC!");
-			int sum = Byte.toUnsignedInt(accumulator) + Byte.toUnsignedInt(tempregister) + (CFlag?1:0);
-			CFlag = sum>0xff?true:false;
-			VFlag = (~(accumulator^tempregister)&(accumulator^sum)&0x80)==0?false:true;
-			accumulator=(byte) sum;
-			NFlag = accumulator<0?true:false;
-			ZFlag = accumulator==0?true:false;
-			/*
-			int sign1 = accumulator&0x80;
-			int out = Byte.toUnsignedInt(accumulator)+Byte.toUnsignedInt(tempregister)+(CFlag?1:0);
-			int tsign = tempregister&0x80;
-			accumulator = (byte) (tempregister +accumulator+ (CFlag?1:0));
-			int sign2 = accumulator&0x80;
-			if(sign1==tsign&&sign1!=sign2)VFlag = true;else VFlag = false;
-			if(accumulator<0)NFlag = true;else NFlag = false;
-			if(out>0xff)CFlag = true;else CFlag = false;
-			if(accumulator==0)ZFlag = true;else ZFlag = false;*/
-		};break;
-		case 0x29: case 0x25: case 0x35: case 0x2d: case 0x3d: case 0x39: case 0x21: case 0x31:{
-		//case "AND":  {
-			accumulator = (byte) (accumulator & tempregister);
-			if(accumulator==0) ZFlag=true;else ZFlag = false;
-			if(accumulator<0) NFlag=true;else NFlag = false;
-		};break;
-		case 0x6b:{
-		//case "ARR": {
-			if(showInvalid)
-			System.out.println("Invalid instruction ARR");
-			accumulator=(byte) (accumulator&tempregister);
-			int result = Byte.toUnsignedInt(accumulator);
-			result>>=1;
-			if(CFlag) result|= 0x80;
-			accumulator = (byte) result;
-			NFlag = accumulator<0;
-			ZFlag = result==0;
-			CFlag = ((accumulator&(0b1000000))!=0);
-			VFlag = CFlag ^ ((accumulator&0b100000)!=0);
-			
-		};break;
-		case 0x0a: case 0x06: case 0x16: case 0x0e: case 0x1e:{
-		//case "ASL": {
-			int temp = Byte.toUnsignedInt(tempregister);
-			if((tempregister&0x80)!=0) CFlag=true; else CFlag=false;
-			tempregister = (byte) (temp<<1);
-			if(tempregister==0) ZFlag = true;else ZFlag = false;
-			if(tempregister<0) NFlag = true;else NFlag = false;
-		};break;
-		case 0x4b:{
-		//case "ASR": {
-			accumulator = (byte) (accumulator & tempregister);
-			CFlag = (accumulator&1)!=0;
-			accumulator= (byte)(Byte.toUnsignedInt(accumulator)>>1);
-			if(accumulator==0) ZFlag=true;else ZFlag = false;
-			if(accumulator<0) NFlag=true;else NFlag = false;
-			
-		};break;
-		case 0xab:{
-		//case "ATX": {
-			if(showInvalid)System.out.println("Invalid instruction ATX");
-
-			x_index_register = accumulator=tempregister;
-			//accumulator = (byte) (accumulator & tempregister);
-			if(accumulator==0) ZFlag=true;else ZFlag = false;
-			if(accumulator<0) NFlag=true;else NFlag = false;
-		};break;
-		case 0xcb:{
-		//case "AXS": {
-			if(showInvalid)System.out.println("Invalid instruction AXS");
-			int result = Byte.toUnsignedInt(x_index_register);
-			result &= Byte.toUnsignedInt(accumulator);
-			CFlag = result>=Byte.toUnsignedInt(tempregister);
-			result-= tempregister;
-			x_index_register = (byte) result;
-			NFlag = x_index_register<0;
-			ZFlag = x_index_register==0;
-		};break;
-		case 0x90:{
-		//case "BCC": {
-			if(!CFlag)
-				branchtaken=true;
-			else
-				branchtaken=false;
-		};break;
-		case 0xb0:{
-		//case "BCS": {
-			if(CFlag)
-				branchtaken=true;
-			else
-				branchtaken=false;
-		};break;
-		case 0xf0:{
-		//case "BEQ": {
-			if(ZFlag)
-				branchtaken=true;
-			else
-				branchtaken=false;
-		};break;
-		case 0x24: case 0x2c:{
-		//case "BIT": {
-			if((accumulator&tempregister)==0)ZFlag = true; else ZFlag = false;
-			if((tempregister&0x80)!=0)NFlag = true; else NFlag = false;
-			if((tempregister&0x40)!=0)VFlag = true; else VFlag = false;
-		};break;
-		case 0x30:{
-		//case "BMI":{
-			if(NFlag)
-				branchtaken=true;
-			else
-				branchtaken=false;
-		};break;
-		case 0xd0:{
-		//case "BNE": {
-			if(!ZFlag)
-				branchtaken=true;
-			else
-				branchtaken=false;
-		};break;
-		case 0x10:{
-		//case "BPL": {
-			if(!NFlag)
-				branchtaken=true;
-			else
-				branchtaken=false;
-		};break;
-		case 0x0:{
-		//case "BRK": {
-			switch(instruction_cycle){
-			case 2: {
-				if(nmi&&doNMI)
-					nmihijack=true;
-				//System.out.println("IN the BRK instruction!");
-				program_counter++;
-				instruction_cycle++;break;
-			}
-			case 3: {
-				if(!(doNMI&&nmi))
-					nmihijack = false;
-				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter>>8));
-				stack_pointer--;
-				instruction_cycle++;break;
-			}
-			case 4: {
-				if(!(doNMI&&nmi))
-					nmihijack = false;
-				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter&0xff));
-				stack_pointer--;
-				instruction_cycle++;break;
-			}
-			case 5: {
-				BFlag = true;
-				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, buildFlags());
-				BFlag = false;
-				if(nmihijack){
-					current_instruction = 0x02;
-					nmihijack=false;
-				}
-				stack_pointer--;
-				instruction_cycle++;break;
-			}
-			case 6: {
-				program_counter = map.cpureadu(0xfffe);
-				instruction_cycle++;break;
-			}
-			case 7: {
-				program_counter |= map.cpureadu(0xffff)<<8;
-				IFlag = true;
-				instruction_cycle = 1;break;
-			}
-			}
-		};break;
-		case 0x50:{
-		//case "BVC": {
-			if(!VFlag)
-				branchtaken=true;
-			else
-				branchtaken=false;
-		};break;
-		case 0x70:{
-		//case "BVS": {
-			if(VFlag)
-				branchtaken=true;
-			else
-				branchtaken=false;
-		};break;
-		case 0x18:{
-		//case "CLC": {
-			CFlag = false;
-			instruction_cycle = 1;
-		};break;
-		case 0xd8:{
-		//case "CLD": {
-			DFlag = false;
-			instruction_cycle = 1;
-		};break;
-		case 0x58:{
-		//case "CLI": {
-			//if(map.control.checkDebug())
-			//	System.out.println("Clearing IFlag scanline: "+map.ppu.scanline);
-			IFlag = false;
+		case 0x00:brk();break;//brk
+		case 0x01:ora();break;//ora
+		case 0x02:nmi();break;//nmi
+		case 0x03:slo();break;//slo
+		case 0x04:skb();break;//skb
+		case 0x05:ora();break;//ora
+		case 0x06:asl();break;//asl
+		case 0x07:slo();break;//slo
+		case 0x08:php();break;//php
+		case 0x09:ora();break;//ora
+		case 0x0a:asl();break;//asl
+		case 0x0b:aac();break;//aac
+		case 0x0c:skw();break;//skw
+		case 0x0d:ora();break;//ora
+		case 0x0e:asl();break;//asl
+		case 0x0f:slo();break;//slo
+		case 0x10:bpl();break;//bpl
+		case 0x11:ora();break;//ora
+		case 0x12:irq();break;//irq
+		case 0x13:slo();break;//slo
+		case 0x14:skb();break;//skb
+		case 0x15:ora();break;//ora
+		case 0x16:asl();break;//asl
+		case 0x17:slo();break;//slo
+		case 0x18:clc();break;//clc
+		case 0x19:ora();break;//ora
+		case 0x1a:nop();break;//nop12
+		case 0x1b:slo();break;//slo
+		case 0x1c:skw();break;//skw
+		case 0x1d:ora();break;//ora
+		case 0x1e:asl();break;//asl
+		case 0x1f:slo();break;//slo
+		case 0x20:jsr();break;//jsr
+		case 0x21:and();break;//and
+		case 0x22:break;//////////////////////////////////////////////////////////
+		case 0x23:rla();break;//rla
+		case 0x24:bit();break;//bit
+		case 0x25:and();break;//and
+		case 0x26:rol();break;//rol
+		case 0x27:rla();break;//rla
+		case 0x28:plp();break;//plp
+		case 0x29:and();break;//and
+		case 0x2a:rol();break;//rol
+		case 0x2b:aac();break;//aac
+		case 0x2c:bit();break;//bit
+		case 0x2d:and();break;//and
+		case 0x2e:rol();break;//rol
+		case 0x2f:rla();break;//rla
+		case 0x30:bmi();break;//bmi
+		case 0x31:and();break;//and
+		case 0x32:hlt();break;//hlt
+		case 0x33:rla();break;//rla
+		case 0x34:skb();break;//skb
+		case 0x35:and();break;//and
+		case 0x36:rol();break;//rol
+		case 0x37:rla();break;//rla
+		case 0x38:sec();break;//sec
+		case 0x39:and();break;//and
+		case 0x3a:nop();break;//nop13
+		case 0x3b:rla();break;//rla
+		case 0x3c:skw();break;//skw
+		case 0x3d:and();break;//and
+		case 0x3e:rol();break;//rol
+		case 0x3f:rla();break;//rla
+		case 0x40:rti();break;//rti
+		case 0x41:eor();break;//eor
+		case 0x42:break;///////////////////////////////////////////////////////////////
+		case 0x43:sre();break;//sre
+		case 0x44:skb();break;//skb
+		case 0x45:eor();break;//eor
+		case 0x46:lsr();break;//lsr
+		case 0x47:sre();break;//sre
+		case 0x48:pha();break;//pha
+		case 0x49:eor();break;//eor
+		case 0x4a:lsr();break;//lsr
+		case 0x4b:asr();break;//asr
+		case 0x4c:jmp_a();break;//jmp_a
+		case 0x4d:eor();break;//eor
+		case 0x4e:lsr();break;//lsr
+		case 0x4f:sre();break;//sre
+		case 0x50:bvc();break;//bvc
+		case 0x51:eor();break;//eor
+		case 0x52:break;///////////////////////////////////////////////////////////////
+		case 0x53:sre();break;//sre
+		case 0x54:skb();break;//skb
+		case 0x55:eor();break;//eor
+		case 0x56:lsr();break;//lsr
+		case 0x57:sre();break;//sre
+		case 0x58:cli();break;//cli
+		case 0x59:eor();break;//eor
+		case 0x5a:nop();break;//nop14
+		case 0x5b:sre();break;//sre
+		case 0x5c:skw();break;//skw
+		case 0x5d:eor();break;//eor
+		case 0x5e:lsr();break;//lsr
+		case 0x5f:sre();break;//sre
+		case 0x60:rts();break;//rts
+		case 0x61:adc();break;//adc
+		case 0x62:break;///////////////////////////////////////////////////////////////
+		case 0x63:rra();break;//rra
+		case 0x64:skb();break;//skb
+		case 0x65:adc();break;//adc
+		case 0x66:ror();break;//ror
+		case 0x67:rra();break;//rra
+		case 0x68:pla();break;//pla
+		case 0x69:adc();break;//adc
+		case 0x6a:ror();break;//ror
+		case 0x6b:arr();break;//arr
+		case 0x6c:jmp();break;//jmp
+		case 0x6d:adc();break;//adc
+		case 0x6e:ror();break;//ror
+		case 0x6f:rra();break;//rra
+		case 0x70:bvs();break;//bvs
+		case 0x71:adc();break;//adc
+		case 0x72:break;///////////////////////////////////////////////////////////////
+		case 0x73:rra();break;//rra
+		case 0x74:skb();break;//skb
+		case 0x75:adc();break;//adc
+		case 0x76:ror();break;//ror
+		case 0x77:rra();break;//rra
+		case 0x78:sei();break;//sei
+		case 0x79:adc();break;//adc
+		case 0x7a:nop();break;//nop15
+		case 0x7b:rra();break;//rra
+		case 0x7c:skw();break;//skw
+		case 0x7d:adc();break;//adc
+		case 0x7e:ror();break;//ror
+		case 0x7f:rra();break;//rra
+		case 0x80:skb();break;//skb
+		case 0x81:sta();break;//sta
+		case 0x82:skb();break;//skb
+		case 0x83:sax();break;//sax
+		case 0x84:sty();break;//sty
+		case 0x85:sta();break;//sta
+		case 0x86:stx();break;//stx
+		case 0x87:sax();break;//sax
+		case 0x88:dey();break;//dey
+		case 0x89:skb();break;//skb
+		case 0x8a:txa();break;//txa
+		case 0x8b:ane();break;//ane
+		case 0x8c:sty();break;//sty
+		case 0x8d:sta();break;//sta
+		case 0x8e:stx();break;//stx
+		case 0x8f:sax();break;//sax
+		case 0x90:bcc();break;//bcc
+		case 0x91:sta();break;//sta
+		case 0x92:break;///////////////////////////////////////////////////////////////
+		case 0x93:sha();break;//sha
+		case 0x94:sty();break;//sty
+		case 0x95:sta();break;//sta
+		case 0x96:stx();break;//stx
+		case 0x97:sax();break;//sax
+		case 0x98:tya();break;//tya
+		case 0x99:sta();break;//sta
+		case 0x9a:txs();break;//txs
+		case 0x9b:shs();break;//shs
+		case 0x9c:shy();break;//shy
+		case 0x9d:sta();break;//sta
+		case 0x9e:shx();break;//shx
+		case 0x9f:sha();break;//sha
+		case 0xa0:ldy();break;//ldy
+		case 0xa1:lda();break;//lda
+		case 0xa2:ldx();break;//ldx
+		case 0xa3:lax();break;//lax
+		case 0xa4:ldy();break;//ldy
+		case 0xa5:lda();break;//lda
+		case 0xa6:ldx();break;//ldx
+		case 0xa7:lax();break;//lax
+		case 0xa8:tay();break;//tay
+		case 0xa9:lda();break;//lda
+		case 0xaa:tax();break;//tax
+		case 0xab:atx();break;//atx
+		case 0xac:ldy();break;//ldy
+		case 0xad:lda();break;//lda
+		case 0xae:ldx();break;//ldx
+		case 0xaf:lax();break;//lax
+		case 0xb0:bcs();break;//bcs
+		case 0xb1:lda();break;//lda
+		case 0xb2:break;///////////////////////////////////////////////////////////////
+		case 0xb3:lax();break;//lax
+		case 0xb4:ldy();break;//ldy
+		case 0xb5:lda();break;//lda
+		case 0xb6:ldx();break;//ldx
+		case 0xb7:lax();break;//lax
+		case 0xb8:clv();break;//clv
+		case 0xb9:lda();break;//lda
+		case 0xba:tsx();break;//tsx
+		case 0xbb:las();break;//las
+		case 0xbc:ldy();break;//ldy
+		case 0xbd:lda();break;//lda
+		case 0xbe:ldx();break;//ldx
+		case 0xbf:lax();break;//lax
+		case 0xc0:cpy();break;//cpy
+		case 0xc1:cmp();break;//cmp
+		case 0xc2:skb();break;//skb
+		case 0xc3:dcp();break;//dcp
+		case 0xc4:cpy();break;//cpy
+		case 0xc5:cmp();break;//cmp
+		case 0xc6:dec();break;//dec
+		case 0xc7:dcp();break;//dcp
+		case 0xc8:iny();break;//iny
+		case 0xc9:cmp();break;//cmp
+		case 0xca:dex();break;//dex
+		case 0xcb:axs();break;//axs
+		case 0xcc:cpy();break;//cpy
+		case 0xcd:cmp();break;//cmp
+		case 0xce:dec();break;//dec
+		case 0xcf:dcp();break;//dcp
+		case 0xd0:bne();break;//bne
+		case 0xd1:cmp();break;//cmp
+		case 0xd2:break;///////////////////////////////////////////////////////////////
+		case 0xd3:dcp();break;//dcp
+		case 0xd4:skb();break;//skb
+		case 0xd5:cmp();break;//cmp
+		case 0xd6:dec();break;//dec
+		case 0xd7:dcp();break;//dcp
+		case 0xd8:cld();break;//cld
+		case 0xd9:cmp();break;//cmp
+		case 0xda:nop();break;//nop16
+		case 0xdb:dcp();break;//dcp
+		case 0xdc:skw();break;//skw
+		case 0xdd:cmp();break;//cmp
+		case 0xde:dec();break;//dec
+		case 0xdf:dcp();break;//dcp
+		case 0xe0:cpx();break;//cpx
+		case 0xe1:sbc();break;//sbc
+		case 0xe2:skb();break;//skb
+		case 0xe3:isb();break;//isb
+		case 0xe4:cpx();break;//cpx
+		case 0xe5:sbc();break;//sbc
+		case 0xe6:inc();break;//inc
+		case 0xe7:isb();break;//isb
+		case 0xe8:inx();break;//inx
+		case 0xe9:sbc();break;//sbc
+		case 0xea:nop();break;//nop
+		case 0xeb:sbc();break;//sbc
+		case 0xec:cpx();break;//cpx
+		case 0xed:sbc();break;//sbc
+		case 0xee:inc();break;//inc
+		case 0xef:isb();break;//isb
+		case 0xf0:beq();break;//beq
+		case 0xf1:sbc();break;//sbc
+		case 0xf2:break;///////////////////////////////////////////////////////////////
+		case 0xf3:isb();break;//isb
+		case 0xf4:skb();break;//skb
+		case 0xf5:sbc();break;//sbc
+		case 0xf6:inc();break;//inc
+		case 0xf7:isb();break;//isb
+		case 0xf8:sed();break;//sed
+		case 0xf9:sbc();break;//sbc
+		case 0xfa:nop();break;//nop17
+		case 0xfb:isb();break;//isb
+		case 0xfc:skw();break;//skw
+		case 0xfd:sbc();break;//sbc
+		case 0xfe:inc();break;//inc
+		case 0xff:isb();break;//isb
+		}
+	}
+	private void immediate(){
+		switch(instruction_cycle){
+		case 1:
+			pollInterrupts();instruction_cycle++;break;
+		case 2:
+			//pollInterrupts();
+			tempregister = map.cpuread(program_counter);
+			//executeOp();
+			program_counter++;doOp=true;
+			instruction_cycle=1;break;
+		/*case 3:
+			executeOp();
+			current_instruction = getNextInstruction();
+			program_counter++;
+			instruction_cycle = 2;break;*/
+		}
+	}
+	private void zero_r(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;
+			pollInterrupts();
+			break;
+		case 3: 
+			tempregister = map.cpuread(address);
+			instruction_cycle=1;doOp=true;
+			break;
+		/*case 4:
+			executeOp();
+			address = 0;
+			instruction_cycle=2;
+			current_instruction = getNextInstruction();
+			program_counter++;
+			break;*/
+		}
+	}
+	private void zero_rw(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;
+			break;
+		case 3:
+			tempregister = map.cpuread(address);
+			instruction_cycle++;
+			break;
+		case 4:
+			map.cpuwrite(address, tempregister);
+			executeOp();
+			pollInterrupts();
+			instruction_cycle++;
+			break;
+		case 5:
+			map.cpuwrite(address, tempregister);
+			address = 0;
 			instruction_cycle=1;
-			irqlatency = 2;
-		};break;
-		case 0xb8:{
-		//case "CLV": {
-			VFlag = false;
+			break;
+		}
+	}
+	private void zero_w(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			pollInterrupts();
+			instruction_cycle++;
+			break;
+		case 3:
+			executeOp();
+			address = 0;
+			instruction_cycle =1;
+			break;
+		}
+	}
+	private void zerox_r(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;
+			break;
+		case 3:
+			address += Byte.toUnsignedInt(x_index_register);
+			instruction_cycle++;
+			pollInterrupts();
+			break;		
+		case 4:
+			address&=0xff;
+			tempregister= map.cpuread(address);
+			instruction_cycle=1;doOp=true;
+			break;
+		/*case 5:
+			executeOp();
+			instruction_cycle = 2;
+			current_instruction = getNextInstruction();
+			program_counter++;
+			break;	*/		
+		}
+	};
+	private void zerox_rw(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;
+			break;
+		case 3:
+			address +=Byte.toUnsignedInt(x_index_register);
+			instruction_cycle++;
+			break;
+		case 4:
+			address&=0xff;
+			tempregister = map.cpuread(address);
+			instruction_cycle++;
+			break;
+		case 5:
+			map.cpuwrite(address, tempregister);
+			executeOp();
+			pollInterrupts();
+			instruction_cycle++;
+			break;
+		case 6:
+			map.cpuwrite(address, tempregister);
+			instruction_cycle = 1;
+			address = 0;
+			break;
+		}
+	};
+	private void zerox_w(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;
+			break;
+		case 3:
+			address += Byte.toUnsignedInt(x_index_register);
+			instruction_cycle++;
+			pollInterrupts();
+			break;		
+		case 4:
+			address&=0xff;
+			executeOp();
+			instruction_cycle = 1;
+			break;
+		}
+	};
+	private void zeroy_r(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;
+			break;
+		case 3:
+			address += Byte.toUnsignedInt(y_index_register);
+			instruction_cycle++;
+			pollInterrupts();
+			break;		
+		case 4:
+			address&=0xff;
+			tempregister= map.cpuread(address);
+			instruction_cycle=1;doOp=true;
+			break;
+		/*case 5:
+			executeOp();
+			instruction_cycle = 2;
+			current_instruction = getNextInstruction();
+			program_counter++;
+			break;*/			
+		}
+	};
+	private void zeroy_w(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;
+			break;
+		case 3:
+			address += Byte.toUnsignedInt(y_index_register);
+			instruction_cycle++;
+			pollInterrupts();
+			break;		
+		case 4:
+			address&=0xff;
+			executeOp();
+			instruction_cycle = 1;
+			break;
+		}
+	};
+	private void abs_r(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;
+			break;
+		case 3:
+			address = address|(map.cpureadu(program_counter)<<8);
+			program_counter++;
+			instruction_cycle++;
+			pollInterrupts();
+			break;
+		case 4:
+			tempregister = map.cpuread(address);
+			instruction_cycle=1;doOp=true;
+			break;
+		/*case 5:
+			executeOp();
+			address = 0;
+			current_instruction = getNextInstruction();
+			program_counter++;
+			instruction_cycle=2;
+			break;*/
+		}
+	};
+	private void abs_rw(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;
+			break;
+		case 3:
+			address = address|(map.cpureadu(program_counter)<<8);
+			program_counter++;
+			instruction_cycle++;
+			break;
+		case 4:
+			tempregister = map.cpuread(address);
+			instruction_cycle++;
+			break;
+		case 5:
+			map.cpuwrite(address,tempregister);
+			executeOp();
+			pollInterrupts();
+			instruction_cycle++;
+			break;
+		case 6:
+			map.cpuwrite(address, tempregister);
+			instruction_cycle = 1;
+			address = 0;
+			break;
+		}
+	};
+	private void abs_w(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = (map.cpureadu(program_counter));
+			program_counter++;
+			instruction_cycle++;
+			break;
+		case 3:
+			address = address|(map.cpureadu(program_counter)<<8);
+			program_counter++;
+			instruction_cycle++;
+			pollInterrupts();
+			break;
+		case 4:
+			executeOp();
+			address = 0;
 			instruction_cycle=1;
-		};break;
-		case 0xc9: case 0xc5: case 0xd5: case 0xcd: case 0xdd: case 0xd9: case 0xc1: case 0xd1:{
-		//case "CMP": {
-			if(Byte.toUnsignedInt(accumulator)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
-			if(accumulator == tempregister) ZFlag = true;else ZFlag = false;
-			if(((Byte.toUnsignedInt(accumulator)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
-		};break;
-		case 0xe0: case 0xe4: case 0xec:{
-		//case "CPX": {
-			if(Byte.toUnsignedInt(x_index_register)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
-			if(x_index_register == tempregister) ZFlag = true;else ZFlag = false;
-			if(((Byte.toUnsignedInt(x_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
-		};break;
-		case 0xc0: case 0xc4: case 0xcc:{
-		//case "CPY": {
-			if(Byte.toUnsignedInt(y_index_register)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
-			if(y_index_register == tempregister) ZFlag = true;else ZFlag = false;
-			if(((Byte.toUnsignedInt(y_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
-		};break;
-		case 0xc3: case 0xc7: case 0xcf: case 0xd3: case 0xd7: case 0xdb: case 0xdf:{
-		//case "DCP": {
-			if(showInvalid)System.out.println("Invalid instruction DCP");
-			tempregister--;
-			if(Byte.toUnsignedInt(accumulator)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
-			if(accumulator == tempregister) ZFlag = true;else ZFlag = false;
-			if(((Byte.toUnsignedInt(accumulator)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
-		};break;
-		case 0xc6: case 0xd6: case 0xce: case 0xde:{
-		//case "DEC": {
-			tempregister--;
-			if(tempregister==0) ZFlag = true;else ZFlag = false;
-			if(tempregister<0) NFlag = true;else NFlag = false;
-		};break;
-		case 0xca:{
-		//case "DEX": {
-			x_index_register--;
-			if(x_index_register==0) ZFlag = true;else ZFlag = false;
-			if(x_index_register<0) NFlag = true;else NFlag = false;
-			//current_instruction = map.cpuread(program_counter);
-			//program_counter++;
-			instruction_cycle = 1;
-		};break;
-		case 0x88:{
-		//case "DEY": {
-			y_index_register--;
-			if(y_index_register==0) ZFlag = true;else ZFlag = false;
-			if(y_index_register<0) NFlag = true;else NFlag = false;
-			//current_instruction = map.cpuread(program_counter);
-			//program_counter++;
-			instruction_cycle = 1;
-		};break;
-		case 0x49: case 0x45: case 0x55: case 0x4d: case 0x5d: case 0x59: case 0x41: case 0x51:{
-		//case "EOR": {
-			accumulator = (byte) (accumulator ^ tempregister);
-			if(accumulator == 0) ZFlag = true; else ZFlag = false;
-			if(accumulator<0)NFlag = true;else NFlag = false;
-		};break;
-		case 0xe6: case 0xf6: case 0xee: case 0xfe:{
-		//case "INC": {
-			tempregister++;
-			if(tempregister==0) ZFlag = true;else ZFlag = false;
-			if(tempregister<0) NFlag = true;else NFlag = false;
-		};break;
-		case 0xe8:{
-		//case "INX": {
-			x_index_register++;
-			if(x_index_register==0) ZFlag = true;else ZFlag = false;
-			if(x_index_register<0) NFlag = true;else NFlag = false;
-			instruction_cycle = 1;
-		};break;
-		case 0xc8:{
-		//case "INY": {
-			y_index_register++;
-			if(y_index_register==0) ZFlag = true;else ZFlag = false;
-			if(y_index_register<0) NFlag = true;else NFlag = false;
-			instruction_cycle = 1;
-			
-		};break;
-		case 0x12:{
-		//case "IRQ": {
-			//System.out.println("Doing the IRQ cycle: "+instruction_cycle);
-			switch(instruction_cycle){
-			case 2: {
-				//program_counter++;
-				instruction_cycle++;
+			break;
+		}
+	};
+	private void abs_x_r(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2: 
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;break;
+		case 3:
+			address |= (map.cpureadu(program_counter)<<8);
+			lowpc = address&0xff00;
+			address += Byte.toUnsignedInt(x_index_register);
+			program_counter++;
+			if(lowpc==(address&0xff00)){
+				pollInterrupts();
 			}
-			case 3: {
-				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter>>8));
-				stack_pointer--;
+			instruction_cycle++;break;
+		case 4:
+			if(lowpc!=(address&0xff00)){
+				//brokenaddress = true;	
+				address&=0xffff;
+				pollInterrupts();
+				tempregister=map.cpuread((address&0xff)|lowpc);
 				instruction_cycle++;break;
 			}
-			case 4: {
-				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter&0xff));
-				stack_pointer--;
+			else{
+				address&=0xffff;
+				tempregister = map.cpuread(address);
+				instruction_cycle=1;doOp=true;
+				break;
+			}
+		case 5:
+			//if(brokenaddress){
+				tempregister = map.cpuread(address);
+				//brokenaddress = false;
+				instruction_cycle=1;doOp=true;break;
+			//}
+			//else{
+			//	executeOp();
+			//	current_instruction= getNextInstruction();
+			//	program_counter++;
+			//	instruction_cycle= 2;break;
+			//}
+		/*case 6:
+			executeOp();
+			current_instruction= getNextInstruction();
+			program_counter++;
+			instruction_cycle= 2;break;*/
+		}
+	}
+	private void abs_x_rw(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address= 0;
+			address = address | map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;break;
+		case 3:
+			address = address | (map.cpureadu(program_counter)<<8);
+			lowpc = address&0xff00;
+			address+= Byte.toUnsignedInt(x_index_register);
+			program_counter++;
+			instruction_cycle++;break;
+		case 4:
+			address&=0xffff;
+			tempregister=map.cpuread((address&0xff)|lowpc);
+			instruction_cycle++;break;
+		case 5:
+			tempregister = map.cpuread(address);
+			instruction_cycle++;break;
+		case 6:
+			map.cpuwrite(address, tempregister);
+			executeOp();
+			pollInterrupts();
+			instruction_cycle++;break;
+		case 7:
+			map.cpuwrite(address, tempregister);
+			instruction_cycle = 1;break;
+		}
+	}
+	private void abs_x_w(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;break;
+		case 3:
+			address = address | (map.cpureadu(program_counter)<<8);
+			lowpc=address&0xff00;
+			address += Byte.toUnsignedInt(x_index_register);
+			program_counter++;
+			instruction_cycle++;break;
+		case 4:
+			address&=0xffff;
+			tempregister = map.cpuread((address&0xff)|lowpc);
+			pollInterrupts();
+			instruction_cycle++;break;
+		case 5:
+			executeOp();
+			instruction_cycle = 1;break;
+		}
+	}
+	private void abs_y_r(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = 0;
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;break;
+		case 3:
+			address |= (map.cpureadu(program_counter)<<8);
+			lowpc = address&0xff00;
+			address += Byte.toUnsignedInt(y_index_register);
+			program_counter++;
+			if(lowpc==(address&0xff00))
+				pollInterrupts();
+			instruction_cycle++;break;
+		case 4:
+			if(lowpc!=(address&0xff00)){
+				brokenaddress = true;	
+				address&=0xffff;
+				tempregister=map.cpuread((address&0xff)|lowpc);
+				pollInterrupts();
 				instruction_cycle++;break;
 			}
-			case 5: {
-				//if(irqsetdelay==0)
-				//	IFlag = true;
-				//IFlag = false;
-				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, buildFlags());
-				stack_pointer--;
-				instruction_cycle++;break;
+			else{
+				address&=0xffff;
+				tempregister = map.cpuread(address);
+				instruction_cycle=1;doOp=true;break;
 			}
-			case 6: {
-				//System.out.println(Integer.toHexString(map.cpureadu(0xfffa)));
-				program_counter = map.cpureadu(0xfffe);
-				instruction_cycle++;break;
-			}
-			case 7: {
-				//System.out.println(Integer.toHexString(map.cpureadu(0xfffb)));
-				program_counter = (map.cpureadu(0xffff)<<8)|program_counter;
-				//System.out.println(Integer.toHexString(program_counter));
-				IFlag = true;
-				instruction_cycle = 1;break;
-			}
-			}
-		};break;
-		case 0xe3: case 0xe7: case 0xef: case 0xf3: case 0xf7: case 0xfb: case 0xff:{
-		//case "ISB": {
-			tempregister++;
-			if(showInvalid)System.out.println("Invalid instruction ISB");
-			int sum = Byte.toUnsignedInt(accumulator) - Byte.toUnsignedInt(tempregister) - (CFlag?0:1);
-			CFlag = (sum>>8 ==0);
-			VFlag = (((accumulator^tempregister)&0x80)!=0)&&(((accumulator^sum)&0x80)!=0);
-			accumulator=(byte) (sum&0xff);
-			NFlag = accumulator<0?true:false;
-			ZFlag = accumulator==0?true:false;
-
-		};break;
-		case 0x6c:{
-		//case "JMP": {
-			switch(instruction_cycle){
-			case 2: {
-				address = map.cpureadu(program_counter);
+		case 5:
+			//if(brokenaddress){
+				tempregister = map.cpuread(address);
+				brokenaddress = false;
+				instruction_cycle=1;doOp=true;break;
+			//}
+			/*else{
+				executeOp();
+				current_instruction= getNextInstruction();
 				program_counter++;
+				instruction_cycle= 2;break;
+			}
+		case 6:
+			executeOp();
+			current_instruction= getNextInstruction();
+			program_counter++;
+			instruction_cycle= 2;break;*/
+		}
+	}
+	private void abs_y_rw(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address= 0;
+			address = address | map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;break;
+		case 3:
+			address = address | (map.cpureadu(program_counter)<<8);
+			address+= Byte.toUnsignedInt(y_index_register);
+			program_counter++;
+			instruction_cycle++;break;
+		case 4:
+			address&=0xffff;
+			tempregister=map.cpuread(program_counter);
+			instruction_cycle++;break;
+		case 5:
+			tempregister = map.cpuread(address);
+			instruction_cycle++;break;
+		case 6:
+			map.cpuwrite(address, tempregister);
+			executeOp();
+			pollInterrupts();
+			instruction_cycle++;break;
+		case 7:
+			map.cpuwrite(address, tempregister);
+			instruction_cycle = 1;break;
+		}
+	};
+	private void abs_y_w(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;break;
+		case 3:
+			address = address | (map.cpureadu(program_counter)<<8);
+			lowpc=address&0xff00;
+			address += Byte.toUnsignedInt(y_index_register);
+			program_counter++;
+			instruction_cycle++;break;
+		case 4:
+			address&=0xffff;
+			tempregister = map.cpuread((address&0xff)|lowpc);
+			pollInterrupts();
+			instruction_cycle++;break;
+		case 5:
+			executeOp();
+			instruction_cycle = 1;break;
+		}
+	};
+	private void indx_r(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			pointer = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;break;
+		case 3:
+			pointer = pointer+Byte.toUnsignedInt(x_index_register);
+			instruction_cycle++;break;
+		case 4:
+			pointer&=0xff;
+			address = map.cpureadu(pointer);
+			instruction_cycle++;break;
+		case 5:
+			pointer++;pointer&=0xff;
+			address = address| (map.cpureadu(pointer)<<8);
+			pollInterrupts();
+			instruction_cycle++;break;
+		case 6:
+			tempregister = map.cpuread(address);
+			instruction_cycle=1;doOp=true;break;
+		/*case 7:
+			executeOp();
+			current_instruction = getNextInstruction();
+			program_counter++;
+			instruction_cycle=2;
+			address = 0;break;*/
+		}
+	}
+	private void indx_rw(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			pointer = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;break;
+		case 3:
+			pointer = pointer+Byte.toUnsignedInt(x_index_register);
+			instruction_cycle++;break;
+		case 4:
+			pointer&=0xff;
+			address = map.cpureadu(pointer);
+			instruction_cycle++;break;
+		case 5:
+			pointer++;pointer&=0xff;
+			address = address| (map.cpureadu(pointer)<<8);
+			instruction_cycle++;break;
+		case 6:
+			tempregister = map.cpuread(address);
+			instruction_cycle++;break;
+		case 7:
+			map.cpuwrite(address, tempregister);
+			executeOp();
+			pollInterrupts();
+			instruction_cycle++;break;
+		case 8:
+			map.cpuwrite(address, tempregister);
+			instruction_cycle=1;
+		}
+	}
+	private void indx_w(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			pointer = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;break;
+		case 3:
+			pointer = pointer+Byte.toUnsignedInt(x_index_register);
+			instruction_cycle++;break;
+		case 4:
+			pointer&=0xff;
+			address = map.cpureadu(pointer);
+			instruction_cycle++;break;
+		case 5:
+			pointer++;pointer&=0xff;
+			address = address| (map.cpureadu(pointer)<<8);
+			pollInterrupts();
+			instruction_cycle++;break;
+		case 6:
+			tempregister=0;
+			executeOp();
+			instruction_cycle=1;
+		}
+	}
+	private void indy_r(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			pointer = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;break;
+		case 3:
+			address = map.cpureadu(pointer);
+			instruction_cycle++;break;
+		case 4:
+			if(pointer+1>0xff)
+				address |= (map.cpureadu(0)<<8);
+			else
+				address = address | (map.cpureadu(pointer+1)<<8);
+			lowpc = address&0xff00;
+			address += Byte.toUnsignedInt(y_index_register);
+			if(lowpc!=(address&0xff00))
+				brokenaddress=true;
+			else
+				pollInterrupts();
+			instruction_cycle++;break;
+		case 5:
+			if(brokenaddress){
+				//brokenaddress = true;
+				brokenaddress=false;
+				tempregister=map.cpuread((address&0xff)|lowpc);
+				address&=0xffff;
+				pollInterrupts();
 				instruction_cycle++;break;
 			}
-			case 3: {
-				address = address | (map.cpureadu(program_counter)<<8);
-				program_counter++;
-				instruction_cycle++;break;
+			else{
+				tempregister = map.cpuread(address);
+				instruction_cycle=1;doOp=true;break;	
 			}
-			case 4: {
-				program_counter = map.cpureadu(address);
-				instruction_cycle++;break;
-			}
-			case 5: {
-				if(((address+1)&0xFF) ==0) address = address&0xFF00;else address++;
-				program_counter = program_counter | (map.cpureadu(address)<<8);
-				instruction_cycle =1; break;
-			}
-			}
-		};break;
-		case 0x20:{
-		//case "JSR": {
-			switch(instruction_cycle){
-			case 2: {
-				address = map.cpureadu(program_counter);
-				program_counter++;
-				instruction_cycle++;return;
-			}
-			case 3: {
-				//address = address | (map.cpureadu(program_counter)<<8);
-				//program_counter++;
-				instruction_cycle++;break;
-			}
-			case 4: {
-				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x0100, (byte)(program_counter>>>8));
-				stack_pointer--;
-				instruction_cycle++;break;
-			}
-			case 5: {
-				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x0100, (byte) (program_counter & 0x00FF));
-				stack_pointer--;
-				instruction_cycle++;break;
-			}
-			case 6: {
-				address = address | (map.cpureadu(program_counter)<<8);
-				//System.out.println(Integer.toHexString(address));
-				//memory.printMemory(0x100+Byte.toUnsignedInt(stack_pointer), 0x20);
-				program_counter =  address;
-				instruction_cycle = 1;break;
-			}
-			}
-		}; break;
-		case 0xa3: case 0xa7: case 0xaf: case 0xb3: case 0xb7: case 0xbf:{
-		//case "LAX": {
-			if(showInvalid)System.out.println("Invalid instruction LAX");
-			x_index_register = accumulator = tempregister;
-			NFlag = accumulator<0;
-			ZFlag = accumulator==0;
-		};break;
-		case 0xa9: case 0xa5: case 0xb5: case 0xad: case 0xbd: case 0xb9: case 0xa1: case 0xb1:{
-		//case "LDA": {
-			accumulator = tempregister;
-			if(accumulator == 0) ZFlag = true;else ZFlag = false;
-			if(accumulator <0)NFlag = true;else NFlag = false;
-		};break;
-		case 0xa2: case 0xa6: case 0xb6: case 0xae: case 0xbe:{
-		//case "LDX": {
-			x_index_register = tempregister;
-			if(x_index_register == 0) ZFlag = true;else ZFlag = false;
-			if(x_index_register<0)NFlag = true;else NFlag = false;
-		};break;
-		case 0xa0: case 0xa4: case 0xb4: case 0xac: case 0xbc: {
-		//case "LDY": {
-			y_index_register = tempregister;
-			if(y_index_register == 0) ZFlag = true;else ZFlag = false;
-			if(y_index_register<0)NFlag = true;else NFlag = false;
-		};break;
-		case 0x4a: case 0x46: case 0x56: case 0x4e: case 0x5e:{
-		//case "LSR": {
-			if((tempregister&1) >0)CFlag = true;else CFlag = false;
-			tempregister=(byte) (Byte.toUnsignedInt(tempregister)>>>1);
-			if(tempregister==0) ZFlag = true;else ZFlag = false;
-			if(tempregister<0) NFlag = true;else NFlag = false;
-		};break;
-		case 0x2:{
-		//case "NMI": {
-			switch(instruction_cycle){
-			case 2: {
-				//program_counter++;
-				instruction_cycle++;
-			}
-			case 3: {
-				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter>>8));
-				stack_pointer--;
-				instruction_cycle++;break;
-			}
-			case 4: {
-				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter&0xff));
-				stack_pointer--;
-				instruction_cycle++;break;
-			}
-			case 5: {
-				BFlag = false;
-				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, buildFlags());
-				stack_pointer--;
-				instruction_cycle++;break;
-			}
-			case 6: {
-				//System.out.println(Integer.toHexString(map.cpureadu(0xfffa)));
-				program_counter = map.cpureadu(0xfffa);
-				instruction_cycle++;break;
-			}
-			case 7: {
-				//System.out.println(Integer.toHexString(map.cpureadu(0xfffb)));
-				program_counter = (map.cpureadu(0xfffb)<<8)|program_counter;
-				//System.out.println(Integer.toHexString(program_counter));
-				IFlag = true;
-				instruction_cycle = 1;break;
-			}
-			}
-		};break;
-		case 0xea: case 0x1a: case 0x3a: case 0x5a: case 0x7a: case 0xda: case 0xfa:{
-		//case "NOP":case "NOP12":case "NOP13":case "NOP14":case "NOP15":case "NOP16":case "NOP17": {
-			switch(instruction_cycle){
-			case 2: {
-				instruction_cycle++;break;
-			}
-			case 3: {
+		case 6:
+			//if(brokenaddress){//broken
+				tempregister=map.cpuread(address);
+				//brokenaddress = false;
+				instruction_cycle=1;doOp=true;break;
+			/*}
+			else{
+				executeOp();
 				current_instruction = getNextInstruction();
 				program_counter++;
 				instruction_cycle=2;break;
 			}
-			}
-		};break;
-		case 0x04: case 0x14: case 0x34: case 0x44: case 0x54: case 0x64: case 0x74: case 0x80:
-		case 0x82: case 0x89: case 0xc2: case 0xd4: case 0xe2: case 0xf4:{
-		//case "SKB": {
-			if(showInvalid)System.out.println("Invalid instruction SKB");
-		};break;
-		case 0x0c: case 0x1c: case 0x3c: case 0x5c: case 0x7c: case 0xdc: case 0xfc:{
-		//case "SKW": {
-			if(showInvalid)System.out.println("Invalid instruction SKW");
-		};break;
-		case 0x09: case 0x05: case 0x15: case 0x0d: case 0x1d: case 0x19: case 0x01: case 0x11:{
-		//case "ORA": {
-			accumulator = (byte) (accumulator | tempregister);
-			if(accumulator == 0) ZFlag = true;else ZFlag = false;
-			if(accumulator<0)NFlag = true;else NFlag = false;
-		};break;
-		case 0x48:{
-		//case "PHA": {
-			switch(instruction_cycle){
-			case 2: {
-				instruction_cycle++;break;
-			}
-			case 3: {
-				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x0100, accumulator);
-				stack_pointer--;
-				instruction_cycle = 1;break;
-			}
-			}
-		};break;
-		case 0x8:{
-		//case "PHP": {
-			switch(instruction_cycle){
-			case 2: {
-				instruction_cycle++;break;
-			}
-			case 3: {
-				BFlag = true;
-				byte x =buildFlags();
-				//if(map.control.checkDebug()&&IFlag)
-				//	System.out.println("PHP with IFlag=true  Scanline: "+map.ppu.scanline);
-				
-				map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x0100,x);
-				BFlag = false;
-				stack_pointer--;
-				//memory.printMemory(0x0100+Byte.toUnsignedInt(stack_pointer), 50);
-				instruction_cycle = 1;break;
-			}
-			}
-			
-		};break;
-		case 0x68:{
-		//case "PLA": {
-			switch(instruction_cycle){
-			case 2: {
-				instruction_cycle++;break;
-			}
-			case 3: {
-				stack_pointer++;
-				instruction_cycle++;break;
-			}
-			case 4: {
-				accumulator = map.cpuread(Byte.toUnsignedInt(stack_pointer)+0x0100);
-				//memory.printMemory(0x0100+Byte.toUnsignedInt(stack_pointer), 50);
-				if(accumulator==0)ZFlag = true; else ZFlag = false;
-				if(accumulator<0)NFlag = true; else NFlag = false;
-				instruction_cycle = 1;break;
-			}
-			}
-		};break;
-		case 0x28:{
-		//case "PLP": {
-			switch(instruction_cycle){
-			case 2: {
-				instruction_cycle++;break;
-			}
-			case 3: {
-				stack_pointer++;
-				instruction_cycle++;break;
-			}
-			case 4: {
-				boolean temp = IFlag;
-				setFlags( map.cpuread(Byte.toUnsignedInt(stack_pointer)+0x0100));
-				if(IFlag !=temp&&IFlag==true){
-					//IFlag = false;
-					irqsetdelay = 1;
-				}
-				else if(IFlag!=temp&&IFlag ==false){
-					//IFlag = true;
-					irqlatency = 2;
-				}
-				instruction_cycle = 1;break;
-			}
-			}
-		};break;
-		case 0x23: case 0x27: case 0x2f: case 0x33: case 0x37: case 0x3b: case 0x3f:{
-		//case "RLA": {
-			if(showInvalid)System.out.println("Invalid instruction RLA");
-			int tcarry = tempregister<0?1:0;
-			tempregister = (byte) (tempregister<<1);
-			tempregister = (byte) (tempregister | (CFlag?1:0));
-			CFlag = tcarry==1?true:false;
-			if(tempregister ==0)ZFlag = true;else ZFlag = false;
-			if(tempregister<0)NFlag = true; else NFlag = false;
-			
-			accumulator = (byte) (accumulator & tempregister);
-			if(accumulator==0) ZFlag=true;else ZFlag = false;
-			if(accumulator<0) NFlag=true;else NFlag = false;
-			
-		};break;
-		case 0x2a: case 0x26: case 0x36: case 0x2e: case 0x3e:{
-		//case "ROL": {
-			int tcarry = tempregister<0?1:0;
-			tempregister = (byte) (tempregister<<1);
-			tempregister = (byte) (tempregister | (CFlag?1:0));
-			CFlag = tcarry==1?true:false;
-			if(tempregister ==0)ZFlag = true;else ZFlag = false;
-			if(tempregister<0)NFlag = true; else NFlag = false;
-		};break;
-		case 0x6a: case 0x66: case 0x76: case 0x6e: case 0x7e:{
-		//case "ROR": {
-			int tcarry = tempregister&0x01;
-			tempregister= (byte) (Byte.toUnsignedInt(tempregister)>>>1);
-			tempregister = (byte) (tempregister | (CFlag?0x80:0));
-			CFlag = tcarry!=0?true:false;
-			if(tempregister==0)ZFlag = true; else ZFlag = false;
-			if(tempregister<0)NFlag = true; else NFlag = false;
-		};break;
-		case 0x63: case 0x67: case 0x6f: case 0x73: case 0x77: case 0x7b: case 0x7f:{
-		//case "RRA": {
-			if(showInvalid)System.out.println("Invalid instruction RRA");
-			if(CFlag){
-				CFlag = (tempregister&1)!=0;
-				tempregister = (byte) ((Byte.toUnsignedInt(tempregister)>>1) | 0x80);
-			}
-			else{
-				CFlag = (tempregister&1)!=0;
-				tempregister = (byte) (Byte.toUnsignedInt(tempregister)>>1);
-			}
-			
-			int sum = Byte.toUnsignedInt(accumulator) + Byte.toUnsignedInt(tempregister) + (CFlag?1:0);
-			CFlag = sum>0xff?true:false;
-			VFlag = (~(accumulator^tempregister)&(accumulator^sum)&0x80)==0?false:true;
-			accumulator=(byte) sum;
-			NFlag = accumulator<0?true:false;
-			ZFlag = accumulator==0?true:false;
-			
-		};break;
-		case 0x40:{
-		//case "RTI": {
-			switch(instruction_cycle){
-			case 2:{
-				//program_counter++;
-				instruction_cycle++;break;
-			}
-			case 3: {
-				stack_pointer++;
-				instruction_cycle++;break;
-			}
-			case 4: {
-				setFlags(map.cpuread(Byte.toUnsignedInt(stack_pointer)+0x0100));
-				stack_pointer++;
-				instruction_cycle++;break;
-			}
-			case 5: {
-				//System.out.println("returning from interrupt");
-				program_counter = map.cpureadu(Byte.toUnsignedInt(stack_pointer)+0x0100);
-				stack_pointer++;
-				instruction_cycle++;break;
-			}
-			case 6: {
-				program_counter = program_counter| (map.cpureadu(Byte.toUnsignedInt(stack_pointer)+0x0100)<<8);
-				instruction_cycle = 1;
-				irqsetdelay=-1;
-				break;
-				
-			}
-			}
-		};break;
-		case 0x60:{
-		//case "RTS":{
-			switch(instruction_cycle){
-			case 2: {
-				instruction_cycle++;break;
-			}
-			case 3: {
-				//memory.printMemory(0x100+Byte.toUnsignedInt(stack_pointer), 0x20);
-				stack_pointer++;
-				instruction_cycle++;break;
-			}
-			case 4: {
-				program_counter = 0;
-				program_counter = map.cpureadu(Byte.toUnsignedInt(stack_pointer)+0x0100);
-				stack_pointer++;
-				instruction_cycle++;break;
-			}
-			case 5: {
-				program_counter = (program_counter | (map.cpureadu(Byte.toUnsignedInt(stack_pointer)+0x0100)<<8));
-				instruction_cycle++;break;
-			}
-			case 6: {
-				program_counter++;
-				instruction_cycle=1;break;
-			}
-			}
-		};break;
-		case 0x83: case 0x87: case 0x8f: case 0x97:{
-		//case "SAX": {
-			if(showInvalid)System.out.println("Invalid instruction SAX");
-			tempregister = (byte) (x_index_register&accumulator);
+		case 7:
+			executeOp();
+			current_instruction = getNextInstruction();
+			program_counter++;
+			instruction_cycle=2;break;*/
+		}
+	};
+	private void indy_rw(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2: {
+			pointer = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;break;
+		}
+		case 3: {
+			address = map.cpureadu(pointer);
+			instruction_cycle++;break;
+		}
+		case 4: {
+			if(pointer+1>0xff)
+				address |= (map.cpureadu(0)<<8);
+			else
+				address = address | (map.cpureadu(pointer+1)<<8);
+			lowpc = address&0xff00;
+			address += Byte.toUnsignedInt(y_index_register);
+			instruction_cycle++;break;
+		}
+		case 5: {
+			if(address>0xffff)
+				address&=0xffff;
+			tempregister= map.cpuread(address);
+			instruction_cycle++;break;
+		}
+		case 6: {
+			tempregister = map.cpuread(address);
+			instruction_cycle++;break;
+		}
+		case 7: {
 			map.cpuwrite(address, tempregister);
-		};break;
-		case 0xe9: case 0xe5: case 0xf5: case 0xed: case 0xfd: case 0xf9: case 0xe1: case 0xf1: case 0xeb:{
-		//case "SBC": {//flags are broken
-			tempregister=(byte) ~tempregister;
-			int sum = Byte.toUnsignedInt(accumulator) + Byte.toUnsignedInt(tempregister) + (CFlag?1:0);
-			CFlag = sum>0xff?true:false;
-			VFlag = (~(accumulator^tempregister)&(accumulator^sum)&0x80)==0?false:true;
-			accumulator=(byte) sum;
-			NFlag = accumulator<0?true:false;
-			ZFlag = accumulator==0?true:false;
-			
-			/*int sign = accumulator&0x80;
-			int temp = (int)(accumulator) - (int)(tempregister) - (1 - (CFlag?1:0));
-			accumulator = (byte) (accumulator - tempregister - (1-(CFlag?1:0)));
-			int sign2 = accumulator&0x80;
-			if(accumulator <0)NFlag = true;else NFlag = false;
-			if(accumulator==0)ZFlag = true;else ZFlag = false;
-			if(temp<-128 ||temp>127)VFlag = true;else VFlag = false;
-			if(sign!=sign2&&sign==0) CFlag = false; else CFlag = true;
-			//if((sign!=0&&sign2==0)||(sign!=0&&sign2==0&&tempregister>0)) CFlag = false; else CFlag = true;
-			*/
-		};break;
-		case 0x38:{
-		//case "SEC": {
-			CFlag = true;
-			instruction_cycle = 1;
-		};break;
-		case 0xf8:{
-		//case "SED": {
-			DFlag = true;
-			instruction_cycle = 1;
-		};break;
-		case 0x78:{
-		//case "SEI": {
-			//IFlag = true;
-			if(map.control.checkDebug())
-				System.out.println("Setting IFlag to true scanline: "+map.ppu.scanline);
-			irqsetdelay = 1;
-			instruction_cycle = 1;
-		};break;
-		case 0x9e:{
-		//case "SHX": {
-			if(showInvalid)System.out.println("Invalid instruction SHX");
-			switch(instruction_cycle){
-			case 2: 
-				address = map.cpureadu(program_counter);
-				program_counter++;
-				instruction_cycle++;
-				break;
-			case 3:
-				address|= map.cpureadu(program_counter)<<8;
-				program_counter++;
-				instruction_cycle++;
-				break;
-			case 4:
-				map.cpureadu(address);
-				instruction_cycle++;
-				break;
-			case 5:
-				int t =(Byte.toUnsignedInt(x_index_register)&((address>>8)+1))&0xff;
-				lowpc = address&0xff00;
-				address+=Byte.toUnsignedInt(y_index_register);
-				address = (address&0xff)|lowpc;
-				map.cpuwrite(address&0xffff,(byte)t);
-				instruction_cycle=1;
-				break;	
-			}
-		};break;
-		case 0x9c:{
-		//case "SHY": {
-			if(showInvalid)System.out.println("Invalid instruction SHY");
-			switch(instruction_cycle){
-			case 2: 
-				address = map.cpureadu(program_counter);
-				program_counter++;
-				instruction_cycle++;
-				break;
-			case 3:
-				address|= map.cpureadu(program_counter)<<8;
-				program_counter++;
-				instruction_cycle++;
-				break;
-			case 4:
-				map.cpureadu(address);
-				instruction_cycle++;
-				break;
-			case 5:
-				int t =(Byte.toUnsignedInt(y_index_register)&((address>>8)+1))&0xff;
-				lowpc = address&0xff00;
-				address+=Byte.toUnsignedInt(x_index_register);
-				address = (address&0xff)|lowpc;
-				map.cpuwrite(address&0xffff,(byte)t);
-				instruction_cycle=1;
-				break;		
-			}
-			
-		};break;
-		case 0x03: case 0x07: case 0xf: case 0x13: case 0x17: case 0x1b: case 0x1f:{
-		//case "SLO": {
-			if(showInvalid)System.out.println("Invalid instruction SLO");
-			CFlag = (tempregister&0x80)!=0;
-			tempregister<<=1;
-			accumulator|=tempregister;
-			NFlag = accumulator<0;
-			ZFlag = accumulator==0;
-		};break;
-		case 0x43: case 0x47: case 0x4f: case 0x53: case 0x57: case 0x5b: case 0x5f:{
-		//case "SRE": {
-			if(showInvalid)System.out.println("Invalid instruction SRE");
-			int result = Byte.toUnsignedInt(tempregister);
-			CFlag = (result&1)!=0;
-			result>>=1;
-			accumulator ^=(byte)result;
-			tempregister = (byte)result;
-			//map.cpuwrite(address, (byte)result);
-			NFlag = accumulator<0;
-			ZFlag = accumulator==0;
-		};break;
-		case 0x85: case 0x95: case 0x8d: case 0x9d: case 0x99: case 0x81: case 0x91:{
-		//case "STA": {
-			//tempregister=accumulator;
-			map.cpuwrite(address, accumulator);
-		};break;
-		case 0x86: case 0x96: case 0x8e:{
-		//case "STX": {
-			//tempregister=x_index_register;
-			map.cpuwrite(address, x_index_register);
-		};break;
-		case 0x84: case 0x94: case 0x8c:{
-		//case "STY": {
-			//tempregister=y_index_register;
-			map.cpuwrite(address, y_index_register);
-		};break;
-		case 0xaa:{
-		//case "TAX": {
-			switch(instruction_cycle){
-			case 2: {
-				x_index_register= accumulator;
-				if(x_index_register ==0) ZFlag = true;else ZFlag = false;
-				if(x_index_register <0) NFlag = true;else NFlag = false;
-				instruction_cycle = 1;break;
-			}
-			}
-		};break;
-		case 0xa8:{
-		//case "TAY": {
-			switch(instruction_cycle){
-			case 2: {
-				y_index_register=accumulator;
-				if(y_index_register ==0) ZFlag = true;else ZFlag = false;
-				if(y_index_register <0) NFlag = true;else NFlag = false;
-				instruction_cycle = 1;break;
-			}
-			}
-		};break;
-		case 0xba:{
-		//case "TSX": {
-			switch(instruction_cycle){
-			case 2: {
-				x_index_register = stack_pointer;
-				if(x_index_register ==0) ZFlag = true;else ZFlag = false;
-				if(x_index_register <0) NFlag = true;else NFlag = false;				
-				instruction_cycle = 1;break;
-			}
-			}
-		};break;
-		case 0x8a:{
-		//case "TXA": {
-			switch(instruction_cycle){
-			case 2: {
-				accumulator = x_index_register;
-				if(accumulator ==0) ZFlag = true;else ZFlag = false;
-				if(accumulator <0) NFlag = true;else NFlag = false;
-				instruction_cycle = 1;break;
-			}
-			}
-		};break;
-		case 0x9a:{
-		//case "TXS": {
-			switch(instruction_cycle){
-			case 2: {
-				stack_pointer = x_index_register;				
-				instruction_cycle = 1;break;
-			}
-			}
-		};break;
-		case 0x98:{
-		//case "TYA": {
-			switch(instruction_cycle){
-			case 2: {
-				accumulator = y_index_register;
-				if(accumulator ==0)ZFlag = true; else ZFlag = false;
-				if(accumulator <0)NFlag = true; else NFlag = false;
-				instruction_cycle = 1;break;
-			}
-			}
-		};break;
-		default: {
-			//System.out.println("INVALID INSTRUCTION:"+Integer.toHexString(Byte.toUnsignedInt(current_instruction))
-			//+" "+inst_name.get(current_instruction)
-			//+" program counter: "+Integer.toHexString(program_counter));
-			//memory.printMemory(0, 0x5);
-			//program_counter++;
-			//instruction_cycle=1;
-		};
+			executeOp();
+			pollInterrupts();
+			instruction_cycle++;break;
+		}
+		case 8: {
+			map.cpuwrite(address, tempregister);
+			instruction_cycle = 1; break;
+		}
+		}
+	};
+	private void indy_w(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			pointer = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;break;
+		case 3:
+			address = map.cpureadu(pointer);
+			instruction_cycle++;break;
+		case 4:
+			if(pointer+1>0xff)
+				address |= (map.cpureadu(0)<<8);
+			else
+				address = address | (map.cpureadu(pointer+1)<<8);
+			lowpc=address&0xff00;
+			address += Byte.toUnsignedInt(y_index_register);
+			instruction_cycle++;break;
+		case 5:
+			tempregister=map.cpuread((address&0xff)|lowpc);
+			instruction_cycle++;
+			pollInterrupts();break;
+		case 6:
+			executeOp();
+			instruction_cycle = 1;break;
 		}
 	}
-	
+	private void accumulator(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2:
+			tempregister=accumulator;
+			executeOp();
+			accumulator = tempregister;
+			instruction_cycle = 1;break;
+		}
+	}
+	private void relative(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2:
+			tempregister = map.cpuread(program_counter);
+			program_counter++;
+			//pollInterrupts();
+			executeOp();
+			if(branchtaken)
+				instruction_cycle++;
+			else
+				instruction_cycle=1;
+			break;
+		case 3:
+			
+			if((program_counter&0xff00)==((program_counter+tempregister)&0xff00)){
+				program_counter+=tempregister;program_counter&=0xffff;
+				instruction_cycle=1;break;
+			}
+			else{
+				//pollInterrupts();
+				program_counter+=tempregister;program_counter&=0xffff;
+				instruction_cycle++;break;
+			}
+		case 4:
+			//pollInterrupts();
+			instruction_cycle=1;break;
+		}
+	}
+
+	void aac(){
+		if(showInvalid)
+			System.out.println("Invalid instruction AAC");
+		accumulator= (byte)(accumulator &tempregister);
+		ZFlag = accumulator ==0; NFlag = accumulator<0;
+		CFlag = NFlag;
+	}
+	void adc(){
+		int sum = Byte.toUnsignedInt(accumulator) + Byte.toUnsignedInt(tempregister) + (CFlag?1:0);
+		CFlag = sum>0xff?true:false;
+		VFlag = (~(accumulator^tempregister)&(accumulator^sum)&0x80)==0?false:true;
+		accumulator=(byte) sum;
+		NFlag = accumulator<0;
+		ZFlag = accumulator==0;
+	}
+	void and(){
+		accumulator = (byte) (accumulator & tempregister);
+		ZFlag = accumulator==0; NFlag = accumulator<0;
+	}
+	void ane(){}
+	void arr(){
+		if(showInvalid)
+			System.out.println("Invalid instruction ARR");
+		accumulator=(byte) (accumulator&tempregister);
+		int result = Byte.toUnsignedInt(accumulator);
+		result>>=1;
+		if(CFlag) result|= 0x80;
+		accumulator = (byte) result;
+		NFlag = accumulator<0;
+		ZFlag = result==0;
+		CFlag = ((accumulator&(0b1000000))!=0);
+		VFlag = CFlag ^ ((accumulator&0b100000)!=0);
+		
+	}
+	void asl(){
+		int temp = Byte.toUnsignedInt(tempregister);
+		if((tempregister&0x80)!=0) CFlag=true; else CFlag=false;
+		tempregister = (byte) (temp<<1);
+		if(tempregister==0) ZFlag = true;else ZFlag = false;
+		if(tempregister<0) NFlag = true;else NFlag = false;
+	}
+	void asr(){
+		accumulator = (byte) (accumulator & tempregister);
+		CFlag = (accumulator&1)!=0;
+		accumulator= (byte)(Byte.toUnsignedInt(accumulator)>>1);
+		if(accumulator==0) ZFlag=true;else ZFlag = false;
+		if(accumulator<0) NFlag=true;else NFlag = false;
+		
+	}
+	void atx(){
+		if(showInvalid)System.out.println("Invalid instruction ATX");
+		x_index_register = accumulator=tempregister;
+		if(accumulator==0) ZFlag=true;else ZFlag = false;
+		if(accumulator<0) NFlag=true;else NFlag = false;
+	}
+	void axs(){
+		if(showInvalid)System.out.println("Invalid instruction AXS");
+		int result = Byte.toUnsignedInt(x_index_register);
+		result &= Byte.toUnsignedInt(accumulator);
+		CFlag = result>=Byte.toUnsignedInt(tempregister);
+		result-= tempregister;
+		x_index_register = (byte) result;
+		NFlag = x_index_register<0;
+		ZFlag = x_index_register==0;
+	}
+	void bcc(){branchtaken=!CFlag;}
+	void bcs(){branchtaken=CFlag;}
+	void beq(){branchtaken=ZFlag;}
+	void bit(){
+		if((accumulator&tempregister)==0)ZFlag = true; else ZFlag = false;
+		if((tempregister&0x80)!=0)NFlag = true; else NFlag = false;
+		if((tempregister&0x40)!=0)VFlag = true; else VFlag = false;
+	}
+	void bmi(){branchtaken=NFlag;}
+	void bne(){branchtaken=!ZFlag;}
+	void bpl(){branchtaken=!NFlag;}
+	void brk(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			program_counter++;
+			instruction_cycle++;break;
+		case 3:
+			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter>>8));
+			stack_pointer--;
+			instruction_cycle++;break;
+		case 4:
+			if(!(doNMI&&nmi))
+				nmihijack = false;
+			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter&0xff));
+			stack_pointer--;
+			instruction_cycle++;
+			if(nmi&&doNMI)
+				nmihijack=true;
+			break;
+		case 5:
+			BFlag = true;
+			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, buildFlags());
+			BFlag = false;
+			if(nmihijack){
+				current_instruction = 0x02;
+				nmihijack=false;
+			}
+			stack_pointer--;
+			instruction_cycle++;break;
+		case 6:
+			program_counter = map.cpureadu(0xfffe);
+			instruction_cycle++;break;
+		case 7:
+			program_counter |= map.cpureadu(0xffff)<<8;
+			IFlag = true;
+			instruction_cycle = 1;break;
+		}
+	}
+	void bvc(){branchtaken=!VFlag;}
+	void bvs(){branchtaken=VFlag;}
+	void clc(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2: CFlag = false;instruction_cycle = 1;break;
+		}
+	}
+	void cld(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2: DFlag = false;instruction_cycle = 1;break;
+		}
+	}
+	void cli(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2: IFlag = false;instruction_cycle = 1;break;
+		}/*
+		IFlag = false;
+		instruction_cycle=1;
+		irqlatency = 2;*/
+	}
+	void clv(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2: VFlag = false;instruction_cycle = 1;break;
+		}
+	}
+	void cmp(){
+		if(Byte.toUnsignedInt(accumulator)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
+		if(accumulator == tempregister) ZFlag = true;else ZFlag = false;
+		if(((Byte.toUnsignedInt(accumulator)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
+	}
+	void cpx(){
+		if(Byte.toUnsignedInt(x_index_register)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
+		if(x_index_register == tempregister) ZFlag = true;else ZFlag = false;
+		if(((Byte.toUnsignedInt(x_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
+	}
+	void cpy(){
+		if(Byte.toUnsignedInt(y_index_register)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
+		if(y_index_register == tempregister) ZFlag = true;else ZFlag = false;
+		if(((Byte.toUnsignedInt(y_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
+	}
+	void dcp(){
+		if(showInvalid)System.out.println("Invalid instruction DCP");
+		tempregister--;
+		if(Byte.toUnsignedInt(accumulator)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
+		if(accumulator == tempregister) ZFlag = true;else ZFlag = false;
+		if(((Byte.toUnsignedInt(accumulator)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
+	}
+	void dec(){
+		tempregister--;
+		if(tempregister==0) ZFlag = true;else ZFlag = false;
+		if(tempregister<0) NFlag = true;else NFlag = false;
+	}
+	void dex(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2:
+			x_index_register--;
+			if(x_index_register==0) ZFlag = true;else ZFlag = false;
+			if(x_index_register<0) NFlag = true;else NFlag = false;
+			instruction_cycle = 1;break;
+		}
+	}
+	void dey(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2:
+			y_index_register--;
+			if(y_index_register==0) ZFlag = true;else ZFlag = false;
+			if(y_index_register<0) NFlag = true;else NFlag = false;
+			instruction_cycle = 1;
+		}
+	}
+	void eor(){
+		accumulator = (byte) (accumulator ^ tempregister);
+		ZFlag = accumulator==0;NFlag = accumulator<0;
+	}
+	void hlt(){}
+	void inc(){
+		tempregister++;
+		if(tempregister==0) ZFlag = true;else ZFlag = false;
+		if(tempregister<0) NFlag = true;else NFlag = false;
+	}
+	void inx(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2:
+			x_index_register++;
+			if(x_index_register==0) ZFlag = true;else ZFlag = false;
+			if(x_index_register<0) NFlag = true;else NFlag = false;
+			instruction_cycle = 1;break;
+		}
+	}
+	void iny(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2:
+			y_index_register++;
+			if(y_index_register==0) ZFlag = true;else ZFlag = false;
+			if(y_index_register<0) NFlag = true;else NFlag = false;
+			instruction_cycle = 1;break;
+		}	
+	}
+	void irq(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			instruction_cycle++;
+		case 3:
+			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter>>8));
+			stack_pointer--;
+			instruction_cycle++;break;
+		case 4:
+			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter&0xff));
+			stack_pointer--;
+			instruction_cycle++;
+			if(nmi&&doNMI)
+				nmihijack=true;
+			break;
+		case 5:
+			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, buildFlags());
+			if(nmihijack){
+				current_instruction = 0x02;
+				nmihijack=false;
+			}
+			stack_pointer--;
+			instruction_cycle++;break;
+		case 6:
+			program_counter = map.cpureadu(0xfffe);
+			instruction_cycle++;break;
+		case 7:
+			program_counter = (map.cpureadu(0xffff)<<8)|program_counter;
+			IFlag = true;
+			instruction_cycle = 1;break;
+		}
+	}
+	void isb(){
+		tempregister++;
+		if(showInvalid)System.out.println("Invalid instruction ISB");
+		int sum = Byte.toUnsignedInt(accumulator) - Byte.toUnsignedInt(tempregister) - (CFlag?0:1);
+		CFlag = (sum>>8 ==0);
+		VFlag = (((accumulator^tempregister)&0x80)!=0)&&(((accumulator^sum)&0x80)!=0);
+		accumulator=(byte) (sum&0xff);
+		NFlag = accumulator<0?true:false;
+		ZFlag = accumulator==0?true:false;
+
+	}
+	void jmp(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;break;
+		case 3:
+			address = address | (map.cpureadu(program_counter)<<8);
+			program_counter++;
+			instruction_cycle++;break;
+		case 4:
+			program_counter = map.cpureadu(address);
+			instruction_cycle++;
+			pollInterrupts();break;
+		case 5:
+			if(((address+1)&0xFF) ==0) address = address&0xFF00;else address++;
+			program_counter = program_counter | (map.cpureadu(address)<<8);
+			instruction_cycle =1; break;
+		}
+	}
+	void jmp_a(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;
+			pollInterrupts();
+			break;
+		case 3:
+			address = address|(map.cpureadu(program_counter)<<8);
+			program_counter= address;
+			instruction_cycle=1;
+			break;
+		}
+	}
+	void jsr(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;return;
+		case 3:
+			instruction_cycle++;break;
+		case 4:
+			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x0100, (byte)(program_counter>>>8));
+			stack_pointer--;
+			instruction_cycle++;break;
+		case 5:
+			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x0100, (byte) (program_counter & 0x00FF));
+			stack_pointer--;
+			instruction_cycle++;
+			pollInterrupts();break;
+		case 6:
+			address = address | (map.cpureadu(program_counter)<<8);
+			program_counter =  address;
+			instruction_cycle = 1;break;
+		}
+	}
+	void las(){}
+	void lax(){
+		if(showInvalid)System.out.println("Invalid instruction LAX");
+		x_index_register = accumulator = tempregister;
+		NFlag = accumulator<0;ZFlag = accumulator==0;
+	}
+	void lda(){
+		accumulator = tempregister;
+		if(accumulator == 0) ZFlag = true;else ZFlag = false;
+		if(accumulator <0)NFlag = true;else NFlag = false;
+	}
+	void ldx(){
+		x_index_register = tempregister;
+		if(x_index_register == 0) ZFlag = true;else ZFlag = false;
+		if(x_index_register<0)NFlag = true;else NFlag = false;
+	}
+	void ldy(){
+		y_index_register = tempregister;
+		if(y_index_register == 0) ZFlag = true;else ZFlag = false;
+		if(y_index_register<0)NFlag = true;else NFlag = false;
+	}
+	void lsr(){
+		if((tempregister&1) >0)CFlag = true;else CFlag = false;
+		tempregister=(byte) (Byte.toUnsignedInt(tempregister)>>>1);
+		if(tempregister==0) ZFlag = true;else ZFlag = false;
+		if(tempregister<0) NFlag = true;else NFlag = false;
+	}
+	void nmi(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			instruction_cycle++;
+		case 3:
+			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter>>8));
+			stack_pointer--;
+			instruction_cycle++;break;
+		case 4:
+			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter&0xff));
+			stack_pointer--;
+			instruction_cycle++;break;
+		case 5:
+			BFlag = false;
+			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, buildFlags());
+			stack_pointer--;
+			instruction_cycle++;break;
+		case 6:
+			program_counter = map.cpureadu(0xfffa);
+			instruction_cycle++;break;
+		case 7:
+			program_counter = (map.cpureadu(0xfffb)<<8)|program_counter;
+			IFlag = true;
+			instruction_cycle = 1;break;
+		}
+	}
+	void nop(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2:
+			instruction_cycle=1;break;
+		/*case 3:
+			current_instruction = getNextInstruction();
+			program_counter++;
+			instruction_cycle=2;break;*/
+		}
+	}
+	void skb(){
+		if(showInvalid)System.out.println("Invalid instruction SKB");
+	}
+	void skw(){
+		if(showInvalid)System.out.println("Invalid instruction SKW");
+	}
+	void ora(){
+		accumulator = (byte) (accumulator | tempregister);
+		if(accumulator == 0) ZFlag = true;else ZFlag = false;
+		if(accumulator<0)NFlag = true;else NFlag = false;
+	}
+	void pha(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			instruction_cycle++;
+			pollInterrupts();break;
+		case 3:
+			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x0100, accumulator);
+			stack_pointer--;
+			instruction_cycle = 1;break;
+		}
+	}
+	void php(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			instruction_cycle++;
+			pollInterrupts();break;
+		case 3:
+			BFlag = true;
+			byte x =buildFlags();
+			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x0100,x);
+			BFlag = false;
+			stack_pointer--;
+			instruction_cycle = 1;break;
+		}
+		
+	}
+	void pla(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			instruction_cycle++;break;
+		case 3:
+			stack_pointer++;
+			instruction_cycle++;
+			pollInterrupts();break;
+		case 4:
+			accumulator = map.cpuread(Byte.toUnsignedInt(stack_pointer)+0x0100);
+			if(accumulator==0)ZFlag = true; else ZFlag = false;
+			if(accumulator<0)NFlag = true; else NFlag = false;
+			instruction_cycle = 1;break;
+		}
+	}
+	void plp(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			instruction_cycle++;break;
+		case 3:
+			stack_pointer++;
+			instruction_cycle++;
+			pollInterrupts();break;
+			
+		case 4:
+			//boolean temp = IFlag;
+			setFlags( map.cpuread(Byte.toUnsignedInt(stack_pointer)+0x0100));
+			instruction_cycle = 1;break;
+		}
+	}
+	void rla(){
+		if(showInvalid)System.out.println("Invalid instruction RLA");
+		int tcarry = tempregister<0?1:0;
+		tempregister = (byte) (tempregister<<1);
+		tempregister = (byte) (tempregister | (CFlag?1:0));
+		CFlag = tcarry==1?true:false;
+		if(tempregister ==0)ZFlag = true;else ZFlag = false;
+		if(tempregister<0)NFlag = true; else NFlag = false;
+		
+		accumulator = (byte) (accumulator & tempregister);
+		if(accumulator==0) ZFlag=true;else ZFlag = false;
+		if(accumulator<0) NFlag=true;else NFlag = false;
+		
+	}
+	void rol(){
+		int tcarry = tempregister<0?1:0;
+		tempregister = (byte) (tempregister<<1);
+		tempregister = (byte) (tempregister | (CFlag?1:0));
+		CFlag = tcarry==1?true:false;
+		if(tempregister ==0)ZFlag = true;else ZFlag = false;
+		if(tempregister<0)NFlag = true; else NFlag = false;
+	}
+	void ror(){
+		int tcarry = tempregister&0x01;
+		tempregister= (byte) (Byte.toUnsignedInt(tempregister)>>>1);
+		tempregister = (byte) (tempregister | (CFlag?0x80:0));
+		CFlag = tcarry!=0?true:false;
+		if(tempregister==0)ZFlag = true; else ZFlag = false;
+		if(tempregister<0)NFlag = true; else NFlag = false;
+	}
+	void rra(){
+		if(showInvalid)System.out.println("Invalid instruction RRA");
+		if(CFlag){
+			CFlag = (tempregister&1)!=0;
+			tempregister = (byte) ((Byte.toUnsignedInt(tempregister)>>1) | 0x80);
+		}
+		else{
+			CFlag = (tempregister&1)!=0;
+			tempregister = (byte) (Byte.toUnsignedInt(tempregister)>>1);
+		}
+		
+		int sum = Byte.toUnsignedInt(accumulator) + Byte.toUnsignedInt(tempregister) + (CFlag?1:0);
+		CFlag = sum>0xff?true:false;
+		VFlag = (~(accumulator^tempregister)&(accumulator^sum)&0x80)==0?false:true;
+		accumulator=(byte) sum;
+		NFlag = accumulator<0?true:false;
+		ZFlag = accumulator==0?true:false;
+		
+	}
+	void rti(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			instruction_cycle++;break;
+		case 3:
+			stack_pointer++;
+			instruction_cycle++;break;
+		case 4:
+			setFlags(map.cpuread(Byte.toUnsignedInt(stack_pointer)+0x0100));
+			stack_pointer++;
+			instruction_cycle++;break;
+		case 5:
+			program_counter = map.cpureadu(Byte.toUnsignedInt(stack_pointer)+0x0100);
+			stack_pointer++;
+			instruction_cycle++;
+			pollInterrupts();break;
+		case 6:
+			program_counter = program_counter| (map.cpureadu(Byte.toUnsignedInt(stack_pointer)+0x0100)<<8);
+			instruction_cycle = 1;
+			//irqsetdelay=-1;
+			break;
+		}
+	}
+	void rts(){
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2:
+			instruction_cycle++;break;
+		case 3:
+			stack_pointer++;
+			instruction_cycle++;break;
+		case 4:
+			program_counter = 0;
+			program_counter = map.cpureadu(Byte.toUnsignedInt(stack_pointer)+0x0100);
+			stack_pointer++;
+			instruction_cycle++;break;
+		case 5:
+			program_counter = (program_counter | (map.cpureadu(Byte.toUnsignedInt(stack_pointer)+0x0100)<<8));
+			instruction_cycle++;
+			pollInterrupts();break;
+		case 6:
+			program_counter++;
+			instruction_cycle=1;break;
+		}
+	}
+	void sax(){
+		if(showInvalid)System.out.println("Invalid instruction SAX");
+		tempregister = (byte) (x_index_register&accumulator);
+		map.cpuwrite(address, tempregister);
+	}
+	void sbc(){
+		tempregister=(byte) ~tempregister;
+		int sum = Byte.toUnsignedInt(accumulator) + Byte.toUnsignedInt(tempregister) + (CFlag?1:0);
+		CFlag = sum>0xff?true:false;
+		VFlag = (~(accumulator^tempregister)&(accumulator^sum)&0x80)==0?false:true;
+		accumulator=(byte) sum;
+		NFlag = accumulator<0?true:false;
+		ZFlag = accumulator==0?true:false;
+	}
+	void sec(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2: CFlag = true;instruction_cycle = 1;break;
+		}
+	}
+	void sed(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2: DFlag = true;instruction_cycle = 1;break;
+		}
+	}
+	void sei(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2: IFlag = true;instruction_cycle = 1;break;
+		}
+		/*if(map.control.checkDebug())
+			System.out.println("Setting IFlag to true scanline: "+map.ppu.scanline);
+		irqsetdelay = 1;
+		instruction_cycle = 1;*/
+	}
+	void sha(){}
+	void shs(){}
+	void shx(){
+		if(showInvalid)System.out.println("Invalid instruction SHX");
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2: 
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;
+			break;
+		case 3:
+			address|= map.cpureadu(program_counter)<<8;
+			program_counter++;
+			instruction_cycle++;
+			break;
+		case 4:
+			map.cpureadu(address);
+			instruction_cycle++;
+			break;
+		case 5:
+			int t =(Byte.toUnsignedInt(x_index_register)&((address>>8)+1))&0xff;
+			lowpc = address&0xff00;
+			address+=Byte.toUnsignedInt(y_index_register);
+			address = (address&0xff)|lowpc;
+			map.cpuwrite(address&0xffff,(byte)t);
+			instruction_cycle=1;
+			break;	
+		}
+	}
+	void shy(){
+		if(showInvalid)System.out.println("Invalid instruction SHY");
+		switch(instruction_cycle){
+		case 1: instruction_cycle++;break;
+		case 2: 
+			address = map.cpureadu(program_counter);
+			program_counter++;
+			instruction_cycle++;
+			break;
+		case 3:
+			address|= map.cpureadu(program_counter)<<8;
+			program_counter++;
+			instruction_cycle++;
+			break;
+		case 4:
+			map.cpureadu(address);
+			instruction_cycle++;
+			break;
+		case 5:
+			int t =(Byte.toUnsignedInt(y_index_register)&((address>>8)+1))&0xff;
+			lowpc = address&0xff00;
+			address+=Byte.toUnsignedInt(x_index_register);
+			address = (address&0xff)|lowpc;
+			map.cpuwrite(address&0xffff,(byte)t);
+			instruction_cycle=1;
+			break;		
+		}
+		
+	}
+	void slo(){
+		if(showInvalid)System.out.println("Invalid instruction SLO");
+		CFlag = (tempregister&0x80)!=0;
+		tempregister<<=1;
+		accumulator|=tempregister;
+		NFlag = accumulator<0;
+		ZFlag = accumulator==0;
+	}
+	void sre(){
+		int result = Byte.toUnsignedInt(tempregister);
+		CFlag = (result&1)!=0;
+		result>>=1;
+		accumulator ^=(byte)result;
+		tempregister = (byte)result;
+		//map.cpuwrite(address, (byte)result);
+		NFlag = accumulator<0;
+		ZFlag = accumulator==0;
+	}
+	void sta(){
+		map.cpuwrite(address, accumulator);
+	}
+	void stx(){
+		map.cpuwrite(address, x_index_register);
+	}
+	void sty(){
+		map.cpuwrite(address, y_index_register);
+	}
+	void tax(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2:
+			x_index_register= accumulator;
+			if(x_index_register ==0) ZFlag = true;else ZFlag = false;
+			if(x_index_register <0) NFlag = true;else NFlag = false;
+			instruction_cycle = 1;break;
+		}
+	}
+	void tay(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2:
+			y_index_register=accumulator;
+			if(y_index_register ==0) ZFlag = true;else ZFlag = false;
+			if(y_index_register <0) NFlag = true;else NFlag = false;
+			instruction_cycle = 1;break;
+		}
+	}
+	void tsx(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2:
+			x_index_register = stack_pointer;
+			if(x_index_register ==0) ZFlag = true;else ZFlag = false;
+			if(x_index_register <0) NFlag = true;else NFlag = false;				
+			instruction_cycle = 1;break;
+		}
+	}
+	void txa(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2: 
+			accumulator = x_index_register;
+			if(accumulator ==0) ZFlag = true;else ZFlag = false;
+			if(accumulator <0) NFlag = true;else NFlag = false;
+			instruction_cycle = 1;break;
+		}
+	}
+	void txs(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts(); instruction_cycle++;break;
+		case 2:
+			stack_pointer = x_index_register;				
+			instruction_cycle = 1;break;
+		}
+	}
+	void tya(){
+		switch(instruction_cycle){
+		case 1: pollInterrupts();instruction_cycle++;break;
+		case 2:
+			accumulator = y_index_register;
+			if(accumulator ==0)ZFlag = true; else ZFlag = false;
+			if(accumulator <0)NFlag = true; else NFlag = false;
+			instruction_cycle = 1;break;
+		}
+	}
 }
