@@ -51,9 +51,9 @@ public class CPU_6502 {
 	public boolean doNMI = false;
 	public int doIRQ = 0;
 	boolean nmihijack;
-    private int[] inst_type = new int[256];//read/write/both
-	private int[] inst_mode = new int[256];//memory access
-	private int[] inst_len = new int[256];
+    //private int[] inst_type = new int[256];//read/write/both
+	//private int[] inst_mode = new int[256];//memory access
+	//private int[] inst_len = new int[256];
     public Hashtable<Byte,String> inst_name;//instruction name
 	public CPU_6502(Mapper mapper) {
 		map = mapper;
@@ -64,11 +64,11 @@ public class CPU_6502 {
 			byte x = Integer.valueOf(s.next(), 16).byteValue();
 			int mode = s.nextInt();
 			int type = s.nextInt();
-            inst_type[Byte.toUnsignedInt(x)]=type;
-            inst_mode[Byte.toUnsignedInt(x)]=mode;
+            //inst_type[Byte.toUnsignedInt(x)]=type;
+            //inst_mode[Byte.toUnsignedInt(x)]=mode;
 			inst_name.put(x, s.next());
 			int len = s.nextInt();
-            inst_len[Byte.toUnsignedInt(x)] = len;
+            //inst_len[Byte.toUnsignedInt(x)] = len;
 		}
 		s.close();
 		instruction_cycle = 1;
@@ -81,18 +81,16 @@ public class CPU_6502 {
 	int cpuinc=0;
 	void run_cycle(){
 		if(writeDMA){
-			//System.out.println("WRITE DMA IS TRUE!");
 			if(dmac ==513){
 				dmac =0;
 				dmain=0;
 				cpuinc=0;
 				writeDMA=false;
-				//map.printOAMPPU(0, 256);
 			}
 			else if(dmac==0){
 				dmac++;
-				dxx = map.cpureadu(0x4014);
-				dxx<<=8;
+				dxx = map.cpureadu(0x4014)<<8;
+				//dxx<<=8;
 				dmain = map.ppu.OAMADDR;
 			}
 			else if(dmac%2==1){
@@ -100,9 +98,7 @@ public class CPU_6502 {
 				//where it reads
 			}
 			else{
-				//System.out.println("read location: "+map.cpureadu(0x4014)*0x100+dmain);
 				map.cpuwriteoam(dmain,map.cpuread(dxx+cpuinc));
-				//map.cpuwrite(0x2004, map.cpuread(dxx*0x100+cpuinc));
 				if(dmain==255)
 					dmain=0;
 				else
@@ -115,11 +111,13 @@ public class CPU_6502 {
 			executeInstruction();
 		}
 	}
-	int irqsetdelay=-1;
 	boolean nmiInterrupt;
 	boolean irqInterrupt;
 	private void pollInterrupts(){
-		//System.out.println("polled interrupts");
+		if(doNMI&&!oldnmi){
+			nmi=true;
+		}
+		oldnmi=doNMI;
 		if(nmi){
 			nmiInterrupt = true;
 			nmi = false;
@@ -164,7 +162,6 @@ public class CPU_6502 {
 				+" I:" +(IFlag?1:0)
 				+" Z:" +(ZFlag?1:0)
 				+" C:" +(CFlag?1:0));
-		//memory.printMemory(program_counter, 20);
 	}
 	private byte buildFlags(){
 		byte temp = 0;
@@ -189,15 +186,12 @@ public class CPU_6502 {
 	}
 	boolean oldnmi = false;
 	boolean oldirq = false;
-	int irqlatency=0;
 	boolean nmi=false;
-	public int nmirecieved;
-	public int irqrecieved;
 	private void executeInstruction(){
-		if(doNMI&&!oldnmi){
-			nmi=true;
-		}
-		oldnmi=doNMI;
+		//if(doNMI&&!oldnmi){
+		//	nmi=true;
+		//}
+		//oldnmi=doNMI;
 		if(instruction_cycle ==1){
 			if(doOp){
 				executeOp();
@@ -205,7 +199,6 @@ public class CPU_6502 {
 			}
 			current_instruction = getNextInstruction();
 			program_counter++;
-			//instruction_cycle++;
 		}
 		switch(Byte.toUnsignedInt(current_instruction)){
 		case 0x00:brk();break;
@@ -732,16 +725,10 @@ public class CPU_6502 {
 		case 1:
 			pollInterrupts();instruction_cycle++;break;
 		case 2:
-			//pollInterrupts();
 			tempregister = map.cpuread(program_counter);
 			//executeOp();
 			program_counter++;doOp=true;
 			instruction_cycle=1;break;
-		/*case 3:
-			executeOp();
-			current_instruction = getNextInstruction();
-			program_counter++;
-			instruction_cycle = 2;break;*/
 		}
 	}
 	private void zero_r(){
@@ -757,13 +744,6 @@ public class CPU_6502 {
 			tempregister = map.cpuread(address);
 			instruction_cycle=1;doOp=true;
 			break;
-		/*case 4:
-			executeOp();
-			address = 0;
-			instruction_cycle=2;
-			current_instruction = getNextInstruction();
-			program_counter++;
-			break;*/
 		}
 	}
 	private void zero_rw(){
@@ -824,13 +804,7 @@ public class CPU_6502 {
 			address&=0xff;
 			tempregister= map.cpuread(address);
 			instruction_cycle=1;doOp=true;
-			break;
-		/*case 5:
-			executeOp();
-			instruction_cycle = 2;
-			current_instruction = getNextInstruction();
-			program_counter++;
-			break;	*/		
+			break;	
 		}
 	};
 	private void zerox_rw(){
@@ -900,13 +874,7 @@ public class CPU_6502 {
 			address&=0xff;
 			tempregister= map.cpuread(address);
 			instruction_cycle=1;doOp=true;
-			break;
-		/*case 5:
-			executeOp();
-			instruction_cycle = 2;
-			current_instruction = getNextInstruction();
-			program_counter++;
-			break;*/			
+			break;			
 		}
 	};
 	private void zeroy_w(){
@@ -947,13 +915,6 @@ public class CPU_6502 {
 			tempregister = map.cpuread(address);
 			instruction_cycle=1;doOp=true;
 			break;
-		/*case 5:
-			executeOp();
-			address = 0;
-			current_instruction = getNextInstruction();
-			program_counter++;
-			instruction_cycle=2;
-			break;*/
 		}
 	};
 	private void abs_rw(){
@@ -1038,22 +999,9 @@ public class CPU_6502 {
 				break;
 			}
 		case 5:
-			//if(brokenaddress){
-				tempregister = map.cpuread(address);
-				//brokenaddress = false;
-				instruction_cycle=1;doOp=true;break;
-			//}
-			//else{
-			//	executeOp();
-			//	current_instruction= getNextInstruction();
-			//	program_counter++;
-			//	instruction_cycle= 2;break;
-			//}
-		/*case 6:
-			executeOp();
-			current_instruction= getNextInstruction();
-			program_counter++;
-			instruction_cycle= 2;break;*/
+			tempregister = map.cpuread(address);
+			instruction_cycle=1;doOp=true;break;
+			
 		}
 	}
 	private void abs_x_rw(){
@@ -1140,22 +1088,9 @@ public class CPU_6502 {
 				instruction_cycle=1;doOp=true;break;
 			}
 		case 5:
-			//if(brokenaddress){
-				tempregister = map.cpuread(address);
-				brokenaddress = false;
-				instruction_cycle=1;doOp=true;break;
-			//}
-			/*else{
-				executeOp();
-				current_instruction= getNextInstruction();
-				program_counter++;
-				instruction_cycle= 2;break;
-			}
-		case 6:
-			executeOp();
-			current_instruction= getNextInstruction();
-			program_counter++;
-			instruction_cycle= 2;break;*/
+			tempregister = map.cpuread(address);
+			brokenaddress = false;
+			instruction_cycle=1;doOp=true;break;
 		}
 	}
 	private void abs_y_rw(){
@@ -1233,12 +1168,6 @@ public class CPU_6502 {
 		case 6:
 			tempregister = map.cpuread(address);
 			instruction_cycle=1;doOp=true;break;
-		/*case 7:
-			executeOp();
-			current_instruction = getNextInstruction();
-			program_counter++;
-			instruction_cycle=2;
-			address = 0;break;*/
 		}
 	}
 	private void indx_rw(){
@@ -1321,7 +1250,6 @@ public class CPU_6502 {
 			instruction_cycle++;break;
 		case 5:
 			if(brokenaddress){
-				//brokenaddress = true;
 				brokenaddress=false;
 				tempregister=map.cpuread((address&0xff)|lowpc);
 				address&=0xffff;
@@ -1333,24 +1261,10 @@ public class CPU_6502 {
 				instruction_cycle=1;doOp=true;break;	
 			}
 		case 6:
-			//if(brokenaddress){//broken
-				tempregister=map.cpuread(address);
-				//brokenaddress = false;
-				instruction_cycle=1;doOp=true;break;
-			/*}
-			else{
-				executeOp();
-				current_instruction = getNextInstruction();
-				program_counter++;
-				instruction_cycle=2;break;
-			}
-		case 7:
-			executeOp();
-			current_instruction = getNextInstruction();
-			program_counter++;
-			instruction_cycle=2;break;*/
+			tempregister=map.cpuread(address);
+			instruction_cycle=1;doOp=true;break;
 		}
-	};
+	}
 	private void indy_rw(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
@@ -1438,32 +1352,58 @@ public class CPU_6502 {
 			tempregister = map.cpuread(program_counter);
 			program_counter++;
 			//pollInterrupts();
-			executeOp();
-			if(branchtaken)
+			//executeOp();
+			//if(branchtaken)			
 				instruction_cycle++;
-			else
-				instruction_cycle=1;
+			//else
+			//	instruction_cycle=1;
 			break;
 		case 3:
-			
-			if((program_counter&0xff00)==((program_counter+tempregister)&0xff00)){
+			executeOp();
+			if(branchtaken){
+				instruction_cycle++;
+			}
+			else{
+				program_counter&=0xffff;
+				current_instruction=map.cpuread(program_counter);
+				program_counter++;
+				instruction_cycle=2;
+			}
+			break;
+			/*if((program_counter&0xff00)==((program_counter+tempregister)&0xff00)){
 				program_counter+=tempregister;program_counter&=0xffff;
+				if(irqInterrupt)
+					irqInterrupt=false;
 				instruction_cycle=1;break;
 			}
 			else{
-				//pollInterrupts();
+				pollInterrupts();
 				program_counter+=tempregister;program_counter&=0xffff;
 				instruction_cycle++;break;
-			}
+			}*/
 		case 4:
-			//pollInterrupts();
-			instruction_cycle=1;break;
+			lowpc = program_counter&0xff00;
+			program_counter+=tempregister;
+			if((program_counter&0xff00)!=lowpc){
+				program_counter&=0xffff;
+				instruction_cycle=1;
+			}
+			else{
+				program_counter&=0xffff;
+				current_instruction=map.cpuread(program_counter);
+				program_counter++;
+				instruction_cycle=2;
+			}
+			break;
+		//case 5:
+		//	current_instruction = map.cpuread(program_counter);
+		//	program_counter++;
+		//	instruction_cycle=2;break;
 		}
 	}
 
 	void aac(){
-		if(showInvalid)
-			System.out.println("Invalid instruction AAC");
+		if(showInvalid) System.out.println("Invalid instruction AAC");
 		accumulator= (byte)(accumulator &tempregister);
 		ZFlag = accumulator ==0; NFlag = accumulator<0;
 		CFlag = NFlag;
@@ -1473,8 +1413,7 @@ public class CPU_6502 {
 		CFlag = sum>0xff?true:false;
 		VFlag = (~(accumulator^tempregister)&(accumulator^sum)&0x80)==0?false:true;
 		accumulator=(byte) sum;
-		NFlag = accumulator<0;
-		ZFlag = accumulator==0;
+		NFlag = accumulator<0;ZFlag = accumulator==0;
 	}
 	void and(){
 		accumulator = (byte) (accumulator & tempregister);
@@ -1482,8 +1421,7 @@ public class CPU_6502 {
 	}
 	void ane(){}
 	void arr(){
-		if(showInvalid)
-			System.out.println("Invalid instruction ARR");
+		if(showInvalid) System.out.println("Invalid instruction ARR");
 		accumulator=(byte) (accumulator&tempregister);
 		int result = Byte.toUnsignedInt(accumulator);
 		result>>=1;
@@ -1492,29 +1430,24 @@ public class CPU_6502 {
 		NFlag = accumulator<0;
 		ZFlag = result==0;
 		CFlag = ((accumulator&(0b1000000))!=0);
-		VFlag = CFlag ^ ((accumulator&0b100000)!=0);
-		
+		VFlag = CFlag ^ ((accumulator&0b100000)!=0);		
 	}
 	void asl(){
 		int temp = Byte.toUnsignedInt(tempregister);
 		if((tempregister&0x80)!=0) CFlag=true; else CFlag=false;
 		tempregister = (byte) (temp<<1);
-		if(tempregister==0) ZFlag = true;else ZFlag = false;
-		if(tempregister<0) NFlag = true;else NFlag = false;
+		ZFlag = tempregister==0; NFlag = tempregister<0;
 	}
 	void asr(){
 		accumulator = (byte) (accumulator & tempregister);
 		CFlag = (accumulator&1)!=0;
 		accumulator= (byte)(Byte.toUnsignedInt(accumulator)>>1);
-		if(accumulator==0) ZFlag=true;else ZFlag = false;
-		if(accumulator<0) NFlag=true;else NFlag = false;
-		
+		ZFlag = accumulator ==0; NFlag = accumulator<0;		
 	}
 	void atx(){
 		if(showInvalid)System.out.println("Invalid instruction ATX");
 		x_index_register = accumulator=tempregister;
-		if(accumulator==0) ZFlag=true;else ZFlag = false;
-		if(accumulator<0) NFlag=true;else NFlag = false;
+		ZFlag = accumulator ==0; NFlag = accumulator<0;	
 	}
 	void axs(){
 		if(showInvalid)System.out.println("Invalid instruction AXS");
@@ -1523,16 +1456,14 @@ public class CPU_6502 {
 		CFlag = result>=Byte.toUnsignedInt(tempregister);
 		result-= tempregister;
 		x_index_register = (byte) result;
-		NFlag = x_index_register<0;
-		ZFlag = x_index_register==0;
+		NFlag = x_index_register<0; ZFlag = x_index_register==0;
 	}
 	void bcc(){branchtaken=!CFlag;}
 	void bcs(){branchtaken=CFlag;}
 	void beq(){branchtaken=ZFlag;}
 	void bit(){
-		if((accumulator&tempregister)==0)ZFlag = true; else ZFlag = false;
-		if((tempregister&0x80)!=0)NFlag = true; else NFlag = false;
-		if((tempregister&0x40)!=0)VFlag = true; else VFlag = false;
+		ZFlag = (accumulator&tempregister)==0;
+		NFlag = (tempregister&0x80)!=0; VFlag = (tempregister&0x40)!=0;
 	}
 	void bmi(){branchtaken=NFlag;}
 	void bne(){branchtaken=!ZFlag;}
@@ -1548,13 +1479,17 @@ public class CPU_6502 {
 			stack_pointer--;
 			instruction_cycle++;break;
 		case 4:
-			if(!(doNMI&&nmi))
-				nmihijack = false;
+			//if(!(doNMI&&nmi))
+			//	nmihijack = false;
 			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter&0xff));
 			stack_pointer--;
 			instruction_cycle++;
-			if(nmi&&doNMI)
+			pollInterrupts();
+			if(nmiInterrupt){
 				nmihijack=true;
+				nmiInterrupt=false;
+				irqInterrupt=false;
+			}
 			break;
 		case 5:
 			BFlag = true;
@@ -1593,10 +1528,7 @@ public class CPU_6502 {
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2: IFlag = false;instruction_cycle = 1;break;
-		}/*
-		IFlag = false;
-		instruction_cycle=1;
-		irqlatency = 2;*/
+		}
 	}
 	void clv(){
 		switch(instruction_cycle){
@@ -1605,19 +1537,28 @@ public class CPU_6502 {
 		}
 	}
 	void cmp(){
-		if(Byte.toUnsignedInt(accumulator)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
-		if(accumulator == tempregister) ZFlag = true;else ZFlag = false;
-		if(((Byte.toUnsignedInt(accumulator)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
+		CFlag = Byte.toUnsignedInt(accumulator)>=Byte.toUnsignedInt(tempregister); 
+		ZFlag = accumulator==tempregister;
+		NFlag = ((Byte.toUnsignedInt(accumulator)-Byte.toUnsignedInt(tempregister))&0x80)!=0;
+		//if(Byte.toUnsignedInt(accumulator)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
+		//if(accumulator == tempregister) ZFlag = true;else ZFlag = false;
+		//if(((Byte.toUnsignedInt(accumulator)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
 	}
 	void cpx(){
-		if(Byte.toUnsignedInt(x_index_register)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
-		if(x_index_register == tempregister) ZFlag = true;else ZFlag = false;
-		if(((Byte.toUnsignedInt(x_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
+		CFlag = Byte.toUnsignedInt(x_index_register)>=Byte.toUnsignedInt(tempregister); 
+		ZFlag = x_index_register==tempregister;
+		NFlag = ((Byte.toUnsignedInt(x_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0;
+		//if(Byte.toUnsignedInt(x_index_register)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
+		//if(x_index_register == tempregister) ZFlag = true;else ZFlag = false;
+		//if(((Byte.toUnsignedInt(x_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
 	}
 	void cpy(){
-		if(Byte.toUnsignedInt(y_index_register)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
-		if(y_index_register == tempregister) ZFlag = true;else ZFlag = false;
-		if(((Byte.toUnsignedInt(y_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
+		CFlag = Byte.toUnsignedInt(y_index_register)>=Byte.toUnsignedInt(tempregister); 
+		ZFlag = y_index_register==tempregister;
+		NFlag = ((Byte.toUnsignedInt(y_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0;
+		//if(Byte.toUnsignedInt(y_index_register)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
+		//if(y_index_register == tempregister) ZFlag = true;else ZFlag = false;
+		//if(((Byte.toUnsignedInt(y_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
 	}
 	void dcp(){
 		if(showInvalid)System.out.println("Invalid instruction DCP");
@@ -1628,16 +1569,14 @@ public class CPU_6502 {
 	}
 	void dec(){
 		tempregister--;
-		if(tempregister==0) ZFlag = true;else ZFlag = false;
-		if(tempregister<0) NFlag = true;else NFlag = false;
+		ZFlag = tempregister==0;NFlag = tempregister<0;
 	}
 	void dex(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:
 			x_index_register--;
-			if(x_index_register==0) ZFlag = true;else ZFlag = false;
-			if(x_index_register<0) NFlag = true;else NFlag = false;
+			ZFlag = x_index_register==0;NFlag = x_index_register<0;
 			instruction_cycle = 1;break;
 		}
 	}
@@ -1646,8 +1585,7 @@ public class CPU_6502 {
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:
 			y_index_register--;
-			if(y_index_register==0) ZFlag = true;else ZFlag = false;
-			if(y_index_register<0) NFlag = true;else NFlag = false;
+			ZFlag = y_index_register==0;NFlag = y_index_register<0;
 			instruction_cycle = 1;
 		}
 	}
@@ -1658,16 +1596,14 @@ public class CPU_6502 {
 	void hlt(){}
 	void inc(){
 		tempregister++;
-		if(tempregister==0) ZFlag = true;else ZFlag = false;
-		if(tempregister<0) NFlag = true;else NFlag = false;
+		ZFlag = tempregister==0;NFlag = tempregister<0;
 	}
 	void inx(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:
 			x_index_register++;
-			if(x_index_register==0) ZFlag = true;else ZFlag = false;
-			if(x_index_register<0) NFlag = true;else NFlag = false;
+			ZFlag = x_index_register==0;NFlag = x_index_register<0;
 			instruction_cycle = 1;break;
 		}
 	}
@@ -1676,8 +1612,7 @@ public class CPU_6502 {
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:
 			y_index_register++;
-			if(y_index_register==0) ZFlag = true;else ZFlag = false;
-			if(y_index_register<0) NFlag = true;else NFlag = false;
+			ZFlag = y_index_register==0;NFlag = y_index_register<0;
 			instruction_cycle = 1;break;
 		}	
 	}
@@ -1694,23 +1629,25 @@ public class CPU_6502 {
 			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter&0xff));
 			stack_pointer--;
 			instruction_cycle++;
-			if(nmi&&doNMI)
-				nmihijack=true;
+			
 			break;
 		case 5:
+			BFlag=false;
 			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, buildFlags());
-			if(nmihijack){
-				current_instruction = 0x02;
-				nmihijack=false;
+			//pollInterrupts();
+			if(doNMI&&!oldnmi){
+				current_instruction=0x02;
+				nmiInterrupt=false;
+				irqInterrupt=false;
 			}
 			stack_pointer--;
 			instruction_cycle++;break;
 		case 6:
 			program_counter = map.cpureadu(0xfffe);
-			instruction_cycle++;break;
+			instruction_cycle++;
+			IFlag = true;break;
 		case 7:
 			program_counter = (map.cpureadu(0xffff)<<8)|program_counter;
-			IFlag = true;
 			instruction_cycle = 1;break;
 		}
 	}
@@ -1721,9 +1658,7 @@ public class CPU_6502 {
 		CFlag = (sum>>8 ==0);
 		VFlag = (((accumulator^tempregister)&0x80)!=0)&&(((accumulator^sum)&0x80)!=0);
 		accumulator=(byte) (sum&0xff);
-		NFlag = accumulator<0?true:false;
-		ZFlag = accumulator==0?true:false;
-
+		NFlag = accumulator<0;ZFlag = accumulator==0;
 	}
 	void jmp(){
 		switch(instruction_cycle){
@@ -1739,7 +1674,8 @@ public class CPU_6502 {
 		case 4:
 			program_counter = map.cpureadu(address);
 			instruction_cycle++;
-			pollInterrupts();break;
+			//pollInterrupts();
+			break;
 		case 5:
 			if(((address+1)&0xFF) ==0) address = address&0xFF00;else address++;
 			program_counter = program_counter | (map.cpureadu(address)<<8);
@@ -1758,6 +1694,7 @@ public class CPU_6502 {
 		case 3:
 			address = address|(map.cpureadu(program_counter)<<8);
 			program_counter= address;
+			//pollInterrupts();
 			instruction_cycle=1;
 			break;
 		}
@@ -1794,24 +1731,20 @@ public class CPU_6502 {
 	}
 	void lda(){
 		accumulator = tempregister;
-		if(accumulator == 0) ZFlag = true;else ZFlag = false;
-		if(accumulator <0)NFlag = true;else NFlag = false;
+		ZFlag = accumulator==0;NFlag = accumulator<0;
 	}
 	void ldx(){
 		x_index_register = tempregister;
-		if(x_index_register == 0) ZFlag = true;else ZFlag = false;
-		if(x_index_register<0)NFlag = true;else NFlag = false;
+		ZFlag = x_index_register==0;NFlag = x_index_register<0;
 	}
 	void ldy(){
 		y_index_register = tempregister;
-		if(y_index_register == 0) ZFlag = true;else ZFlag = false;
-		if(y_index_register<0)NFlag = true;else NFlag = false;
+		ZFlag = y_index_register==0;NFlag = y_index_register<0;
 	}
 	void lsr(){
 		if((tempregister&1) >0)CFlag = true;else CFlag = false;
 		tempregister=(byte) (Byte.toUnsignedInt(tempregister)>>>1);
-		if(tempregister==0) ZFlag = true;else ZFlag = false;
-		if(tempregister<0) NFlag = true;else NFlag = false;
+		ZFlag = tempregister==0;NFlag = tempregister<0;
 	}
 	void nmi(){
 		switch(instruction_cycle){
@@ -1833,22 +1766,18 @@ public class CPU_6502 {
 			instruction_cycle++;break;
 		case 6:
 			program_counter = map.cpureadu(0xfffa);
-			instruction_cycle++;break;
+			instruction_cycle++;
+			IFlag = true;break;
 		case 7:
 			program_counter = (map.cpureadu(0xfffb)<<8)|program_counter;
-			IFlag = true;
+			
 			instruction_cycle = 1;break;
 		}
 	}
 	void nop(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
-		case 2:
-			instruction_cycle=1;break;
-		/*case 3:
-			current_instruction = getNextInstruction();
-			program_counter++;
-			instruction_cycle=2;break;*/
+		case 2:instruction_cycle=1;break;
 		}
 	}
 	void skb(){
@@ -1859,8 +1788,7 @@ public class CPU_6502 {
 	}
 	void ora(){
 		accumulator = (byte) (accumulator | tempregister);
-		if(accumulator == 0) ZFlag = true;else ZFlag = false;
-		if(accumulator<0)NFlag = true;else NFlag = false;
+		ZFlag = accumulator==0;NFlag = accumulator<0;
 	}
 	void pha(){
 		switch(instruction_cycle){
@@ -1901,8 +1829,7 @@ public class CPU_6502 {
 			pollInterrupts();break;
 		case 4:
 			accumulator = map.cpuread(Byte.toUnsignedInt(stack_pointer)+0x0100);
-			if(accumulator==0)ZFlag = true; else ZFlag = false;
-			if(accumulator<0)NFlag = true; else NFlag = false;
+			ZFlag = accumulator==0;NFlag = accumulator<0;
 			instruction_cycle = 1;break;
 		}
 	}
@@ -1917,7 +1844,6 @@ public class CPU_6502 {
 			pollInterrupts();break;
 			
 		case 4:
-			//boolean temp = IFlag;
 			setFlags( map.cpuread(Byte.toUnsignedInt(stack_pointer)+0x0100));
 			instruction_cycle = 1;break;
 		}
@@ -1929,28 +1855,23 @@ public class CPU_6502 {
 		tempregister = (byte) (tempregister | (CFlag?1:0));
 		CFlag = tcarry==1?true:false;
 		if(tempregister ==0)ZFlag = true;else ZFlag = false;
-		if(tempregister<0)NFlag = true; else NFlag = false;
-		
+		if(tempregister<0)NFlag = true; else NFlag = false;	
 		accumulator = (byte) (accumulator & tempregister);
-		if(accumulator==0) ZFlag=true;else ZFlag = false;
-		if(accumulator<0) NFlag=true;else NFlag = false;
-		
+		ZFlag = accumulator==0;NFlag = accumulator<0;		
 	}
 	void rol(){
 		int tcarry = tempregister<0?1:0;
 		tempregister = (byte) (tempregister<<1);
 		tempregister = (byte) (tempregister | (CFlag?1:0));
 		CFlag = tcarry==1?true:false;
-		if(tempregister ==0)ZFlag = true;else ZFlag = false;
-		if(tempregister<0)NFlag = true; else NFlag = false;
+		ZFlag = tempregister==0;NFlag = tempregister<0;
 	}
 	void ror(){
 		int tcarry = tempregister&0x01;
 		tempregister= (byte) (Byte.toUnsignedInt(tempregister)>>>1);
 		tempregister = (byte) (tempregister | (CFlag?0x80:0));
 		CFlag = tcarry!=0?true:false;
-		if(tempregister==0)ZFlag = true; else ZFlag = false;
-		if(tempregister<0)NFlag = true; else NFlag = false;
+		ZFlag = tempregister==0;NFlag = tempregister<0;
 	}
 	void rra(){
 		if(showInvalid)System.out.println("Invalid instruction RRA");
@@ -1961,15 +1882,12 @@ public class CPU_6502 {
 		else{
 			CFlag = (tempregister&1)!=0;
 			tempregister = (byte) (Byte.toUnsignedInt(tempregister)>>1);
-		}
-		
+		}		
 		int sum = Byte.toUnsignedInt(accumulator) + Byte.toUnsignedInt(tempregister) + (CFlag?1:0);
 		CFlag = sum>0xff?true:false;
 		VFlag = (~(accumulator^tempregister)&(accumulator^sum)&0x80)==0?false:true;
 		accumulator=(byte) sum;
-		NFlag = accumulator<0?true:false;
-		ZFlag = accumulator==0?true:false;
-		
+		NFlag = accumulator<0;ZFlag = accumulator==0;	
 	}
 	void rti(){
 		switch(instruction_cycle){
@@ -1991,7 +1909,6 @@ public class CPU_6502 {
 		case 6:
 			program_counter = program_counter| (map.cpureadu(Byte.toUnsignedInt(stack_pointer)+0x0100)<<8);
 			instruction_cycle = 1;
-			//irqsetdelay=-1;
 			break;
 		}
 	}
@@ -2028,8 +1945,7 @@ public class CPU_6502 {
 		CFlag = sum>0xff?true:false;
 		VFlag = (~(accumulator^tempregister)&(accumulator^sum)&0x80)==0?false:true;
 		accumulator=(byte) sum;
-		NFlag = accumulator<0?true:false;
-		ZFlag = accumulator==0?true:false;
+		NFlag = accumulator<0;ZFlag = accumulator==0;
 	}
 	void sec(){
 		switch(instruction_cycle){
@@ -2048,10 +1964,6 @@ public class CPU_6502 {
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2: IFlag = true;instruction_cycle = 1;break;
 		}
-		/*if(map.control.checkDebug())
-			System.out.println("Setting IFlag to true scanline: "+map.ppu.scanline);
-		irqsetdelay = 1;
-		instruction_cycle = 1;*/
 	}
 	void sha(){}
 	void shs(){}
@@ -2117,8 +2029,7 @@ public class CPU_6502 {
 		CFlag = (tempregister&0x80)!=0;
 		tempregister<<=1;
 		accumulator|=tempregister;
-		NFlag = accumulator<0;
-		ZFlag = accumulator==0;
+		NFlag = accumulator<0;ZFlag = accumulator==0;
 	}
 	void sre(){
 		int result = Byte.toUnsignedInt(tempregister);
@@ -2126,26 +2037,17 @@ public class CPU_6502 {
 		result>>=1;
 		accumulator ^=(byte)result;
 		tempregister = (byte)result;
-		//map.cpuwrite(address, (byte)result);
-		NFlag = accumulator<0;
-		ZFlag = accumulator==0;
+		NFlag = accumulator<0;ZFlag = accumulator==0;
 	}
-	void sta(){
-		map.cpuwrite(address, accumulator);
-	}
-	void stx(){
-		map.cpuwrite(address, x_index_register);
-	}
-	void sty(){
-		map.cpuwrite(address, y_index_register);
-	}
+	void sta(){map.cpuwrite(address, accumulator);}
+	void stx(){map.cpuwrite(address, x_index_register);}
+	void sty(){map.cpuwrite(address, y_index_register);}
 	void tax(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:
 			x_index_register= accumulator;
-			if(x_index_register ==0) ZFlag = true;else ZFlag = false;
-			if(x_index_register <0) NFlag = true;else NFlag = false;
+			ZFlag = x_index_register==0;NFlag = x_index_register<0;
 			instruction_cycle = 1;break;
 		}
 	}
@@ -2154,8 +2056,7 @@ public class CPU_6502 {
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:
 			y_index_register=accumulator;
-			if(y_index_register ==0) ZFlag = true;else ZFlag = false;
-			if(y_index_register <0) NFlag = true;else NFlag = false;
+			ZFlag = y_index_register==0;NFlag = y_index_register<0;
 			instruction_cycle = 1;break;
 		}
 	}
@@ -2164,8 +2065,7 @@ public class CPU_6502 {
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:
 			x_index_register = stack_pointer;
-			if(x_index_register ==0) ZFlag = true;else ZFlag = false;
-			if(x_index_register <0) NFlag = true;else NFlag = false;				
+			ZFlag = x_index_register==0;NFlag = x_index_register<0;				
 			instruction_cycle = 1;break;
 		}
 	}
@@ -2174,8 +2074,7 @@ public class CPU_6502 {
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2: 
 			accumulator = x_index_register;
-			if(accumulator ==0) ZFlag = true;else ZFlag = false;
-			if(accumulator <0) NFlag = true;else NFlag = false;
+			ZFlag = accumulator==0;NFlag = accumulator<0;
 			instruction_cycle = 1;break;
 		}
 	}
@@ -2192,8 +2091,7 @@ public class CPU_6502 {
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:
 			accumulator = y_index_register;
-			if(accumulator ==0)ZFlag = true; else ZFlag = false;
-			if(accumulator <0)NFlag = true; else NFlag = false;
+			ZFlag = accumulator==0;NFlag = accumulator<0;
 			instruction_cycle = 1;break;
 		}
 	}

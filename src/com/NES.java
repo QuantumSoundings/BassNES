@@ -112,11 +112,6 @@ public class NES implements Runnable {
 			if(i%ppudiv==0){
 				p++;
 				ppu.render();
-				
-				//if(ppu.oddskip){
-				//	c+=(1/3.0);
-				//	ppu.oddskip=false;
-				//}
 				if((apu.framecounter)%89490<4){//&&doaudio){
 					apu.doFrameStep=true;
 					apu.framecounter=4;
@@ -124,9 +119,6 @@ public class NES implements Runnable {
 				else
 					apu.framecounter+=4;
 				i+=4;
-				//if(i==systemclock)
-				//	i=0;
-				//apu.framecounter+=4;
 			}
 			
 		}
@@ -164,7 +156,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//rom = new File(System.getProperty("user.dir")+"/smb2.nes");
+		//rom = new File(System.getProperty("user.dir")+"/tests/blarggapu/06.len_timing_mode1.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

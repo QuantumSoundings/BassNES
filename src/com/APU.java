@@ -19,11 +19,12 @@ public class APU {
 	Pulse pulse1 = new Pulse(new PulseOscillator(),true);
 	Pulse pulse2 = new Pulse( new PulseOscillator(),false);
 	Noise noise = new Noise(new WhiteNoise());
+	DMC dmc;
 	Mapper map;
 	byte status;
 	boolean stepmode4=true;
 	int stepcycle;
-	boolean IRQFlag;
+	boolean irqInhibit;
 	boolean frameInterrupt;
 	boolean doFrameStep;
 	boolean evenclock;
@@ -40,6 +41,7 @@ public class APU {
 		synth = JSyn.createSynthesizer();
 		addGenerators();
 		//synth.add(lag = new LinearRamp());
+		dmc =new DMC(new PulseOscillator(),map);
 		synth.add(lineout=new LineOut());
 		pulse1.wave.output.connect(0,lineout.input,0);
 		pulse1.wave.output.connect(0,lineout.input,1);
@@ -53,17 +55,6 @@ public class APU {
 		synth.start();
 		lineout.start();
 		cpucounter = 10;
-		
-		/*timer = new Timer(0,new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e){
-				doFrameStep = true;
-			}
-		});*/
-		//timer.setDelay(4);
-		//timer.start();
-
-		
 	}
 	void addGenerators(){
 		synth.add(triangle.wave);
@@ -73,23 +64,22 @@ public class APU {
 	}
 	public void writeRegister(int index,byte b){
 		if(index>=0x4000&&index<0x4004){
-			pulse1.registerWrite(index, b);
+			pulse1.registerWrite(index, b,cpucounter);
 		}
 		else if(index>=0x4004&&index<0x4008){
-			pulse2.registerWrite(index, b);
+			pulse2.registerWrite(index, b,cpucounter);
 		}
 		else if(index>=0x4008&&index<0x400c){
-			triangle.registerWrite(index, b);
+			triangle.registerWrite(index, b,cpucounter);
 		}
 		else if(index>=0x400c&&index<0x4010){
-			noise.registerWrite(index, b);			
+			noise.registerWrite(index, b,cpucounter);			
 		}
 		else if(index>=0x4010&&index<0x4014){
-			
+			dmc.registerWrite(index, b);
 		}
 		else if(index==0x4015){
 			status = b;
-			//System.out.println("Writing to the control reg"+Integer.toBinaryString(Byte.toUnsignedInt(b)));
 			if((b&1)==0)
 				pulse1.disable();
 			else
@@ -106,17 +96,22 @@ public class APU {
 				noise.disable();
 			else
 				noise.enable();
+			if((b&16)==0)
+				dmc.disable();
+			else
+				dmc.enable();
 		}
 		else if(index==0x4017){
 			stepmode4 = (b&0x80)==0?true:false;
 			stepNumber = 0;
 			if((b&0x80)!=0){
+				stepNumber =2;
 				frameClock();
-				cpucounter=1;
-				block=2;
+				cpucounter=0;
+				block=1;
 			}
-			IRQFlag = (b&0x40)==0?false:true;
-			if(IRQFlag&&frameInterrupt){
+			irqInhibit = (b&0x40)==0?false:true;
+			if(irqInhibit&&frameInterrupt){
 				map.cpu.doIRQ--;
 				frameInterrupt = false;
 			}
@@ -124,22 +119,23 @@ public class APU {
 				delay = 0;
 			else
 				delay = 1;
-			//cpucounter = 0;
+			cpucounter=0;
 		}
 	}
 	public byte readRegisters(int index){
-		if(index == 0x4015){
-			
+		if(index == 0x4015){			
 			byte b = 0;
 			b|= pulse1.lengthcount>0?1:0;
 			b|= pulse2.lengthcount>0?2:0;
 			b|= triangle.lengthcount>0?4:0;
 			b|= noise.lengthcount>0?8:0;
+			b|= dmc.samplelength>0?16:0;
 			b|= frameInterrupt?64:0;
 			if(frameInterrupt){
 				map.cpu.doIRQ--;
 				frameInterrupt = false;
 			}
+			b|= dmc.irqflag?128:0;
 			return b;
 		}
 		return 0;
@@ -151,11 +147,7 @@ public class APU {
 		noise.updateWave();
 	}
 	public void frameClock(){
-		//System.out.println("In framestep mode4:"+stepmode4);
 		if(stepmode4){
-			//map.cpu.doIRQ=false;
-			//System.out.println("Mode 4 Step "+stepNumber+" "+cpucounter);
-
 			if(stepNumber%4==1||stepNumber%4==3){
 				pulse1.lengthClock();
 				pulse1.sweepClock();
@@ -169,20 +161,12 @@ public class APU {
 			pulse2.envelopeClock();
 			triangle.linearClock();
 			noise.envelopeClock();
-			//doFrameStep = false;
-			//stepNumber++;
-			if(stepNumber%4==3&&!IRQFlag){
-				//System.out.println("DOing an IRQ");
-				if(!frameInterrupt)
-					map.cpu.doIRQ++;
-				frameInterrupt = true;
-				//map.cpu.doIRQ++;
+			if(stepNumber%4==3){
+				setIRQ();
 			}
-			//stepNumber = (stepNumber==3)?0:stepNumber+1;			
 		}
 		else{
-			//System.out.println("Mode 5 Step "+stepNumber+" "+cpucounter);
-			if(stepNumber%5==0||stepNumber%5==2){
+			if(stepNumber ==2){
 				pulse1.lengthClock();
 				pulse1.sweepClock();
 				pulse2.lengthClock();
@@ -195,33 +179,35 @@ public class APU {
 				triangle.linearClock();
 				noise.envelopeClock();
 			}
-			else if(stepNumber%5==1||stepNumber%5==3){
+			else if(stepNumber ==1){
 				pulse1.envelopeClock();
 				pulse2.envelopeClock();
 				triangle.linearClock();
 				noise.envelopeClock();
 			}
 			else{}
-			//stepNumber++;
-			//doFrameStep=false;
 		}
 		update();
+	}
+	void setIRQ(){
+		if(!irqInhibit){
+			if(!frameInterrupt){
+				map.cpu.doIRQ++;
+				frameInterrupt=true;
+			}
+		}
 	}
 	public void doCycle(int cycle){
 		if(delay>0){
 			delay--;
 		}
 		else if(delay ==0){
-			//if(stepmode4)
-				cpucounter=0;
-			//else
-			//	cpucounter=1;
-			framecounter=4;
+			cpucounter=0;
 			delay =-1;
 		}
 		if(cycle%2==0){
-			noise.clockTimer();
-			
+			noise.clockTimer();	
+			dmc.clock();
 			evenclock = true;
 		}
 		else
@@ -231,23 +217,10 @@ public class APU {
 			case 7459: stepNumber = 0;frameClock();break;
 			case 14915:stepNumber = 1;frameClock();break;
 			case 22373:stepNumber = 2;frameClock();break;
-			case 29830:
-				if(!IRQFlag){
-					if(!frameInterrupt)
-						map.cpu.doIRQ++;
-					frameInterrupt=true;
-				}
-				break;
-			case 29831:
-				stepNumber = 3;frameClock();break;
-			case 29832:
-				if(!IRQFlag){
-					if(!frameInterrupt)
-						map.cpu.doIRQ++;
-					frameInterrupt=true;
-				}
-				cpucounter=2;
-				break;
+			case 29830:;setIRQ();break;
+			case 29831:stepNumber = 3;frameClock();break;
+			case 29832:setIRQ();break;
+			case 37289:stepNumber = 0;frameClock();cpucounter=7459;break;
 			default: break;
 			}
 		}
@@ -255,7 +228,7 @@ public class APU {
 			switch(cpucounter){
 			case 1:
 				if(block<=0){
-					stepNumber = 0;
+					stepNumber = 2;
 					frameClock();
 				}
 				else 
@@ -263,15 +236,12 @@ public class APU {
 				break;
 			case 7459:  stepNumber = 1;frameClock();break;
 			case 14915: stepNumber = 2;frameClock();break;
-			case 22373: stepNumber = 3;frameClock();break;
+			case 22373: stepNumber = 1;frameClock();break;
 			case 29829: break;
-			case 37282: cpucounter = 0;break;
+			case 37283: stepNumber = 2;frameClock();cpucounter = 1;break;
 			default:break;
 			}
 		}
-		/*if(doFrameStep){
-			frameClock();
-		}*/
 		cpucounter++;
 		
 		

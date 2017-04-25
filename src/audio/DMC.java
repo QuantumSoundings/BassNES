@@ -20,7 +20,6 @@ public class DMC extends Channel{
 	double[] pitchtable = new double[]{4181.71,4709.93,5264.04,5593.04,6257.95,7046.35,7919.35,8363.42,9419.86,11186.1,12604.0,13982.6,16884.6,21306.8,24858.0,33143.9};
 	public DMC(UnitGenerator gen, Mapper m) {
 		super(gen);
-		// TODO Auto-generated constructor stub
 		map = m;
 	}
 	
@@ -28,8 +27,8 @@ public class DMC extends Channel{
 		switch(index%4){
 		case 0: 
 			irqEnable = (b&0x80)!=0?true:false;
-			if(!irqEnable&&irqflag)
-				map.cpu.doIRQ--;
+			//if(!irqEnable&&irqflag)
+			//	map.cpu.doIRQ--;
 			loop = (b&0x40)!=0?true:false;
 			ratelook = b&0xf;
 			rate = rateindex[b&0xf];
@@ -65,8 +64,8 @@ public class DMC extends Channel{
 		samplelength--;
 		if(samplelength==0&&loop);//restart sample
 		else if(samplelength==0&&irqEnable){
-			map.cpu.doIRQ++;
-			irqflag=true;
+			//map.cpu.doIRQ++;
+			//irqflag=true;
 		}	
 	}
 	int bitsremaining;
@@ -77,8 +76,7 @@ public class DMC extends Channel{
 			if((shiftreg&1)!=0)
 				directload += directload+2>127?0:2;
 			else
-				directload -= directload-2<0?0:2;
-			
+				directload -= directload-2<0?0:2;		
 		}
 		shiftreg>>=1;
 		bitsremaining--;

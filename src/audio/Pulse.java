@@ -39,12 +39,16 @@ public class Pulse extends Channel {
 	}
 	
 	//double[] dutylook = new double[]{10.0,5.0,0.0,5.0};
-	public void registerWrite(int index,byte b){
+	public void registerWrite(int index,byte b,int clock){
 		//System.out.println("Writing to pulse1 index: "+Integer.toHexString(index)+" byte:"+Integer.toBinaryString(Byte.toUnsignedInt(b)));
 		switch(index%4){
 		case 0: 
 			duty = Byte.toUnsignedInt(b)>>>6;
-			loop=(b&0b100000)!=0?true:false;
+			if(clock==14915){
+				delayedchange=(b&0b10000)!=0?2:1;
+			}
+			else
+				loop=(b&0b100000)!=0?true:false;
 			constantvolume=(b&0b10000)!=0?true:false;
 			volume=b&0xf;
 			estart = true;
@@ -70,7 +74,17 @@ public class Pulse extends Channel {
 		case 3: 
 			int x = Byte.toUnsignedInt(b)>>3;
 			if(enable)
-				lengthcount = lengthlookup[x];
+				if(clock==14915){
+					if(lengthcount==0){
+						lengthcount = lengthlookup[x];
+						block=true;
+					}
+				}
+				else 
+					lengthcount = lengthlookup[x];
+					
+				
+			
 			timer&=0b11111111;
 			timer |= (b&0b111)<<8;
 			targetperiod = timer;

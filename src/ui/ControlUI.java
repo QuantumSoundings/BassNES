@@ -41,40 +41,28 @@ public class ControlUI extends JFrame {
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-		GridBagLayout gbl_contentPane = new GridBagLayout();
-		gbl_contentPane.columnWidths = new int[]{0, 0, 153, 0, 0, 0, 0, 0};
-		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_contentPane.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		contentPane.setLayout(gbl_contentPane);
+		contentPane.setLayout(null);
 		
 		JLabel lblController = new JLabel("Controller 1");
-		GridBagConstraints gbc_lblController = new GridBagConstraints();
-		gbc_lblController.insets = new Insets(0, 0, 5, 5);
-		gbc_lblController.gridx = 2;
-		gbc_lblController.gridy = 0;
-		contentPane.add(lblController, gbc_lblController);
+		lblController.setBounds(87, 1, 74, 14);
+		contentPane.add(lblController);
 		
 		JLabel lblController_1 = new JLabel("Controller 2");
-		GridBagConstraints gbc_lblController_1 = new GridBagConstraints();
-		gbc_lblController_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblController_1.gridx = 5;
-		gbc_lblController_1.gridy = 0;
-		contentPane.add(lblController_1, gbc_lblController_1);
+		lblController_1.setBounds(279, 1, 74, 14);
+		contentPane.add(lblController_1);
 		
 		JLabel lblAButton = new JLabel("A Button");
-		GridBagConstraints gbc_lblAButton = new GridBagConstraints();
-		gbc_lblAButton.insets = new Insets(0, 0, 5, 5);
-		gbc_lblAButton.gridx = 1;
-		gbc_lblAButton.gridy = 1;
-		contentPane.add(lblAButton, gbc_lblAButton);
+		lblAButton.setBounds(45, 24, 59, 14);
+		contentPane.add(lblAButton);
 		
-		JButton btnNewButton = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c1a")))+">");
+		JButton btnNewButton = new JButton("<"+KeyEvent.getKeyText(UserSettings.c1a)+">");
+		btnNewButton.setBounds(114, 20, 83, 23);
 		btnNewButton.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				btnNewButton.setText("<"+KeyEvent.getKeyText(arg0.getKeyCode())+">");
-				prop.setProperty("c1a",arg0.getKeyCode()+"");
+				//prop.setProperty("c1a",arg0.getKeyCode()+"");
+				UserSettings.c1a = arg0.getKeyCode();
 			}
 		});
 		btnNewButton.addActionListener(new ActionListener() {
@@ -82,46 +70,36 @@ public class ControlUI extends JFrame {
 				awaitingkey=true;
 			}
 		});
-		GridBagConstraints gbc_btnNewButton = new GridBagConstraints();
-		gbc_btnNewButton.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton.gridx = 2;
-		gbc_btnNewButton.gridy = 1;
-		contentPane.add(btnNewButton, gbc_btnNewButton);
+		contentPane.add(btnNewButton);
 		
 		JLabel lblAButton_1 = new JLabel("A Button");
-		GridBagConstraints gbc_lblAButton_1 = new GridBagConstraints();
-		gbc_lblAButton_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblAButton_1.gridx = 4;
-		gbc_lblAButton_1.gridy = 1;
-		contentPane.add(lblAButton_1, gbc_lblAButton_1);
+		lblAButton_1.setBounds(232, 24, 59, 14);
+		contentPane.add(lblAButton_1);
 		
-		JButton btnNewButton_8 = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c2a")))+">");
+		JButton btnNewButton_8 = new JButton("<"+KeyEvent.getKeyText(UserSettings.c2a)+">");
+		btnNewButton_8.setBounds(301, 20, 83, 23);
 		btnNewButton_8.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_8.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				prop.setProperty("c2a",e.getKeyCode()+"");
+				//prop.setProperty("c2a",e.getKeyCode()+"");
+				UserSettings.c2a = e.getKeyCode();
 			}
 		});
-		GridBagConstraints gbc_btnNewButton_8 = new GridBagConstraints();
-		gbc_btnNewButton_8.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton_8.gridx = 5;
-		gbc_btnNewButton_8.gridy = 1;
-		contentPane.add(btnNewButton_8, gbc_btnNewButton_8);
+		contentPane.add(btnNewButton_8);
 		
 		JLabel lblBButton = new JLabel("B Button");
-		GridBagConstraints gbc_lblBButton = new GridBagConstraints();
-		gbc_lblBButton.insets = new Insets(0, 0, 5, 5);
-		gbc_lblBButton.gridx = 1;
-		gbc_lblBButton.gridy = 2;
-		contentPane.add(lblBButton, gbc_lblBButton);
+		lblBButton.setBounds(45, 52, 59, 14);
+		contentPane.add(lblBButton);
 		
-		JButton btnNewButton_1 = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c1b")))+">");
+		JButton btnNewButton_1 = new JButton("<"+KeyEvent.getKeyText(UserSettings.c1b)+">");
+		btnNewButton_1.setBounds(114, 48, 83, 23);
 		btnNewButton_1.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				btnNewButton_1.setText("<"+KeyEvent.getKeyText(arg0.getKeyCode())+">");
-				prop.setProperty("c1b",arg0.getKeyCode()+"");
+				//prop.setProperty("c1b",arg0.getKeyCode()+"");
+				UserSettings.c1b = arg0.getKeyCode();
 			}
 		});
 		btnNewButton_1.addActionListener(new ActionListener() {
@@ -129,46 +107,36 @@ public class ControlUI extends JFrame {
 				awaitingkey=true;
 			}
 		});
-		GridBagConstraints gbc_btnNewButton_1 = new GridBagConstraints();
-		gbc_btnNewButton_1.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton_1.gridx = 2;
-		gbc_btnNewButton_1.gridy = 2;
-		contentPane.add(btnNewButton_1, gbc_btnNewButton_1);
+		contentPane.add(btnNewButton_1);
 		
 		JLabel lblBButton_1 = new JLabel("B Button");
-		GridBagConstraints gbc_lblBButton_1 = new GridBagConstraints();
-		gbc_lblBButton_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblBButton_1.gridx = 4;
-		gbc_lblBButton_1.gridy = 2;
-		contentPane.add(lblBButton_1, gbc_lblBButton_1);
+		lblBButton_1.setBounds(232, 52, 59, 14);
+		contentPane.add(lblBButton_1);
 		
-		JButton btnNewButton_9 = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c2b")))+">");
+		JButton btnNewButton_9 = new JButton("<"+KeyEvent.getKeyText(UserSettings.c2b)+">");
+		btnNewButton_9.setBounds(301, 48, 83, 23);
 		btnNewButton_9.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_9.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				prop.setProperty("c2b",e.getKeyCode()+"");
+				//prop.setProperty("c2b",e.getKeyCode()+"");
+				UserSettings.c2b = e.getKeyCode();
 			}
 		});
-		GridBagConstraints gbc_btnNewButton_9 = new GridBagConstraints();
-		gbc_btnNewButton_9.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton_9.gridx = 5;
-		gbc_btnNewButton_9.gridy = 2;
-		contentPane.add(btnNewButton_9, gbc_btnNewButton_9);
+		contentPane.add(btnNewButton_9);
 		
 		JLabel lblUpdpad = new JLabel("Up");
-		GridBagConstraints gbc_lblUpdpad = new GridBagConstraints();
-		gbc_lblUpdpad.insets = new Insets(0, 0, 5, 5);
-		gbc_lblUpdpad.gridx = 1;
-		gbc_lblUpdpad.gridy = 3;
-		contentPane.add(lblUpdpad, gbc_lblUpdpad);
+		lblUpdpad.setBounds(45, 80, 42, 14);
+		contentPane.add(lblUpdpad);
 		
-		JButton btnNewButton_2 = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c1up")))+">");
+		JButton btnNewButton_2 = new JButton("<"+KeyEvent.getKeyText(UserSettings.c1up)+">");
+		btnNewButton_2.setBounds(114, 76, 83, 23);
 		btnNewButton_2.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_2.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				prop.setProperty("c1up",e.getKeyCode()+"");
+				//prop.setProperty("c1up",e.getKeyCode()+"");
+				UserSettings.c1up = e.getKeyCode();
 			}
 		});
 		btnNewButton_2.addActionListener(new ActionListener() {
@@ -176,46 +144,37 @@ public class ControlUI extends JFrame {
 				awaitingkey=true;
 			}
 		});
-		GridBagConstraints gbc_btnNewButton_2 = new GridBagConstraints();
-		gbc_btnNewButton_2.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton_2.gridx = 2;
-		gbc_btnNewButton_2.gridy = 3;
-		contentPane.add(btnNewButton_2, gbc_btnNewButton_2);
+		contentPane.add(btnNewButton_2);
 		
-		JButton btnNewButton_10 = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c2up")))+">");
+		JButton btnNewButton_10 = new JButton("<"+KeyEvent.getKeyText(UserSettings.c2up)+">");
+		btnNewButton_10.setBounds(301, 76, 83, 23);
 		btnNewButton_10.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_10.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				prop.setProperty("c2up",e.getKeyCode()+"");
+				//prop.setProperty("c2up",e.getKeyCode()+"");
+				UserSettings.c2up = e.getKeyCode();
 			}
 		});
 		
 		JLabel lblUp = new JLabel("Up");
-		GridBagConstraints gbc_lblUp = new GridBagConstraints();
-		gbc_lblUp.insets = new Insets(0, 0, 5, 5);
-		gbc_lblUp.gridx = 4;
-		gbc_lblUp.gridy = 3;
-		contentPane.add(lblUp, gbc_lblUp);
-		GridBagConstraints gbc_btnNewButton_10 = new GridBagConstraints();
-		gbc_btnNewButton_10.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton_10.gridx = 5;
-		gbc_btnNewButton_10.gridy = 3;
-		contentPane.add(btnNewButton_10, gbc_btnNewButton_10);
+		lblUp.setBounds(246, 80, 28, 14);
+		contentPane.add(lblUp);
+		contentPane.add(btnNewButton_10);
 		
 		JLabel lblDown = new JLabel("Down");
-		GridBagConstraints gbc_lblDown = new GridBagConstraints();
-		gbc_lblDown.insets = new Insets(0, 0, 5, 5);
-		gbc_lblDown.gridx = 1;
-		gbc_lblDown.gridy = 4;
-		contentPane.add(lblDown, gbc_lblDown);
+		lblDown.setBounds(45, 108, 42, 14);
+		contentPane.add(lblDown);
 		
-		JButton btnNewButton_3 = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c1down")))+">");
+		JButton btnNewButton_3 = new JButton("<"+KeyEvent.getKeyText(UserSettings.c1down)+">");
+		btnNewButton_3.setBounds(114, 104, 83, 23);
 		btnNewButton_3.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_3.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				prop.setProperty("c1down",e.getKeyCode()+"");
+				//prop.setProperty("c1down",e.getKeyCode()+"");
+				UserSettings.c1down = e.getKeyCode();
+
 			}
 		});
 		btnNewButton_3.addActionListener(new ActionListener() {
@@ -223,18 +182,17 @@ public class ControlUI extends JFrame {
 				awaitingkey=true;
 			}
 		});
-		GridBagConstraints gbc_btnNewButton_3 = new GridBagConstraints();
-		gbc_btnNewButton_3.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton_3.gridx = 2;
-		gbc_btnNewButton_3.gridy = 4;
-		contentPane.add(btnNewButton_3, gbc_btnNewButton_3);
+		contentPane.add(btnNewButton_3);
 		
-		JButton btnNewButton_4 = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c1left")))+">");
+		JButton btnNewButton_4 = new JButton("<"+KeyEvent.getKeyText(UserSettings.c1left)+">");
+		btnNewButton_4.setBounds(114, 132, 83, 23);
 		btnNewButton_4.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_4.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				prop.setProperty("c1left",e.getKeyCode()+"");
+				//prop.setProperty("c1left",e.getKeyCode()+"");
+				UserSettings.c1left = e.getKeyCode();
+
 			}
 		});
 		btnNewButton_4.addActionListener(new ActionListener() {
@@ -244,72 +202,55 @@ public class ControlUI extends JFrame {
 		});
 		
 		JLabel lblDown_1 = new JLabel("Down");
-		GridBagConstraints gbc_lblDown_1 = new GridBagConstraints();
-		gbc_lblDown_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblDown_1.gridx = 4;
-		gbc_lblDown_1.gridy = 4;
-		contentPane.add(lblDown_1, gbc_lblDown_1);
+		lblDown_1.setBounds(239, 108, 35, 14);
+		contentPane.add(lblDown_1);
 		
-		JButton btnNewButton_11 = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c2down")))+">");
+		JButton btnNewButton_11 = new JButton("<"+KeyEvent.getKeyText(UserSettings.c2down)+">");
+		btnNewButton_11.setBounds(301, 104, 83, 23);
 		btnNewButton_11.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_11.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				prop.setProperty("c2down",e.getKeyCode()+"");
+				//prop.setProperty("c2down",e.getKeyCode()+"");
+				UserSettings.c2up = e.getKeyCode();
 			}
 		});
-		GridBagConstraints gbc_btnNewButton_11 = new GridBagConstraints();
-		gbc_btnNewButton_11.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton_11.gridx = 5;
-		gbc_btnNewButton_11.gridy = 4;
-		contentPane.add(btnNewButton_11, gbc_btnNewButton_11);
+		contentPane.add(btnNewButton_11);
 		
 		JLabel lblLeft = new JLabel("Left");
-		GridBagConstraints gbc_lblLeft = new GridBagConstraints();
-		gbc_lblLeft.insets = new Insets(0, 0, 5, 5);
-		gbc_lblLeft.gridx = 1;
-		gbc_lblLeft.gridy = 5;
-		contentPane.add(lblLeft, gbc_lblLeft);
-		GridBagConstraints gbc_btnNewButton_4 = new GridBagConstraints();
-		gbc_btnNewButton_4.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton_4.gridx = 2;
-		gbc_btnNewButton_4.gridy = 5;
-		contentPane.add(btnNewButton_4, gbc_btnNewButton_4);
+		lblLeft.setBounds(45, 136, 42, 14);
+		contentPane.add(lblLeft);
+		contentPane.add(btnNewButton_4);
 		
-		JButton btnNewButton_12 = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c2left")))+">");
+		JButton btnNewButton_12 = new JButton("<"+KeyEvent.getKeyText(UserSettings.c2left)+">");
+		btnNewButton_12.setBounds(301, 132, 83, 23);
 		btnNewButton_12.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_12.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				prop.setProperty("c2left",e.getKeyCode()+"");
+				//prop.setProperty("c2left",e.getKeyCode()+"");
+				UserSettings.c2left = e.getKeyCode();
 			}
 		});
 		
 		JLabel lblLeft_1 = new JLabel("Left");
-		GridBagConstraints gbc_lblLeft_1 = new GridBagConstraints();
-		gbc_lblLeft_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblLeft_1.gridx = 4;
-		gbc_lblLeft_1.gridy = 5;
-		contentPane.add(lblLeft_1, gbc_lblLeft_1);
-		GridBagConstraints gbc_btnNewButton_12 = new GridBagConstraints();
-		gbc_btnNewButton_12.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton_12.gridx = 5;
-		gbc_btnNewButton_12.gridy = 5;
-		contentPane.add(btnNewButton_12, gbc_btnNewButton_12);
+		lblLeft_1.setBounds(243, 136, 31, 14);
+		contentPane.add(lblLeft_1);
+		contentPane.add(btnNewButton_12);
 		
 		JLabel lblRight = new JLabel("Right");
-		GridBagConstraints gbc_lblRight = new GridBagConstraints();
-		gbc_lblRight.insets = new Insets(0, 0, 5, 5);
-		gbc_lblRight.gridx = 1;
-		gbc_lblRight.gridy = 6;
-		contentPane.add(lblRight, gbc_lblRight);
+		lblRight.setBounds(45, 164, 42, 14);
+		contentPane.add(lblRight);
 		
-		JButton btnNewButton_5 = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c1right")))+">");
+		JButton btnNewButton_5 = new JButton("<"+KeyEvent.getKeyText(UserSettings.c1right)+">");
+		btnNewButton_5.setBounds(114, 160, 83, 23);
 		btnNewButton_5.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_5.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				prop.setProperty("c1right",e.getKeyCode()+"");
+				//prop.setProperty("c1right",e.getKeyCode()+"");
+				UserSettings.c1right = e.getKeyCode();
+
 			}
 		});
 		btnNewButton_5.addActionListener(new ActionListener() {
@@ -317,46 +258,38 @@ public class ControlUI extends JFrame {
 				awaitingkey=true;
 			}
 		});
-		GridBagConstraints gbc_btnNewButton_5 = new GridBagConstraints();
-		gbc_btnNewButton_5.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton_5.gridx = 2;
-		gbc_btnNewButton_5.gridy = 6;
-		contentPane.add(btnNewButton_5, gbc_btnNewButton_5);
+		contentPane.add(btnNewButton_5);
 		
 		JLabel lblRight_1 = new JLabel("Right");
-		GridBagConstraints gbc_lblRight_1 = new GridBagConstraints();
-		gbc_lblRight_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblRight_1.gridx = 4;
-		gbc_lblRight_1.gridy = 6;
-		contentPane.add(lblRight_1, gbc_lblRight_1);
+		lblRight_1.setBounds(240, 164, 34, 14);
+		contentPane.add(lblRight_1);
 		
-		JButton btnNewButton_13 = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c2right")))+">");
+		JButton btnNewButton_13 = new JButton("<"+KeyEvent.getKeyText(UserSettings.c2right)+">");
+		btnNewButton_13.setBounds(301, 160, 83, 23);
 		btnNewButton_13.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_13.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				prop.setProperty("c2right",e.getKeyCode()+"");
+				//prop.setProperty("c2right",e.getKeyCode()+"");
+				UserSettings.c2right = e.getKeyCode();
+
 			}
 		});
-		GridBagConstraints gbc_btnNewButton_13 = new GridBagConstraints();
-		gbc_btnNewButton_13.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton_13.gridx = 5;
-		gbc_btnNewButton_13.gridy = 6;
-		contentPane.add(btnNewButton_13, gbc_btnNewButton_13);
+		contentPane.add(btnNewButton_13);
 		
 		JLabel lblStart = new JLabel("Start");
-		GridBagConstraints gbc_lblStart = new GridBagConstraints();
-		gbc_lblStart.insets = new Insets(0, 0, 5, 5);
-		gbc_lblStart.gridx = 1;
-		gbc_lblStart.gridy = 7;
-		contentPane.add(lblStart, gbc_lblStart);
+		lblStart.setBounds(45, 192, 42, 14);
+		contentPane.add(lblStart);
 		
-		JButton btnNewButton_6 = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c1start")))+">");
+		JButton btnNewButton_6 = new JButton("<"+KeyEvent.getKeyText(UserSettings.c1start)+">");
+		btnNewButton_6.setBounds(114, 188, 83, 23);
 		btnNewButton_6.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_6.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				prop.setProperty("c1start",e.getKeyCode()+"");
+				//prop.setProperty("c1start",e.getKeyCode()+"");
+				UserSettings.c1start = e.getKeyCode();
+
 			}
 		});
 		btnNewButton_6.addActionListener(new ActionListener() {
@@ -364,46 +297,38 @@ public class ControlUI extends JFrame {
 				awaitingkey=true;
 			}
 		});
-		GridBagConstraints gbc_btnNewButton_6 = new GridBagConstraints();
-		gbc_btnNewButton_6.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton_6.gridx = 2;
-		gbc_btnNewButton_6.gridy = 7;
-		contentPane.add(btnNewButton_6, gbc_btnNewButton_6);
+		contentPane.add(btnNewButton_6);
 		
-		JButton btnNewButton_14 = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c2start")))+">");
+		JButton btnNewButton_14 = new JButton("<"+KeyEvent.getKeyText(UserSettings.c2start)+">");
+		btnNewButton_14.setBounds(301, 188, 83, 23);
 		btnNewButton_14.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_14.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				prop.setProperty("c2start",e.getKeyCode()+"");
+				//prop.setProperty("c2start",e.getKeyCode()+"");
+				UserSettings.c2start = e.getKeyCode();
+
 			}
 		});
 		
 		JLabel lblStart_1 = new JLabel("Start");
-		GridBagConstraints gbc_lblStart_1 = new GridBagConstraints();
-		gbc_lblStart_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblStart_1.gridx = 4;
-		gbc_lblStart_1.gridy = 7;
-		contentPane.add(lblStart_1, gbc_lblStart_1);
-		GridBagConstraints gbc_btnNewButton_14 = new GridBagConstraints();
-		gbc_btnNewButton_14.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton_14.gridx = 5;
-		gbc_btnNewButton_14.gridy = 7;
-		contentPane.add(btnNewButton_14, gbc_btnNewButton_14);
+		lblStart_1.setBounds(241, 192, 35, 14);
+		contentPane.add(lblStart_1);
+		contentPane.add(btnNewButton_14);
 		
 		JLabel lblSelect = new JLabel("Select");
-		GridBagConstraints gbc_lblSelect = new GridBagConstraints();
-		gbc_lblSelect.insets = new Insets(0, 0, 5, 5);
-		gbc_lblSelect.gridx = 1;
-		gbc_lblSelect.gridy = 8;
-		contentPane.add(lblSelect, gbc_lblSelect);
+		lblSelect.setBounds(45, 220, 42, 14);
+		contentPane.add(lblSelect);
 		
-		JButton btnNewButton_7 = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c1select")))+">");
+		JButton btnNewButton_7 = new JButton("<"+KeyEvent.getKeyText(UserSettings.c1select)+">");
+		btnNewButton_7.setBounds(114, 216, 83, 23);
 		btnNewButton_7.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_7.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				prop.setProperty("c1select",e.getKeyCode()+"");
+				//prop.setProperty("c1select",e.getKeyCode()+"");
+				UserSettings.c1select = e.getKeyCode();
+
 			}
 		});
 		btnNewButton_7.addActionListener(new ActionListener() {
@@ -411,32 +336,24 @@ public class ControlUI extends JFrame {
 				awaitingkey=true;
 			}
 		});
-		GridBagConstraints gbc_btnNewButton_7 = new GridBagConstraints();
-		gbc_btnNewButton_7.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton_7.gridx = 2;
-		gbc_btnNewButton_7.gridy = 8;
-		contentPane.add(btnNewButton_7, gbc_btnNewButton_7);
+		contentPane.add(btnNewButton_7);
 		
-		JButton btnNewButton_15 = new JButton("<"+KeyEvent.getKeyText(Integer.parseInt(prop.getProperty("c2select")))+">");
+		JButton btnNewButton_15 = new JButton("<"+KeyEvent.getKeyText(UserSettings.c2select)+">");
+		btnNewButton_15.setBounds(301, 216, 83, 23);
 		btnNewButton_15.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_15.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				prop.setProperty("c2select",e.getKeyCode()+"");
+				//prop.setProperty("c2select",e.getKeyCode()+"");
+				UserSettings.c2select = e.getKeyCode();
+
 			}
 		});
 		
 		JLabel lblSelect_1 = new JLabel("Select");
-		GridBagConstraints gbc_lblSelect_1 = new GridBagConstraints();
-		gbc_lblSelect_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblSelect_1.gridx = 4;
-		gbc_lblSelect_1.gridy = 8;
-		contentPane.add(lblSelect_1, gbc_lblSelect_1);
-		GridBagConstraints gbc_btnNewButton_15 = new GridBagConstraints();
-		gbc_btnNewButton_15.insets = new Insets(0, 0, 5, 5);
-		gbc_btnNewButton_15.gridx = 5;
-		gbc_btnNewButton_15.gridy = 8;
-		contentPane.add(btnNewButton_15, gbc_btnNewButton_15);
+		lblSelect_1.setBounds(238, 220, 36, 14);
+		contentPane.add(lblSelect_1);
+		contentPane.add(btnNewButton_15);
 		
 		/*JButton btnNewButton_16 = new JButton("Apply");
 		btnNewButton_16.addActionListener(new ActionListener() {

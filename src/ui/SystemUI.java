@@ -44,9 +44,9 @@ import com.NES;
 import video.NesDisplay;
 
 public class SystemUI {
-	public final String version = "0.1.3";
 	public NES nes;
 	final JFileChooser fc = new JFileChooser();
+	UserSettings settings;
 	public JFrame frame,debugframe,keyconfig;
 	File rom;
 	NesDisplay display;
@@ -64,8 +64,9 @@ public class SystemUI {
 	
 	public SystemUI(){
 		try {
-			loadProperties();
+			UserSettings.loadSettings();
 		} catch (IOException e1) {
+			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		frame = new MainUI(this);
@@ -91,15 +92,7 @@ public class SystemUI {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				try {
-					FileOutputStream output = new FileOutputStream("config.properties");
-					//URL resourceUrl = getClass().getResource("config.properties");
-					//File file = new File(resourceUrl.toURI().toString());
-					//OutputStream output = new FileOutputStream(file);
-					prop.store(output, null);
-				} catch (IOException e) {
-					e.printStackTrace();
-				} 
+				UserSettings.saveSettings();
 				System.exit(0);
 			}
 		});
@@ -157,7 +150,7 @@ public class SystemUI {
 		}
 		if(true){
 			testoutput+= "\n Blargg All CPU Instructions Test\n\n";
-			testrom(50000, new File(System.getProperty("user.dir")+"/tests/blarggcpu/all_inst.nes"),-1223976542);
+			testrom(50000, new File(System.getProperty("user.dir")+"/tests/blarggcpu/all_inst.nes"),1699384065);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
 		if(true){
@@ -167,12 +160,12 @@ public class SystemUI {
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/03.irq_flag.nes"),-897623842);
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/04.clock_jitter.nes"),-897623842);
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/05.len_timing_mode0.nes"),-897623842);
-			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/06.len_timing_mode1.nes"),0);
+			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/06.len_timing_mode1.nes"),-897623842);
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/07.irq_flag_timing.nes"),-897623842);
-			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/08.irq_timing.nes"),0);
+			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/08.irq_timing.nes"),-897623842);
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/09.reset_timing.nes"),-897623842);
-			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/10.len_halt_timing.nes"),0);
-			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/11.len_reload_timing.nes"),0);
+			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/10.len_halt_timing.nes"),-897623842);
+			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/11.len_reload_timing.nes"),-897623842);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
 		if(true){
@@ -184,7 +177,7 @@ public class SystemUI {
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/05-nmi_timing.nes"),347938255);
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/06-suppression.nes"),1343745688);
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/07-nmi_on_timing.nes"),0);
-			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/08-nmi_off_timing.nes"),0);
+			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/08-nmi_off_timing.nes"),834725570);
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/09-even_odd_frames.nes"),-276693205);
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/10-even_odd_timing.nes"),613825573);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
@@ -205,11 +198,11 @@ public class SystemUI {
 		}
 		if(true){
 			testoutput+="\n Sprite Overflow Tests\n\n";
-			testrom(5000, new File(System.getProperty("user.dir")+"/tests/sprite_overflow/01-basics.nes"),-1888758012);
-			testrom(5000, new File(System.getProperty("user.dir")+"/tests/sprite_overflow/02-details.nes"),-2046399234);
-			testrom(5000, new File(System.getProperty("user.dir")+"/tests/sprite_overflow/03-timing.nes"),0);
-			testrom(5000, new File(System.getProperty("user.dir")+"/tests/sprite_overflow/04-obscure.nes"),-421192188);
-			testrom(5000, new File(System.getProperty("user.dir")+"/tests/sprite_overflow/05-emulator.nes"),1084950203);
+			testrom(3000, new File(System.getProperty("user.dir")+"/tests/sprite_overflow/01-basics.nes"),-1888758012);
+			testrom(3000, new File(System.getProperty("user.dir")+"/tests/sprite_overflow/02-details.nes"),-2046399234);
+			testrom(3000, new File(System.getProperty("user.dir")+"/tests/sprite_overflow/03-timing.nes"),0);
+			testrom(3000, new File(System.getProperty("user.dir")+"/tests/sprite_overflow/04-obscure.nes"),-421192188);
+			testrom(3000, new File(System.getProperty("user.dir")+"/tests/sprite_overflow/05-emulator.nes"),1084950203);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
 		if(true){
@@ -224,14 +217,17 @@ public class SystemUI {
 			testoutput+="\n CPU Interrupts\n\n";
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/cpu_interrupts/1-cli_latency.nes"),-435377923);
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/cpu_interrupts/2-nmi_and_brk.nes"),1753420384);
-			testrom(3000, new File(System.getProperty("user.dir")+"/tests/cpu_interrupts/3-nmi_and_irq.nes"),0);
-			testrom(5000, new File(System.getProperty("user.dir")+"/tests/cpu_interrupts/4-irq_and_dma.nes"),0);
+			testrom(3000, new File(System.getProperty("user.dir")+"/tests/cpu_interrupts/3-nmi_and_irq.nes"),1109861111);
+			testrom(5000, new File(System.getProperty("user.dir")+"/tests/cpu_interrupts/4-irq_and_dma.nes"),628280272);
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/cpu_interrupts/5-branch_delays_irq.nes"),0);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
 		if(true){
 			testoutput+="\n Instruction timing\n\n";
 			testrom(23000, new File(System.getProperty("user.dir")+"/tests/1-instr_timing.nes"),-277403970);
+			testrom(3000, new File(System.getProperty("user.dir")+"/tests/1-Branch_Basics.nes"),114070097);
+			testrom(3000, new File(System.getProperty("user.dir")+"/tests/2.Backward_Branch.nes"),-764278785);
+			testrom(3000, new File(System.getProperty("user.dir")+"/tests/3.Forward_Branch.nes"),-1744413954);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
 		if(true){
@@ -252,7 +248,7 @@ public class SystemUI {
 		}
 		if(true){
 			testoutput+= "\n PPU ReadBuffer Mega test\n\n";
-			testrom(30000, new File(System.getProperty("user.dir")+"/tests/test_ppu_read_buffer.nes"),-762073439);
+			testrom(27000, new File(System.getProperty("user.dir")+"/tests/test_ppu_read_buffer.nes"),-762073439);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
 		if(true){
@@ -303,8 +299,8 @@ public class SystemUI {
 		btnNewButton_16.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(nes!=null){
-					nes.controller.updateKeys(prop);
-					nes.controller2.updateKeys(prop);
+					//nes.controller.updateKeys(prop);
+					//nes.controller2.updateKeys(prop);
 				}
 			}
 		});
@@ -314,37 +310,5 @@ public class SystemUI {
 		gbc_btnNewButton_16.gridy = 9;
 		keyconfig.getContentPane().add(btnNewButton_16, gbc_btnNewButton_16);
 	}
-	public void loadProperties() throws IOException{
-		prop = new Properties();
-		//InputStream input =this.getClass().getResourceAsStream("config.properties");
-		//prop.load(input);
-		File t = new File("config.properties");
-		if(!t.exists()){
-			prop.setProperty("version", version);
-			prop.setProperty("c1up", KeyEvent.VK_UP+"");
-			prop.setProperty("c1down", KeyEvent.VK_DOWN+"");
-			prop.setProperty("c1left", KeyEvent.VK_LEFT+"");
-			prop.setProperty("c1right", KeyEvent.VK_RIGHT+"");
-			prop.setProperty("c1a", KeyEvent.VK_A+"");
-			prop.setProperty("c1b", KeyEvent.VK_S+"");
-			prop.setProperty("c1start", KeyEvent.VK_Q+"");
-			prop.setProperty("c1select", KeyEvent.VK_W+"");
-			prop.setProperty("c2up", KeyEvent.VK_UP+"");
-			prop.setProperty("c2down", KeyEvent.VK_DOWN+"");
-			prop.setProperty("c2left", KeyEvent.VK_LEFT+"");
-			prop.setProperty("c2right", KeyEvent.VK_RIGHT+"");
-			prop.setProperty("c2a", KeyEvent.VK_A+"");
-			prop.setProperty("c2b", KeyEvent.VK_S+"");
-			prop.setProperty("c2start", KeyEvent.VK_Q+"");
-			prop.setProperty("c2select", KeyEvent.VK_W+"");
-		}
-		else{
-			FileInputStream input = new FileInputStream("config.properties");
-			prop.load(input);
-			if(!prop.getProperty("version").equals(version)||!prop.containsKey("version")){
-				t.delete();
-				loadProperties();
-			}
-		}
-	}
+	
 }

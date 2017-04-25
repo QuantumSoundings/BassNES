@@ -90,6 +90,15 @@ public class MainUI extends JFrame {
 		});
 		mnCpu.add(mntmStartCpu);
 		
+		JMenuItem mntmPauseCpu = new JMenuItem("Pause CPU");
+		mnCpu.add(mntmPauseCpu);
+		
+		JMenuItem mntmReset = new JMenuItem("Reset");
+		mnCpu.add(mntmReset);
+		
+		JMenuItem mntmHardReset = new JMenuItem("Reboot");
+		mnCpu.add(mntmHardReset);
+		
 		JMenu mnNewMenu = new JMenu("Audio");
 		menuBar.add(mnNewMenu);
 		
@@ -155,6 +164,9 @@ public class MainUI extends JFrame {
 		});
 		mnScaling.add(rdbtnmntmxScaling_3);
 		group.add(rdbtnmntmxScaling_3);
+		
+		JMenuItem mntmMoreSettings = new JMenuItem("More Settings");
+		mnGraphics.add(mntmMoreSettings);
 		JMenu mnControl = new JMenu("Control");
 		menuBar.add(mnControl);
 		

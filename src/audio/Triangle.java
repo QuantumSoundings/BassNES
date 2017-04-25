@@ -9,12 +9,14 @@ public class Triangle extends Channel {
 		wave = w;
 		
 	}
-	public void registerWrite(int index,byte b){
+	public void registerWrite(int index,byte b,int clock){
 		switch(index%4){
 		case 0: 
 			linearReload = b&0b01111111;
-			linearcontrol = (b&0x80)!=0?true:false;
-			
+			if(clock==14915)
+				delayedchange=(b&0x80)!=0?2:1;
+			else
+				linearcontrol = (b&0x80)!=0?true:false;
 			//System.out.println(Integer.toBinaryString(Byte.toUnsignedInt(b)));
 
 			break;
@@ -28,7 +30,14 @@ public class Triangle extends Channel {
 		case 3: 
 			int x = Byte.toUnsignedInt(b)>>3;
 			if(enable)
-				lengthcount = lengthlookup[x];
+				if(clock==14915){
+					if(lengthcount==0){
+						lengthcount = lengthlookup[x];
+						block=true;
+					}
+				}
+				else lengthcount = lengthlookup[x];
+			
 			timer&=0b11111111;
 			timer |= (b&0b111)<<8;
 			linearhalt = true;
@@ -41,7 +50,7 @@ public class Triangle extends Channel {
 	int length;
 	@Override
 	public void lengthClock(){
-		if(enable){
+		if(enable&&!block){
 			if(lengthcount!=0){
 				if(!linearcontrol)
 					lengthcount--;
@@ -49,6 +58,11 @@ public class Triangle extends Channel {
 				//	lengthcount--;
 			}
 		}
+		if(delayedchange!=0){
+			loop = delayedchange==2?true:false;
+			delayedchange=0;
+		}
+		block=false;
 	}
 	public double frequency(){
 		return 1789773/(32.0*(timer+1));

@@ -8,8 +8,10 @@ import java.util.Properties;
 
 import javax.swing.JFrame;
 
+import ui.UserSettings;
+
 public class Controller {
-	Keychecker keys;
+	Keycheckerc1 keys;
 	int controllerNum;
 	boolean strobe;
 	int output;
@@ -23,11 +25,11 @@ public class Controller {
 		keysPressed=0;
 		controllerNum=num;
 		nextKey = 0;
-		keys = new Keychecker();
-		updateKeys(prop);
+		keys = new Keycheckerc1();
+		//updateKeys(prop);
 		
 	}
-	public void updateKeys(Properties prop){
+	/*public void updateKeys(Properties prop){
 		if(controllerNum==1){
 			keys.akey = Integer.parseInt(prop.getProperty("c1a"));
 			keys.bkey = Integer.parseInt(prop.getProperty("c1b"));
@@ -49,7 +51,7 @@ public class Controller {
 			keys.rightkey = Integer.parseInt(prop.getProperty("c2right"));
 		}
 		
-	}
+	}*/
 	
 	public void setframe(JFrame f){
 		f.addKeyListener(keys);
@@ -82,7 +84,7 @@ public class Controller {
 	}
 	
 }
-class Keychecker implements KeyListener{
+class Keycheckerc1 implements KeyListener{
 	boolean a=false;
 	boolean b=false;
 	boolean up=false;
@@ -93,34 +95,33 @@ class Keychecker implements KeyListener{
 	boolean right=false;
 	boolean debug=false;
 	//controller bindings
-	int startkey=KeyEvent.VK_S;
-	int selectkey=KeyEvent.VK_D;
+	/*int startkey=UserSettings.c1start;
+	int selectkey=UserSettings.
 	int akey=KeyEvent.VK_A;
 	int bkey=KeyEvent.VK_Z;
 	int upkey=KeyEvent.VK_UP;
 	int downkey=KeyEvent.VK_DOWN;
 	int leftkey=KeyEvent.VK_LEFT;
-	int rightkey=KeyEvent.VK_RIGHT;
+	int rightkey=KeyEvent.VK_RIGHT;*/
 	int debugkey=KeyEvent.VK_P;
 	@Override
 	public void keyPressed(KeyEvent event){
-		//System.out.println("I pressed:"+event.getKeyChar());
 		int key = event.getKeyCode();
-		if(key ==upkey)
+		if(key ==UserSettings.c1up)
 			up = true;
-		else if(key == downkey)
+		else if(key == UserSettings.c1down)
 			down = true;
-		else if(key == leftkey)
+		else if(key == UserSettings.c1left)
 			left = true;
-		else if(key == rightkey)
+		else if(key == UserSettings.c1right)
 			right = true;
-		else if(key == akey)
+		else if(key == UserSettings.c1a)
 			a = true;
-		else if(key == bkey)
+		else if(key == UserSettings.c1b)
 			b = true;
-		else if(key == startkey)
+		else if(key == UserSettings.c1start)
 			start = true;
-		else if(key == selectkey)
+		else if(key == UserSettings.c1select)
 			select = true;
 		else if(key == debugkey)
 			debug = !debug;
@@ -128,34 +129,29 @@ class Keychecker implements KeyListener{
 	@Override
 	public void keyReleased(KeyEvent event){
 		int key = event.getKeyCode();
-		if(key ==upkey)
+		if(key ==UserSettings.c1up)
 			up = false;
-		else if(key == downkey)
+		else if(key == UserSettings.c1down)
 			down = false;
-		else if(key == leftkey)
+		else if(key == UserSettings.c1left)
 			left = false;
-		else if(key == rightkey)
+		else if(key == UserSettings.c1right)
 			right = false;
-		else if(key == akey)
+		else if(key == UserSettings.c1a)
 			a = false;
-		else if(key == bkey)
+		else if(key == UserSettings.c1b)
 			b = false;
-		else if(key == startkey)
+		else if(key == UserSettings.c1start)
 			start = false;
-		else if(key == selectkey)
+		else if(key == UserSettings.c1select)
 			select = false;
 		//else if(key == debugkey)
 		//	debug = !debug;
 	}
 	public boolean[] currentKeys(){
-		//System.out.println("Reading the controller register");
 		return new boolean[]{a,b,select,start,up,up?false:down,left,left?false:right};
 	}
 	@Override
 	public void keyTyped(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		//System.out.println("I PRESSED A KEY BOYS");
-		
-		
 	}
 }

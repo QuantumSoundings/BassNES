@@ -85,8 +85,8 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 				return cpu_mmr[0x14];
 			if(index ==0x4015){
 				//boolean t = cpu.doIRQ;
-				if(cpu.doIRQ>0)
-					cpu.doIRQ--;
+				//if(cpu.doIRQ>0)
+				//	cpu.doIRQ--;
 				return apu.readRegisters(index);
 			}
 			if(index ==0x4016||index==0x4017)

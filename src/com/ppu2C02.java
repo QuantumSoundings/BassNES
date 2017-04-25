@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import mappers.Mapper;
+import ui.UserSettings;
 import video.NTSC_Converter;
 import video.NesDisplay;
 import video.Renderer;
@@ -35,13 +36,14 @@ public class ppu2C02 {
 	
 	public int scanline;
 	public int pcycle;
-	
+	int cyclepart;
 	//Rendering related Variables
 	int shiftreg16a=0;
 	int shiftreg16b = 0;
 	int shiftreg8a = 0;
 	int shiftreg8b = 0;
-	int palettelatch = 0;
+	int palettelatchnew = 0;
+	int palettelatchold = 0;
 	int nametablebyte;//16bit
 	int atablebyte;//16bit
 	int ptablemap0;//8bit
@@ -65,6 +67,8 @@ public class ppu2C02 {
 	boolean PPUMASK_sb;//show background
 	boolean PPUMASK_ss;//show sprites
 	int PPUMASK_colorbits;//the three color emphasis bits; bit 1=red bit 2=green bit 3 = blue
+	int leftmask_b=0;
+	int leftmask_s=0;
 	//0x2002
 	byte PPUSTATUS;
 	int PPUSTATUS_lsb;//bottom 5 bits last written to a ppu register
@@ -136,7 +140,9 @@ public class ppu2C02 {
 			PPUMASK=Byte.toUnsignedInt(b);
 			PPUMASK_grey = (b&1)==0?false:true;
 			PPUMASK_bl = (b&2)==0?false:true;
+			leftmask_b = PPUMASK_bl?0:8;
 			PPUMASK_sl = (b&4)==0?false:true;
+			leftmask_s = PPUMASK_sl?0:8;
 			PPUMASK_sb = (b&8)==0?false:true;
 			//System.out.println("Setting background to "+PPUMASK_sb);
 			PPUMASK_ss = (b&16)==0?false:true;
@@ -309,8 +315,9 @@ public class ppu2C02 {
 	int test =0;
 	int tempx;
 	public void getBG(){
-		shiftreg8a |= (palettelatch>>1)&1;
-		shiftreg8b |= (palettelatch)&1;
+		//shiftreg8a |= (palettelatch>>1)&1;
+		//shiftreg8b |= (palettelatch)&1;
+		cyclepart++;
 		switch((pcycle-1)&7){
 		case 1:{//name table
 			nametablebyte = Byte.toUnsignedInt(map.ppuread(0x2000|(v&0x0fff)))<<4;
@@ -361,22 +368,27 @@ public class ppu2C02 {
 			}
 			else
 				incy();
-			shiftreg16a |= ptablemap1;			
-			shiftreg16b |= ptablemap0;
-			palettelatch = atablebyte;
+			shiftreg16a = (shiftreg16a<<8)|ptablemap1;			
+			shiftreg16b = (shiftreg16b<<8)|ptablemap0;
+			palettelatchold =palettelatchnew;
+			palettelatchnew = atablebyte;
+			//palettelatch = atablebyte;
+			cyclepart=0;
 			
 		};break;
 		default:break;
 		}
-		if(pcycle>=321&&pcycle<=336){
-			updateShiftRegisters();
-		}
+		//if(pcycle>=321&&pcycle<=336){
+		//	updateShiftRegisters();
+		//}
 		
 	}
 	boolean thiscycle= false;
 	boolean olda12;
 	boolean cura12;
 	public boolean doscanline;
+	long frametimestart;
+	int framecount;
 	long start = 0;
 	long stop = 0;
 	void render(){
@@ -400,10 +412,13 @@ public class ppu2C02 {
 			if(pcycle<=256&&pcycle>=1&&scanline>=0)
 				drawpixel();
 			if(scanline == -1){
-				if(pcycle==2){
+				if(pcycle==1){
+					PPUSTATUS_so=false;
+				}
+				else if(pcycle==2){
 					PPUSTATUS_vb = false;
 					PPUSTATUS_sz = false;
-					PPUSTATUS_so = false;
+					//PPUSTATUS_so = false;
 				}
 				else if(pcycle >=280 && pcycle<=304 && dorender()){
 					v = t;
@@ -417,6 +432,7 @@ public class ppu2C02 {
 			}
 		}
 		else if(scanline==241 && pcycle == 1){
+			
 			PPUSTATUS_vb = true;
 			map.cpu.doNMI= PPUCTRL_genNmi&&PPUSTATUS_vb;
 			renderer.buildFrame(pixels, maskpixels, 2);
@@ -430,7 +446,16 @@ public class ppu2C02 {
 				} catch ( InterruptedException e){
 					e.printStackTrace();
 				}
+			if(framecount==60){
+				framecount=0;
+				double x = 1000.0/(System.currentTimeMillis()-frametimestart);
+				System.out.println(60*x+" fps");
+				frametimestart=System.currentTimeMillis();
+			}
+			else
+				framecount++;
 				//System.out.println(stop+"ms");
+				//framecount++;
 			start = System.currentTimeMillis();
 			
 		}
@@ -456,14 +481,58 @@ public class ppu2C02 {
 			}
 		}	
 	}
-	void updateShiftRegisters(){
+	
+	/*void updateShiftRegisters(){
 		shiftreg16a<<=1;
 		shiftreg16b<<=1;
 		shiftreg8a<<=1;
 		shiftreg8b<<=1;	
-	}
+	}*/
 	int[] maskpixels;
 	void drawpixel(){
+		if(dorender()||(v&0x3f00)!=0x3f00){
+			maskpixels[pixelnum]= PPUMASK;
+			pixels[pixelnum++] = pixelColor();
+		}
+		else{
+			maskpixels[pixelnum]= PPUMASK;
+			pixels[pixelnum++] = Byte.toUnsignedInt(map.ppuread(v));
+		}
+		
+	}
+	int pixelColor(){
+		int backgroundcolor=0;
+		int cycle = pcycle;
+		int offset = 16-(fineX+cyclepart);
+		//int left = (!PPUMASK_bl)?8:0;
+		if(PPUMASK_sb&&leftmask_b<cycle){
+			int bit = (((shiftreg16a>>(offset-1))&2))|((shiftreg16b>>offset)&1);
+			//bit|=(shiftreg16b>>offset)&1;
+			if(UserSettings.RenderBackground&&bit!=0)
+				backgroundcolor =((offset<8?palettelatchnew:palettelatchold)<<2)|bit;			
+		}
+		if(PPUMASK_ss){
+			for(int i = 0;i<8;i++){
+				int off = 8-(cycle-spriteco[i]);
+				if(off>=0&&off<8){
+					int bit = (((spritebm[i]>>(off))&1)<<1)|((spritebm[i]>>(off+8))&1);
+					//bit|= (spritebm[i]>>(off+8))&1;
+					if(bit>0){
+						if(oldspritezero&&i==0&&(oldszhl==scanline)&&PPUMASK_sb&&backgroundcolor!=0&&leftmask_s<cycle&&cycle<256){
+							PPUSTATUS_sz = true;
+							oldspritezero=false;
+						}
+						if(UserSettings.RenderSprites&&(spritepriority[i]||backgroundcolor==0)){
+							return 0xff&map.ppuread(0x3f10+4*spritepalette[i]+bit);
+						}
+						break;
+					}
+				}
+			}
+		}
+		return 0xff&map.ppuread(0x3f00+backgroundcolor);
+	}
+	/*void drawpixelold(){
 		byte bgc = map.ppuread((v>=0x3f00&&v<=0x3fff&&!dorender())?v:0x3f00);
 		byte bgp =0;
 		int bx = 0;
@@ -494,7 +563,6 @@ public class ppu2C02 {
 							PPUSTATUS_sz = true;
 							oldspritezero=false;
 						}
-						
 						spp = spritepriority[i];
 						sx = x;
 						sp =map.ppuread(0x3f10+4*spritepalette[i]+x);
@@ -528,8 +596,8 @@ public class ppu2C02 {
 			pixels[pixelnum++] = Byte.toUnsignedInt(bgp);
 		}			
 		
-	}
-	void shiftSprites(){
+	}*/
+	/*void shiftSprites(){
 		for(int i = 0;i<8;i++){
 			if(spriteco[i]==0){
 				spritebm[i]&=0b0111111101111111;
@@ -539,7 +607,7 @@ public class ppu2C02 {
 				spriteco[i]--;
 			}
 		}
-	}
+	}*/
 	private int inrange(int y){
 		if((scanline)-(y)>=0)
 			return scanline-(y);

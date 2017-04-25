@@ -14,10 +14,13 @@ public class Noise extends Channel{
 	int shiftreg;
 	int[] noiselookup= new int[]{
 			4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068};
-	public void registerWrite(int index,byte b){
+	public void registerWrite(int index,byte b,int clock){
 		switch(index%4){
 		case 0: 
-			loop = (b&32)==0?false:true;
+			if(clock ==14195)
+				delayedchange=(b&16)!=0?2:1;
+			else
+				loop = (b&32)==0?false:true;
 			constantvolume = (b&16)==0?false:true;
 			volume = b&0xf;
 			break;
@@ -31,10 +34,19 @@ public class Noise extends Channel{
 			shiftreg=1;
 			break;
 		case 3: 
-			if(enable){
-				lengthcount = (b&0b11111000)>>>3;
-				lengthcount = lengthlookup[lengthcount];
-			}
+			if(enable)
+					if(clock==14915){
+						if(lengthcount==0){
+							lengthcount = (b&0b11111000)>>>3;
+							lengthcount = lengthlookup[lengthcount];
+							block=true;
+						}
+					}
+					else{
+						lengthcount = (b&0b11111000)>>>3;
+						lengthcount = lengthlookup[lengthcount];
+					}
+			
 			break;
 		default: break;
 		}		
