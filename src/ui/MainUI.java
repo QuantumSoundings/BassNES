@@ -107,16 +107,24 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(sys.nes.doaudio){
 					sys.nes.doaudio = false;
-					sys.nes.apu.synth.stop();
+					//sys.nes.apu.synth.stop();
 				}
 				else {
 					sys.nes.doaudio=true;
-					sys.nes.apu.synth.start();
+					//sys.nes.apu.synth.start();
 				}
 			}
 		});
 		chckbxmntmEnableAudio.setSelected(true);
 		mnNewMenu.add(chckbxmntmEnableAudio);
+		
+		JMenuItem mntmAudioMixer = new JMenuItem("Audio Mixer");
+		mntmAudioMixer.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				sys.mixer.setVisible(true);
+			}
+		});
+		mnNewMenu.add(mntmAudioMixer);
 		
 		JMenu mnGraphics = new JMenu("Graphics");
 		menuBar.add(mnGraphics);

@@ -1,10 +1,8 @@
 package audio;
 
-import com.jsyn.unitgen.UnitGenerator;
 
 public class Channel {
 	public boolean enable;
-	UnitGenerator wave;
 	int tcount;
 	int timer;
 	//Sweep Variables
@@ -39,8 +37,10 @@ public class Channel {
 	int delayedchange;
 	boolean block;
 	
-	public Channel(UnitGenerator gen){
-		wave = gen;
+	//Output Variables
+	int collectedsamples;
+	public int total;
+	public Channel(){
 	}
 	public void write(int i){
 		
@@ -68,12 +68,13 @@ public class Channel {
 	}
 	public void disable(){
 		enable=false;
-		wave.setEnabled(false);
 		lengthcount=0;
 	}
 	public void enable(){
 		enable = true;
-		wave.setEnabled(true);
+	}
+	public int getOutput(){
+		return 0;
 	}
 	public void envelopeClock(){
 		if(enable){
@@ -135,5 +136,8 @@ public class Channel {
 			if(!linearcontrol)
 				linearhalt=false;
 			}
+	}
+	public void buildOutput(){
+		total+=getOutput();
 	}
 }

@@ -2,24 +2,16 @@ package com;
 import audio.*;
 import mappers.Mapper;
 
-import com.jsyn.*;
-import com.jsyn.unitgen.LineOut;
-import com.jsyn.unitgen.LinearRamp;
-import com.jsyn.unitgen.PulseOscillator;
-import com.jsyn.unitgen.TriangleOscillator;
-import com.jsyn.unitgen.WhiteNoise;
-
-
 
 public class APU {
-	public Synthesizer synth;
-	LineOut lineout;
-	LinearRamp lag;
-	Triangle triangle = new Triangle(new TriangleOscillator());
-	Pulse pulse1 = new Pulse(new PulseOscillator(),true);
-	Pulse pulse2 = new Pulse( new PulseOscillator(),false);
-	Noise noise = new Noise(new WhiteNoise());
+	Triangle triangle = new Triangle();
+	Pulse pulse1 = new Pulse(true);
+	Pulse pulse2 = new Pulse(false);
+	Noise noise = new Noise();
 	DMC dmc;
+	public AudioInterface audio;
+	public AudioMixer mix;
+	
 	Mapper map;
 	byte status;
 	boolean stepmode4=true;
@@ -33,34 +25,17 @@ public class APU {
 	public int delay=-1;
 	public int framecounter;
 	
+	int sampleNum;
 	int cpucounter;
 	
 	
 	public APU(Mapper m){
+		
 		map = m;
-		synth = JSyn.createSynthesizer();
-		addGenerators();
-		//synth.add(lag = new LinearRamp());
-		dmc =new DMC(new PulseOscillator(),map);
-		synth.add(lineout=new LineOut());
-		pulse1.wave.output.connect(0,lineout.input,0);
-		pulse1.wave.output.connect(0,lineout.input,1);
-		pulse2.wave.output.connect(0,lineout.input,0);
-		pulse2.wave.output.connect(0,lineout.input,1);
-		triangle.wave.output.connect(0,lineout.input,0);
-		triangle.wave.output.connect(0,lineout.input,1);
-		noise.wave.output.connect(0,lineout.input,0);
-		noise.wave.output.connect(0,lineout.input,1);
-		//lag.output.connect(pulse1.wave.amplitude);
-		synth.start();
-		lineout.start();
+		sampleNum=0;
+		dmc =new DMC(map);
+		mix = new AudioMixer(pulse1,pulse2,triangle,noise,dmc);
 		cpucounter = 10;
-	}
-	void addGenerators(){
-		synth.add(triangle.wave);
-		synth.add(pulse1.wave);
-		synth.add(pulse2.wave);
-		synth.add(noise.wave);
 	}
 	public void writeRegister(int index,byte b){
 		if(index>=0x4000&&index<0x4004){
@@ -140,12 +115,7 @@ public class APU {
 		}
 		return 0;
 	}
-	public void update(){
-		pulse1.updateWave();
-		pulse2.updateWave();
-		triangle.updateWave();
-		noise.updateWave();
-	}
+
 	public void frameClock(){
 		if(stepmode4){
 			if(stepNumber%4==1||stepNumber%4==3){
@@ -187,7 +157,7 @@ public class APU {
 			}
 			else{}
 		}
-		update();
+		//update();
 	}
 	void setIRQ(){
 		if(!irqInhibit){
@@ -205,7 +175,10 @@ public class APU {
 			cpucounter=0;
 			delay =-1;
 		}
+		triangle.clockTimer();
 		if(cycle%2==0){
+			pulse1.clockTimer();
+			pulse2.clockTimer();
 			noise.clockTimer();	
 			dmc.clock();
 			evenclock = true;
@@ -243,7 +216,7 @@ public class APU {
 			}
 		}
 		cpucounter++;
-		
+		mix.sample();
 		
 	}
 

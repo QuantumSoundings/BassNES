@@ -122,7 +122,8 @@ public class NES implements Runnable {
 			}
 			
 		}
-		apu.synth.stop();
+		apu.mix.audio.close();
+		//apu.synth.stop();
 		if(batteryExists)
 			try {
 				saveGame();
@@ -156,7 +157,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//rom = new File(System.getProperty("user.dir")+"/tests/blarggapu/06.len_timing_mode1.nes");
+		rom = new File(System.getProperty("user.dir")+"/smb3.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

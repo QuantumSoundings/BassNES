@@ -1,11 +1,9 @@
 package audio;
 
-import com.jsyn.unitgen.PulseOscillator;
 
 public class Pulse extends Channel {
 	int dutynumber=7;
 	boolean p1;
-	public PulseOscillator wave;
 	int duty;
 	boolean[] duty0 = new boolean[]{false,true,false,false,false,false,false,false};
 	boolean[] duty1 = new boolean[]{false,true,true,false,false,false,false,false};
@@ -13,12 +11,10 @@ public class Pulse extends Channel {
 	boolean[] duty3 = new boolean[]{true,false,false,true,true,true,true,true};
 	boolean output;
 	boolean halt=false;
-	public Pulse(PulseOscillator gen,boolean number) {
-		super(gen);
+	public Pulse(boolean number){
+		super();
 		p1=number;
-		wave = gen;
 		duty = 0;
-		wave.amplitude.set(.5);
 	}
 	@Override
 	public void clockTimer(){
@@ -29,7 +25,6 @@ public class Pulse extends Channel {
 			else
 				dutynumber++;
 		}
-			//dutynumber=dutynumber==8?0:dutynumber++;
 		switch(duty){
 		case 0: output = duty0[dutynumber];break;
 		case 1: output = duty1[dutynumber];break;
@@ -38,9 +33,7 @@ public class Pulse extends Channel {
 		}
 	}
 	
-	//double[] dutylook = new double[]{10.0,5.0,0.0,5.0};
 	public void registerWrite(int index,byte b,int clock){
-		//System.out.println("Writing to pulse1 index: "+Integer.toHexString(index)+" byte:"+Integer.toBinaryString(Byte.toUnsignedInt(b)));
 		switch(index%4){
 		case 0: 
 			duty = Byte.toUnsignedInt(b)>>>6;
@@ -52,9 +45,7 @@ public class Pulse extends Channel {
 			constantvolume=(b&0b10000)!=0?true:false;
 			volume=b&0xf;
 			estart = true;
-			//wave.width.set(dutylook[duty]/100);
-			//System.out.println("Loop"+loop+" Volume:"+volume+" constV:"+constantvolume);
-		break;
+			break;
 		case 1: 
 			dosweep = (b&0x80)!=0?true:false;
 			if(!dosweep)
@@ -69,7 +60,6 @@ public class Pulse extends Channel {
 			timer &=0xff00;
 			timer |=(b&0xff);
 			targetperiod = timer;
-			//System.out.println("Timer update:"+timer);
 			break;
 		case 3: 
 			int x = Byte.toUnsignedInt(b)>>3;
@@ -81,25 +71,16 @@ public class Pulse extends Channel {
 					}
 				}
 				else 
-					lengthcount = lengthlookup[x];
-					
-				
-			
+					lengthcount = lengthlookup[x];	
 			timer&=0b11111111;
 			timer |= (b&0b111)<<8;
 			targetperiod = timer;
 		}
-		//System.out.println("Writing to pulse channel");
 		
 	}
 	public void sweepClock(){
 		if(enable){
 			if(dosweep){
-				//System.out.println("doing a sweep tp:"+targetperiod+" dividerp: "+dividerperiod
-				//		+" Divider: "+sdivider
-				//		+" timer: "+timer
-				//		+" shift: "+shift
-				//		+" negate: "+negate);
 				if(sweepreload){
 					sdivider = dividerperiod+1;
 					if(sdivider ==0)
@@ -119,35 +100,15 @@ public class Pulse extends Channel {
 							targetperiod = targetperiod - change;
 					}
 					else
-						targetperiod= targetperiod + change;
-					//sdivider--;
-					updateWave();
+						targetperiod = targetperiod + change;
 				}
-				//timer = targetperiod&0b111111111111;
+				timer = targetperiod&0b111111111111;
 			}
 		}
 	}
-	public double frequency(){
-			if(targetperiod<1)
-				targetperiod = 0; 
-			return 1789773/(16*((targetperiod)+1));
-	}
-	public void updateWave(){
-		//wave.start();
-		//System.out.println("Updating wave with frequency: "+frequency()
-		//+" Length: "+lengthcount
-		//+" volume: "+decay
-		//+" cVolume?: "+constantvolume
-		//+" targetperiod: "+targetperiod
-		//+" timer: "+timer);
-		if((lengthcount==0&&!loop)||decay==0||targetperiod<8)
-			wave.amplitude.set(0);
-		else{
-			wave.amplitude.set(decay/30.0);
-		}
-		//System.out.println(frequency());
-		wave.frequency.set(frequency());
-		
-		
+	public int getOutput(){
+		if(lengthcount==0||!output||decay==0||timer<8)
+			return 0;
+		return decay;
 	}
 }

@@ -439,6 +439,7 @@ public class ppu2C02 {
 			pixelnum = 0;
 			stop = System.currentTimeMillis()-start;
 			display.sendFrame(renderer.frame);
+			//map.apu.mix.audio.flushFrame();
 			if(stop<16)
 				try {
 					while(System.currentTimeMillis()-start<16)

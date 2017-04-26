@@ -47,7 +47,7 @@ public class SystemUI {
 	public NES nes;
 	final JFileChooser fc = new JFileChooser();
 	UserSettings settings;
-	public JFrame frame,debugframe,keyconfig;
+	public JFrame frame,debugframe,keyconfig,mixer;
 	File rom;
 	NesDisplay display;
 	JPanel panel;
@@ -72,6 +72,7 @@ public class SystemUI {
 		frame = new MainUI(this);
 		//debugframe = new DebugUI();
 		keyconfig = new ControlUI(prop,this);
+		mixer = new AudioMixerUI(this);
 		addapply();
 		rom = new File("zelda.nes"); 
 		display = new NesDisplay();
@@ -100,12 +101,12 @@ public class SystemUI {
 		frame.setBounds(100, 100, 256+10, 240+60);
 		frame.setVisible(true);
 		//debugWindow();
-		try {
+		/*try {
 			runTests();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 	}
 	public void start(){
 		

@@ -18,6 +18,12 @@ public class UserSettings {
 	
 	//Audio Settings
 	public static boolean AudioEnabled;
+	public static int masterMixLevel=100;
+	public static int pulse1MixLevel=0;
+	public static int pulse2MixLevel=100;
+	public static int triangleMixLevel=20;
+	public static int noiseMixLevel=100;
+	public static int dmcMixLevel=100;
 	
 	//Controller Bindings
 	public static int c1a;
