@@ -94,10 +94,10 @@ public class NES implements Runnable {
 						skip = false;	
 					}
 			}
-			if(controller.checkDebug()){//&&(cpu.nmiInterrupt||cpu.program_counter==0x9357||cpu.program_counter==0x9351)){//||ppu.scanline>239){//&&controller.checkDebug()){//cpu.program_counter==0xe018){//&&ppu.scanline>234){
-				skip = false;
-			}
-			*/
+			//if(cpu.program_counter==0xe363){//&&(cpu.nmiInterrupt||cpu.program_counter==0x9357||cpu.program_counter==0x9351)){//||ppu.scanline>239){//&&controller.checkDebug()){//cpu.program_counter==0xe018){//&&ppu.scanline>234){
+			//	skip = false;
+			//}*/
+			
 				cpu.run_cycle();
 				apu.doCycle();
 				ppu.doCycle();
@@ -139,7 +139,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//rom = new File(System.getProperty("user.dir")+"/smb.nes");
+		//rom = new File(System.getProperty("user.dir")+"/smb3.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

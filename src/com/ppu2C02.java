@@ -162,8 +162,14 @@ public class ppu2C02 {
 		case 0x2004:
 			//OAMDATA = Byte.toUnsignedInt(b);
 			//System.out.println("Writing :"+b+" at: "+Byte.toUnsignedInt(OAMADDR));
-			map.ppuwriteoam(Byte.toUnsignedInt(OAMADDR), b);
-			OAMADDR++;
+			if(scanline>=240||(!dorender())){
+				if((OAMADDR&0x03)==0x02)
+					b&=0xe3;
+				map.ppuwriteoam(Byte.toUnsignedInt(OAMADDR), b);
+				OAMADDR++;
+			}
+			else
+				OAMADDR+=4;
 			//OAMADDR%=256;
 			break;
 		case 0x2005:
@@ -366,10 +372,15 @@ public class ppu2C02 {
 	int framecount;
 	long start = 0;
 	long stop = 0;
+	boolean spriteoverdelay;
 	public void doCycle(){
 		if(delayset){// FIXME    //Sprite zero flag set 1 cycle too early
 			delayset=false;
 			PPUSTATUS_sz=true;
+		}
+		else if(spriteoverdelay){
+			spriteoverdelay=false;
+			PPUSTATUS_so=true;
 		}
 		if(pcycle>339){
 			if(scanline==260){
@@ -404,7 +415,7 @@ public class ppu2C02 {
 				getBG();
 			if(scanline>=0){
 				drawpixel();
-				//if((cycle&1)==0)
+				if((cycle&1)==0)
 					spriteEvaluationNew();
 			}
 			else if(pcycle==1){
@@ -477,11 +488,11 @@ public class ppu2C02 {
 	int[] maskpixels;
 	void drawpixel(){
 		if(dorender()||(v&0x3f00)!=0x3f00){
-			//maskpixels[pixelnum]= PPUMASK;
+			maskpixels[pixelnum]= PPUMASK;
 			pixels[pixelnum++] = pixelColor();
 		}
 		else{
-			//maskpixels[pixelnum]= PPUMASK;
+			maskpixels[pixelnum]= PPUMASK;
 			pixels[pixelnum++] = Byte.toUnsignedInt(map.ppuread(v));
 		}
 		
@@ -507,11 +518,7 @@ public class ppu2C02 {
 						bit = (((spritebm[i]>>(7-off))&1)<<1)|((spritebm[i]>>((7-off)+8))&1);
 					if(bit!=0){
 						if(oldspritezero&&!PPUSTATUS_sz&&i==0&&PPUMASK_sb&&backgroundcolor!=0&&leftmask_s<cycle&&cycle<256){
-							//if(leftmask_s<cycle)
-							System.out.println("SZ HIT: pcycle: "+pcycle+" xcord: "+spriteco[i]+" scanline: "+scanline+" mask? "+leftmask_s+" backmask? "+leftmask_b);
-							//PPUSTATUS_sz = true;
 							delayset=true;
-							//oldspritezero=false;
 						}
 						if(UserSettings.RenderSprites&&(spritepriority[i]||backgroundcolor==0)){
 							return 0xff&map.ppu_palette[0x10+4*spritepalette[i]+bit];
@@ -561,6 +568,7 @@ public class ppu2C02 {
 			m=0;
 			n=0;
 			oamBCounter=0;
+			spritec=0;
 			}
 			return;
 		}
@@ -610,8 +618,11 @@ public class ppu2C02 {
 			case 6://stage 3
 				y = Byte.toUnsignedInt(map.ppureadoam((4*n+m)));
 				if((PPUCTRL_ss?inrange(y)<16:inrange(y)<8)){//&&y<scanline){
-					if((PPUMASK_ss||PPUMASK_sb)&&y<240)
-						PPUSTATUS_so = true;
+					if((PPUMASK_ss||PPUMASK_sb)&&y<240){
+						spriteoverdelay=true;
+						//PPUSTATUS_so = true;
+						//System.out.println("OVERFLOW: pcycle: "+pcycle+" scanline: "+scanline);
+					}
 					if(m==3){
 						n++;
 						m=0;
@@ -627,10 +638,7 @@ public class ppu2C02 {
 					}
 					else{
 						n++;
-						if(m==3)
-							m=0;
-						else
-							m++;
+						m= (m+1)&3;
 					}
 				}
 				return;
@@ -671,6 +679,7 @@ public class ppu2C02 {
 				y%=8;
 				tileindex+=y;
 			}
+			if(tileindex<0)tileindex*=-1;
 			spritehorizontal[spritec]=(attributes&0x40)!=0;
 			spritebm[spritec] = (Byte.toUnsignedInt((map.ppuread(tileindex)))<<8)|Byte.toUnsignedInt((map.ppuread(tileindex+8)));
 			numsprites++;

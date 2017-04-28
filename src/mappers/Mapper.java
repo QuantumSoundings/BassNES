@@ -35,6 +35,7 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 	public Controller control2;
 	
 	public boolean olda12;
+	public byte openbus;
 	
 	public Mapper(){
 		ppu_palette[0]=0xf;		
@@ -62,13 +63,17 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 			ppuregisterhandler((index%8)+0x2000,b,true);
 		else if(index>=0x4000 && index<=0x4017){
 			if(index==0x4014){
-				cpu_mmr[0x14]=b;
+				 cpu_mmr[0x14]=b;
+				 cpu.dxx=Byte.toUnsignedInt(b)<<8;
 				cpu.writeDMA=true;
 			}
 			else if(index==0x4016)
 				controllerWrite(index,b);
-			else
+			else if(index>=0x4000&&index<=0x4013)
 				apu.writeRegister(index, b);
+			else if(index==0x4015||index==0x4017)
+				apu.writeRegister(index, b);
+			openbus=b;
 		}
 		else
 			cartridgeWrite(index,b);
@@ -83,18 +88,16 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 			return cpu_ram[index%0x800];
 		else if(index>=0x2000 && index<0x4000)
 			return ppuregisterhandler((index%8)+0x2000,(byte)0,false);
-		else if(index>=0x4000 && index<=0x4017){
-			if(index ==0x4014)
-				return cpu_mmr[0x14];
+		else if(index>=0x4000 && index<=0x40ff){
+			//if(index ==0x4014)
+			//	return cpu_mmr[0x14];
 			if(index ==0x4015){
-				//boolean t = cpu.doIRQ;
-				//if(cpu.doIRQ>0)
-				//	cpu.doIRQ--;
 				return apu.readRegisters(index);
 			}
 			if(index ==0x4016||index==0x4017)
-				return controllerRead(index);
-			return cpu_mmr[index%0x4000];
+				return (byte) ((openbus&0b11100000)|controllerRead(index));
+			
+			return openbus;
 		}
 		else
 			return cartridgeRead(index);

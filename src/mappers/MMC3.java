@@ -263,13 +263,19 @@ public class MMC3 extends Mapper {
 	}
 	boolean cura12;
 	public boolean olda12;
+	int countdown;
 	//@Override
 	public void check(int x){
 		
 		cura12 = (x&0x1000)!=0;
 		if(cura12&&(!olda12)){
-			scanlinecounter();
+			if(countdown<=0)
+				scanlinecounter();
+			}
+		else if(!cura12&&olda12){
+			countdown=8;
 		}
+		countdown--;
 		olda12 = cura12;
 	}
 	boolean x;
@@ -282,8 +288,10 @@ public class MMC3 extends Mapper {
 			scanlinecount = irqreload;
 		}
 		if(scanlinecount==0&&irqenable){
-			if(!doingIRQ)
+			if(!doingIRQ){
+				//System.out.println("Generating IRQ at scanline: "+ppu.scanline+" pcycle: "+ppu.pcycle+" iflag: "+cpu.IFlag );
 				cpu.doIRQ++;
+			}
 			doingIRQ=true;
 			if(control.checkDebug())
 				System.out.println("Generating IRQ at scanline: "+ppu.scanline+" pcycle: "+ppu.pcycle+" iflag: "+cpu.IFlag );

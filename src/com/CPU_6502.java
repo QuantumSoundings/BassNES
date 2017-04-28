@@ -77,7 +77,7 @@ public class CPU_6502 {
 	}
 	int dmac=0;
 	int dmain = 0;
-	int dxx = 0;
+	public int dxx = 0;
 	int cpuinc=0;
 	void run_cycle(){
 		if(writeDMA){
@@ -89,7 +89,7 @@ public class CPU_6502 {
 			}
 			else if(dmac==0){
 				dmac++;
-				dxx = map.cpureadu(0x4014)<<8;
+				//dxx = map.cpureadu(0x4014)<<8;
 				//dxx<<=8;
 				dmain = map.ppu.OAMADDR;
 			}
@@ -194,10 +194,6 @@ public class CPU_6502 {
 	boolean oldirq = false;
 	boolean nmi=false;
 	private void executeInstruction(){
-		//if(doNMI&&!oldnmi){
-		//	nmi=true;
-		//}
-		//oldnmi=doNMI;
 		if(instruction_cycle ==1){
 			if(doOp){
 				executeOp();
@@ -205,6 +201,7 @@ public class CPU_6502 {
 			}
 			current_instruction = getNextInstruction();
 			program_counter++;
+			map.cpuread(program_counter);
 		}
 		switch(Byte.toUnsignedInt(current_instruction)){
 		case 0x00:brk();break;
@@ -1109,12 +1106,13 @@ public class CPU_6502 {
 			instruction_cycle++;break;
 		case 3:
 			address = address | (map.cpureadu(program_counter)<<8);
+			lowpc = address&0xff00;
 			address+= Byte.toUnsignedInt(y_index_register);
 			program_counter++;
 			instruction_cycle++;break;
 		case 4:
 			address&=0xffff;
-			tempregister=map.cpuread(program_counter);
+			tempregister=map.cpuread((address&0xff)|lowpc);
 			instruction_cycle++;break;
 		case 5:
 			tempregister = map.cpuread(address);
@@ -1295,7 +1293,7 @@ public class CPU_6502 {
 		case 5: {
 			if(address>0xffff)
 				address&=0xffff;
-			tempregister= map.cpuread(address);
+			tempregister= map.cpuread((address&0xff)|lowpc);
 			instruction_cycle++;break;
 		}
 		case 6: {
@@ -1358,14 +1356,14 @@ public class CPU_6502 {
 			tempregister = map.cpuread(program_counter);
 			program_counter++;
 			//pollInterrupts();
-			//executeOp();
-			//if(branchtaken)			
+			executeOp();
+			if(branchtaken)			
 				instruction_cycle++;
-			//else
-			//	instruction_cycle=1;
+			else
+				instruction_cycle=1;
 			break;
 		case 3:
-			executeOp();
+			/*executeOp();
 			if(branchtaken){
 				instruction_cycle++;
 			}
@@ -1375,19 +1373,18 @@ public class CPU_6502 {
 				program_counter++;
 				instruction_cycle=2;
 			}
-			break;
-			/*if((program_counter&0xff00)==((program_counter+tempregister)&0xff00)){
+			break;*/
+			if((program_counter&0xff00)==((program_counter+tempregister)&0xff00)){
 				program_counter+=tempregister;program_counter&=0xffff;
-				if(irqInterrupt)
-					irqInterrupt=false;
 				instruction_cycle=1;break;
 			}
 			else{
 				pollInterrupts();
 				program_counter+=tempregister;program_counter&=0xffff;
 				instruction_cycle++;break;
-			}*/
+			}
 		case 4:
+			instruction_cycle=1;break;/*
 			lowpc = program_counter&0xff00;
 			program_counter+=tempregister;
 			if((program_counter&0xff00)!=lowpc){
@@ -1400,7 +1397,7 @@ public class CPU_6502 {
 				program_counter++;
 				instruction_cycle=2;
 			}
-			break;
+			break;*/
 		//case 5:
 		//	current_instruction = map.cpuread(program_counter);
 		//	program_counter++;
@@ -1625,8 +1622,7 @@ public class CPU_6502 {
 	void irq(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
-		case 2:
-			instruction_cycle++;
+		case 2: instruction_cycle++;break;
 		case 3:
 			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter>>8));
 			stack_pointer--;
@@ -1635,16 +1631,21 @@ public class CPU_6502 {
 			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, (byte)(program_counter&0xff));
 			stack_pointer--;
 			instruction_cycle++;
-			
+			//pollInterrupts();
+			if(doNMI&&!oldnmi){
+				nmihijack=true;
+				nmiInterrupt=false;
+				irqInterrupt=false;
+			}
 			break;
 		case 5:
 			BFlag=false;
 			map.cpuwrite(Byte.toUnsignedInt(stack_pointer)+0x100, buildFlags());
 			//pollInterrupts();
-			if(doNMI&&!oldnmi){
+			if(nmihijack){
 				current_instruction=0x02;
+				nmihijack=false;
 				nmiInterrupt=false;
-				irqInterrupt=false;
 			}
 			stack_pointer--;
 			instruction_cycle++;break;
@@ -1690,7 +1691,7 @@ public class CPU_6502 {
 	}
 	void jmp_a(){
 		switch(instruction_cycle){
-		case 1: instruction_cycle++;break;
+		case 1:instruction_cycle++;break;
 		case 2:
 			address = map.cpureadu(program_counter);
 			program_counter++;
@@ -1703,6 +1704,8 @@ public class CPU_6502 {
 			//pollInterrupts();
 			instruction_cycle=1;
 			break;
+		//case 4:
+		//	instruction_cycle=1;break;
 		}
 	}
 	void jsr(){
@@ -1782,8 +1785,10 @@ public class CPU_6502 {
 	}
 	void nop(){
 		switch(instruction_cycle){
-		case 1: pollInterrupts();instruction_cycle++;break;
+		case 1: pollInterrupts();
+			instruction_cycle++;break;
 		case 2:instruction_cycle=1;break;
+		//case 3:instruction_cycle=1;break;
 		}
 	}
 	void skb(){
@@ -1996,6 +2001,7 @@ public class CPU_6502 {
 			lowpc = address&0xff00;
 			address+=Byte.toUnsignedInt(y_index_register);
 			address = (address&0xff)|lowpc;
+			map.cpuread((address&0xff)|lowpc);
 			map.cpuwrite(address&0xffff,(byte)t);
 			instruction_cycle=1;
 			break;	
@@ -2024,6 +2030,7 @@ public class CPU_6502 {
 			lowpc = address&0xff00;
 			address+=Byte.toUnsignedInt(x_index_register);
 			address = (address&0xff)|lowpc;
+			map.cpuread((address&0xff)|lowpc);
 			map.cpuwrite(address&0xffff,(byte)t);
 			instruction_cycle=1;
 			break;		
