@@ -27,6 +27,7 @@ public class APU {
 	
 	int sampleNum;
 	int cpucounter;
+	public long cyclenum;
 	
 	
 	public APU(Mapper m){
@@ -167,7 +168,7 @@ public class APU {
 			}
 		}
 	}
-	public void doCycle(int cycle){
+	public void doCycle(){
 		if(delay>0){
 			delay--;
 		}
@@ -176,12 +177,13 @@ public class APU {
 			delay =-1;
 		}
 		triangle.clockTimer();
-		if(cycle%2==0){
+		if(!evenclock){
 			pulse1.clockTimer();
 			pulse2.clockTimer();
 			noise.clockTimer();	
 			dmc.clock();
 			evenclock = true;
+			cyclenum++;
 		}
 		else
 			evenclock = false;
@@ -217,7 +219,6 @@ public class APU {
 		}
 		cpucounter++;
 		mix.sample();
-		
 	}
 
 }

@@ -101,12 +101,12 @@ public class SystemUI {
 		frame.setBounds(100, 100, 256+10, 240+60);
 		frame.setVisible(true);
 		//debugWindow();
-		/*try {
+		try {
 			runTests();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 	}
 	public void start(){
 		
@@ -122,7 +122,7 @@ public class SystemUI {
 		testoutput="";
 		if(true){
 			testoutput = " Blargg PPU Tests \n\n";
-			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggppu/sprite_ram.nes"),-897623842);
+			testrom(5000, new File(System.getProperty("user.dir")+"/tests/blarggppu/sprite_ram.nes"),-897623842);
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggppu/palette_ram.nes"),-897623842);
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggppu/power_up_palette.nes"),0);
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggppu/vbl_clear_time.nes"),-897623842);
@@ -177,7 +177,7 @@ public class SystemUI {
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/04-nmi_control.nes"),2029805090);
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/05-nmi_timing.nes"),347938255);
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/06-suppression.nes"),1343745688);
-			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/07-nmi_on_timing.nes"),0);
+			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/07-nmi_on_timing.nes"),-1539996795);
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/08-nmi_off_timing.nes"),834725570);
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/09-even_odd_frames.nes"),-276693205);
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/10-even_odd_timing.nes"),613825573);
@@ -193,8 +193,8 @@ public class SystemUI {
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/sprite_hit/06-right_edge.nes"),1771125851);
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/sprite_hit/07-screen_bottom.nes"),-1828165181);
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/sprite_hit/08-double_height.nes"),626756671);
-			testrom(5000, new File(System.getProperty("user.dir")+"/tests/sprite_hit/09-timing.nes"),0);
-			testrom(5000, new File(System.getProperty("user.dir")+"/tests/sprite_hit/10-timing_order.nes"),0);
+			testrom(5000, new File(System.getProperty("user.dir")+"/tests/sprite_hit/09-timing.nes"),571052092);
+			testrom(5000, new File(System.getProperty("user.dir")+"/tests/sprite_hit/10-timing_order.nes"),-994804385);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
 		if(true){

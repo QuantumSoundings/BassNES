@@ -103,16 +103,10 @@ public class MainUI extends JFrame {
 		menuBar.add(mnNewMenu);
 		
 		JCheckBoxMenuItem chckbxmntmEnableAudio = new JCheckBoxMenuItem("Enable Audio");
+		UserSettings.AudioEnabled=true;
 		chckbxmntmEnableAudio.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(sys.nes.doaudio){
-					sys.nes.doaudio = false;
-					//sys.nes.apu.synth.stop();
-				}
-				else {
-					sys.nes.doaudio=true;
-					//sys.nes.apu.synth.start();
-				}
+					UserSettings.AudioEnabled=!UserSettings.AudioEnabled;
 			}
 		});
 		chckbxmntmEnableAudio.setSelected(true);

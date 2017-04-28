@@ -34,7 +34,6 @@ public class AudioMixer {
 			triangle.total=0;
 			dmc.total=0;
 			audio.outputSample((int) ((sample*400)*(UserSettings.masterMixLevel/100.0)));
-			//System.out.println(sample);
 			samplenum =0;
 		}
 		else{

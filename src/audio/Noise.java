@@ -42,7 +42,7 @@ public class Noise extends Channel{
 						lengthcount = (b&0b11111000)>>>3;
 						lengthcount = lengthlookup[lengthcount];
 					}
-			
+			decay = volume;
 			break;
 		default: break;
 		}		
@@ -63,7 +63,7 @@ public class Noise extends Channel{
 			tcount--;
 	}
 	public int getOutput(){
-		if((shiftreg&1)==0||lengthcount==0)
+		if(lengthcount==0||(shiftreg&1)==0)
 			return 0;
 		return decay;
 	}

@@ -127,6 +127,12 @@ public class CPU_6502 {
 		}
 		
 	}
+	public void setNMI(boolean donmi){
+		doNMI=donmi;
+		if(donmi&&!oldnmi)
+			nmi=true;
+		oldnmi=donmi;
+	}
 	public void setPC(int i){
 		program_counter=i;
 	}

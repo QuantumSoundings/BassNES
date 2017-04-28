@@ -13,7 +13,7 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 	NES nes;
 	public ppu2C02 ppu;
 	byte[] ppu_ram= new byte[0x1fff];
-	byte[] ppu_palette = new byte[]{63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63};
+	public byte[] ppu_palette = new byte[]{63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63};
 	public byte[] ppu_oam = new byte[256];
 	
 	public APU apu;
@@ -50,6 +50,9 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 	public void setMirror(int i){
 		mirrormode=(i==0)?true:false;
 		System.out.println("Mode set to:"+mirrormode);
+	}
+	boolean blockppu(){
+		return apu.cyclenum>14700;
 	}
 	public void cpuwrite(int index,byte b){
 		if(index<0x2000){
@@ -175,17 +178,17 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 	}
 	byte ppuregisterhandler(int index,byte x,boolean write){
 		if(index ==0x2000){//PPUCTRL
-			if(write&&!blockppu)
+			if(write&&blockppu())
 				ppu.writeRegisters(index, x);
-			else if(write&&blockppu)
+			else if(write&&!blockppu())
 				ppu.OPEN_BUS=x;
 			else
 				return ppu.OPEN_BUS;
 		}
 		else if(index ==0x2001){//PPUMASK
-			if(write&&!blockppu)
+			if(write&&blockppu())
 				ppu.writeRegisters(index, x);
-			else if(write&&blockppu)
+			else if(write&&!blockppu())
 				ppu.OPEN_BUS=x;
 			else
 				return ppu.OPEN_BUS;
@@ -210,17 +213,17 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 				return ppu.readRegister(index);
 		}
 		else if(index ==0x2005){//PPUSCRL
-			if(write&&!blockppu)
+			if(write&&blockppu())
 				ppu.writeRegisters(index, x);
-			else if(write&&blockppu)
+			else if(write&&!blockppu())
 				ppu.OPEN_BUS=x;
 			else
 				return ppu.OPEN_BUS;
 		}
 		else if(index ==0x2006){//PPUADDR
-			if(write&&!blockppu)
+			if(write&&blockppu())
 				ppu.writeRegisters(index, x);
-			else if(write&&blockppu)
+			else if(write&&!blockppu())
 				ppu.OPEN_BUS=x;
 			else
 				return ppu.OPEN_BUS;
