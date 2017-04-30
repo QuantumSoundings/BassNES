@@ -34,6 +34,7 @@ public class NES implements Runnable {
 	private NesDisplay display;
 	public volatile boolean flag = true;
 	public volatile boolean doaudio = true;
+	public volatile boolean pause = false;
 	
 	public NES(NesDisplay disp,JFrame f,File rom,Properties prop){
 		romName = rom.getName().substring(0,rom.getName().length()-4);
@@ -65,14 +66,13 @@ public class NES implements Runnable {
 			try {
 				loadSave();
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		int i = 0;
 		boolean skip = true;
 		Scanner s = new Scanner(System.in);	
 		while(flag){
-			/*if(!skip){
+			if(!skip){
 					if(i%ppudiv==0){
 						System.out.println("Timing: "
 								+" PPU scanline:"+ppu.scanline
@@ -94,15 +94,26 @@ public class NES implements Runnable {
 						skip = false;	
 					}
 			}
-			//if(cpu.program_counter==0xe363){//&&(cpu.nmiInterrupt||cpu.program_counter==0x9357||cpu.program_counter==0x9351)){//||ppu.scanline>239){//&&controller.checkDebug()){//cpu.program_counter==0xe018){//&&ppu.scanline>234){
-			//	skip = false;
-			//}*/
+		//	if(cpu.program_counter==0xffc5){//&&(cpu.nmiInterrupt||cpu.program_counter==0x9357||cpu.program_counter==0x9351)){//||ppu.scanline>239){//&&controller.checkDebug()){//cpu.program_counter==0xe018){//&&ppu.scanline>234){
+		//		skip = false;
+		//	}
 			
 				cpu.run_cycle();
+				cpuclock++;
 				apu.doCycle();
 				ppu.doCycle();
 				ppu.doCycle();
 				ppu.doCycle();
+				
+				if(pause){
+					while(pause){
+						try {
+							Thread.sleep(200);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
 		}
 		apu.mix.audio.close();
 		//apu.synth.stop();
@@ -139,7 +150,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//rom = new File(System.getProperty("user.dir")+"/smb3.nes");
+		//rom = new File(System.getProperty("user.dir")+"/tests/ntsc_torture.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

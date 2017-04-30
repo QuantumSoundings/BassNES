@@ -12,13 +12,15 @@ public class UserSettings {
 	static Properties prop;
 	public final static String version = "0.2.0";
 	//Emulation Settings
-	public static boolean polite = false;
+	public static boolean politeFrameTiming = true;
+	public static boolean frameLimit = true;
 	
 	
 	//Graphics Settings
 	public static boolean RenderBackground=true;
 	public static boolean RenderSprites=true;
 	public static int RenderMethod=2;
+	public static boolean ShowFPS=true;
 	
 	//Audio Settings
 	public static boolean AudioEnabled;

@@ -11,7 +11,7 @@ public class AudioInterface {
 	SourceDataLine sdl;
 	byte[] audiobuffer;
 	int bufptr = 0;
-	public final int samplerate = 44100;
+	public final int samplerate = 48000;
 	
 	public AudioInterface(){
 		audiobuffer = new byte[(samplerate*2)/22];

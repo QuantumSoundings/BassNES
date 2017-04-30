@@ -317,6 +317,8 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 			return new MMC3();
 		case 7:
 			return new AxROM();
+		case 9:
+			return new MMC2();
 		default:
 			System.err.println("Unsupported Mapper id: "+i);
 		}

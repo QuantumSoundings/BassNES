@@ -63,6 +63,15 @@ public class MainUI extends JFrame {
 		chckbxmntmAutoload.setSelected(true);
 		mnSystem.add(chckbxmntmAutoload);
 		
+		JCheckBoxMenuItem chckbxmntmShowFps = new JCheckBoxMenuItem("Show FPS");
+		chckbxmntmShowFps.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sys.showFPS = !sys.showFPS;
+			}
+		});
+		chckbxmntmShowFps.setSelected(true);
+		mnSystem.add(chckbxmntmShowFps);
+		
 		JMenu mnCpu = new JMenu("CPU");
 		menuBar.add(mnCpu);
 		
@@ -91,12 +100,18 @@ public class MainUI extends JFrame {
 		mnCpu.add(mntmStartCpu);
 		
 		JMenuItem mntmPauseCpu = new JMenuItem("Pause CPU");
+		mntmPauseCpu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(sys.nes!=null)
+					sys.nes.pause= !sys.nes.pause;
+			}
+		});
 		mnCpu.add(mntmPauseCpu);
 		
-		JMenuItem mntmReset = new JMenuItem("Reset");
+		JMenuItem mntmReset = new JMenuItem("Reset (WIP)");
 		mnCpu.add(mntmReset);
 		
-		JMenuItem mntmHardReset = new JMenuItem("Reboot");
+		JMenuItem mntmHardReset = new JMenuItem("Reboot (WIP)");
 		mnCpu.add(mntmHardReset);
 		
 		JMenu mnNewMenu = new JMenu("Audio");
@@ -168,6 +183,11 @@ public class MainUI extends JFrame {
 		group.add(rdbtnmntmxScaling_3);
 		
 		JMenuItem mntmMoreSettings = new JMenuItem("More Settings");
+		mntmMoreSettings.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sys.advancedGraphicsWindow.setVisible(true);
+			}
+		});
 		mnGraphics.add(mntmMoreSettings);
 		JMenu mnControl = new JMenu("Control");
 		menuBar.add(mnControl);

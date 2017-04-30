@@ -17,13 +17,16 @@ public class MMC1 extends Mapper {
 	@Override
 	public void cartridgeWrite(int index, byte b){
 		if(index>=0x6000&&index<0x8000)
-			PRG_RAM[index-0x6000]=b; 
+			PRG_RAM[index%0x2000]=b; 
 		if(lastwrite == nes.cpuclock-1)
 			return;
 		if(index>=0x8000&&index<=0xffff){
 			if(b<0){
 				shiftregister=0b10000;
-				PRG_ROM[1]=PRGbanks[PRGbanks.length-1];
+				shiftregister= ((Mirror_mode)|(PRG_ROM_mode<<2)|(CHR_ROM_mode<<4))|0xc;
+				writeRegister(0x8000);
+				shiftregister= 0b10000;
+				PRG_ROM[1] = PRGbanks[PRGbanks.length-1];
 			}
 			else if((shiftregister&1)==0){
 				shiftregister>>=1;
@@ -98,19 +101,19 @@ public class MMC1 extends Mapper {
 	@Override
 	byte cartridgeRead(int index){
 		if(index<0x8000&&index>=0x6000)
-			return PRG_RAM[index-0x6000];
+			return PRG_RAM[index%0x2000];
 		else if(index>=0x8000&&index<0xc000)
-			return PRG_ROM[0][index-0x8000];
+			return PRG_ROM[0][index%0x4000];
 		else if(index>=0xc000)
-			return PRG_ROM[1][index-0xc000];
-		else
-			return 0;
+			return PRG_ROM[1][index%0x4000];
+		return 0;
 	}
 	public void writeRegister(int index){
 		if(index>=0x8000&&index<=0x9fff){// Control register
 			Mirror_mode = shiftregister&0b11;
 			PRG_ROM_mode = (shiftregister&0b1100)>>2;
-			CHR_ROM_mode = (shiftregister&0b10000)>>4;	
+			CHR_ROM_mode = (shiftregister&0b10000)>>4;
+			//System.out.println("Writing control reg with "+Integer.toBinaryString(shiftregister));
 		}
 		else if(index>=0xa000&&index<=0xbfff){// CHR bank 0 select
 			if(!CHR_ram)
@@ -129,15 +132,20 @@ public class MMC1 extends Mapper {
 		else if(index>=0xe000&&index<=0xffff){
 			switch(PRG_ROM_mode){
 			case 0: case 1:
+				//System.out.println("Switching prgrom case 0/1");
 				PRG_ROM[0] = PRGbanks[(shiftregister&0b1110)&(PRGbanks.length-1)];
-				PRG_ROM[1] = PRGbanks[((shiftregister&0b1110)&(PRGbanks.length-1))+1];
+				PRG_ROM[1] = PRGbanks[(((shiftregister&0b1110))&(PRGbanks.length-1))+1];
 				break;
 			case 2:
+				//System.out.println("Switching prgrom case 2");
+
 				PRG_ROM[0]= PRGbanks[0];
 				PRG_ROM[1] = PRGbanks[(shiftregister&0b1111)&(PRGbanks.length-1)];
 				break;
 			case 3:
-				PRG_ROM[0] = PRGbanks[shiftregister&(PRGbanks.length-1)];
+				//System.out.println("Switching prgrom case 3");
+
+				PRG_ROM[0] = PRGbanks[(shiftregister&0b1111)&(PRGbanks.length-1)];
 				PRG_ROM[1] = PRGbanks[PRGbanks.length-1];
 				break;
 			}

@@ -68,6 +68,7 @@ public class Triangle extends Channel {
 		else
 			tcount--;
 	}
+	@Override
 	public int getOutput(){
 		if(linearcount==0||lengthcount==0)
 			return 0;

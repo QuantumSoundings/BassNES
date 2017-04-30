@@ -76,6 +76,7 @@ public class APU {
 				dmc.disable();
 			else
 				dmc.enable();
+			dmc.clearFlag();
 		}
 		else if(index==0x4017){
 			stepmode4 = (b&0x80)==0?true:false;
@@ -105,7 +106,7 @@ public class APU {
 			b|= pulse2.lengthcount>0?2:0;
 			b|= triangle.lengthcount>0?4:0;
 			b|= noise.lengthcount>0?8:0;
-			b|= dmc.samplelength>0?16:0;
+			b|= dmc.sampleremaining>0?16:0;
 			b|= frameInterrupt?64:0;
 			if(frameInterrupt){
 				map.cpu.doIRQ--;
@@ -177,11 +178,12 @@ public class APU {
 			delay =-1;
 		}
 		triangle.clockTimer();
+		
 		if(!evenclock){
 			pulse1.clockTimer();
 			pulse2.clockTimer();
 			noise.clockTimer();	
-			dmc.clock();
+			dmc.clockTimer();
 			evenclock = true;
 			cyclenum++;
 		}

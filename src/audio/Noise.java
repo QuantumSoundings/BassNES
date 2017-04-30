@@ -62,10 +62,14 @@ public class Noise extends Channel{
 		else
 			tcount--;
 	}
+	@Override
 	public int getOutput(){
 		if(lengthcount==0||(shiftreg&1)==0)
 			return 0;
-		return decay;
+		if(constantvolume)
+			return volume;
+		else
+			return decay;
 	}
 
 }
