@@ -7,26 +7,35 @@ import javax.sound.sampled.SourceDataLine;
 
 import ui.UserSettings;
 
-public class AudioInterface {
-	SourceDataLine sdl;
-	byte[] audiobuffer;
+public class AudioInterface implements java.io.Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 25781276857491755L;
+	transient SourceDataLine sdl;
+	transient byte[] audiobuffer;
 	int bufptr = 0;
 	public final int samplerate = 48000;
 	
 	public AudioInterface(){
-		audiobuffer = new byte[(samplerate*2)/22];
+		restartSDL();
+	}
+	public void restartSDL(){
 		AudioFormat form = new AudioFormat(samplerate,16,2,true,false);
+		audiobuffer = new byte[(samplerate*2)/22];
 		try {
 			sdl = AudioSystem.getSourceDataLine(form);
-			sdl.open(form, audiobuffer.length*8);
+			sdl.open(form,audiobuffer.length*8);
 			sdl.start();
 		} catch (LineUnavailableException e) {
 			e.printStackTrace();
-		}
+		}	
 	}
 	public void outputSample(int sample){
 		if(sample>32768)
 			sample=32768;
+		if(sample<-32768)
+			sample=-32768;
 		audiobuffer[bufptr] = (byte)(sample&0xff);
 		audiobuffer[bufptr+1]=(byte)((sample>>8)&0xff);
 		audiobuffer[bufptr+2] = (byte)(sample&0xff);
@@ -41,8 +50,4 @@ public class AudioInterface {
 	public void close(){
 		sdl.close();
 	}
-	/*public void flushFrame(){
-		sdl.write(audiobuffer, 0, bufptr);
-		bufptr = 0;
-	}*/
 }

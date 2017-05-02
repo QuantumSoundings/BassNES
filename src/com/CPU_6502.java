@@ -5,7 +5,11 @@ import java.util.Scanner;
 
 import mappers.Mapper;
 
-public class CPU_6502 {
+public class CPU_6502 implements java.io.Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5451202977751017819L;
 	Mapper map;
 	boolean showInvalid=false;
 	/*immediate 0
@@ -21,7 +25,7 @@ public class CPU_6502 {
 	relative 10
 	implied 11*/
 	
-	
+	//registers
 	int program_counter;
 	private byte stack_pointer;
 	private byte accumulator;
@@ -32,7 +36,7 @@ public class CPU_6502 {
 	private boolean VFlag;
 	private boolean BFlag;
 	private boolean DFlag;
-	public boolean IFlag;
+	private boolean IFlag;
 	private boolean ZFlag;
 	private boolean CFlag;
 	//other stuff
@@ -40,20 +44,26 @@ public class CPU_6502 {
 	private boolean brokenaddress = false;
 	int instruction_cycle;
 	public byte current_instruction;
-    int current_inst_mode;
-    int current_inst_type;
 	private byte tempregister;
 	int address;
 	private int pointer;
 	private boolean branchtaken;
 	int lowpc;	
+	//DMA variables
 	public boolean writeDMA = false;
+	int dmac=0;
+	int dmain = 0;
+	public int dxx = 0;
+	int cpuinc=0;
+	//Interrupt variables
 	public boolean doNMI = false;
 	public int doIRQ = 0;
+	boolean nmiInterrupt;
+	boolean irqInterrupt;
 	boolean nmihijack;
-    //private int[] inst_type = new int[256];//read/write/both
-	//private int[] inst_mode = new int[256];//memory access
-	//private int[] inst_len = new int[256];
+	boolean oldnmi = false;
+	boolean nmi=false;
+
     public Hashtable<Byte,String> inst_name;//instruction name
 	public CPU_6502(Mapper mapper) {
 		map = mapper;
@@ -62,12 +72,12 @@ public class CPU_6502 {
 		s = new Scanner((this.getClass().getResourceAsStream("cpu_instructions.txt")));
 		while(s.hasNext()){
 			byte x = Integer.valueOf(s.next(), 16).byteValue();
-			int mode = s.nextInt();
-			int type = s.nextInt();
+			s.nextInt();
+			s.nextInt();
             //inst_type[Byte.toUnsignedInt(x)]=type;
             //inst_mode[Byte.toUnsignedInt(x)]=mode;
 			inst_name.put(x, s.next());
-			int len = s.nextInt();
+			s.nextInt();
             //inst_len[Byte.toUnsignedInt(x)] = len;
 		}
 		s.close();
@@ -75,10 +85,7 @@ public class CPU_6502 {
 		stack_pointer = (byte)0xfd;
 		setFlags((byte)0x34);
 	}
-	int dmac=0;
-	int dmain = 0;
-	public int dxx = 0;
-	int cpuinc=0;
+	
 	void run_cycle(){
 		if(writeDMA){
 			if(dmac ==513){
@@ -111,8 +118,7 @@ public class CPU_6502 {
 			executeInstruction();
 		}
 	}
-	boolean nmiInterrupt;
-	boolean irqInterrupt;
+	
 	private void pollInterrupts(){
 		if(doNMI&&!oldnmi){
 			nmi=true;
@@ -169,6 +175,12 @@ public class CPU_6502 {
 				+" Z:" +(ZFlag?1:0)
 				+" C:" +(CFlag?1:0));
 	}
+	public int[] getState(){
+		int flags = buildFlags();
+		return new int[]{program_counter, stack_pointer,accumulator,x_index_register,y_index_register,flags,doOp?1:0,brokenaddress?1:0,instruction_cycle,current_instruction,
+				tempregister,address,pointer,branchtaken?1:0,lowpc,writeDMA?1:0,dmac,dmain,dxx,cpuinc,doNMI?1:0,doIRQ,nmiInterrupt?1:0,irqInterrupt?1:0,
+				nmihijack?1:0,oldnmi?1:0,nmi?1:0};		
+	}
 	private byte buildFlags(){
 		byte temp = 0;
 		temp|= CFlag?1:0;
@@ -190,9 +202,7 @@ public class CPU_6502 {
 		ZFlag = (x&(1<<1))>0?true:false;
 		CFlag = (x&1)>0?true:false;	
 	}
-	boolean oldnmi = false;
-	boolean oldirq = false;
-	boolean nmi=false;
+
 	private void executeInstruction(){
 		if(instruction_cycle ==1){
 			if(doOp){

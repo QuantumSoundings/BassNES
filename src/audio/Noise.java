@@ -2,10 +2,11 @@ package audio;
 
 
 public class Noise extends Channel{
+	private static final long serialVersionUID = 7294397072264670989L;
 	public Noise(){
 		super();		
 	}
-	int noiseperiod;
+	//int noiseperiod;
 	boolean mode;
 	int shiftreg=1;
 	int[] noiselookup= new int[]{
@@ -25,7 +26,7 @@ public class Noise extends Channel{
 			break;			
 		case 2: 
 			mode = (b&0x80)==0?false:true;	
-			noiseperiod= b&0xf;
+			int noiseperiod= b&0xf;
 			timer = noiselookup[noiseperiod];
 			shiftreg=1;
 			break;
@@ -47,10 +48,10 @@ public class Noise extends Channel{
 		default: break;
 		}		
 	}
-	int feedback;
 	@Override
 	public void clockTimer(){
 		if(tcount==0){
+			int feedback;
 			tcount =timer;
 			if(mode)
 				feedback = ((shiftreg&0b1000000)>>6)^(shiftreg&1);
@@ -70,6 +71,10 @@ public class Noise extends Channel{
 			return volume;
 		else
 			return decay;
+	}
+	
+	public int[] getState(){
+		return new int[0];
 	}
 
 }

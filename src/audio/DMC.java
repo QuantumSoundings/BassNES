@@ -2,17 +2,26 @@ package audio;
 import mappers.Mapper;
 
 public class DMC extends Channel{
+	private static final long serialVersionUID = -5904036727532211365L;
+
 	Mapper map;
+	
 	boolean irqEnable;
 	public boolean irqflag;
+	boolean silence;
 	int outputlevel;
 	int sampleaddress;
+	int addressStart;
 	public int samplelength;
 	public int sampleremaining=0;
 	int samplebuffer=0;
 	public int stallcpu;
 	int rate;
 	int temprate;
+	int bitsremaining;
+	int shiftreg;
+	
+	
 	int[] rateindex = new int[]{428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106,  84,  72,  54};
 	//double[] pitchtable = new double[]{4181.71,4709.93,5264.04,5593.04,6257.95,7046.35,7919.35,8363.42,9419.86,11186.1,12604.0,13982.6,16884.6,21306.8,24858.0,33143.9};
 	public DMC(Mapper m) {
@@ -65,7 +74,7 @@ public class DMC extends Channel{
 		else
 			temprate--;
 	}
-	int addressStart;
+	
 	void memoryreader(){
 		if(sampleremaining!=0 && samplebuffer==0){
 			//System.out.println("Fetching new Sample; Samples remaining: "+sampleremaining); 
@@ -92,9 +101,7 @@ public class DMC extends Channel{
 			irqflag=true;
 		}	
 	}
-	int bitsremaining;
-	int shiftreg;
-	boolean silence;
+	
 	void stealCycles(int i){
 		while(i>0){
 			
@@ -142,6 +149,16 @@ public class DMC extends Channel{
 	@Override
 	public void disable(){
 		sampleremaining = 0;
+	}
+	
+	public int[] getState(){
+		int flags = (irqEnable?1:0)|(irqflag?2:0)|(silence?4:0);
+		return new int[] {flags,outputlevel,sampleaddress,addressStart,samplelength,sampleremaining,samplebuffer,stallcpu,rate,temprate,bitsremaining,shiftreg};
+	}
+	public void setState(int[] state){
+		irqEnable = (state[0]&1)==1; irqflag = (state[0]&2)==1;silence= (state[0]&4)==1;
+		outputlevel = state[1];sampleaddress = state[2]; addressStart = state[3];samplelength = state[4];sampleremaining = state[5];
+		samplebuffer = state[6];stallcpu = state[7];rate = state[8];temprate = state[9];bitsremaining = state[10];shiftreg = state[11];
 	}
 
 }

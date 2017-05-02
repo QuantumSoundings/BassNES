@@ -3,6 +3,7 @@ package mappers;
 import java.util.Arrays;
 
 public class AxROM extends Mapper{
+	private static final long serialVersionUID = -365861735346222319L;
 	byte[][] CHRbanks;
 	byte[][] PRGbanks;
 	public AxROM(){

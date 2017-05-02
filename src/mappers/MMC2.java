@@ -3,7 +3,10 @@ package mappers;
 import java.util.Arrays;
 
 public class MMC2 extends Mapper{
+
+	private static final long serialVersionUID = 6964328787497731249L;
 	public MMC2(){
+		super();
 		System.out.println("Making an MMC2!");
 		PRG_ROM = new byte[4][0x2000];
 	}

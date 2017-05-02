@@ -3,7 +3,8 @@ import audio.*;
 import mappers.Mapper;
 
 
-public class APU {
+public class APU implements java.io.Serializable{
+	private static final long serialVersionUID = 2400733667863038798L;
 	Triangle triangle = new Triangle();
 	Pulse pulse1 = new Pulse(true);
 	Pulse pulse2 = new Pulse(false);
@@ -11,9 +12,8 @@ public class APU {
 	DMC dmc;
 	public AudioInterface audio;
 	public AudioMixer mix;
-	
 	Mapper map;
-	byte status;
+	//Vars for save state
 	boolean stepmode4=true;
 	int stepcycle;
 	boolean irqInhibit;
@@ -23,9 +23,7 @@ public class APU {
 	int block;
 	int stepNumber;
 	public int delay=-1;
-	public int framecounter;
-	
-	int sampleNum;
+	public int framecounter;	
 	int cpucounter;
 	public long cyclenum;
 	
@@ -33,7 +31,6 @@ public class APU {
 	public APU(Mapper m){
 		
 		map = m;
-		sampleNum=0;
 		dmc =new DMC(map);
 		mix = new AudioMixer(pulse1,pulse2,triangle,noise,dmc);
 		cpucounter = 10;
@@ -55,7 +52,6 @@ public class APU {
 			dmc.registerWrite(index, b);
 		}
 		else if(index==0x4015){
-			status = b;
 			if((b&1)==0)
 				pulse1.disable();
 			else

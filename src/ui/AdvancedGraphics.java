@@ -16,8 +16,10 @@ import java.awt.event.ActionEvent;
 
 public class AdvancedGraphics extends JFrame {
 
+	private static final long serialVersionUID = -6383463064016482019L;
 	private JPanel contentPane;
 
+	@SuppressWarnings("unchecked")
 	public AdvancedGraphics() {
 		setTitle("Graphics Options");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -75,8 +77,9 @@ public class AdvancedGraphics extends JFrame {
 		panel.add(chckbxPoliteFrameTiming);
 		
 		String[] RenderMethods = new String[]{"Standard"};
+		@SuppressWarnings({ "rawtypes" })
 		JComboBox comboBox = new JComboBox(RenderMethods);
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Standard"}));
+		comboBox.setModel(new DefaultComboBoxModel<String>(RenderMethods));
 		comboBox.setBounds(260, 30, 101, 20);
 		panel.add(comboBox);
 		

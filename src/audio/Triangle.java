@@ -1,6 +1,7 @@
 package audio;
 
 public class Triangle extends Channel {
+	private static final long serialVersionUID = 4651788745714469245L;
 	public Triangle(){}
 	public void registerWrite(int index,byte b,int clock){
 		switch(index%4){

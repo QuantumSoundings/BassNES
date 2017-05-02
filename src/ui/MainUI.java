@@ -1,13 +1,8 @@
 package ui;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 
-import com.APU;
 import com.NES;
 
 import javax.swing.JMenuBar;
@@ -18,11 +13,12 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JRadioButtonMenuItem;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.awt.event.ActionEvent;
 
+@SuppressWarnings("serial")
 public class MainUI extends JFrame {
 
-	private JPanel contentPane;
 	SystemUI sys;
 	public MainUI(SystemUI s) {
 		setTitle("Nes Emulator");
@@ -39,13 +35,13 @@ public class MainUI extends JFrame {
 		JMenuItem mntmLoadRom = new JMenuItem("Load Rom");
 		mntmLoadRom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int returnval = sys.fc.showOpenDialog(sys.frame);
+				int returnval = sys.fc.showOpenDialog(sys.mainWindow);
 				if(returnval == JFileChooser.APPROVE_OPTION){
 					sys.rom = sys.fc.getSelectedFile();
 					if(sys.autoload){
 						if(sys.nes!=null)
 							sys.nes.flag=false;
-						sys.nes = new NES(sys.display,sys.frame,sys.rom,sys.prop);
+						sys.nes = new NES(sys.display,sys.mainWindow,sys.rom);
 						sys.current = new Thread(sys.nes);
 						sys.current.start();
 					}
@@ -72,6 +68,32 @@ public class MainUI extends JFrame {
 		chckbxmntmShowFps.setSelected(true);
 		mnSystem.add(chckbxmntmShowFps);
 		
+		JMenuItem mntmSaveState = new JMenuItem("Save State");
+		mntmSaveState.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					sys.saveState();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		mnSystem.add(mntmSaveState);
+		
+		JMenuItem mntmLoadState = new JMenuItem("Load State");
+		mntmLoadState.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					sys.restoreState();
+				} catch (ClassNotFoundException | IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		mnSystem.add(mntmLoadState);
+		
 		JMenu mnCpu = new JMenu("CPU");
 		menuBar.add(mnCpu);
 		
@@ -88,7 +110,7 @@ public class MainUI extends JFrame {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					sys.nes = new NES(sys.display,sys.frame,sys.rom,sys.prop);
+					sys.nes = new NES(sys.display,sys.mainWindow,sys.rom);
 					sys.current = new Thread(sys.nes);
 					sys.current.start();
 					//System.out.println(begin);
@@ -130,7 +152,7 @@ public class MainUI extends JFrame {
 		JMenuItem mntmAudioMixer = new JMenuItem("Audio Mixer");
 		mntmAudioMixer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				sys.mixer.setVisible(true);
+				sys.audiomixerWindow.setVisible(true);
 			}
 		});
 		mnNewMenu.add(mntmAudioMixer);
@@ -145,7 +167,7 @@ public class MainUI extends JFrame {
 		rdbtnmntmxScaling.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sys.display.updateScaling(1);
-				sys.frame.setBounds(100, 100, 256+15, 240+60);
+				sys.mainWindow.setBounds(100, 100, 256+15, 240+60);
 			}
 		});
 		ButtonGroup group = new ButtonGroup();
@@ -157,7 +179,7 @@ public class MainUI extends JFrame {
 		rdbtnmntmxScaling_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sys.display.updateScaling(2);
-				sys.frame.setBounds(100, 100, 256*2+15, 240*2+60);
+				sys.mainWindow.setBounds(100, 100, 256*2+15, 240*2+60);
 			}
 		});
 		mnScaling.add(rdbtnmntmxScaling_1);
@@ -166,7 +188,7 @@ public class MainUI extends JFrame {
 		rdbtnmntmxScaling_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sys.display.updateScaling(3);
-				sys.frame.setBounds(100, 100, 256*3+15, 240*3+60);
+				sys.mainWindow.setBounds(100, 100, 256*3+15, 240*3+60);
 			}
 		});
 		mnScaling.add(rdbtnmntmxScaling_2);
@@ -176,7 +198,7 @@ public class MainUI extends JFrame {
 		rdbtnmntmxScaling_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sys.display.updateScaling(4);
-				sys.frame.setBounds(100, 100, 256*4+15, 240*4+60);
+				sys.mainWindow.setBounds(100, 100, 256*4+15, 240*4+60);
 			}
 		});
 		mnScaling.add(rdbtnmntmxScaling_3);
@@ -195,7 +217,7 @@ public class MainUI extends JFrame {
 		JMenuItem mntmConfigure = new JMenuItem("Configure");
 		mntmConfigure.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sys.keyconfig.setVisible(true);
+				sys.keyconfigWindow.setVisible(true);
 			}
 		});
 		mnControl.add(mntmConfigure);
@@ -206,7 +228,7 @@ public class MainUI extends JFrame {
 		JCheckBoxMenuItem chckbxmntmShowDebug = new JCheckBoxMenuItem("Show Debug");
 		chckbxmntmShowDebug.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sys.debugframe.setVisible(!sys.debugframe.isVisible());
+				sys.debugWindow.setVisible(!sys.debugWindow.isVisible());
 			}
 		});
 		mnDebug.add(chckbxmntmShowDebug);

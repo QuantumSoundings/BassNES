@@ -2,6 +2,8 @@ package audio;
 
 
 public class Pulse extends Channel {
+
+	private static final long serialVersionUID = -3321343541094080447L;
 	int dutynumber=7;
 	boolean p1;
 	int duty;

@@ -1,7 +1,5 @@
 package ui;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -13,7 +11,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
 public class AudioMixerUI extends JFrame {
-
+	private static final long serialVersionUID = 8732673441553439113L;
 	private JPanel contentPane;
 	SystemUI sys;
 

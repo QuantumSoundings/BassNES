@@ -1,61 +1,32 @@
 package ui;
 
-import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Properties;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.ScrollPaneConstants;
 
 import com.NES;
-
 import video.NesDisplay;
 
 public class SystemUI {
 	public NES nes;
 	final JFileChooser fc = new JFileChooser();
-	UserSettings settings;
-	public JFrame frame,debugframe,keyconfig,mixer,advancedGraphicsWindow;
+	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow;
 	File rom;
 	NesDisplay display;
 	JPanel panel;
-	JButton b1;
-	JButton b2;
-	boolean awaitingkey;
-	JMenuBar menu;
-	JMenu system,cpu,audio,graphics,control,debug;
+	//JMenuBar menu;
+	//JMenu system,cpu,audio,graphics,control,debug;
 	Thread current;
 	Properties prop;
 	String testoutput;
@@ -70,22 +41,21 @@ public class SystemUI {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		frame = new MainUI(this);
-		debugframe = new DebugUI();
-		keyconfig = new ControlUI(prop,this);
-		mixer = new AudioMixerUI(this);
+		rom = new File("zelda.nes");
+		mainWindow = new MainUI(this);
+		//debugframe = new DebugUI();
+		keyconfigWindow = new ControlUI(prop,this);
+		audiomixerWindow = new AudioMixerUI(this);
 		advancedGraphicsWindow = new AdvancedGraphics();
-		addapply();
-		rom = new File("zelda.nes"); 
 		display = new NesDisplay();
 		panel = new JPanel();
 		panel.setLayout(new FlowLayout());
 		display.setSize(256, 240);
 		display.setFocusable(true);
-		frame.getContentPane().add(display);
+		mainWindow.getContentPane().add(display);
 		display.requestFocusInWindow();
-		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		frame.addWindowListener(new WindowAdapter(){
+		mainWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		mainWindow.addWindowListener(new WindowAdapter(){
 			@Override
 			public void windowClosing(WindowEvent evt){
 				if(nes!=null)
@@ -99,9 +69,9 @@ public class SystemUI {
 				System.exit(0);
 			}
 		});
-		frame.pack();
-		frame.setBounds(100, 100, 256+10, 240+60);
-		frame.setVisible(true);
+		mainWindow.pack();
+		mainWindow.setBounds(100, 100, 256+10, 240+60);
+		mainWindow.setVisible(true);
 		/*try {
 			runTests();
 		} catch (InterruptedException e) {
@@ -114,10 +84,10 @@ public class SystemUI {
 		while(true){
 			if(showFPS){
 				if(nes!=null)
-					frame.setTitle("Nes Emulator     FPS: "+String.format("%.2f", nes.map.ppu.getFPS()));
+					mainWindow.setTitle("Nes Emulator     FPS: "+String.format("%.2f", nes.getFPS()));
 			}
 			else
-				frame.setTitle("Nes Emulator");
+				mainWindow.setTitle("Nes Emulator");
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -162,7 +132,7 @@ public class SystemUI {
 		}
 		if(true){
 			testoutput+= "\n Blargg All CPU Instructions Test\n\n";
-			testrom(30000, new File(System.getProperty("user.dir")+"/tests/blarggcpu/all_inst.nes"),-1534109152);
+			testrom(30000, new File(System.getProperty("user.dir")+"/tests/blarggcpu/all_inst.nes"),-1700840831);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
 		if(true){
@@ -312,27 +282,17 @@ public class SystemUI {
 		return Arrays.hashCode(pixels);
 	}
 	void startnes(int delay) throws InterruptedException {
-		nes = new NES(display,frame,rom,prop);
+		nes = new NES(display,mainWindow,rom);
 		current = new Thread(nes);
 		current.start();
 		Thread.sleep(delay);
 	}
-	
-	private void addapply(){
-		JButton btnNewButton_16 = new JButton("Apply");
-		btnNewButton_16.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(nes!=null){
-					//nes.controller.updateKeys(prop);
-					//nes.controller2.updateKeys(prop);
-				}
-			}
-		});
-		GridBagConstraints gbc_btnNewButton_16 = new GridBagConstraints();
-		gbc_btnNewButton_16.insets = new Insets(0, 0, 0, 5);
-		gbc_btnNewButton_16.gridx = 3;
-		gbc_btnNewButton_16.gridy = 9;
-		keyconfig.getContentPane().add(btnNewButton_16, gbc_btnNewButton_16);
+	public void saveState() throws IOException{
+		nes.pause=true;
+		nes.saveState();
 	}
-	
+	public void restoreState() throws IOException, ClassNotFoundException{
+		nes.pause=true;
+		nes.restoreState(display, mainWindow);
+	}
 }

@@ -2,7 +2,9 @@ package audio;
 
 import ui.UserSettings;
 
-public class AudioMixer {
+public class AudioMixer implements java.io.Serializable {
+
+	private static final long serialVersionUID = -5418535414924993071L;
 	public AudioInterface audio;
 	Triangle triangle;
 	Pulse pulse1;
@@ -13,11 +15,11 @@ public class AudioMixer {
 	int lpaccum = 0;
 	int dckiller = 0;
 	double cyclespersample;
-	double[] pulse_table = new double[]{0,
+	static double[] pulse_table = new double[]{0,
 			0.01160914,0.022939481,0.034000949,0.044803002,0.055354659,0.065664528,0.075740825,0.085591398,0.095223748,0.104645048,0.113862159,0.122881647,0.131709801,0.140352645,0.148815953,0.157105263,0.165225885,
 			0.173182917,0.180981252,0.188625592,0.196120454,0.203470178,0.210678941,0.21775076,0.224689499,0.231498881,0.23818249,0.244743777,0.251186072,0.257512581,0.263726398
 	};
-	double[] tnd_table = new double[]{0,
+	static double[] tnd_table = new double[]{0,
 			0.006699824,0.01334502,0.019936254,0.02647418,0.032959443,0.039392675,0.045774502,0.052105535,0.058386381,0.064617632,0.070799874,0.076933683,0.083019626,0.089058261,0.095050137,0.100995796,0.10689577,0.112750584,0.118560753,0.124326788,0.130049188,0.135728448,0.141365053,0.146959482,0.152512207,0.158023692,0.163494395,0.168924767,0.174315252,0.179666289,0.184978308
 			,0.190251735,0.195486988,0.200684482,0.205844623,0.210967811,0.216054444,0.22110491,0.226119593,0.231098874,0.236043125,0.240952715,0.245828007,0.250669358,0.255477124,0.260251651,0.264993283,0.269702358,0.274379212,0.279024174,0.283637568,0.288219716,0.292770934,0.297291534,0.301781823,0.306242106,0.310672683,0.315073849,0.319445896,0.323789113,0.328103783
 			,0.332390186,0.336648601,0.3408793,0.345082552,0.349258625,0.35340778,0.357530277,0.361626373,0.36569632,0.369740367,0.373758762,0.377751747
@@ -37,7 +39,7 @@ public class AudioMixer {
 		noise = n;
 		dmc = d;
 	}
-	 private int highpass_filter(int sample) {
+	/*private int highpass_filter(int sample) {
 	        //for killing the dc in the signal
 	        sample += dckiller;
 	        dckiller -= sample >> 8;//the actual high pass part
@@ -48,40 +50,33 @@ public class AudioMixer {
         sample += lpaccum;
         lpaccum -= sample * 0.9;
         return lpaccum;
-    }
-	public void sample(){
-		if((samplenum%cyclespersample)<1){
-			/*double sample = (int)((pulse1.total/cyclespersample)*(UserSettings.pulse1MixLevel/100.0));
-			sample+=(int)((pulse2.total/cyclespersample)*(UserSettings.pulse2MixLevel/100.0));
-			sample+=(int)((noise.total/cyclespersample)*(UserSettings.noiseMixLevel/100.0));
-			sample+=(int)((triangle.total/cyclespersample)*(UserSettings.triangleMixLevel/100.0));
-			sample+=(int)((dmc.total/cyclespersample)*(UserSettings.dmcMixLevel/100.0));
-			*/
-			double p1 = getAverageSample(pulse1,UserSettings.pulse1MixLevel);
-			double p2 = getAverageSample(pulse2,UserSettings.pulse2MixLevel);
-			double t = getAverageSample(triangle,UserSettings.triangleMixLevel);
-			double n = getAverageSample(noise,UserSettings.noiseMixLevel);
-			double d = getAverageSample(dmc,UserSettings.dmcMixLevel);
-			double pulse_out = 0.00752 * (p1+p2);//pulse_table[p1+p2];
-			double tnd_out = 0.00851*t + 0.00494*n + 0.00335*d;//tnd_table[3*t + 2*n + d];
-			double sample = pulse_out + tnd_out;
-			sample = ((sample*30000)*(UserSettings.masterMixLevel/100.0));
-			audio.outputSample(lowpass_filter(highpass_filter((int)sample)));
-			//samplenum =0;
-		}
-		else{
-			pulse1.buildOutput();
-			pulse2.buildOutput();
-			noise.buildOutput();
-			triangle.buildOutput();
-			dmc.buildOutput();	
-		}
+    }*/
+	public void sample(){	
+		pulse1.buildOutput();
+		pulse2.buildOutput();
+		noise.buildOutput();
+		triangle.buildOutput();
+		dmc.buildOutput();	
 		samplenum++;
+		if((samplenum%cyclespersample)<1)
+			sendOutput();
 	}
-	double getAverageSample(Channel chan,int UserMix){
+	private void sendOutput(){
+		double p1 = getAverageSample(pulse1,UserSettings.pulse1MixLevel);
+		double p2 = getAverageSample(pulse2,UserSettings.pulse2MixLevel);
+		double t = getAverageSample(triangle,UserSettings.triangleMixLevel);
+		double n = getAverageSample(noise,UserSettings.noiseMixLevel);
+		double d = getAverageSample(dmc,UserSettings.dmcMixLevel);
+		double pulse_out = 0.00752 * (p1+p2);//pulse_table[p1+p2];
+		double tnd_out = 0.00851*t + 0.00494*n + 0.00335*d;//tnd_table[3*t + 2*n + d];
+		double sample = pulse_out + tnd_out;
+		sample-=.5;
+		sample = ((sample*32768)*(UserSettings.masterMixLevel/100.0));
+		audio.outputSample((int)sample);
+	}
+	final double getAverageSample(Channel chan,int UserMix){
 		double d =((chan.total/cyclespersample)*(UserMix/100.0));
 		chan.total=0;
-		return d;
-		
+		return d;	
 	}
 }

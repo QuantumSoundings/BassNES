@@ -6,20 +6,22 @@ import com.CPU_6502;
 import com.Controller;
 import com.NES;
 import com.ppu2C02;
-public class Mapper {//There will be class that inheriet this class. Better to have all reads and writes go through this
-	
+public class Mapper implements java.io.Serializable {//There will be class that inheriet this class. Better to have all reads and writes go through this
+	private static final long serialVersionUID = 6655950169350506050L;
+	//System Components
+	transient NES nes;
 	public CPU_6502 cpu;
-	byte[] cpu_ram= new byte[0x800];
-	NES nes;
+	public APU apu;
 	public ppu2C02 ppu;
+	public Controller control;
+	public Controller control2;
+
+	byte[] cpu_ram= new byte[0x800];
 	byte[] ppu_ram= new byte[0x1fff];
 	public byte[] ppu_palette = new byte[]{63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63};
-	public byte[] ppu_oam = new byte[256];
-	
-	public APU apu;
+	public byte[] ppu_oam = new byte[256];	
 	byte[] cpu_mmr = new byte[0x18];
 
-	
 	byte[][] PRG_ROM = new byte[2][0x4000];
 	byte[][] PRGbanks;
 	//boolean PRG_32k;
@@ -31,14 +33,16 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 	boolean mirrormode;
 	public boolean blockppu=true;
 	
-	public Controller control;
-	public Controller control2;
-	
 	public boolean olda12;
 	public byte openbus;
 	
 	public Mapper(){
-		ppu_palette[0]=0xf;		
+		ppu_palette[0]=0xf;
+		ppu = new ppu2C02(this);
+		cpu = new CPU_6502(this);
+		apu = new APU(this);
+		control = new Controller(1);
+		control2 = new Controller(2);
 	}
 	public void setcomponents(CPU_6502 c,ppu2C02 p,Controller cont,Controller cont2, APU a){
 		cpu = c;
@@ -79,9 +83,7 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 			cartridgeWrite(index,b);
 	}
 	public void cpuwriteoam(int index,byte b){
-		//System.out.println("WRITING: "+b+" to oam");
 		ppu_oam[index]=b;
-		//ppuregisterhandler(0x2004,b,true);
 	}	
 	public byte cpuread(int index){
 		if(index<0x2000)
@@ -96,7 +98,6 @@ public class Mapper {//There will be class that inheriet this class. Better to h
 			}
 			if(index ==0x4016||index==0x4017)
 				return (byte) ((openbus&0b11100000)|controllerRead(index));
-			
 			return openbus;
 		}
 		else

@@ -1,23 +1,16 @@
 package ui;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import java.awt.ScrollPane;
 import java.io.PrintStream;
-import java.awt.TextArea;
-import java.awt.TextField;
-import javax.swing.JTextPane;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
 public class DebugUI extends JFrame {
 
-	private JPanel contentPane;
+	private static final long serialVersionUID = -7873279625262778152L;
 
 	public DebugUI() {
 		JPanel p1 = new JPanel();

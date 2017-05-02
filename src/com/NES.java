@@ -3,120 +3,80 @@ import java.io.File;
 import javax.swing.JFrame;
 
 import mappers.Mapper;
+import ui.UserSettings;
 import video.NesDisplay;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Properties;
-import java.util.Scanner;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class NES implements Runnable {
 	//Different system components
-	private CPU_6502 cpu;
-	private ppu2C02 ppu;
-	public APU apu;
-	public Mapper map;
+	//private CPU_6502 cpu;
+	//private ppu2C02 ppu;
+	//public APU apu;
+	private volatile Mapper map;
 	private String romName;
-	public Controller controller;
-	public Controller controller2;
 	File save;
 	
 	//clock settings NTSC
 	//Master clock speed.
 	int systemclock = 21477272;
 	final int cpudiv = 12;
-	final int apudiv = 24;
+	//final int apudiv = 24;
 	final int ppudiv = 4;
 	final int framediv= 89490;
+	public int cpuclock=0;
+	private int mclock;
 	
 	boolean batteryExists;
-	private NesDisplay display;
+	//private NesDisplay display;
 	public volatile boolean flag = true;
 	public volatile boolean doaudio = true;
 	public volatile boolean pause = false;
 	
-	public NES(NesDisplay disp,JFrame f,File rom,Properties prop){
+	//Frame rate/timing variables
+	private long frameStartTime;
+	private long frameStopTime;
+	private long fpsStartTime;
+	//private long fpsStopTime;
+	private double currentFPS;
+	private int framecount=0;
+	
+	//debugging vars
+	//private int p=0;
+	//private double c =0.0;
+	
+	public NES(NesDisplay disp,JFrame f,File rom){
 		romName = rom.getName().substring(0,rom.getName().length()-4);
-		display = disp;
-		controller = new Controller(prop,1);
-		controller.setframe(f);
-		controller2 = new Controller(prop,2);
-		controller2.setframe(f);
 		try {
 			loadrom(rom);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		ppu = new ppu2C02(map,disp);
-		cpu = new CPU_6502(map);
-		apu = new APU(map);
-		map.setcomponents(cpu, ppu,controller,controller2,apu);
 		map.setNes(this);
-		cpu.setPC(((map.cpureadu(0xfffd)<<8)|(map.cpureadu(0xfffc))));
-		//cpu.program_counter=0xc000;
+		map.control.setframe(f);
+		map.control2.setframe(f);
+		map.ppu.setDisplay(disp);
+		map.cpu.setPC(((map.cpureadu(0xfffd)<<8)|(map.cpureadu(0xfffc))));
 	}
-	int p=0;
-	double c =0.0;
-	public int cpuclock=0;
-	int framecount=0;
 	public void run(){
-		System.out.println("NES STARTED RUNNING");
-		if(batteryExists)
-			try {
-				loadSave();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-		int i = 0;
-		boolean skip = true;
-		Scanner s = new Scanner(System.in);	
+		System.out.println("NES STARTED RUNNING");	
 		while(flag){
-			if(!skip){
-					if(i%ppudiv==0){
-						System.out.println("Timing: "
-								+" PPU scanline:"+ppu.scanline
-								+" VRAM ADDR: " +Integer.toHexString(ppu.v)
-								+" Ticks: "+ ppu.pcycle+"/"+(Integer.toHexString((int)c))
-								+" Rendering?: "+ppu.dorender()
-								+" vBlank:"+ppu.PPUSTATUS_vb
-								+" PPUSTATUS:"+Integer.toBinaryString(ppu.PPUSTATUS));
-						cpu.debug(0);
-					
-					String t = s.nextLine();
-					if(t.equals("c"))
-						skip = true;
-					else if(t.equals("i"))
-						cpu.nmiInterrupt=true;
-					else if(t.equals("e"))
-						map.cpuwrite(0xe000, (byte)1);
-					else
-						skip = false;	
-					}
-			}
-		//	if(cpu.program_counter==0xffc5){//&&(cpu.nmiInterrupt||cpu.program_counter==0x9357||cpu.program_counter==0x9351)){//||ppu.scanline>239){//&&controller.checkDebug()){//cpu.program_counter==0xe018){//&&ppu.scanline>234){
-		//		skip = false;
-		//	}
-			
-				cpu.run_cycle();
-				cpuclock++;
-				apu.doCycle();
-				ppu.doCycle();
-				ppu.doCycle();
-				ppu.doCycle();
-				
-				if(pause){
-					while(pause){
-						try {
-							Thread.sleep(200);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
+			runFrame();
+			if(pause){
+				while(pause){
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
 				}
+			}
 		}
-		apu.mix.audio.close();
-		//apu.synth.stop();
+		map.apu.mix.audio.close();
 		if(batteryExists)
 			try {
 				saveGame();
@@ -124,6 +84,81 @@ public class NES implements Runnable {
 				e.printStackTrace();
 			}
 	}
+	public void runFrame(){
+		frameStartTime = System.nanoTime();
+		while(!(map.ppu.scanline==0&&map.ppu.pcycle==0)){
+			if(mclock%cpudiv==0){
+				map.cpu.run_cycle();
+				map.apu.doCycle();
+			}
+			if(mclock%ppudiv==0)
+				map.ppu.doCycle();
+			mclock+=4;
+		}
+		if(mclock%cpudiv==0){
+			map.cpu.run_cycle();
+			map.apu.doCycle();
+		}
+		if(mclock%ppudiv==0)
+			map.ppu.doCycle();
+		mclock+=4;
+		frameStopTime = System.nanoTime() - frameStartTime;
+		if(frameStopTime<15800000&&UserSettings.frameLimit)
+			try {
+				while(System.nanoTime()-frameStartTime<15800000){
+					if(UserSettings.politeFrameTiming)
+						Thread.sleep(0,100000);
+				}
+			} catch ( InterruptedException e){
+				e.printStackTrace();
+			}
+		if(framecount%60==0){
+			double x = 1000.0/(System.currentTimeMillis()-fpsStartTime);
+			currentFPS = x*60;
+			fpsStartTime=System.currentTimeMillis();
+		}
+		framecount++;
+	}
+	public double getFPS(){
+		return currentFPS;
+	}
+	public void saveState() throws IOException{
+		FileOutputStream fout = new FileOutputStream("savestate1.txt");
+		ObjectOutputStream out = new ObjectOutputStream(fout);
+		try {
+			Thread.sleep(20);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		out.writeObject(map);
+		out.writeObject(map.apu);
+		out.writeObject(map.cpu);
+		out.writeObject(map.ppu);
+		out.close();
+	}
+	public void restoreState(NesDisplay display, JFrame frame) throws IOException, ClassNotFoundException{
+		FileInputStream fin = new FileInputStream("savestate1.txt");
+		ObjectInputStream in = new ObjectInputStream(fin);
+		pause = true;
+		try {
+			Thread.sleep(20);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		map.apu.mix.audio.close();
+		map = (Mapper) in.readObject();
+		map.apu = (APU) in.readObject();
+		map.apu.mix.audio.restartSDL();
+		map.cpu = (CPU_6502) in.readObject();
+		map.ppu = (ppu2C02) in.readObject();
+		map.ppu.display=display;
+		map.control.setframe(frame);
+		map.control2.setframe(frame);
+		in.close();
+		pause = false;
+	}
+	public void pause(){pause = true;}
+	public void unpause(){pause=false;}
 	public void loadSave() throws IOException{
 		save = new File(romName+".sav");
 		if(save.exists()){
@@ -150,7 +185,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//rom = new File(System.getProperty("user.dir")+"/tests/ntsc_torture.nes");
+		rom = new File(System.getProperty("user.dir")+"/smb3.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);
@@ -168,5 +203,18 @@ public class NES implements Runnable {
 		map.setCHR(CHR_ROM);
 		map.setMirror(header[6]&1);
 		sx.close();
+		if(batteryExists)
+			loadSave();
 	}
+	/*private void debug(){
+		System.out.println("Timing: "
+				+" PPU scanline:"+map.ppu.scanline
+				+" VRAM ADDR: " +Integer.toHexString(map.ppu.v)
+				+" Ticks: "+ map.ppu.pcycle+"/"+(Integer.toHexString((int)c))
+				+" Rendering?: "+map.ppu.dorender()
+				+" vBlank:"+map.ppu.PPUSTATUS_vb
+				+" PPUSTATUS:"+Integer.toBinaryString(map.ppu.PPUSTATUS));
+		map.cpu.debug(0);
+		
+	}*/
 }

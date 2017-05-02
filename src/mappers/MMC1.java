@@ -3,6 +3,7 @@ package mappers;
 import java.util.Arrays;
 
 public class MMC1 extends Mapper {
+	private static final long serialVersionUID = 5115571780542961923L;
 	int shiftregister;
 	int PRG_ROM_mode;
 	int CHR_ROM_mode;
@@ -10,6 +11,7 @@ public class MMC1 extends Mapper {
 	byte[][] PRGbanks;
 	byte[][] CHRbanks;
 	public MMC1(){
+		super();
 		System.out.println("Mapper 1 (SNROM) Fully Supported!"); 
 		PRG_RAM = new byte[0x2000];
 	}

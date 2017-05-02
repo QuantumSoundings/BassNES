@@ -3,6 +3,8 @@ package mappers;
 import java.util.Arrays;
 
 public class CNROM extends Mapper{
+
+	private static final long serialVersionUID = 8386178162845980471L;
 	byte[][] CHRbanks;
 	public CNROM(){
 		super();

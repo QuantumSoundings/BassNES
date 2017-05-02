@@ -1,16 +1,13 @@
 package com;
 
 import java.awt.event.*;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Properties;
-
 import javax.swing.JFrame;
 
 import ui.UserSettings;
 
-public class Controller {
+public class Controller implements java.io.Serializable{
+
+	private static final long serialVersionUID = 8353857861874602491L;
 	Keycheckerc1 keys;
 	int controllerNum;
 	boolean strobe;
@@ -19,40 +16,14 @@ public class Controller {
 	int nextKey;
 	boolean debug;
 	
-	public Controller(Properties prop,int num){
+	public Controller(int num){
 		strobe = false;
 		output = 0;
 		keysPressed=0;
 		controllerNum=num;
 		nextKey = 0;
-		keys = new Keycheckerc1();
-		//updateKeys(prop);
-		
+		keys = new Keycheckerc1();		
 	}
-	/*public void updateKeys(Properties prop){
-		if(controllerNum==1){
-			keys.akey = Integer.parseInt(prop.getProperty("c1a"));
-			keys.bkey = Integer.parseInt(prop.getProperty("c1b"));
-			keys.upkey = Integer.parseInt(prop.getProperty("c1up"));
-			keys.downkey = Integer.parseInt(prop.getProperty("c1down"));
-			keys.startkey = Integer.parseInt(prop.getProperty("c1start"));
-			keys.selectkey = Integer.parseInt(prop.getProperty("c1select"));
-			keys.leftkey = Integer.parseInt(prop.getProperty("c1left"));
-			keys.rightkey = Integer.parseInt(prop.getProperty("c1right"));
-		}
-		else{
-			keys.akey = Integer.parseInt(prop.getProperty("c2a"));
-			keys.bkey = Integer.parseInt(prop.getProperty("c2b"));
-			keys.upkey = Integer.parseInt(prop.getProperty("c2up"));
-			keys.downkey = Integer.parseInt(prop.getProperty("c2down"));
-			keys.startkey = Integer.parseInt(prop.getProperty("c2start"));
-			keys.selectkey = Integer.parseInt(prop.getProperty("c2select"));
-			keys.leftkey = Integer.parseInt(prop.getProperty("c2left"));
-			keys.rightkey = Integer.parseInt(prop.getProperty("c2right"));
-		}
-		
-	}*/
-	
 	public void setframe(JFrame f){
 		f.addKeyListener(keys);
 		f.setFocusable(true);
@@ -60,14 +31,11 @@ public class Controller {
 	}
 	public byte getControllerStatus(){
 		int getNextKey = keys.currentKeys()[nextKey]?1:0;
-		//System.out.println(Arrays.toString(keys.currentKeys()));
 		if(!strobe)
 			nextKey++;
 		output&=0x11111110;
 		output|=getNextKey;
-		//System.out.println("return controller status:"+output);
 		return (byte)(output);
-		//return (byte) (output& ((keys.currentKeys()[strobe?nextKey++:0])?1:0));
 	}
 	public void inputRegister(byte b){
 		if((b&1)==1){
@@ -84,7 +52,9 @@ public class Controller {
 	}
 	
 }
-class Keycheckerc1 implements KeyListener{
+class Keycheckerc1 implements KeyListener, java.io.Serializable{
+
+	private static final long serialVersionUID = 6782112428112431713L;
 	boolean a=false;
 	boolean b=false;
 	boolean up=false;

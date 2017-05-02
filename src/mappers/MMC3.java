@@ -3,9 +3,10 @@ package mappers;
 import java.util.Arrays;
 
 public class MMC3 extends Mapper {
-	//byte[][] PRGbanks;
-	//byte[][] CHRbanks;
+
+	private static final long serialVersionUID = -8413903049772229695L;
 	public MMC3(){
+		super();
 		System.out.println("Making an MMC3!");
 	}
 	@Override
@@ -294,7 +295,7 @@ public class MMC3 extends Mapper {
 			}
 			doingIRQ=true;
 			if(control.checkDebug())
-				System.out.println("Generating IRQ at scanline: "+ppu.scanline+" pcycle: "+ppu.pcycle+" iflag: "+cpu.IFlag );
+				System.out.println("Generating IRQ at scanline: "+ppu.scanline+" pcycle: "+ppu.pcycle+" iflag: " );
 		}
 		
 		

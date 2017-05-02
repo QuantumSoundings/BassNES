@@ -3,8 +3,10 @@ package mappers;
 import java.util.Arrays;
 
 public class UxROM extends Mapper{
+	private static final long serialVersionUID = 5199302433584064014L;
 	byte[][] PRGbanks;
 	public UxROM(){
+		super();
 		System.out.println("Mapper 2 (UxROM) Fully Supported!");
 	}
 	@Override

@@ -26,8 +26,8 @@ public class NesDisplay extends JPanel {
 		this.setMinimumSize(new Dimension(256*i,240*i));
 	}
 	
-	public void sendFrame(BufferedImage f) {
-		this.frame = f;
+	public void sendFrame(int[] pixels) {
+		frame.setRGB(0, 0, 256, 240, pixels, 0, 256);
 		this.repaint();
 	}
 	@Override

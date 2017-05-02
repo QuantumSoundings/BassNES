@@ -1,15 +1,14 @@
 package com;
-import java.io.IOException;
 import java.util.Arrays;
 
 import mappers.Mapper;
 import ui.UserSettings;
-import video.NTSC_Converter;
 import video.NesDisplay;
 import video.Renderer;
-import mappers.MMC3;
 
-public class ppu2C02 {
+public class ppu2C02 implements java.io.Serializable{
+
+	private static final long serialVersionUID = -1721542574813003352L;
 	//memory map
 	//0x0000-0x0fff pattern table 0
 	//0x1000-0x1fff pattern table 1
@@ -90,33 +89,26 @@ public class ppu2C02 {
 	
 	
 	
-	boolean oddskip = false;
-	/*yyy NN YYYYY XXXXX
-	||| || ||||| +++++-- coarse X scroll
-	||| || +++++-------- coarse Y scroll
-	||| ++-------------- nametable select
-	+++----------------- fine Y scroll*/
+	//boolean oddskip = false;
 	public int v,t,x;
 	Renderer renderer;
-	NesDisplay display;
+	public transient NesDisplay display;
 	int[] pixels;
 	int pixelnum;
 	//registers	
 	Mapper map;
 	int tempX;
 	int tv;
-	public ppu2C02(Mapper m,NesDisplay disp) {
+	public ppu2C02(Mapper m) {
 		map = m;
-		display = disp;
+		//display = disp;
 		pixels = new int[256*240];
-		maskpixels= new int[256*240];
 		scanline = 0;
 		pcycle = 0;
-		ptablemap0=0;
-		//oddframe=false;
-		//PPUSTATUS_so=true;
-		//PPUSTATUS_vb=true;
 		renderer= new Renderer();
+	}
+	public void setDisplay(NesDisplay ndisp){
+		display = ndisp;
 	}
 	boolean even = true;
 	public void writeRegisters(int index,byte b){
@@ -153,7 +145,7 @@ public class ppu2C02 {
 			//System.out.println("Setting background to "+PPUMASK_sb);
 			PPUMASK_ss = (b&16)==0?false:true;
 			render = PPUMASK_ss||PPUMASK_sb;
-			PPUMASK_colorbits = (b&0b11100000)>>>5;
+			PPUMASK_colorbits = (b&0b11100000)<<3;
 			break;
 		case 0x2003:
 			//System.out.println("Setting OAMADDR to: "+Byte.toUnsignedInt(b));
@@ -328,7 +320,6 @@ public class ppu2C02 {
 		}
 	}
 	
-	int test =0;
 	int tempx;
 	public void getBG(){
 		cyclepart++;
@@ -405,7 +396,7 @@ public class ppu2C02 {
 				render();
 			else if(scanline==241&&pcycle==1){
 				PPUSTATUS_vb = true;
-				clearSprites();
+				//clearSprites();
 				map.cpu.doNMI=(PPUCTRL_genNmi&&PPUSTATUS_vb);
 				genFrame();
 			}
@@ -463,41 +454,19 @@ public class ppu2C02 {
 		}
 	}
 	void genFrame(){
-		renderer.buildFrame(pixels, maskpixels, 2);
+		renderer.buildFrame(pixels, 2);
 		pixelnum = 0;
-		stop = System.currentTimeMillis()-start;
-		display.sendFrame(renderer.frame);
-		if(stop<16&&UserSettings.frameLimit)
-			try {
-				while(System.currentTimeMillis()-start<16){
-					if(UserSettings.politeFrameTiming)
-						Thread.sleep(1);
-				}
-			} catch ( InterruptedException e){
-				e.printStackTrace();
-			}
-		if(framecount==60){
-			framecount=0;
-			double x = 1000.0/(System.currentTimeMillis()-frametimestart);
-			currentFPS = x*60;
-			//System.out.println(x+" fps");
-			frametimestart=System.currentTimeMillis();
-		}
-		else
-			framecount++;
-			//System.out.println(stop+"ms");
-		start = System.currentTimeMillis();
+		display.sendFrame(renderer.colorized);
 	}
 
-	int[] maskpixels;
 	void drawpixel(){
 		if(dorender()||(v&0x3f00)!=0x3f00){
-			maskpixels[pixelnum]= PPUMASK;
-			pixels[pixelnum++] = pixelColor();
+			//maskpixels[pixelnum]= PPUMASK;
+			pixels[pixelnum++] = (PPUMASK_colorbits)|pixelColor();
 		}
 		else{
-			maskpixels[pixelnum]= PPUMASK;
-			pixels[pixelnum++] = Byte.toUnsignedInt(map.ppuread(v));
+			//maskpixels[pixelnum]= PPUMASK;
+			pixels[pixelnum++] = (PPUMASK_colorbits)|Byte.toUnsignedInt(map.ppuread(v));
 		}
 		
 	}

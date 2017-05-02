@@ -1,7 +1,9 @@
 package audio;
 
 
-public class Channel {
+public class Channel implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1054848637029892308L;
 	public boolean enable;
 	int tcount;
 	int timer;

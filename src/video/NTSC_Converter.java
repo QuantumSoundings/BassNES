@@ -2,8 +2,8 @@ package video;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 public class NTSC_Converter{
-	public BufferedImage bi = new BufferedImage(256,240,BufferedImage.TYPE_INT_RGB);
-	Graphics2D big = null;
+	public transient BufferedImage bi = new BufferedImage(256,240,BufferedImage.TYPE_INT_RGB);
+	transient Graphics2D big = null;
 	public NTSC_Converter(){
 		bi = new BufferedImage(256,240,BufferedImage.TYPE_INT_RGB);
 		big = bi.createGraphics();
@@ -39,7 +39,7 @@ public class NTSC_Converter{
 			//bi.setRGB(0, 0, 256, 240, ntscpixels, 0, 256);
 			
 		}
-		public void test(byte[] pixels, int[] mask){
+		/*public void test(byte[] pixels, int[] mask){
 			Thread r = new Thread(new Runnable(){
 
 				@Override
@@ -49,7 +49,7 @@ public class NTSC_Converter{
 				}
 				
 			});
-		}
+		}*/
 		final float levels[] = {.350f,.518f,.962f,1.550f,1.094f,1.506f,1.962f,1.962f};
 		final float black = .518F, white = 1.962F, attenuation = .746F;
 		public int ntsc_to_rgb(int pixel, int PPUMASK) {
