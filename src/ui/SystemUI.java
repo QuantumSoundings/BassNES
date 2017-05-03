@@ -1,5 +1,6 @@
 package ui;
 
+import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Graphics2D;
 import java.awt.event.WindowAdapter;
@@ -9,6 +10,7 @@ import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.EventListener;
 import java.util.Properties;
 
 import javax.swing.JFileChooser;
@@ -17,7 +19,9 @@ import javax.swing.JPanel;
 
 import com.NES;
 import video.NesDisplay;
-
+interface UpdateEventListener extends EventListener{
+	public void doframe();
+}
 public class SystemUI {
 	public NES nes;
 	final JFileChooser fc = new JFileChooser();
@@ -25,6 +29,9 @@ public class SystemUI {
 	File rom;
 	NesDisplay display;
 	JPanel panel;
+	KeyChecker keys;
+	public UpdateEventListener listener;
+	int[] pixels;
 	//JMenuBar menu;
 	//JMenu system,cpu,audio,graphics,control,debug;
 	Thread current;
@@ -47,13 +54,17 @@ public class SystemUI {
 		keyconfigWindow = new ControlUI(prop,this);
 		audiomixerWindow = new AudioMixerUI(this);
 		advancedGraphicsWindow = new AdvancedGraphics();
+		keys = new KeyChecker();
+		mainWindow.addKeyListener(keys);
+		mainWindow.setFocusable(true);
+		mainWindow.requestFocusInWindow();
 		display = new NesDisplay();
 		panel = new JPanel();
 		panel.setLayout(new FlowLayout());
 		display.setSize(256, 240);
-		display.setFocusable(true);
+		//display.setFocusable(true);
 		mainWindow.getContentPane().add(display);
-		display.requestFocusInWindow();
+		//display.requestFocusInWindow();
 		mainWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		mainWindow.addWindowListener(new WindowAdapter(){
 			@Override
@@ -72,6 +83,11 @@ public class SystemUI {
 		mainWindow.pack();
 		mainWindow.setBounds(100, 100, 256+10, 240+60);
 		mainWindow.setVisible(true);
+		listener = new UpdateEventListener(){
+            public void doframe() {
+               display.sendFrame(pixels);
+           }
+       };
 		/*try {
 			runTests();
 		} catch (InterruptedException e) {
@@ -282,17 +298,43 @@ public class SystemUI {
 		return Arrays.hashCode(pixels);
 	}
 	void startnes(int delay) throws InterruptedException {
-		nes = new NES(display,mainWindow,rom);
+		nes = new NES(rom,this);
 		current = new Thread(nes);
 		current.start();
 		Thread.sleep(delay);
 	}
-	public void saveState() throws IOException{
+	public void saveState(int slot){
 		nes.pause=true;
-		nes.saveState();
+		try {
+			nes.saveState("savestateY.txt".replaceAll("Y", slot+""));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		nes.pause=false;
 	}
-	public void restoreState() throws IOException, ClassNotFoundException{
+	public void restoreState(int slot){
 		nes.pause=true;
-		nes.restoreState(display, mainWindow);
+		try {
+			nes.restoreState("savestateY.txt".replaceAll("Y", slot+""));
+		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}
 	}
+	public boolean[][] pollController(){
+		return keys.currentKeys();	
+	}
+	public void videoCallback(int[] p){
+		pixels=p;
+		dispatch();
+		//display.sendFrame(pixels);
+	}
+	private void dispatch(){
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run(){
+                listener.doframe();
+            }
+        
+        });
+    }
 }

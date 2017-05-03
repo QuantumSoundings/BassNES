@@ -70,7 +70,7 @@ public class AudioMixer implements java.io.Serializable {
 		double pulse_out = 0.00752 * (p1+p2);//pulse_table[p1+p2];
 		double tnd_out = 0.00851*t + 0.00494*n + 0.00335*d;//tnd_table[3*t + 2*n + d];
 		double sample = pulse_out + tnd_out;
-		sample-=.5;
+		//sample-=.5;
 		sample = ((sample*32768)*(UserSettings.masterMixLevel/100.0));
 		audio.outputSample((int)sample);
 	}

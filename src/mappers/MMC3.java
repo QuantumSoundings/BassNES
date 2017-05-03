@@ -78,8 +78,8 @@ public class MMC3 extends Mapper {
 		else if(index>=0xc000&&index<0xe000){
 			if(index%2==0){
 				irqreload = Byte.toUnsignedInt(b);
-				if(control.checkDebug())
-					System.out.println("Setting reload to : "+irqreload+" SL: "+ppu.scanline);
+				//if(control.checkDebug())
+				//	System.out.println("Setting reload to : "+irqreload+" SL: "+ppu.scanline);
 			}
 			else{
 				scanlinecount=0;
@@ -87,16 +87,16 @@ public class MMC3 extends Mapper {
 		}
 		else if(index>=0xe000&&index<=0xffff){
 			if(index%2==0){
-				if(control.checkDebug())
-				System.out.println("setting irq enable to false scanline: "+ppu.scanline);
+				//if(control.checkDebug())
+				//System.out.println("setting irq enable to false scanline: "+ppu.scanline);
 				if(doingIRQ)
 					cpu.doIRQ--;
 				doingIRQ=false;
 				irqenable = false;
 			}
 			else{
-				if(control.checkDebug())
-				System.out.println("Setting irq enable to true scanline: "+ppu.scanline);
+				//if(control.checkDebug())
+				//System.out.println("Setting irq enable to true scanline: "+ppu.scanline);
 				irqenable = true;
 			}
 		}
@@ -294,8 +294,8 @@ public class MMC3 extends Mapper {
 				cpu.doIRQ++;
 			}
 			doingIRQ=true;
-			if(control.checkDebug())
-				System.out.println("Generating IRQ at scanline: "+ppu.scanline+" pcycle: "+ppu.pcycle+" iflag: " );
+			//if(control.checkDebug())
+			//	System.out.println("Generating IRQ at scanline: "+ppu.scanline+" pcycle: "+ppu.pcycle+" iflag: " );
 		}
 		
 		

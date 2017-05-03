@@ -175,12 +175,7 @@ public class CPU_6502 implements java.io.Serializable{
 				+" Z:" +(ZFlag?1:0)
 				+" C:" +(CFlag?1:0));
 	}
-	public int[] getState(){
-		int flags = buildFlags();
-		return new int[]{program_counter, stack_pointer,accumulator,x_index_register,y_index_register,flags,doOp?1:0,brokenaddress?1:0,instruction_cycle,current_instruction,
-				tempregister,address,pointer,branchtaken?1:0,lowpc,writeDMA?1:0,dmac,dmain,dxx,cpuinc,doNMI?1:0,doIRQ,nmiInterrupt?1:0,irqInterrupt?1:0,
-				nmihijack?1:0,oldnmi?1:0,nmi?1:0};		
-	}
+
 	private byte buildFlags(){
 		byte temp = 0;
 		temp|= CFlag?1:0;

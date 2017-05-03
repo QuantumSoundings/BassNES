@@ -6,8 +6,13 @@ import com.CPU_6502;
 import com.Controller;
 import com.NES;
 import com.ppu2C02;
+
+import ui.SystemUI;
 public class Mapper implements java.io.Serializable {//There will be class that inheriet this class. Better to have all reads and writes go through this
 	private static final long serialVersionUID = 6655950169350506050L;
+	//for callback
+	public transient SystemUI system;
+	
 	//System Components
 	transient NES nes;
 	public CPU_6502 cpu;
@@ -41,8 +46,8 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		ppu = new ppu2C02(this);
 		cpu = new CPU_6502(this);
 		apu = new APU(this);
-		control = new Controller(1);
-		control2 = new Controller(2);
+		control = new Controller(this,0);
+		control2 = new Controller(this,1);
 	}
 	public void setcomponents(CPU_6502 c,ppu2C02 p,Controller cont,Controller cont2, APU a){
 		cpu = c;
@@ -51,6 +56,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		control = cont;
 		control2 = cont2;
 	}
+	public void setSystem(SystemUI sys){system = sys;}
 	public void setNes(NES n){ nes = n;}
 	public void setMirror(int i){
 		mirrormode=(i==0)?true:false;

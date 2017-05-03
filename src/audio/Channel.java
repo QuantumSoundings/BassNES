@@ -5,6 +5,7 @@ public class Channel implements java.io.Serializable {
 
 	private static final long serialVersionUID = 1054848637029892308L;
 	public boolean enable;
+	boolean output;
 	int tcount;
 	int timer;
 	//Sweep Variables
@@ -129,10 +130,14 @@ public class Channel implements java.io.Serializable {
 		if(enable){
 			if(linearhalt){
 				linearcount = linearReload;
+				output=true;
 			}
 			else{
 				if(linearcount!=0){
 					linearcount--;
+				}
+				else{
+					output = false;
 				}
 			}
 			if(!linearcontrol)

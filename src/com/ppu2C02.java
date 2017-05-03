@@ -88,16 +88,14 @@ public class ppu2C02 implements java.io.Serializable{
 	public byte OPEN_BUS;
 	
 	
-	
+	public boolean doneFrame;
 	//boolean oddskip = false;
 	public int v,t,x;
 	Renderer renderer;
-	public transient NesDisplay display;
 	int[] pixels;
 	int pixelnum;
 	//registers	
 	Mapper map;
-	int tempX;
 	int tv;
 	public ppu2C02(Mapper m) {
 		map = m;
@@ -106,9 +104,6 @@ public class ppu2C02 implements java.io.Serializable{
 		scanline = 0;
 		pcycle = 0;
 		renderer= new Renderer();
-	}
-	public void setDisplay(NesDisplay ndisp){
-		display = ndisp;
 	}
 	boolean even = true;
 	public void writeRegisters(int index,byte b){
@@ -320,7 +315,6 @@ public class ppu2C02 implements java.io.Serializable{
 		}
 	}
 	
-	int tempx;
 	public void getBG(){
 		cyclepart++;
 		switch((pcycle-1)&7){
@@ -336,7 +330,7 @@ public class ppu2C02 implements java.io.Serializable{
 			nametablebyte+=(PPUCTRL_bpta?0x1000:0);
 			break;
 		case 3://attribute table
-			tempx =0x23C0 | (v & 0x0C00) | ((v >> 4) & 0x38) | ((v >> 2) & 0x07);
+			int tempx =0x23C0 | (v & 0x0C00) | ((v >> 4) & 0x38) | ((v >> 2) & 0x07);
 			byte attbyte = map.ppuread(tempx);
 			int sel = ((v & 2) >> 1) | ((v & 0x40) >> 5);
 			switch (sel){
@@ -359,14 +353,6 @@ public class ppu2C02 implements java.io.Serializable{
 			break;
 		}		
 	}
-	boolean thiscycle= false;
-	boolean olda12;
-	boolean cura12;
-	public boolean doscanline;
-	long frametimestart;
-	int framecount;
-	long start = 0;
-	long stop = 0;
 	boolean spriteoverdelay;
 	public void doCycle(){
 		if(delayset){// FIXME    //Sprite zero flag set 1 cycle too early
@@ -381,22 +367,20 @@ public class ppu2C02 implements java.io.Serializable{
 			if(scanline==260){
 				scanline=-1;pcycle=0;
 				oddframe=!oddframe;
+				doneFrame=true;
 			}
 			else{
 				pcycle=0;
 				scanline++;
 			}
 			oldspritezero = spritezero;
-			oldszhl=szhl;
 			spritezero=false;
-			szhl=-1;
 		}
 		else{
 			if(scanline<240&&pcycle>0)
 				render();
 			else if(scanline==241&&pcycle==1){
 				PPUSTATUS_vb = true;
-				//clearSprites();
 				map.cpu.doNMI=(PPUCTRL_genNmi&&PPUSTATUS_vb);
 				genFrame();
 			}
@@ -435,10 +419,11 @@ public class ppu2C02 implements java.io.Serializable{
 		else if(cycle<=320){
 			if(dorender()){
 				OAMADDR=0;
-				if(scanline==-1&&cycle>=280&&cycle<=304)
-					v=t;
 				if(cycle==260)
 					map.scanlinecounter();
+				else if(scanline==-1&&cycle>=280&&cycle<=304)
+					v=t;
+				
 			}
 			if(cycle%8==4&&scanline>=0)
 				loadSprites();
@@ -456,7 +441,7 @@ public class ppu2C02 implements java.io.Serializable{
 	void genFrame(){
 		renderer.buildFrame(pixels, 2);
 		pixelnum = 0;
-		display.sendFrame(renderer.colorized);
+		map.system.videoCallback(renderer.colorized);
 	}
 
 	void drawpixel(){
@@ -514,8 +499,6 @@ public class ppu2C02 implements java.io.Serializable{
 	int spritec = 0;
 	boolean oldspritezero;
 	boolean spritezero;
-	int oldszhl;
-	int szhl;
 	int numsprites;
 	void stage2(){
 		if(n==63){
@@ -578,7 +561,6 @@ public class ppu2C02 implements java.io.Serializable{
 				oamBCounter++;
 				if(n==0){
 					spritezero= true;
-					szhl = scanline+1;
 				}
 				stage2();//move on the next sprite
 				return;

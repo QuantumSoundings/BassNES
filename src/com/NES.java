@@ -1,8 +1,8 @@
 package com;
 import java.io.File;
-import javax.swing.JFrame;
 
 import mappers.Mapper;
+import ui.SystemUI;
 import ui.UserSettings;
 import video.NesDisplay;
 
@@ -13,12 +13,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class NES implements Runnable {
-	//Different system components
-	//private CPU_6502 cpu;
-	//private ppu2C02 ppu;
-	//public APU apu;
 	private volatile Mapper map;
 	private String romName;
+	private SystemUI system;
 	File save;
 	
 	//clock settings NTSC
@@ -32,7 +29,6 @@ public class NES implements Runnable {
 	private int mclock;
 	
 	boolean batteryExists;
-	//private NesDisplay display;
 	public volatile boolean flag = true;
 	public volatile boolean doaudio = true;
 	public volatile boolean pause = false;
@@ -49,17 +45,16 @@ public class NES implements Runnable {
 	//private int p=0;
 	//private double c =0.0;
 	
-	public NES(NesDisplay disp,JFrame f,File rom){
+	public NES(File rom,SystemUI s){
+		system = s;
 		romName = rom.getName().substring(0,rom.getName().length()-4);
 		try {
 			loadrom(rom);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		}		
 		map.setNes(this);
-		map.control.setframe(f);
-		map.control2.setframe(f);
-		map.ppu.setDisplay(disp);
+		map.setSystem(system);
 		map.cpu.setPC(((map.cpureadu(0xfffd)<<8)|(map.cpureadu(0xfffc))));
 	}
 	public void run(){
@@ -86,15 +81,19 @@ public class NES implements Runnable {
 	}
 	public void runFrame(){
 		frameStartTime = System.nanoTime();
-		while(!(map.ppu.scanline==0&&map.ppu.pcycle==0)){
-			if(mclock%cpudiv==0){
+		while(!map.ppu.doneFrame){
+			//if(mclock%cpudiv==0){
 				map.cpu.run_cycle();
 				map.apu.doCycle();
-			}
-			if(mclock%ppudiv==0)
+			//}
+			//if(mclock%ppudiv==0)
 				map.ppu.doCycle();
-			mclock+=4;
+				map.ppu.doCycle();
+				map.ppu.doCycle();
+			
+				//mclock+=4;
 		}
+		map.ppu.doneFrame=false;
 		if(mclock%cpudiv==0){
 			map.cpu.run_cycle();
 			map.apu.doCycle();
@@ -122,8 +121,8 @@ public class NES implements Runnable {
 	public double getFPS(){
 		return currentFPS;
 	}
-	public void saveState() throws IOException{
-		FileOutputStream fout = new FileOutputStream("savestate1.txt");
+	public void saveState(String slot) throws IOException{
+		FileOutputStream fout = new FileOutputStream(slot);
 		ObjectOutputStream out = new ObjectOutputStream(fout);
 		try {
 			Thread.sleep(20);
@@ -136,8 +135,8 @@ public class NES implements Runnable {
 		out.writeObject(map.ppu);
 		out.close();
 	}
-	public void restoreState(NesDisplay display, JFrame frame) throws IOException, ClassNotFoundException{
-		FileInputStream fin = new FileInputStream("savestate1.txt");
+	public void restoreState(String slot) throws IOException, ClassNotFoundException{
+		FileInputStream fin = new FileInputStream(slot);
 		ObjectInputStream in = new ObjectInputStream(fin);
 		pause = true;
 		try {
@@ -151,9 +150,7 @@ public class NES implements Runnable {
 		map.apu.mix.audio.restartSDL();
 		map.cpu = (CPU_6502) in.readObject();
 		map.ppu = (ppu2C02) in.readObject();
-		map.ppu.display=display;
-		map.control.setframe(frame);
-		map.control2.setframe(frame);
+		map.setSystem(system);
 		in.close();
 		pause = false;
 	}
@@ -206,6 +203,7 @@ public class NES implements Runnable {
 		if(batteryExists)
 			loadSave();
 	}
+	
 	/*private void debug(){
 		System.out.println("Timing: "
 				+" PPU scanline:"+map.ppu.scanline

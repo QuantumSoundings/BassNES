@@ -7,6 +7,7 @@ public class Pulse extends Channel {
 	int dutynumber=7;
 	boolean p1;
 	int duty;
+	boolean[] current_duty = new boolean[]{false,false,false,false,false,false,false,false};
 	boolean[] duty0 = new boolean[]{false,true,false,false,false,false,false,false};
 	boolean[] duty1 = new boolean[]{false,true,true,false,false,false,false,false};
 	boolean[] duty2 = new boolean[]{false,true,true,true,true,false,false,false};
@@ -20,25 +21,25 @@ public class Pulse extends Channel {
 	}
 	@Override
 	public void clockTimer(){
-		super.clockTimer();
-		if(tcount==timer){
-			if(dutynumber==7)
-				dutynumber = 0;
-			else
-				dutynumber++;
+		if(tcount==0){
+			tcount=timer;
+			dutynumber++;
+			output = current_duty[dutynumber%8];
 		}
-		switch(duty){
-		case 0: output = duty0[dutynumber];break;
-		case 1: output = duty1[dutynumber];break;
-		case 2: output = duty2[dutynumber];break;
-		case 3: output = duty3[dutynumber];break;	
-		}
+		else
+			tcount--;
 	}
 	
 	public void registerWrite(int index,byte b,int clock){
 		switch(index%4){
 		case 0: 
 			duty = Byte.toUnsignedInt(b)>>>6;
+			switch(duty){
+			case 0: current_duty = duty0;break;
+			case 1: current_duty = duty1;break;
+			case 2: current_duty = duty2;break;
+			case 3: current_duty = duty3;break;	
+			}
 			if(clock==14915){
 				delayedchange=(b&0b10000)!=0?2:1;
 			}
