@@ -6,8 +6,8 @@ public class Channel implements java.io.Serializable {
 	private static final long serialVersionUID = 1054848637029892308L;
 	public boolean enable;
 	boolean output;
-	int tcount;
-	int timer;
+	public int tcount;
+	public int timer;
 	//Sweep Variables
 	boolean dosweep;
 	int targetperiod;
@@ -20,7 +20,7 @@ public class Channel implements java.io.Serializable {
 	//Envelope Variables
 	boolean estart;
 	boolean constantvolume;
-	int decay;
+	public int decay;
 	int edivider;
 	int volume;
 	boolean loop;
@@ -29,7 +29,7 @@ public class Channel implements java.io.Serializable {
 	boolean linearhalt;
 	boolean linearcontrol;
 	int linearReload;
-	int linearcount;
+	public int linearcount;
 	
 	
 	//Length Counter Variables

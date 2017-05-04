@@ -4,15 +4,15 @@ package audio;
 public class Pulse extends Channel {
 
 	private static final long serialVersionUID = -3321343541094080447L;
-	int dutynumber=7;
+	public int dutynumber=7;
 	boolean p1;
 	int duty;
-	boolean[] current_duty = new boolean[]{false,false,false,false,false,false,false,false};
+	public boolean[] current_duty = new boolean[]{false,false,false,false,false,false,false,false};
 	boolean[] duty0 = new boolean[]{false,true,false,false,false,false,false,false};
 	boolean[] duty1 = new boolean[]{false,true,true,false,false,false,false,false};
 	boolean[] duty2 = new boolean[]{false,true,true,true,true,false,false,false};
 	boolean[] duty3 = new boolean[]{true,false,false,true,true,true,true,true};
-	boolean output;
+	public boolean output;
 	boolean halt=false;
 	public Pulse(boolean number){
 		super();
@@ -20,7 +20,7 @@ public class Pulse extends Channel {
 		duty = 0;
 	}
 	@Override
-	public void clockTimer(){
+	public final void clockTimer(){
 		if(tcount==0){
 			tcount=timer;
 			dutynumber++;
@@ -28,6 +28,10 @@ public class Pulse extends Channel {
 		}
 		else
 			tcount--;
+		if(lengthcount==0||!output||decay==0||timer<8)
+			return;
+		total+=decay;
+		return;
 	}
 	
 	public void registerWrite(int index,byte b,int clock){
@@ -114,5 +118,11 @@ public class Pulse extends Channel {
 		if(lengthcount==0||!output||decay==0||timer<8)
 			return 0;
 		return decay;
+	}
+	@Override
+	public void buildOutput(){
+		if(lengthcount==0||!output||decay==0||timer<8)
+			return;
+		total+=decay;
 	}
 }

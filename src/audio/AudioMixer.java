@@ -15,6 +15,7 @@ public class AudioMixer implements java.io.Serializable {
 	int lpaccum = 0;
 	int dckiller = 0;
 	double cyclespersample;
+	public int intcyclespersample;
 	static double[] pulse_table = new double[]{0,
 			0.01160914,0.022939481,0.034000949,0.044803002,0.055354659,0.065664528,0.075740825,0.085591398,0.095223748,0.104645048,0.113862159,0.122881647,0.131709801,0.140352645,0.148815953,0.157105263,0.165225885,
 			0.173182917,0.180981252,0.188625592,0.196120454,0.203470178,0.210678941,0.21775076,0.224689499,0.231498881,0.23818249,0.244743777,0.251186072,0.257512581,0.263726398
@@ -33,6 +34,7 @@ public class AudioMixer implements java.io.Serializable {
 	public AudioMixer(Pulse p1, Pulse p2, Triangle t, Noise n, DMC d){
 		audio = new AudioInterface();
 		cyclespersample = 1789773.0/audio.samplerate;
+		intcyclespersample = (int)cyclespersample;
 		pulse1 = p1;
 		pulse2 = p2;
 		triangle = t;
@@ -51,17 +53,18 @@ public class AudioMixer implements java.io.Serializable {
         lpaccum -= sample * 0.9;
         return lpaccum;
     }*/
-	public void sample(){	
-		pulse1.buildOutput();
-		pulse2.buildOutput();
-		noise.buildOutput();
-		triangle.buildOutput();
-		dmc.buildOutput();	
+	public final void sample(){	
+		//pulse1.buildOutput();
+		//pulse2.buildOutput();
+		//noise.buildOutput();
+		//triangle.buildOutput();
+		//dmc.buildOutput();	
 		samplenum++;
-		if((samplenum%cyclespersample)<1)
+		if((samplenum%intcyclespersample)==0)
 			sendOutput();
+		return;
 	}
-	private void sendOutput(){
+	public void sendOutput(){
 		double p1 = getAverageSample(pulse1,UserSettings.pulse1MixLevel);
 		double p2 = getAverageSample(pulse2,UserSettings.pulse2MixLevel);
 		double t = getAverageSample(triangle,UserSettings.triangleMixLevel);

@@ -49,7 +49,7 @@ public class Noise extends Channel{
 		}		
 	}
 	@Override
-	public void clockTimer(){
+	public final void clockTimer(){
 		if(tcount==0){
 			int feedback;
 			tcount =timer;
@@ -62,6 +62,10 @@ public class Noise extends Channel{
 		}
 		else
 			tcount--;
+		if(lengthcount==0||(shiftreg&1)==0)
+			return;
+		total += decay;
+		return;
 	}
 	@Override
 	public int getOutput(){
@@ -73,8 +77,11 @@ public class Noise extends Channel{
 			return decay;
 	}
 	
-	public int[] getState(){
-		return new int[0];
+	@Override
+	public void buildOutput(){
+		if(lengthcount==0||(shiftreg&1)==0)
+			return;
+		total += decay;
 	}
 
 }

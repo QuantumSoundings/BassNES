@@ -66,13 +66,15 @@ public class DMC extends Channel{
 		}
 	}
 	@Override
-	public void clockTimer(){
+	public final void clockTimer(){
 		if(temprate==0){
 			outputUnit();
 			temprate=rate;
 		}
 		else
 			temprate--;
+		total+=outputlevel;
+		return;
 	}
 	
 	void memoryreader(){
@@ -139,6 +141,10 @@ public class DMC extends Channel{
 		return outputlevel;	
 	}
 	@Override
+	public void buildOutput(){
+		total+=outputlevel;
+	}
+	@Override
 	public void enable(){
 		//System.out.println("Enabling dmc channel");
 		if(sampleremaining==0){
@@ -149,16 +155,6 @@ public class DMC extends Channel{
 	@Override
 	public void disable(){
 		sampleremaining = 0;
-	}
-	
-	public int[] getState(){
-		int flags = (irqEnable?1:0)|(irqflag?2:0)|(silence?4:0);
-		return new int[] {flags,outputlevel,sampleaddress,addressStart,samplelength,sampleremaining,samplebuffer,stallcpu,rate,temprate,bitsremaining,shiftreg};
-	}
-	public void setState(int[] state){
-		irqEnable = (state[0]&1)==1; irqflag = (state[0]&2)==1;silence= (state[0]&4)==1;
-		outputlevel = state[1];sampleaddress = state[2]; addressStart = state[3];samplelength = state[4];sampleremaining = state[5];
-		samplebuffer = state[6];stallcpu = state[7];rate = state[8];temprate = state[9];bitsremaining = state[10];shiftreg = state[11];
 	}
 
 }

@@ -390,7 +390,7 @@ public class ppu2C02 implements java.io.Serializable{
 	void render(){
 		int cycle = pcycle;
 		if(cycle<=256){
-			if(dorender())
+			if(render)
 				getBG();
 			if(scanline>=0){
 				drawpixel();
@@ -408,7 +408,7 @@ public class ppu2C02 implements java.io.Serializable{
 			
 		}
 		else if(cycle==257){
-			if(dorender()){
+			if(render){
 				v &=~0x41f;
                	v|=t&0x41f;
 			}
@@ -417,7 +417,7 @@ public class ppu2C02 implements java.io.Serializable{
 			spritec=0;
 		}
 		else if(cycle<=320){
-			if(dorender()){
+			if(render){
 				OAMADDR=0;
 				if(cycle==260)
 					map.scanlinecounter();
@@ -429,7 +429,7 @@ public class ppu2C02 implements java.io.Serializable{
 				loadSprites();
 		}
 		else if(cycle<=336){
-			if(dorender())
+			if(render)
 				getBG();
 		}
 		else if(cycle==339){
@@ -438,22 +438,17 @@ public class ppu2C02 implements java.io.Serializable{
 			}
 		}
 	}
-	void genFrame(){
+	private void genFrame(){
 		renderer.buildFrame(pixels, 2);
 		pixelnum = 0;
 		map.system.videoCallback(renderer.colorized);
 	}
 
-	void drawpixel(){
-		if(dorender()||(v&0x3f00)!=0x3f00){
-			//maskpixels[pixelnum]= PPUMASK;
+	private void drawpixel(){
+		if(render||(v&0x3f00)!=0x3f00)
 			pixels[pixelnum++] = (PPUMASK_colorbits)|pixelColor();
-		}
-		else{
-			//maskpixels[pixelnum]= PPUMASK;
+		else
 			pixels[pixelnum++] = (PPUMASK_colorbits)|Byte.toUnsignedInt(map.ppuread(v));
-		}
-		
 	}
 	boolean delayset;
 	int pixelColor(){
@@ -516,6 +511,31 @@ public class ppu2C02 implements java.io.Serializable{
 		}
 		return;
 	}
+	private void stage3(){
+		int y = Byte.toUnsignedInt(map.ppureadoam((4*n+m)));
+		if((PPUCTRL_ss?inrange(y)<16:inrange(y)<8)){//&&y<scanline){
+			if((PPUMASK_ss||PPUMASK_sb)&&y<240){
+				spriteoverdelay=true;
+			}
+			if(m==3){
+				n++;
+				m=0;
+			}
+			else
+				m++;
+		}
+		else{
+			if(n==63){
+				stage = 7;
+				n = 0;
+				m = 0;
+			}
+			else{
+				n++;
+				m= (m+1)&3;
+			}
+		}
+	}
 	void clearSprites(){
 		Arrays.fill(spriteco, 0);
 		Arrays.fill(spritepriority, false);
@@ -536,10 +556,9 @@ public class ppu2C02 implements java.io.Serializable{
 			return;
 		}
 		else if(pcycle<=256){
-			int y = 0;
 			switch(stage){
 			case 1: // first write of stage 1.
-				y = Byte.toUnsignedInt(map.ppureadoam(4*n));
+				int y = Byte.toUnsignedInt(map.ppureadoam(4*n));
 				oambuffer[4*oamBCounter] = (byte) y;
 				if(PPUCTRL_ss?inrange(y)<16:inrange(y)<8)
 					stage = 2; // Continue writing sprite data
@@ -565,46 +584,9 @@ public class ppu2C02 implements java.io.Serializable{
 				stage2();//move on the next sprite
 				return;
 			case 5://stage 2
-				if(n==63){
-					n=0;
-					stage = 7;
-					return;
-				}
-				else
-					n++;
-				if(oamBCounter<8)
-					stage = 1;
-				else if(oamBCounter==8){
-					m = 0;
-					stage = 6;
-				}
 				return;
 			case 6://stage 3
-				y = Byte.toUnsignedInt(map.ppureadoam((4*n+m)));
-				if((PPUCTRL_ss?inrange(y)<16:inrange(y)<8)){//&&y<scanline){
-					if((PPUMASK_ss||PPUMASK_sb)&&y<240){
-						spriteoverdelay=true;
-						//PPUSTATUS_so = true;
-						//System.out.println("OVERFLOW: pcycle: "+pcycle+" scanline: "+scanline);
-					}
-					if(m==3){
-						n++;
-						m=0;
-					}
-					else
-						m++;
-				}
-				else{
-					if(n==63){
-						stage = 7;
-						n = 0;
-						m = 0;
-					}
-					else{
-						n++;
-						m= (m+1)&3;
-					}
-				}
+				stage3();
 				return;
 			case 7://stage 4 do nothing
 				return;			

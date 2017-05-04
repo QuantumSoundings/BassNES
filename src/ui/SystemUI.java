@@ -117,7 +117,7 @@ public class SystemUI {
 		Thread.sleep(500);
 		
 		testoutput="";
-		if(true){
+		if(false){
 			testoutput = " Blargg PPU Tests \n\n";
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/blarggppu/sprite_ram.nes"),-897623842);
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggppu/palette_ram.nes"),-897623842);
@@ -126,7 +126,7 @@ public class SystemUI {
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggppu/vram_access.nes"),-897623842);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		if(true){
+		if(false){
 			testoutput+= "\n Blargg CPU Tests \n\n";
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggcpu/01-basics.nes"),-1888758012);
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/blarggcpu/02-implied.nes"),-319326302);
@@ -146,12 +146,12 @@ public class SystemUI {
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggcpu/16-special.nes"),-1902180960);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		if(true){
+		if(false){
 			testoutput+= "\n Blargg All CPU Instructions Test\n\n";
 			testrom(30000, new File(System.getProperty("user.dir")+"/tests/blarggcpu/all_inst.nes"),-1700840831);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		if(true){
+		if(false){
 			testoutput+= "\n Blargg APU Tests \n\n";
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/01.len_ctr.nes"),-897623842);
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/02.len_table.nes"),-897623842);
@@ -203,7 +203,7 @@ public class SystemUI {
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/sprite_overflow/05-emulator.nes"),1084950203);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		if(true){
+		if(false){
 			testoutput+="\n Instruction Misc Tests\n\n";
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/instr_misc/01-abs_x_wrap.nes"),-2017680284);
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/instr_misc/02-branch_wrap.nes"),1897661446);
@@ -220,7 +220,7 @@ public class SystemUI {
 			testrom(7000, new File(System.getProperty("user.dir")+"/tests/cpu_interrupts/5-branch_delays_irq.nes"),-1640116134);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		if(true){
+		if(false){
 			testoutput+="\n Instruction timing\n\n";
 			testrom(23000, new File(System.getProperty("user.dir")+"/tests/1-instr_timing.nes"),-277403970);
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/1-Branch_Basics.nes"),114070097);
@@ -228,7 +228,7 @@ public class SystemUI {
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/3.Forward_Branch.nes"),-1744413954);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		if(true){
+		if(false){
 			testoutput+= "\n MMC3 Tests\n\n";
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/mmc3_test/1-clocking.nes"),-19248225);
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/mmc3_test/2-details.nes"),962856060);
@@ -238,29 +238,29 @@ public class SystemUI {
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/mmc3_test/6-MMC3_alt.nes"),0);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		if(true){
+		if(false){
 			testoutput+= "\n OAM Tests\n\n";
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/oam_read.nes"),878913754);
 			testrom(30000, new File(System.getProperty("user.dir")+"/tests/oam_stress.nes"),86089087);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		if(true){
+		if(false){
 			testoutput+= "\n PPU ReadBuffer Mega test\n\n";
 			testrom(27000, new File(System.getProperty("user.dir")+"/tests/test_ppu_read_buffer.nes"),-762073439);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		if(true){
+		if(false){
 			testoutput+= "\n PPU OpenBus test\n\n";
 			testrom(7000, new File(System.getProperty("user.dir")+"/tests/ppu_open_bus.nes"),0);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		if(true){
+		if(false){
 			testoutput+= "\n CPU Execution Space tests\n\n";
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/execspace/test_cpu_exec_space_ppuio.nes"),1133191816);
 			testrom(7000, new File(System.getProperty("user.dir")+"/tests/execspace/test_cpu_exec_space_apu.nes"),-1164932952);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		if(true){
+		if(false){
 			testoutput+= "\n CPU Dummy Write tests\n\n";
 			testrom(8000, new File(System.getProperty("user.dir")+"/tests/dummywrites/cpu_dummy_writes_oam.nes"),1310446203);
 			testrom(8000, new File(System.getProperty("user.dir")+"/tests/dummywrites/cpu_dummy_writes_ppumem.nes"),-1007081423);

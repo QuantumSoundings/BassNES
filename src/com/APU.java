@@ -26,6 +26,7 @@ public class APU implements java.io.Serializable{
 	public int framecounter;	
 	int cpucounter;
 	public long cyclenum;
+	int cycleper;
 	
 	
 	public APU(Mapper m){
@@ -33,6 +34,7 @@ public class APU implements java.io.Serializable{
 		map = m;
 		dmc =new DMC(map);
 		mix = new AudioMixer(pulse1,pulse2,triangle,noise,dmc);
+		cycleper= mix.intcyclespersample;
 		cpucounter = 10;
 	}
 	public void writeRegister(int index,byte b){
@@ -165,6 +167,7 @@ public class APU implements java.io.Serializable{
 			}
 		}
 	}
+	int samplenum;
 	public void doCycle(){
 		if(delay>0){
 			delay--;
@@ -174,7 +177,6 @@ public class APU implements java.io.Serializable{
 			delay =-1;
 		}
 		triangle.clockTimer();
-		
 		if(!evenclock){
 			pulse1.clockTimer();
 			pulse2.clockTimer();
@@ -216,7 +218,9 @@ public class APU implements java.io.Serializable{
 			}
 		}
 		cpucounter++;
-		mix.sample();
+		samplenum++;
+		if((samplenum%cycleper)==0)
+			mix.sendOutput();
 	}
 
 }
