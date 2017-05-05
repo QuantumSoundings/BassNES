@@ -10,7 +10,7 @@ public class Triangle extends Channel {
 			if(clock==14915)
 				delayedchange=(b&0x80)!=0?2:1;
 			else
-				linearcontrol = (b&0x80)!=0?true:false;
+				linearcontrol = (b & 0x80) != 0;
 			//System.out.println(Integer.toBinaryString(Byte.toUnsignedInt(b)));
 
 			break;
@@ -56,7 +56,7 @@ public class Triangle extends Channel {
 			}
 		}
 		if(delayedchange!=0){
-			loop = delayedchange==2?true:false;
+			loop = delayedchange == 2;
 			delayedchange=0;
 		}
 		block=false;

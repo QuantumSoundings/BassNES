@@ -5,28 +5,28 @@ import mappers.Mapper;
 
 public class APU implements java.io.Serializable{
 	private static final long serialVersionUID = 2400733667863038798L;
-	Triangle triangle = new Triangle();
-	Pulse pulse1 = new Pulse(true);
-	Pulse pulse2 = new Pulse(false);
-	Noise noise = new Noise();
-	DMC dmc;
+	private final Triangle triangle = new Triangle();
+	private final Pulse pulse1 = new Pulse(true);
+	private final Pulse pulse2 = new Pulse(false);
+	private final Noise noise = new Noise();
+	private final DMC dmc;
 	public AudioInterface audio;
-	public AudioMixer mix;
-	Mapper map;
+	public final AudioMixer mix;
+	private final Mapper map;
 	//Vars for save state
-	boolean stepmode4=true;
+	private boolean stepmode4=true;
 	int stepcycle;
-	boolean irqInhibit;
-	boolean frameInterrupt;
+	private boolean irqInhibit;
+	private boolean frameInterrupt;
 	boolean doFrameStep;
-	boolean evenclock;
-	int block;
-	int stepNumber;
-	public int delay=-1;
-	public int framecounter;	
-	int cpucounter;
+	private boolean evenclock;
+	private int block;
+	private int stepNumber;
+	private int delay=-1;
+	public int framecounter;
+	private int cpucounter;
 	public long cyclenum;
-	int cycleper;
+	private int cycleper;
 	
 	
 	public APU(Mapper m){
@@ -77,7 +77,7 @@ public class APU implements java.io.Serializable{
 			dmc.clearFlag();
 		}
 		else if(index==0x4017){
-			stepmode4 = (b&0x80)==0?true:false;
+			stepmode4 = (b & 0x80) == 0;
 			stepNumber = 0;
 			if((b&0x80)!=0){
 				stepNumber =2;
@@ -85,7 +85,7 @@ public class APU implements java.io.Serializable{
 				cpucounter=0;
 				block=1;
 			}
-			irqInhibit = (b&0x40)==0?false:true;
+			irqInhibit = (b & 0x40) != 0;
 			if(irqInhibit&&frameInterrupt){
 				map.cpu.doIRQ--;
 				frameInterrupt = false;
@@ -116,7 +116,7 @@ public class APU implements java.io.Serializable{
 		return 0;
 	}
 
-	public void frameClock(){
+	private void frameClock(){
 		if(stepmode4){
 			if(stepNumber%4==1||stepNumber%4==3){
 				pulse1.lengthClock();
@@ -159,7 +159,7 @@ public class APU implements java.io.Serializable{
 		}
 		//update();
 	}
-	void setIRQ(){
+	private void setIRQ(){
 		if(!irqInhibit){
 			if(!frameInterrupt){
 				map.cpu.doIRQ++;
@@ -167,7 +167,7 @@ public class APU implements java.io.Serializable{
 			}
 		}
 	}
-	int samplenum;
+	private int samplenum;
 	public void doCycle(){
 		if(delay>0){
 			delay--;
@@ -192,7 +192,8 @@ public class APU implements java.io.Serializable{
 			case 7459: stepNumber = 0;frameClock();break;
 			case 14915:stepNumber = 1;frameClock();break;
 			case 22373:stepNumber = 2;frameClock();break;
-			case 29830:;setIRQ();break;
+			case 29830:
+                setIRQ();break;
 			case 29831:stepNumber = 3;frameClock();break;
 			case 29832:setIRQ();break;
 			case 37289:stepNumber = 0;frameClock();cpucounter=7459;break;

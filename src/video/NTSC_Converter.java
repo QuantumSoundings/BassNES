@@ -72,11 +72,10 @@ public class NTSC_Converter{
 				q += v * Math.sin(Math.PI * p / 6.0);
 			}
 			//byte[] rgb = {(byte) clamp(255 * gammafix(y + 0.946882f*i + 0.623557f*q, gamma)),(byte) clamp(255 * gammafix(y + -0.274788f*i + -0.635691f*q,gamma)),(byte) clamp(255 * gammafix(y + -1.108545f*i +  1.709007f*q,gamma))};
-			int x = 0xFFffffff& (clamp(255 * gammafix(y + 0.946882f*i + 0.623557f*q, gamma))<< 16) |
+			//int x = 0xFFffffff& (Byte.toUnsignedInt(rgb[0]) << 16) | (Byte.toUnsignedInt(rgb[1]) << 8) | Byte.toUnsignedInt(rgb[2]);
+			return (clamp(255 * gammafix(y + 0.946882f * i + 0.623557f * q, gamma)) << 16) |
 					(clamp(255 * gammafix(y + -0.274788f*i + -0.635691f*q,gamma)) << 8) |
 					clamp(255 * gammafix(y + -1.108545f*i +  1.709007f*q,gamma));
-			//int x = 0xFFffffff& (Byte.toUnsignedInt(rgb[0]) << 16) | (Byte.toUnsignedInt(rgb[1]) << 8) | Byte.toUnsignedInt(rgb[2]);
-			return x;
 		}
 		private boolean wave(int x, int y) {
 			return ((x+y+8)%12)<6;
@@ -92,7 +91,7 @@ public class NTSC_Converter{
 		}
 		public void pushPixel(byte[] rgb, int x, int y) {
 			//System.out.println(x+" "+y);
-			bi.setRGB(x%256, y%240,0xFFffffff& (Byte.toUnsignedInt(rgb[0]) << 16) | (Byte.toUnsignedInt(rgb[1]) << 8) | Byte.toUnsignedInt(rgb[2]));
+			bi.setRGB(x%256, y%240, (Byte.toUnsignedInt(rgb[0]) << 16) | (Byte.toUnsignedInt(rgb[1]) << 8) | Byte.toUnsignedInt(rgb[2]));
 			//bi.setRGB(x, y, 0xFFFF00FF);
 		}
 		public void submit() {

@@ -76,7 +76,7 @@ public class MMC2 extends Mapper{
 	@Override
 	public byte ppuread(int index){
 		if(index<0x2000){
-			byte r = 0;
+			byte r;
 			if(index<0x1000)
 				r= latch0bank[latch0==0xfd?0:1][index%0x1000];
 			else

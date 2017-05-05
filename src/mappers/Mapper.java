@@ -59,7 +59,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	public void setSystem(SystemUI sys){system = sys;}
 	public void setNes(NES n){ nes = n;}
 	public void setMirror(int i){
-		mirrormode=(i==0)?true:false;
+		mirrormode= (i == 0);
 		System.out.println("Mode set to:"+mirrormode);
 	}
 	boolean blockppu(){
@@ -163,6 +163,12 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			else
 				return index-0x2800;
 		}
+	}
+	public byte ppureadNT(int index){
+		return ppu_ram[ppuNameTableMirror(index)];
+	}
+	public byte ppureadPT(int index){
+		return CHR_ROM[(index&0x1000)!=0?1:0][index%0x1000];
 	}
 	public byte ppuread(int index){
 		if(index<0x2000)

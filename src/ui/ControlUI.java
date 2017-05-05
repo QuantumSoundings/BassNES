@@ -24,7 +24,8 @@ public class ControlUI extends JFrame {
 	public ControlUI(Properties p, SystemUI s) {
 		sys = s;
 		prop = p;
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //noinspection MagicConstant
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 313);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

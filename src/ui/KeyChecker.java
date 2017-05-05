@@ -6,7 +6,7 @@ import java.awt.event.KeyListener;
 public class KeyChecker implements KeyListener, java.io.Serializable {
 
 	private static final long serialVersionUID = 6782112428112431713L;
-	private boolean a=false;
+	private boolean a;
 	private boolean b=false;
 	private boolean up=false;
 	private boolean down=false;
@@ -102,8 +102,8 @@ public class KeyChecker implements KeyListener, java.io.Serializable {
 		//	debug = !debug;
 	}
 	public boolean[][] currentKeys(){
-		return new boolean[][]{{a,b,select,start,up,up?false:down,left,left?false:right},
-		{a2,b2,select2,start2,up2,up2?false:down2,left2,left2?false:right2}};
+		return new boolean[][]{{a,b,select,start,up, !up && down,left, !left && right},
+		{a2,b2,select2,start2,up2, !up2 && down2,left2, !left2 && right2}};
 	}
 	@Override
 	public void keyTyped(KeyEvent arg0) {

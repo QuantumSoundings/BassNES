@@ -4,7 +4,7 @@ import mappers.Mapper;
 public class DMC extends Channel{
 	private static final long serialVersionUID = -5904036727532211365L;
 
-	Mapper map;
+	final Mapper map;
 	
 	boolean irqEnable;
 	public boolean irqflag;
@@ -22,7 +22,7 @@ public class DMC extends Channel{
 	int shiftreg;
 	
 	
-	int[] rateindex = new int[]{428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106,  84,  72,  54};
+	final int[] rateindex = new int[]{428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106,  84,  72,  54};
 	//double[] pitchtable = new double[]{4181.71,4709.93,5264.04,5593.04,6257.95,7046.35,7919.35,8363.42,9419.86,11186.1,12604.0,13982.6,16884.6,21306.8,24858.0,33143.9};
 	public DMC(Mapper m) {
 		super();
@@ -33,12 +33,12 @@ public class DMC extends Channel{
 	public void registerWrite(int index,byte b){
 		switch(index%4){
 		case 0: 
-			irqEnable = (b&0x80)!=0?true:false;
+			irqEnable = (b & 0x80) != 0;
 			if(!irqEnable&&irqflag){
 				map.cpu.doIRQ--;
 				irqflag=false;
 			}
-			loop = (b&0x40)!=0?true:false;
+			loop = (b & 0x40) != 0;
 			rate = rateindex[b&0xf]/2;
 			//System.out.println("Write to $4010: "+Integer.toBinaryString(Byte.toUnsignedInt(b))+" rate: "+rate);
 			temprate = rate;

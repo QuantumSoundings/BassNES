@@ -5,12 +5,12 @@ import ui.UserSettings;
 public class AudioMixer implements java.io.Serializable {
 
 	private static final long serialVersionUID = -5418535414924993071L;
-	public AudioInterface audio;
-	Triangle triangle;
-	Pulse pulse1;
-	Pulse pulse2;
-	Noise noise;
-	DMC dmc;
+	public final AudioInterface audio;
+	final Triangle triangle;
+	final Pulse pulse1;
+	final Pulse pulse2;
+	final Noise noise;
+	final DMC dmc;
 	int samplenum;
 	int lpaccum = 0;
 	int dckiller = 0;

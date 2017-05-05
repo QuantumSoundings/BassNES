@@ -1,17 +1,13 @@
 package com;
 
-import java.awt.event.*;
-import javax.swing.JFrame;
-
 import mappers.Mapper;
-import ui.UserSettings;
 
 public class Controller implements java.io.Serializable{
 
 	private static final long serialVersionUID = 8353857861874602491L;
 	//Keycheckerc1 keys;
-	Mapper map;
-	int controllerNum;
+	final Mapper map;
+	final int controllerNum;
 	boolean strobe;
 	int output;
 	int keysPressed;

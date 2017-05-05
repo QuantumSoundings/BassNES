@@ -13,6 +13,7 @@ public class NesDisplay extends JPanel {
     }
     public NesDisplay(){
     	frame = new BufferedImage(256, 240, BufferedImage.TYPE_INT_RGB);
+    	frame.setAccelerationPriority(1);
     }
     
 	@Override

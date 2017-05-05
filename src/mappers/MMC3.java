@@ -62,15 +62,15 @@ public class MMC3 extends Mapper {
 		else if(index>=0x8000&&index<0xa000){
 			if(index%2==0){
 				bankselect = b;
-				PRG_mode = (b&0x40)!=0?true:false;
-				CHR_mode = (b&0x80)!=0?true:false;
+				PRG_mode = (b & 0x40) != 0;
+				CHR_mode = (b & 0x80) != 0;
 			}
 			else
 				selectBank(b);	
 		}
 		else if(index>=0xa000&&index<0xc000){
 			if(index%2==0)
-				mirrormode = (b&1)!=0?true:false;
+				mirrormode = (b & 1) != 0;
 			else{
 				//maybe don't implement
 			}
@@ -209,6 +209,10 @@ public class MMC3 extends Mapper {
 			return ppu_palette[(index&0xff)%0x20];
 	}
 	@Override
+	public byte ppureadPT(int index){
+		return CHR_ROM[index/0x400][index%0x400];
+	}
+	@Override
 	public void ppuwrite(int index,byte b){
 		if(index<0x2000&&CHR_ram){
 			//check(index);
@@ -241,7 +245,28 @@ public class MMC3 extends Mapper {
 	
 	@Override
 	int ppuNameTableMirror(int index){
-		if(mirrormode){//default is horizontal
+		index%=0x1000;
+		if(mirrormode){
+			if(index<0x400)
+				return index;
+			else if(index<0x800)
+				return index-0x400;
+			else if(index<0xc00)
+				return index-0x400;
+			else
+				return index-0x800;
+		}
+		else{
+			if(index<0x400)
+				return index;
+			else if(index<0x800)
+				return index;
+			else if(index<0xc00)
+				return index-0x800;
+			else 
+				return index-0x800;
+		}
+		/*if(mirrormode){//default is horizontal
 			if(index>=0x2000&&index<0x2400)
 				return index-0x2000;
 			else if(index>=0x2400&&index<0x2800)
@@ -260,7 +285,7 @@ public class MMC3 extends Mapper {
 				return index-0x2800;
 			else
 				return index-0x2800;
-		}
+		}*/
 	}
 	boolean cura12;
 	public boolean olda12;

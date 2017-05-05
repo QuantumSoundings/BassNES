@@ -5,6 +5,8 @@ import javax.swing.JFrame;
 
 import com.NES;
 
+import video.NesColors;
+
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -28,7 +30,8 @@ public class MainUI extends JFrame {
 		
 		setTitle("Nes Emulator");
 		sys = s;
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //noinspection MagicConstant
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 256, 240);
 		
 		JMenuBar menuBar = new JMenuBar();
@@ -218,7 +221,7 @@ public class MainUI extends JFrame {
 		JMenu mnCpu = new JMenu("CPU");
 		menuBar.add(mnCpu);
 		
-		JMenuItem mntmStartCpu = new JMenuItem("Start CPU");
+		JMenuItem mntmStartCpu = new JMenuItem("Start/Reset CPU");
 		mntmStartCpu.addActionListener(startCPU);
 		mnCpu.add(mntmStartCpu);
 		
@@ -230,12 +233,6 @@ public class MainUI extends JFrame {
 			}
 		});
 		mnCpu.add(mntmPauseCpu);
-		
-		JMenuItem mntmReset = new JMenuItem("Reset (WIP)");
-		mnCpu.add(mntmReset);
-		
-		JMenuItem mntmHardReset = new JMenuItem("Reboot (WIP)");
-		mnCpu.add(mntmHardReset);
 		
 		JMenu mnNewMenu = new JMenu("Audio");
 		menuBar.add(mnNewMenu);
@@ -310,6 +307,56 @@ public class MainUI extends JFrame {
 				sys.advancedGraphicsWindow.setVisible(true);
 			}
 		});
+		
+		JMenu mnPalette = new JMenu("Palette...");
+		mnGraphics.add(mnPalette);
+		ButtonGroup paletteGroup = new ButtonGroup();
+		JRadioButtonMenuItem rdbtnmntmDefault = new JRadioButtonMenuItem("Default");
+		rdbtnmntmDefault.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				NesColors.updatePalette("default");
+			}
+		});
+		rdbtnmntmDefault.setSelected(true);
+		mnPalette.add(rdbtnmntmDefault);
+		paletteGroup.add(rdbtnmntmDefault);
+		
+		JRadioButtonMenuItem rdbtnmntmNtscHardwareFbx = new JRadioButtonMenuItem("NTSC Hardware FBX");
+		rdbtnmntmNtscHardwareFbx.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				NesColors.updatePalette("NTSCHardwareFBX");
+			}
+		});
+		mnPalette.add(rdbtnmntmNtscHardwareFbx);
+		paletteGroup.add(rdbtnmntmNtscHardwareFbx);
+		
+		JRadioButtonMenuItem rdbtnmntmNesClassic = new JRadioButtonMenuItem("NES Classic");
+		rdbtnmntmNesClassic.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				NesColors.updatePalette("nesClassicFBX");
+			}
+		});
+		mnPalette.add(rdbtnmntmNesClassic);
+		paletteGroup.add(rdbtnmntmNesClassic);
+		
+		JRadioButtonMenuItem rdbtnmntmSonyPvm = new JRadioButtonMenuItem("Sony PVM");
+		rdbtnmntmSonyPvm.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				NesColors.updatePalette("sonypvmFBX");
+			}
+		});
+		mnPalette.add(rdbtnmntmSonyPvm);
+		paletteGroup.add(rdbtnmntmSonyPvm);
+		
+		JRadioButtonMenuItem rdbtnmntmNewRadioItem = new JRadioButtonMenuItem("Composite Direct");
+		rdbtnmntmNewRadioItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				NesColors.updatePalette("compositeDirectFBX");
+			}
+		});
+		mnPalette.add(rdbtnmntmNewRadioItem);
+		paletteGroup.add(rdbtnmntmNewRadioItem);
+		
 		mnGraphics.add(mntmMoreSettings);
 		JMenu mnControl = new JMenu("Control");
 		menuBar.add(mnControl);

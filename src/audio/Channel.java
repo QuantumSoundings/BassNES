@@ -34,7 +34,7 @@ public class Channel implements java.io.Serializable {
 	
 	//Length Counter Variables
 	public int lengthcount;
-	int[] lengthlookup= new int[]{
+	final int[] lengthlookup= new int[]{
 			10,254, 20,  2, 40,  4, 80,  6, 160,  8, 60, 10, 14, 12, 26, 14,
 			12, 16, 24, 18, 48, 20, 96, 22, 192, 24, 72, 26, 16, 28, 32, 30};
 	int delayedchange;
@@ -64,7 +64,7 @@ public class Channel implements java.io.Serializable {
 			}
 		}
 		if(delayedchange!=0){
-			loop = delayedchange==2?true:false;
+			loop = delayedchange == 2;
 			delayedchange=0;
 		}
 		block=false;

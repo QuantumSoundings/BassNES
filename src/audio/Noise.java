@@ -17,15 +17,15 @@ public class Noise extends Channel{
 			if(clock ==14195)
 				delayedchange=(b&16)!=0?2:1;
 			else
-				loop = (b&32)==0?false:true;
-			constantvolume = (b&16)==0?false:true;
+				loop = (b & 32) != 0;
+			constantvolume = (b & 16) != 0;
 			volume = b&0xf;
 			break;
 		case 1: 
 
 			break;			
 		case 2: 
-			mode = (b&0x80)==0?false:true;	
+			mode = (b & 0x80) != 0;
 			int noiseperiod= b&0xf;
 			timer = noiselookup[noiseperiod];
 			shiftreg=1;

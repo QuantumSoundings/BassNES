@@ -10,7 +10,7 @@ public class CPU_6502 implements java.io.Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = -5451202977751017819L;
-	Mapper map;
+	final Mapper map;
 	boolean showInvalid=false;
 	/*immediate 0
 	zero 1
@@ -189,13 +189,13 @@ public class CPU_6502 implements java.io.Serializable{
 		return temp;
 	}
 	private void setFlags(byte x){
-		NFlag = x<0?true:false;
-		VFlag = (x&(1<<6))>0?true:false;
-		BFlag = (x&(1<<4))>0?true:false;
-		DFlag = (x&(1<<3))>0?true:false;
-		IFlag = (x&(1<<2))>0?true:false;
-		ZFlag = (x&(1<<1))>0?true:false;
-		CFlag = (x&1)>0?true:false;	
+		NFlag = x < 0;
+		VFlag = (x & (1 << 6)) > 0;
+		BFlag = (x & (1 << 4)) > 0;
+		DFlag = (x & (1 << 3)) > 0;
+		IFlag = (x & (1 << 2)) > 0;
+		ZFlag = (x & (1 << 1)) > 0;
+		CFlag = (x & 1) > 0;
 	}
 
 	private void executeInstruction(){
@@ -814,7 +814,8 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle=1;doOp=true;
 			break;	
 		}
-	};
+	}
+
 	private void zerox_rw(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
@@ -844,7 +845,8 @@ public class CPU_6502 implements java.io.Serializable{
 			address = 0;
 			break;
 		}
-	};
+	}
+
 	private void zerox_w(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
@@ -864,7 +866,8 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;
 			break;
 		}
-	};
+	}
+
 	private void zeroy_r(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
@@ -884,7 +887,8 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle=1;doOp=true;
 			break;			
 		}
-	};
+	}
+
 	private void zeroy_w(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
@@ -904,7 +908,8 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;
 			break;
 		}
-	};
+	}
+
 	private void abs_r(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
@@ -924,7 +929,8 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle=1;doOp=true;
 			break;
 		}
-	};
+	}
+
 	private void abs_rw(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
@@ -954,7 +960,8 @@ public class CPU_6502 implements java.io.Serializable{
 			address = 0;
 			break;
 		}
-	};
+	}
+
 	private void abs_w(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
@@ -975,7 +982,8 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle=1;
 			break;
 		}
-	};
+	}
+
 	private void abs_x_r(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
@@ -1131,7 +1139,8 @@ public class CPU_6502 implements java.io.Serializable{
 			map.cpuwrite(address, tempregister);
 			instruction_cycle = 1;break;
 		}
-	};
+	}
+
 	private void abs_y_w(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
@@ -1154,7 +1163,8 @@ public class CPU_6502 implements java.io.Serializable{
 			executeOp();
 			instruction_cycle = 1;break;
 		}
-	};
+	}
+
 	private void indx_r(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
@@ -1316,7 +1326,8 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1; break;
 		}
 		}
-	};
+	}
+
 	private void indy_w(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
@@ -1410,25 +1421,25 @@ public class CPU_6502 implements java.io.Serializable{
 		}
 	}
 
-	void aac(){
+	private void aac(){
 		if(showInvalid) System.out.println("Invalid instruction AAC");
 		accumulator= (byte)(accumulator &tempregister);
 		ZFlag = accumulator ==0; NFlag = accumulator<0;
 		CFlag = NFlag;
 	}
-	void adc(){
+	private void adc(){
 		int sum = Byte.toUnsignedInt(accumulator) + Byte.toUnsignedInt(tempregister) + (CFlag?1:0);
-		CFlag = sum>0xff?true:false;
-		VFlag = (~(accumulator^tempregister)&(accumulator^sum)&0x80)==0?false:true;
+		CFlag = sum > 0xff;
+		VFlag = (~(accumulator ^ tempregister) & (accumulator ^ sum) & 0x80) != 0;
 		accumulator=(byte) sum;
 		NFlag = accumulator<0;ZFlag = accumulator==0;
 	}
-	void and(){
+	private void and(){
 		accumulator = (byte) (accumulator & tempregister);
 		ZFlag = accumulator==0; NFlag = accumulator<0;
 	}
-	void ane(){}
-	void arr(){
+	private void ane(){}
+	private void arr(){
 		if(showInvalid) System.out.println("Invalid instruction ARR");
 		accumulator=(byte) (accumulator&tempregister);
 		int result = Byte.toUnsignedInt(accumulator);
@@ -1440,24 +1451,24 @@ public class CPU_6502 implements java.io.Serializable{
 		CFlag = ((accumulator&(0b1000000))!=0);
 		VFlag = CFlag ^ ((accumulator&0b100000)!=0);		
 	}
-	void asl(){
+	private void asl(){
 		int temp = Byte.toUnsignedInt(tempregister);
-		if((tempregister&0x80)!=0) CFlag=true; else CFlag=false;
+		CFlag = (tempregister & 0x80) != 0;
 		tempregister = (byte) (temp<<1);
 		ZFlag = tempregister==0; NFlag = tempregister<0;
 	}
-	void asr(){
+	private void asr(){
 		accumulator = (byte) (accumulator & tempregister);
 		CFlag = (accumulator&1)!=0;
 		accumulator= (byte)(Byte.toUnsignedInt(accumulator)>>1);
 		ZFlag = accumulator ==0; NFlag = accumulator<0;		
 	}
-	void atx(){
+	private void atx(){
 		if(showInvalid)System.out.println("Invalid instruction ATX");
 		x_index_register = accumulator=tempregister;
 		ZFlag = accumulator ==0; NFlag = accumulator<0;	
 	}
-	void axs(){
+	private void axs(){
 		if(showInvalid)System.out.println("Invalid instruction AXS");
 		int result = Byte.toUnsignedInt(x_index_register);
 		result &= Byte.toUnsignedInt(accumulator);
@@ -1466,17 +1477,17 @@ public class CPU_6502 implements java.io.Serializable{
 		x_index_register = (byte) result;
 		NFlag = x_index_register<0; ZFlag = x_index_register==0;
 	}
-	void bcc(){branchtaken=!CFlag;}
-	void bcs(){branchtaken=CFlag;}
-	void beq(){branchtaken=ZFlag;}
-	void bit(){
+	private void bcc(){branchtaken=!CFlag;}
+	private void bcs(){branchtaken=CFlag;}
+	private void beq(){branchtaken=ZFlag;}
+	private void bit(){
 		ZFlag = (accumulator&tempregister)==0;
 		NFlag = (tempregister&0x80)!=0; VFlag = (tempregister&0x40)!=0;
 	}
-	void bmi(){branchtaken=NFlag;}
-	void bne(){branchtaken=!ZFlag;}
-	void bpl(){branchtaken=!NFlag;}
-	void brk(){
+	private void bmi(){branchtaken=NFlag;}
+	private void bne(){branchtaken=!ZFlag;}
+	private void bpl(){branchtaken=!NFlag;}
+	private void brk(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
 		case 2:
@@ -1518,33 +1529,33 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;break;
 		}
 	}
-	void bvc(){branchtaken=!VFlag;}
-	void bvs(){branchtaken=VFlag;}
-	void clc(){
+	private void bvc(){branchtaken=!VFlag;}
+	private void bvs(){branchtaken=VFlag;}
+	private void clc(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2: CFlag = false;instruction_cycle = 1;break;
 		}
 	}
-	void cld(){
+	private void cld(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2: DFlag = false;instruction_cycle = 1;break;
 		}
 	}
-	void cli(){
+	private void cli(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2: IFlag = false;instruction_cycle = 1;break;
 		}
 	}
-	void clv(){
+	private void clv(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2: VFlag = false;instruction_cycle = 1;break;
 		}
 	}
-	void cmp(){
+	private void cmp(){
 		CFlag = Byte.toUnsignedInt(accumulator)>=Byte.toUnsignedInt(tempregister); 
 		ZFlag = accumulator==tempregister;
 		NFlag = ((Byte.toUnsignedInt(accumulator)-Byte.toUnsignedInt(tempregister))&0x80)!=0;
@@ -1552,7 +1563,7 @@ public class CPU_6502 implements java.io.Serializable{
 		//if(accumulator == tempregister) ZFlag = true;else ZFlag = false;
 		//if(((Byte.toUnsignedInt(accumulator)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
 	}
-	void cpx(){
+	private void cpx(){
 		CFlag = Byte.toUnsignedInt(x_index_register)>=Byte.toUnsignedInt(tempregister); 
 		ZFlag = x_index_register==tempregister;
 		NFlag = ((Byte.toUnsignedInt(x_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0;
@@ -1560,7 +1571,7 @@ public class CPU_6502 implements java.io.Serializable{
 		//if(x_index_register == tempregister) ZFlag = true;else ZFlag = false;
 		//if(((Byte.toUnsignedInt(x_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
 	}
-	void cpy(){
+	private void cpy(){
 		CFlag = Byte.toUnsignedInt(y_index_register)>=Byte.toUnsignedInt(tempregister); 
 		ZFlag = y_index_register==tempregister;
 		NFlag = ((Byte.toUnsignedInt(y_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0;
@@ -1568,18 +1579,18 @@ public class CPU_6502 implements java.io.Serializable{
 		//if(y_index_register == tempregister) ZFlag = true;else ZFlag = false;
 		//if(((Byte.toUnsignedInt(y_index_register)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
 	}
-	void dcp(){
+	private void dcp(){
 		if(showInvalid)System.out.println("Invalid instruction DCP");
 		tempregister--;
-		if(Byte.toUnsignedInt(accumulator)>=Byte.toUnsignedInt(tempregister)) CFlag = true;else CFlag = false;
-		if(accumulator == tempregister) ZFlag = true;else ZFlag = false;
-		if(((Byte.toUnsignedInt(accumulator)-Byte.toUnsignedInt(tempregister))&0x80)!=0) NFlag = true;else NFlag = false;
+		CFlag = Byte.toUnsignedInt(accumulator) >= Byte.toUnsignedInt(tempregister);
+		ZFlag = accumulator == tempregister;
+		NFlag = ((Byte.toUnsignedInt(accumulator) - Byte.toUnsignedInt(tempregister)) & 0x80) != 0;
 	}
-	void dec(){
+	private void dec(){
 		tempregister--;
 		ZFlag = tempregister==0;NFlag = tempregister<0;
 	}
-	void dex(){
+	private void dex(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:
@@ -1588,7 +1599,7 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;break;
 		}
 	}
-	void dey(){
+	private void dey(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:
@@ -1597,16 +1608,16 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;
 		}
 	}
-	void eor(){
+	private void eor(){
 		accumulator = (byte) (accumulator ^ tempregister);
 		ZFlag = accumulator==0;NFlag = accumulator<0;
 	}
-	void hlt(){}
-	void inc(){
+	private void hlt(){}
+	private void inc(){
 		tempregister++;
 		ZFlag = tempregister==0;NFlag = tempregister<0;
 	}
-	void inx(){
+	private void inx(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:
@@ -1615,7 +1626,7 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;break;
 		}
 	}
-	void iny(){
+	private void iny(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:
@@ -1624,7 +1635,7 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;break;
 		}	
 	}
-	void irq(){
+	private void irq(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
 		case 2: instruction_cycle++;break;
@@ -1663,7 +1674,7 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;break;
 		}
 	}
-	void isb(){
+	private void isb(){
 		tempregister++;
 		if(showInvalid)System.out.println("Invalid instruction ISB");
 		int sum = Byte.toUnsignedInt(accumulator) - Byte.toUnsignedInt(tempregister) - (CFlag?0:1);
@@ -1672,7 +1683,7 @@ public class CPU_6502 implements java.io.Serializable{
 		accumulator=(byte) (sum&0xff);
 		NFlag = accumulator<0;ZFlag = accumulator==0;
 	}
-	void jmp(){
+	private void jmp(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
 		case 2:
@@ -1694,7 +1705,7 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle =1; break;
 		}
 	}
-	void jmp_a(){
+	private void jmp_a(){
 		switch(instruction_cycle){
 		case 1:instruction_cycle++;break;
 		case 2:
@@ -1713,7 +1724,7 @@ public class CPU_6502 implements java.io.Serializable{
 		//	instruction_cycle=1;break;
 		}
 	}
-	void jsr(){
+	private void jsr(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
 		case 2:
@@ -1737,30 +1748,30 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;break;
 		}
 	}
-	void las(){}
-	void lax(){
+	private void las(){}
+	private void lax(){
 		if(showInvalid)System.out.println("Invalid instruction LAX");
 		x_index_register = accumulator = tempregister;
 		NFlag = accumulator<0;ZFlag = accumulator==0;
 	}
-	void lda(){
+	private void lda(){
 		accumulator = tempregister;
 		ZFlag = accumulator==0;NFlag = accumulator<0;
 	}
-	void ldx(){
+	private void ldx(){
 		x_index_register = tempregister;
 		ZFlag = x_index_register==0;NFlag = x_index_register<0;
 	}
-	void ldy(){
+	private void ldy(){
 		y_index_register = tempregister;
 		ZFlag = y_index_register==0;NFlag = y_index_register<0;
 	}
-	void lsr(){
-		if((tempregister&1) >0)CFlag = true;else CFlag = false;
+	private void lsr(){
+		CFlag = (tempregister & 1) > 0;
 		tempregister=(byte) (Byte.toUnsignedInt(tempregister)>>>1);
 		ZFlag = tempregister==0;NFlag = tempregister<0;
 	}
-	void nmi(){
+	private void nmi(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
 		case 2:
@@ -1788,7 +1799,7 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;break;
 		}
 	}
-	void nop(){
+	private void nop(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();
 			instruction_cycle++;break;
@@ -1796,17 +1807,17 @@ public class CPU_6502 implements java.io.Serializable{
 		//case 3:instruction_cycle=1;break;
 		}
 	}
-	void skb(){
+	private void skb(){
 		if(showInvalid)System.out.println("Invalid instruction SKB");
 	}
-	void skw(){
+	private void skw(){
 		if(showInvalid)System.out.println("Invalid instruction SKW");
 	}
-	void ora(){
+	private void ora(){
 		accumulator = (byte) (accumulator | tempregister);
 		ZFlag = accumulator==0;NFlag = accumulator<0;
 	}
-	void pha(){
+	private void pha(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
 		case 2:
@@ -1818,7 +1829,7 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;break;
 		}
 	}
-	void php(){
+	private void php(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
 		case 2:
@@ -1834,7 +1845,7 @@ public class CPU_6502 implements java.io.Serializable{
 		}
 		
 	}
-	void pla(){
+	private void pla(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
 		case 2:
@@ -1849,7 +1860,7 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;break;
 		}
 	}
-	void plp(){
+	private void plp(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
 		case 2:
@@ -1864,32 +1875,32 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;break;
 		}
 	}
-	void rla(){
+	private void rla(){
 		if(showInvalid)System.out.println("Invalid instruction RLA");
 		int tcarry = tempregister<0?1:0;
 		tempregister = (byte) (tempregister<<1);
 		tempregister = (byte) (tempregister | (CFlag?1:0));
-		CFlag = tcarry==1?true:false;
-		if(tempregister ==0)ZFlag = true;else ZFlag = false;
-		if(tempregister<0)NFlag = true; else NFlag = false;	
+		CFlag = tcarry == 1;
+		ZFlag = tempregister == 0;
+		NFlag = tempregister < 0;
 		accumulator = (byte) (accumulator & tempregister);
 		ZFlag = accumulator==0;NFlag = accumulator<0;		
 	}
-	void rol(){
+	private void rol(){
 		int tcarry = tempregister<0?1:0;
 		tempregister = (byte) (tempregister<<1);
 		tempregister = (byte) (tempregister | (CFlag?1:0));
-		CFlag = tcarry==1?true:false;
+		CFlag = tcarry == 1;
 		ZFlag = tempregister==0;NFlag = tempregister<0;
 	}
-	void ror(){
+	private void ror(){
 		int tcarry = tempregister&0x01;
 		tempregister= (byte) (Byte.toUnsignedInt(tempregister)>>>1);
 		tempregister = (byte) (tempregister | (CFlag?0x80:0));
-		CFlag = tcarry!=0?true:false;
+		CFlag = tcarry != 0;
 		ZFlag = tempregister==0;NFlag = tempregister<0;
 	}
-	void rra(){
+	private void rra(){
 		if(showInvalid)System.out.println("Invalid instruction RRA");
 		if(CFlag){
 			CFlag = (tempregister&1)!=0;
@@ -1900,12 +1911,12 @@ public class CPU_6502 implements java.io.Serializable{
 			tempregister = (byte) (Byte.toUnsignedInt(tempregister)>>1);
 		}		
 		int sum = Byte.toUnsignedInt(accumulator) + Byte.toUnsignedInt(tempregister) + (CFlag?1:0);
-		CFlag = sum>0xff?true:false;
-		VFlag = (~(accumulator^tempregister)&(accumulator^sum)&0x80)==0?false:true;
+		CFlag = sum > 0xff;
+		VFlag = (~(accumulator ^ tempregister) & (accumulator ^ sum) & 0x80) != 0;
 		accumulator=(byte) sum;
 		NFlag = accumulator<0;ZFlag = accumulator==0;	
 	}
-	void rti(){
+	private void rti(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
 		case 2:
@@ -1928,7 +1939,7 @@ public class CPU_6502 implements java.io.Serializable{
 			break;
 		}
 	}
-	void rts(){
+	private void rts(){
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
 		case 2:
@@ -1950,40 +1961,40 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle=1;break;
 		}
 	}
-	void sax(){
+	private void sax(){
 		if(showInvalid)System.out.println("Invalid instruction SAX");
 		tempregister = (byte) (x_index_register&accumulator);
 		map.cpuwrite(address, tempregister);
 	}
-	void sbc(){
+	private void sbc(){
 		tempregister=(byte) ~tempregister;
 		int sum = Byte.toUnsignedInt(accumulator) + Byte.toUnsignedInt(tempregister) + (CFlag?1:0);
-		CFlag = sum>0xff?true:false;
-		VFlag = (~(accumulator^tempregister)&(accumulator^sum)&0x80)==0?false:true;
+		CFlag = sum > 0xff;
+		VFlag = (~(accumulator ^ tempregister) & (accumulator ^ sum) & 0x80) != 0;
 		accumulator=(byte) sum;
 		NFlag = accumulator<0;ZFlag = accumulator==0;
 	}
-	void sec(){
+	private void sec(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2: CFlag = true;instruction_cycle = 1;break;
 		}
 	}
-	void sed(){
+	private void sed(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2: DFlag = true;instruction_cycle = 1;break;
 		}
 	}
-	void sei(){
+	private void sei(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2: IFlag = true;instruction_cycle = 1;break;
 		}
 	}
-	void sha(){}
-	void shs(){}
-	void shx(){
+	private void sha(){}
+	private void shs(){}
+	private void shx(){
 		if(showInvalid)System.out.println("Invalid instruction SHX");
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
@@ -2012,7 +2023,7 @@ public class CPU_6502 implements java.io.Serializable{
 			break;	
 		}
 	}
-	void shy(){
+	private void shy(){
 		if(showInvalid)System.out.println("Invalid instruction SHY");
 		switch(instruction_cycle){
 		case 1: instruction_cycle++;break;
@@ -2042,14 +2053,14 @@ public class CPU_6502 implements java.io.Serializable{
 		}
 		
 	}
-	void slo(){
+	private void slo(){
 		if(showInvalid)System.out.println("Invalid instruction SLO");
 		CFlag = (tempregister&0x80)!=0;
 		tempregister<<=1;
 		accumulator|=tempregister;
 		NFlag = accumulator<0;ZFlag = accumulator==0;
 	}
-	void sre(){
+	private void sre(){
 		int result = Byte.toUnsignedInt(tempregister);
 		CFlag = (result&1)!=0;
 		result>>=1;
@@ -2057,10 +2068,10 @@ public class CPU_6502 implements java.io.Serializable{
 		tempregister = (byte)result;
 		NFlag = accumulator<0;ZFlag = accumulator==0;
 	}
-	void sta(){map.cpuwrite(address, accumulator);}
-	void stx(){map.cpuwrite(address, x_index_register);}
-	void sty(){map.cpuwrite(address, y_index_register);}
-	void tax(){
+	private void sta(){map.cpuwrite(address, accumulator);}
+	private void stx(){map.cpuwrite(address, x_index_register);}
+	private void sty(){map.cpuwrite(address, y_index_register);}
+	private void tax(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:
@@ -2069,7 +2080,7 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;break;
 		}
 	}
-	void tay(){
+	private void tay(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:
@@ -2078,7 +2089,7 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;break;
 		}
 	}
-	void tsx(){
+	private void tsx(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:
@@ -2087,7 +2098,7 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;break;
 		}
 	}
-	void txa(){
+	private void txa(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2: 
@@ -2096,7 +2107,7 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;break;
 		}
 	}
-	void txs(){
+	private void txs(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts(); instruction_cycle++;break;
 		case 2:
@@ -2104,7 +2115,7 @@ public class CPU_6502 implements java.io.Serializable{
 			instruction_cycle = 1;break;
 		}
 	}
-	void tya(){
+	private void tya(){
 		switch(instruction_cycle){
 		case 1: pollInterrupts();instruction_cycle++;break;
 		case 2:

@@ -4,7 +4,6 @@ import java.io.File;
 import mappers.Mapper;
 import ui.SystemUI;
 import ui.UserSettings;
-import video.NesDisplay;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -82,25 +81,13 @@ public class NES implements Runnable {
 	public void runFrame(){
 		frameStartTime = System.nanoTime();
 		while(!map.ppu.doneFrame){
-			//if(mclock%cpudiv==0){
 				map.cpu.run_cycle();
 				map.apu.doCycle();
-			//}
-			//if(mclock%ppudiv==0)
 				map.ppu.doCycle();
 				map.ppu.doCycle();
 				map.ppu.doCycle();
-			
-				//mclock+=4;
 		}
 		map.ppu.doneFrame=false;
-		//if(mclock%cpudiv==0){
-		//	map.cpu.run_cycle();
-		//	map.apu.doCycle();
-		//}
-		//if(mclock%ppudiv==0)
-		//	map.ppu.doCycle();
-		//mclock+=4;
 		frameStopTime = System.nanoTime() - frameStartTime;
 		if(frameStopTime<15800000&&UserSettings.frameLimit)
 			try {
@@ -182,7 +169,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/megaman3.nes");
+		//rom = new File(System.getProperty("user.dir")+"/megaman3.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

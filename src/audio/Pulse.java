@@ -48,18 +48,18 @@ public class Pulse extends Channel {
 				delayedchange=(b&0b10000)!=0?2:1;
 			}
 			else
-				loop=(b&0b100000)!=0?true:false;
-			constantvolume=(b&0b10000)!=0?true:false;
+				loop= (b & 0b100000) != 0;
+			constantvolume= (b & 0b10000) != 0;
 			volume=b&0xf;
 			estart = true;
 			break;
 		case 1: 
-			dosweep = (b&0x80)!=0?true:false;
+			dosweep = (b & 0x80) != 0;
 			if(!dosweep)
 				targetperiod = timer;
 			dividerperiod = (b&0b1110000)>>4;
 			sdivider = dividerperiod+1;
-			negate = (b&0b1000)!=0?true:false;
+			negate = (b & 0b1000) != 0;
 			shift= (b&0b111);
 			sweepreload = true;
 			break;			
@@ -97,7 +97,7 @@ public class Pulse extends Channel {
 				else if(sdivider !=0){
 					sdivider--;
 				}
-				else if(sdivider ==0){
+				else {
 					sdivider = dividerperiod+1;
 					int change = targetperiod>>shift;
 					if(negate){

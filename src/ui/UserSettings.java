@@ -5,11 +5,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Properties;
 
 public class UserSettings {
 	static Properties prop;
-	public final static String version = "0.2.0";
+	public final static String version = "0.2.1";
 	//Emulation Settings
 	public static boolean politeFrameTiming = true;
 	public static boolean frameLimit = true;
@@ -101,8 +102,9 @@ public class UserSettings {
 			prop.load(input);
 			loadKeys();
 			if(!prop.getProperty("version").equals(version)||!prop.containsKey("version")){
-				t.delete();
-				loadSettings();
+				//boolean x = t.delete();
+				//System.out.println(x);
+				//loadSettings();
 			}
 		}
 	}
