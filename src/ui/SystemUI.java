@@ -2,11 +2,7 @@ package ui;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.FlowLayout;
 import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.File;
@@ -34,8 +30,6 @@ public class SystemUI {
 	KeyChecker keys;
 	public UpdateEventListener listener;
 	int[] pixels;
-	//JMenuBar menu;
-	//JMenu system,cpu,audio,graphics,control,debug;
 	Thread current;
 	Thread render;
 	Properties prop;
@@ -62,20 +56,14 @@ public class SystemUI {
 		mainWindow.setFocusable(true);
 		mainWindow.requestFocusInWindow();
 		display = new NesDisplay();
-		//panel = new JPanel();
-		//panel.setLayout(new FlowLayout());
 		display.setSize(256, 240);
 		mainWindow.add(display);
 		mainWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		mainWindow.setResizable(false);
 		display.updateScaling(2);
 		mainWindow.getContentPane().setPreferredSize(new Dimension(256*2,240*2));
-		mainWindow.pack();
-		//mainWindow.pack();
-		
-		
-		mainWindow.setVisible(true);
-		
+		mainWindow.pack();		
+		mainWindow.setVisible(true);		
 		listener = new UpdateEventListener(){
             public void doframe() {
                display.sendFrame(pixels);
@@ -110,7 +98,6 @@ public class SystemUI {
 		Thread.sleep(500);
 		UserSettings.frameLimit=false;
 		testoutput="";
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput = " Blargg PPU Tests \n\n";
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/blarggppu/sprite_ram.nes"),-897623842);
@@ -120,7 +107,6 @@ public class SystemUI {
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggppu/vram_access.nes"),-897623842);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput+= "\n Blargg CPU Tests \n\n";
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggcpu/01-basics.nes"),-1888758012);
@@ -141,13 +127,11 @@ public class SystemUI {
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggcpu/16-special.nes"),-1902180960);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput+= "\n Blargg All CPU Instructions Test\n\n";
 			testrom(30000, new File(System.getProperty("user.dir")+"/tests/blarggcpu/all_inst.nes"),1699384065);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput+= "\n Blargg APU Tests \n\n";
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/01.len_ctr.nes"),-897623842);
@@ -163,7 +147,6 @@ public class SystemUI {
 			testrom(2000, new File(System.getProperty("user.dir")+"/tests/blarggapu/11.len_reload_timing.nes"),-897623842);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput+= "\n PPU_VBL_NMI Tests \n\n";
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/01-vbl_basics.nes"),-2003676729);
@@ -178,7 +161,6 @@ public class SystemUI {
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/10-even_odd_timing.nes"),613825573);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput+="\n Sprite Zero Hit Tests\n\n";
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/sprite_hit/01-basics.nes"),-1888758012);
@@ -193,7 +175,6 @@ public class SystemUI {
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/sprite_hit/10-timing_order.nes"),-994804385);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput+="\n Sprite Overflow Tests\n\n";
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/sprite_overflow/01-basics.nes"),-1888758012);
@@ -203,7 +184,6 @@ public class SystemUI {
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/sprite_overflow/05-emulator.nes"),1084950203);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput+="\n Instruction Misc Tests\n\n";
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/instr_misc/01-abs_x_wrap.nes"),-2017680284);
@@ -212,7 +192,6 @@ public class SystemUI {
 			testrom(7000, new File(System.getProperty("user.dir")+"/tests/instr_misc/04-dummy_reads_apu.nes"),-1927266246);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput+="\n CPU Interrupts\n\n";
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/cpu_interrupts/1-cli_latency.nes"),-435377923);
@@ -222,7 +201,6 @@ public class SystemUI {
 			testrom(7000, new File(System.getProperty("user.dir")+"/tests/cpu_interrupts/5-branch_delays_irq.nes"),-1640116134);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput+="\n Instruction timing\n\n";
 			testrom(23000, new File(System.getProperty("user.dir")+"/tests/1-instr_timing.nes"),-277403970);
@@ -231,7 +209,6 @@ public class SystemUI {
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/3.Forward_Branch.nes"),-1744413954);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput+= "\n MMC3 Tests\n\n";
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/mmc3_test/1-clocking.nes"),-19248225);
@@ -242,33 +219,28 @@ public class SystemUI {
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/mmc3_test/6-MMC3_alt.nes"),0);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput+= "\n OAM Tests\n\n";
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/oam_read.nes"),878913754);
 			testrom(30000, new File(System.getProperty("user.dir")+"/tests/oam_stress.nes"),86089087);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput+= "\n PPU ReadBuffer Mega test\n\n";
 			testrom(27000, new File(System.getProperty("user.dir")+"/tests/test_ppu_read_buffer.nes"),-762073439);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput+= "\n PPU OpenBus test\n\n";
 			testrom(7000, new File(System.getProperty("user.dir")+"/tests/ppu_open_bus.nes"),0);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput+= "\n CPU Execution Space tests\n\n";
 			testrom(3000, new File(System.getProperty("user.dir")+"/tests/execspace/test_cpu_exec_space_ppuio.nes"),1133191816);
 			testrom(7000, new File(System.getProperty("user.dir")+"/tests/execspace/test_cpu_exec_space_apu.nes"),-1164932952);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-		//noinspection ConstantConditions,ConstantIfStatement
         if(true){
 			testoutput+= "\n CPU Dummy Write tests\n\n";
 			testrom(8000, new File(System.getProperty("user.dir")+"/tests/dummywrites/cpu_dummy_writes_oam.nes"),1310446203);
@@ -289,7 +261,6 @@ public class SystemUI {
 		int hash=0;
 		reset();startnes(delay);display.paint(g);hash = getHash(bi);
 		if(goodhash!=0&&hash!=goodhash){
-            //noinspection ConstantConditions
             testoutput +="Test: "+((hash==goodhash)?"PASS":"FAIL") +" Name: "+ rom.getName()+" Hash: "+hash+"                 ****REGRESSION WARNING****\n";
 			regression++;
 		}
@@ -335,16 +306,11 @@ public class SystemUI {
 	}
 	public void videoCallback(int[] p){
 		pixels=p;
-		dispatch();
-		//display.sendFrame(pixels);
+		EventQueue.invokeLater(new Runnable() {
+			@Override
+	        public void run(){
+				listener.doframe();
+	        }
+	    });
 	}
-	private void dispatch(){
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run(){
-                listener.doframe();
-            }
-        
-        });
-    }
 }
