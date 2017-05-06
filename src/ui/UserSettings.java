@@ -21,6 +21,9 @@ public class UserSettings {
 	public static boolean RenderSprites=true;
 	public static int RenderMethod=2;
 	public static boolean ShowFPS=true;
+	public static String selectedPalette= "defaultPalette";
+	public static int xScaleFactor=2;
+	public static int yScaleFactor=2;
 	
 	//Audio Settings
 	public static boolean AudioEnabled;

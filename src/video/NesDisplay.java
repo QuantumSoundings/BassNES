@@ -1,9 +1,9 @@
 package video;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
+
 public class NesDisplay extends JPanel {
 	int scaling=1;
 	private static final long serialVersionUID = 1L;
@@ -18,13 +18,10 @@ public class NesDisplay extends JPanel {
     
 	@Override
 	public void paintComponent(Graphics g) {
-		g.setColor(Color.white);
-		g.fillRect(0, 0, 256*scaling, 240*scaling);
 		g.drawImage(frame.getScaledInstance(256*scaling, 240*scaling, 0), 0, 0,256*scaling,240*scaling, this);
 	}
 	public void updateScaling(int i){
 		scaling = i;
-		this.setMinimumSize(new Dimension(256*i,240*i));
 	}
 	
 	public void sendFrame(int[] pixels) {

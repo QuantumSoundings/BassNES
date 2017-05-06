@@ -91,7 +91,7 @@ public class ppu2C02 implements java.io.Serializable{
 	//boolean oddskip = false;
 	public int v,t,x;
 	Renderer renderer;
-	int[] pixels;
+	private int[] pixels;
 	int pixelnum;
 	//registers	
 	Mapper map;
@@ -315,7 +315,7 @@ public class ppu2C02 implements java.io.Serializable{
 	}
 	
 	public void getBG(){
-		cyclepart++;
+		//cyclepart++;
 		switch((pcycle-1)%8){
 		case 0:
 			shiftreg16a = (shiftreg16a<<8)|ptablemap1;			
@@ -327,26 +327,30 @@ public class ppu2C02 implements java.io.Serializable{
 		case 1://name table
 			nametablebyte = Byte.toUnsignedInt(map.ppureadNT(0x2000|(v&0x0fff)))<<4;
 			nametablebyte+=(PPUCTRL_bpta?0x1000:0);
+			cyclepart=1;
 			break;
-		case 2: break;
+		case 2: cyclepart=2;break;
 		case 3://attribute table
 			int tempx =0x23C0 | (v & 0x0C00) | ((v >> 4) & 0x38) | ((v >> 2) & 0x07);
 			byte attbyte = map.ppureadNT(tempx);
 			int sel = ((v & 2) >> 1) | ((v & 0x40) >> 5);
 			atablebyte = ((0xff&attbyte)>>(sel*2))&3;
+			cyclepart=3;
 			break;
-		case 4: break;
+		case 4: cyclepart=4; break;
 		case 5://tile low
 			nametablebyte = nametablebyte+((v&0x7000)>>>12);
 			ptablemap0 = Byte.toUnsignedInt(map.ppureadPT(nametablebyte));	
+			cyclepart=5;
 			break;
-		case 6:break;
+		case 6:cyclepart=6;break;
 		case 7://tile high
 			ptablemap1 = Byte.toUnsignedInt(map.ppureadPT(nametablebyte+8));
 			if(pcycle !=256)
 				incx();
 			else
 				incy();
+			cyclepart=7;
 			break;
 		case 8: case 9: case 10:case 11:case 12:case 13:case 14:case 15:case 16:case 17:case 18:case 19:case 20:
 			default: break;
@@ -445,7 +449,34 @@ public class ppu2C02 implements java.io.Serializable{
 
 	private void drawpixel(){
 		if(render||(v&0x3f00)!=0x3f00){
-			pixels[pixelnum++] = (PPUMASK_colorbits)|pixelColor();
+			int backgroundcolor=0;
+			int cycle = pcycle;
+			int offset = 15-(fineX+cyclepart);
+			if(PPUMASK_sb&&leftmask_b<cycle){
+				int bit = (((shiftreg16a>>(offset-1))&2))|((shiftreg16b>>offset)&1);
+				if(UserSettings.RenderBackground&&bit!=0)
+					backgroundcolor =(offset>=8?palettelatchold:palettelatchnew)|bit;			
+			}
+			if(PPUMASK_ss){
+				for(int i = 0;i < numsprites;i++){
+					int off = 7-(cycle-spriteco[i]-1);
+					if(off>=0&&off<8){
+						int bit =  (((spritebm[i]>>(off))&1)<<1)|((spritebm[i]>>((off)+8))&1);
+						if(bit!=0){
+							if(oldspritezero&&!PPUSTATUS_sz&&i==0&&PPUMASK_sb&&backgroundcolor!=0&&leftmask_s<cycle&&cycle<256){
+								delayset=true;
+							}
+							if(UserSettings.RenderSprites&&(spritepriority[i]||backgroundcolor==0)){
+								pixels[pixelnum++] = (PPUMASK_colorbits)|(0xff&map.ppu_palette[0x10+4*spritepalette[i]+bit]);
+								return;
+							}
+							break;
+						}
+					}
+				}
+			}
+			pixels[pixelnum++] = (PPUMASK_colorbits)|(0xff&map.ppu_palette[backgroundcolor]);
+			//pixels[pixelnum++] = (PPUMASK_colorbits)|pixelColor();
 		}
 		else
 			pixels[pixelnum++] = (PPUMASK_colorbits)|Byte.toUnsignedInt(map.ppuread(v));
@@ -460,15 +491,16 @@ public class ppu2C02 implements java.io.Serializable{
 			if(UserSettings.RenderBackground&&bit!=0)
 				backgroundcolor =(offset>=8?palettelatchold:palettelatchnew)|bit;			
 		}
-		if(PPUMASK_ss){
+		if(numsprites>0&&PPUMASK_ss){
 			for(int i = 0;i < numsprites;i++){
 				int off = (cycle-spriteco[i]-1);
 				if(off>=0&&off<8){
-					int bit;
-					if(spritehorizontal[i])
-						bit = (((spritebm[i]>>(off))&1)<<1)|((spritebm[i]>>(off+8))&1);
-					else
-						bit = (((spritebm[i]>>(7-off))&1)<<1)|((spritebm[i]>>((7-off)+8))&1);
+					int bit =  (((spritebm[i]>>(7-off))&1)<<1)|((spritebm[i]>>((7-off)+8))&1);
+					//int bit;
+					//if(spritehorizontal[i])
+					//	bit = (((spritebm[i]>>(off))&1)<<1)|((spritebm[i]>>(off+8))&1);
+					//else
+					//	bit = (((spritebm[i]>>(7-off))&1)<<1)|((spritebm[i]>>((7-off)+8))&1);
 					if(bit!=0){
 						if(oldspritezero&&!PPUSTATUS_sz&&i==0&&PPUMASK_sb&&backgroundcolor!=0&&leftmask_s<cycle&&cycle<256){
 							delayset=true;
@@ -559,7 +591,7 @@ public class ppu2C02 implements java.io.Serializable{
 		else if(pcycle<=256){
 			switch(stage){
 			case 1: // first write of stage 1.
-				int y = Byte.toUnsignedInt(map.ppureadoam(4*n));
+				int y = Byte.toUnsignedInt(map.ppu_oam[n*4]);//ppureadoam(4*n));
 				oambuffer[4*oamBCounter] = (byte) y;
 				if(PPUCTRL_ss?inrange(y)<16:inrange(y)<8)
 					stage = 2; // Continue writing sprite data
@@ -569,15 +601,15 @@ public class ppu2C02 implements java.io.Serializable{
 				}
 				return;
 			case 2://second write of stage 1
-				oambuffer[4*oamBCounter+1]=map.ppureadoam(4*n+1);
+				oambuffer[4*oamBCounter+1]=map.ppu_oam[4*n+1];
 				stage = 3;
 				return;
 			case 3://third write of stage 1
-				oambuffer[4*oamBCounter+2]=map.ppureadoam(4*n+2);
+				oambuffer[4*oamBCounter+2]=map.ppu_oam[4*n+2];
 				stage = 4;
 				return;
 			case 4://fourth write of stage 1
-				oambuffer[4*oamBCounter+3]=map.ppureadoam(4*n+3);
+				oambuffer[4*oamBCounter+3]=map.ppu_oam[4*n+3];
 				oamBCounter++;
 				if(n==0){
 					spritezero= true;
@@ -590,7 +622,9 @@ public class ppu2C02 implements java.io.Serializable{
 				stage3();
 				return;
 			case 7://stage 4 do nothing
-				return;			
+				return;	
+			case 8: case 9: case 10: case 11:case 12:case 13:case 14:case 15:case 16:case 17:case 18:case 19:case 20:case 21:
+				return;
 			}
 		}
 	}
@@ -645,13 +679,13 @@ public class ppu2C02 implements java.io.Serializable{
 				y%=8;
 				tileindex+=y;
 			}
-			//if((attributes&0x40)!=0)
-			//	spritebm[spritec] = (BitReverseTable256[Byte.toUnsignedInt(map.ppuread(tileindex))]<<8)|(BitReverseTable256[Byte.toUnsignedInt(map.ppuread(tileindex+8))]);
-			//else
-			//	spritebm[spritec] = (Byte.toUnsignedInt((map.ppuread(tileindex)))<<8)|Byte.toUnsignedInt((map.ppuread(tileindex+8)));	
+			if((attributes&0x40)!=0)
+				spritebm[spritec] = (BitReverseTable256[Byte.toUnsignedInt(map.ppuread(tileindex))]<<8)|(BitReverseTable256[Byte.toUnsignedInt(map.ppuread(tileindex+8))]);
+			else
+				spritebm[spritec] = (Byte.toUnsignedInt((map.ppuread(tileindex)))<<8)|Byte.toUnsignedInt((map.ppuread(tileindex+8)));	
 			if(tileindex<0)tileindex*=-1;
-			spritehorizontal[spritec]=(attributes&0x40)!=0;
-			spritebm[spritec] = (Byte.toUnsignedInt((map.ppuread(tileindex)))<<8)|Byte.toUnsignedInt((map.ppuread(tileindex+8)));
+			//spritehorizontal[spritec]=(attributes&0x40)!=0;
+			//spritebm[spritec] = (Byte.toUnsignedInt((map.ppuread(tileindex)))<<8)|Byte.toUnsignedInt((map.ppuread(tileindex+8)));
 			numsprites++;
 			spritec++;
 			oamBCounter++;

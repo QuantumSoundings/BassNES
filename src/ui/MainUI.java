@@ -20,8 +20,12 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 
 import java.awt.event.ActionListener;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.Font;
 @SuppressWarnings("serial")
 public class MainUI extends JFrame {
 
@@ -36,8 +40,10 @@ public class MainUI extends JFrame {
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
+		menuBar.setPreferredSize(new Dimension(240,25));
 		
 		JMenu mnSystem = new JMenu("System");
+		mnSystem.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		menuBar.add(mnSystem);
 		
 		Action startCPU = new AbstractAction() {
@@ -219,6 +225,7 @@ public class MainUI extends JFrame {
 		mntmState_3.addActionListener(loadState4);
 
 		JMenu mnCpu = new JMenu("CPU");
+		mnCpu.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		menuBar.add(mnCpu);
 		
 		JMenuItem mntmStartCpu = new JMenuItem("Start/Reset CPU");
@@ -235,6 +242,7 @@ public class MainUI extends JFrame {
 		mnCpu.add(mntmPauseCpu);
 		
 		JMenu mnNewMenu = new JMenu("Audio");
+		mnNewMenu.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		menuBar.add(mnNewMenu);
 		
 		JCheckBoxMenuItem chckbxmntmEnableAudio = new JCheckBoxMenuItem("Enable Audio");
@@ -256,6 +264,7 @@ public class MainUI extends JFrame {
 		mnNewMenu.add(mntmAudioMixer);
 		
 		JMenu mnGraphics = new JMenu("Graphics");
+		mnGraphics.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		menuBar.add(mnGraphics);
 		
 		JMenu mnScaling = new JMenu("Scaling");
@@ -265,19 +274,21 @@ public class MainUI extends JFrame {
 		rdbtnmntmxScaling.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sys.display.updateScaling(1);
-				sys.mainWindow.setBounds(100, 100, 256+15, 240+60);
+				sys.mainWindow.getContentPane().setPreferredSize(new Dimension(256,240));
+				sys.mainWindow.pack();
 			}
 		});
 		ButtonGroup group = new ButtonGroup();
 		group.add(rdbtnmntmxScaling);
-		rdbtnmntmxScaling.setSelected(true);
 		mnScaling.add(rdbtnmntmxScaling);
 		
 		JRadioButtonMenuItem rdbtnmntmxScaling_1 = new JRadioButtonMenuItem("2x Scaling");
+		rdbtnmntmxScaling_1.setSelected(true);
 		rdbtnmntmxScaling_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sys.display.updateScaling(2);
-				sys.mainWindow.setBounds(100, 100, 256*2+15, 240*2+60);
+				sys.mainWindow.getContentPane().setPreferredSize(new Dimension(256*2,240*2));
+				sys.mainWindow.pack();
 			}
 		});
 		mnScaling.add(rdbtnmntmxScaling_1);
@@ -286,7 +297,8 @@ public class MainUI extends JFrame {
 		rdbtnmntmxScaling_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sys.display.updateScaling(3);
-				sys.mainWindow.setBounds(100, 100, 256*3+15, 240*3+60);
+				sys.mainWindow.getContentPane().setPreferredSize(new Dimension(256*3,240*3));
+				sys.mainWindow.pack();
 			}
 		});
 		mnScaling.add(rdbtnmntmxScaling_2);
@@ -295,7 +307,8 @@ public class MainUI extends JFrame {
 		rdbtnmntmxScaling_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				sys.display.updateScaling(4);
-				sys.mainWindow.setBounds(100, 100, 256*4+15, 240*4+60);
+				sys.mainWindow.getContentPane().setPreferredSize(new Dimension(256*4,240*4));
+				sys.mainWindow.pack();
 			}
 		});
 		mnScaling.add(rdbtnmntmxScaling_3);
@@ -307,58 +320,11 @@ public class MainUI extends JFrame {
 				sys.advancedGraphicsWindow.setVisible(true);
 			}
 		});
-		
-		JMenu mnPalette = new JMenu("Palette...");
-		mnGraphics.add(mnPalette);
 		ButtonGroup paletteGroup = new ButtonGroup();
-		JRadioButtonMenuItem rdbtnmntmDefault = new JRadioButtonMenuItem("Default");
-		rdbtnmntmDefault.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				NesColors.updatePalette("default");
-			}
-		});
-		rdbtnmntmDefault.setSelected(true);
-		mnPalette.add(rdbtnmntmDefault);
-		paletteGroup.add(rdbtnmntmDefault);
-		
-		JRadioButtonMenuItem rdbtnmntmNtscHardwareFbx = new JRadioButtonMenuItem("NTSC Hardware FBX");
-		rdbtnmntmNtscHardwareFbx.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				NesColors.updatePalette("NTSCHardwareFBX");
-			}
-		});
-		mnPalette.add(rdbtnmntmNtscHardwareFbx);
-		paletteGroup.add(rdbtnmntmNtscHardwareFbx);
-		
-		JRadioButtonMenuItem rdbtnmntmNesClassic = new JRadioButtonMenuItem("NES Classic");
-		rdbtnmntmNesClassic.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				NesColors.updatePalette("nesClassicFBX");
-			}
-		});
-		mnPalette.add(rdbtnmntmNesClassic);
-		paletteGroup.add(rdbtnmntmNesClassic);
-		
-		JRadioButtonMenuItem rdbtnmntmSonyPvm = new JRadioButtonMenuItem("Sony PVM");
-		rdbtnmntmSonyPvm.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				NesColors.updatePalette("sonypvmFBX");
-			}
-		});
-		mnPalette.add(rdbtnmntmSonyPvm);
-		paletteGroup.add(rdbtnmntmSonyPvm);
-		
-		JRadioButtonMenuItem rdbtnmntmNewRadioItem = new JRadioButtonMenuItem("Composite Direct");
-		rdbtnmntmNewRadioItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				NesColors.updatePalette("compositeDirectFBX");
-			}
-		});
-		mnPalette.add(rdbtnmntmNewRadioItem);
-		paletteGroup.add(rdbtnmntmNewRadioItem);
 		
 		mnGraphics.add(mntmMoreSettings);
 		JMenu mnControl = new JMenu("Control");
+		mnControl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		menuBar.add(mnControl);
 		
 		JMenuItem mntmConfigure = new JMenuItem("Configure");
@@ -370,6 +336,7 @@ public class MainUI extends JFrame {
 		mnControl.add(mntmConfigure);
 		
 		JMenu mnDebug = new JMenu("Debug");
+		mnDebug.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		menuBar.add(mnDebug);
 		
 		JCheckBoxMenuItem chckbxmntmShowDebug = new JCheckBoxMenuItem("Show Debug");
@@ -383,6 +350,20 @@ public class MainUI extends JFrame {
 		//contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		//contentPane.setLayout(new BorderLayout(0, 0));
 		//setContentPane(contentPane);
+		this.addWindowListener(new WindowAdapter(){
+			@Override
+			public void windowClosing(WindowEvent evt){
+				if(sys.nes!=null)
+					sys.nes.flag=false;
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				UserSettings.saveSettings();
+				System.exit(0);
+			}
+		});
 	}
 
 }

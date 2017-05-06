@@ -80,13 +80,20 @@ public class NES implements Runnable {
 	}
 	public void runFrame(){
 		frameStartTime = System.nanoTime();
-		while(!map.ppu.doneFrame){
+		for(int i=29667;i!=0;i--){
+			map.cpu.run_cycle();
+			map.apu.doCycle();
+			map.ppu.doCycle();
+			map.ppu.doCycle();
+			map.ppu.doCycle();
+		}
+		/*while(!map.ppu.doneFrame){
 				map.cpu.run_cycle();
 				map.apu.doCycle();
 				map.ppu.doCycle();
 				map.ppu.doCycle();
 				map.ppu.doCycle();
-		}
+		}*/
 		map.ppu.doneFrame=false;
 		frameStopTime = System.nanoTime() - frameStartTime;
 		if(frameStopTime<15800000&&UserSettings.frameLimit)
@@ -169,7 +176,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//rom = new File(System.getProperty("user.dir")+"/megaman3.nes");
+		rom = new File(System.getProperty("user.dir")+"/megaman3.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

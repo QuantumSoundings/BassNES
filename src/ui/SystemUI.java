@@ -1,8 +1,10 @@
 package ui;
 
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -35,6 +37,7 @@ public class SystemUI {
 	//JMenuBar menu;
 	//JMenu system,cpu,audio,graphics,control,debug;
 	Thread current;
+	Thread render;
 	Properties prop;
 	String testoutput;
 	public boolean begin;
@@ -50,7 +53,7 @@ public class SystemUI {
 		}
 		rom = new File("zelda.nes");
 		mainWindow = new MainUI(this);
-		//debugframe = new DebugUI();
+		//debugWindow = new DebugUI();
 		keyconfigWindow = new ControlUI(prop,this);
 		audiomixerWindow = new AudioMixerUI(this);
 		advancedGraphicsWindow = new AdvancedGraphics();
@@ -59,30 +62,20 @@ public class SystemUI {
 		mainWindow.setFocusable(true);
 		mainWindow.requestFocusInWindow();
 		display = new NesDisplay();
-		panel = new JPanel();
-		panel.setLayout(new FlowLayout());
+		//panel = new JPanel();
+		//panel.setLayout(new FlowLayout());
 		display.setSize(256, 240);
-		//display.setFocusable(true);
-		mainWindow.getContentPane().add(display);
-		//display.requestFocusInWindow();
+		mainWindow.add(display);
 		mainWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		mainWindow.addWindowListener(new WindowAdapter(){
-			@Override
-			public void windowClosing(WindowEvent evt){
-				if(nes!=null)
-					nes.flag=false;
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				UserSettings.saveSettings();
-				System.exit(0);
-			}
-		});
+		mainWindow.setResizable(false);
+		display.updateScaling(2);
+		mainWindow.getContentPane().setPreferredSize(new Dimension(256*2,240*2));
 		mainWindow.pack();
-		mainWindow.setBounds(100, 100, 256+10, 240+60);
+		//mainWindow.pack();
+		
+		
 		mainWindow.setVisible(true);
+		
 		listener = new UpdateEventListener(){
             public void doframe() {
                display.sendFrame(pixels);
