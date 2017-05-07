@@ -41,7 +41,7 @@ public class AudioMixerUI extends JFrame {
 				UserSettings.masterMixLevel=source.getValue();
 			}
 		});
-		slider.setValue(100);
+		slider.setValue(UserSettings.masterMixLevel);
 		slider.setOrientation(SwingConstants.VERTICAL);
 		slider.setBounds(29, 11, 50, 99);
 		contentPane.add(slider);
@@ -56,7 +56,7 @@ public class AudioMixerUI extends JFrame {
 				UserSettings.pulse1MixLevel=source.getValue();
 			}
 		});
-		slider_1.setValue(100);
+		slider_1.setValue(UserSettings.pulse1MixLevel);
 		slider_1.setOrientation(SwingConstants.VERTICAL);
 		slider_1.setBounds(89, 11, 50, 99);
 		contentPane.add(slider_1);
@@ -71,7 +71,7 @@ public class AudioMixerUI extends JFrame {
 				UserSettings.pulse2MixLevel=source.getValue();
 			}
 		});
-		slider_2.setValue(100);
+		slider_2.setValue(UserSettings.pulse2MixLevel);
 		slider_2.setOrientation(SwingConstants.VERTICAL);
 		slider_2.setBounds(149, 11, 50, 99);
 		contentPane.add(slider_2);
@@ -86,7 +86,7 @@ public class AudioMixerUI extends JFrame {
 				UserSettings.triangleMixLevel=source.getValue();
 			}
 		});
-		slider_3.setValue(100);
+		slider_3.setValue(UserSettings.triangleMixLevel);
 		slider_3.setOrientation(SwingConstants.VERTICAL);
 		slider_3.setBounds(209, 11, 50, 99);
 		contentPane.add(slider_3);
@@ -101,7 +101,7 @@ public class AudioMixerUI extends JFrame {
 				UserSettings.noiseMixLevel=source.getValue();
 			}
 		});
-		slider_4.setValue(100);
+		slider_4.setValue(UserSettings.noiseMixLevel);
 		slider_4.setOrientation(SwingConstants.VERTICAL);
 		slider_4.setBounds(269, 11, 50, 99);
 		contentPane.add(slider_4);
@@ -116,7 +116,7 @@ public class AudioMixerUI extends JFrame {
 				UserSettings.dmcMixLevel=source.getValue();
 			}
 		});
-		slider_5.setValue(100);
+		slider_5.setValue(UserSettings.dmcMixLevel);
 		slider_5.setOrientation(SwingConstants.VERTICAL);
 		slider_5.setBounds(329, 11, 50, 99);
 		contentPane.add(slider_5);

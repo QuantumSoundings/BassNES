@@ -25,9 +25,10 @@ public class NES implements Runnable {
 	final int ppudiv = 4;
 	final int framediv= 89490;
 	public int cpuclock=0;
-	private int mclock;
+	//private int mclock;
 	
 	boolean batteryExists;
+	boolean pal;
 	public volatile boolean flag = true;
 	public volatile boolean doaudio = true;
 	public volatile boolean pause = false;
@@ -176,7 +177,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//rom = new File(System.getProperty("user.dir")+"/megaman3.nes");
+		rom = new File(System.getProperty("user.dir")+"/smb3.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);
@@ -193,6 +194,8 @@ public class NES implements Runnable {
 		System.out.println("CHR_ROM:"+(CHR_ROM.length/0x400)+"KB");
 		map.setCHR(CHR_ROM);
 		map.setMirror(header[6]&1);
+		if(header[9]==1)
+			pal = true;
 		sx.close();
 		if(batteryExists)
 			loadSave();

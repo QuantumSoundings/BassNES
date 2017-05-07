@@ -13,7 +13,6 @@ import java.util.Properties;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import com.NES;
 import video.NesDisplay;
@@ -26,7 +25,6 @@ public class SystemUI {
 	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow;
 	File rom;
 	NesDisplay display;
-	JPanel panel;
 	KeyChecker keys;
 	public UpdateEventListener listener;
 	int[] pixels;
@@ -34,9 +32,6 @@ public class SystemUI {
 	Thread render;
 	Properties prop;
 	String testoutput;
-	public boolean begin;
-	public boolean showFPS=true;
-	boolean autoload = true;
 	
 	public SystemUI(){
 		try {
@@ -72,14 +67,13 @@ public class SystemUI {
 		/*try {
 			runTests();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}*/
 		start();
 	}
 	public void start(){
 		while(true){
-			if(showFPS){
+			if(UserSettings.ShowFPS){
 				if(nes!=null)
 					mainWindow.setTitle("Nes Emulator     FPS: "+String.format("%.2f", nes.getFPS()));
 			}

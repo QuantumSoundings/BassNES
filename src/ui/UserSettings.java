@@ -5,8 +5,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Properties;
+
+import video.NesColors;
 
 public class UserSettings {
 	static Properties prop;
@@ -14,6 +15,7 @@ public class UserSettings {
 	//Emulation Settings
 	public static boolean politeFrameTiming = true;
 	public static boolean frameLimit = true;
+	public static boolean autoLoad = true;
 	
 	
 	//Graphics Settings
@@ -22,11 +24,9 @@ public class UserSettings {
 	public static int RenderMethod=2;
 	public static boolean ShowFPS=true;
 	public static String selectedPalette= "defaultPalette";
-	public static int xScaleFactor=2;
-	public static int yScaleFactor=2;
 	
 	//Audio Settings
-	public static boolean AudioEnabled;
+	public static boolean AudioEnabled=true;
 	public static int masterMixLevel=100;
 	public static int pulse1MixLevel=100;
 	public static int pulse2MixLevel=100;
@@ -72,6 +72,10 @@ public class UserSettings {
 		FileOutputStream output;
 		try {
 			output = new FileOutputStream("config.properties");
+			saveKeys();
+			saveAudio();
+			saveGraphics();
+			saveEmulation();
 			prop.store(output, null);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -104,6 +108,9 @@ public class UserSettings {
 			FileInputStream input = new FileInputStream("config.properties");
 			prop.load(input);
 			loadKeys();
+			loadAudio();
+			loadGraphics();
+			loadEmulation();
 			if(!prop.getProperty("version").equals(version)||!prop.containsKey("version")){
 				//boolean x = t.delete();
 				//System.out.println(x);
@@ -129,5 +136,58 @@ public class UserSettings {
 		c2right = Integer.parseInt(prop.getProperty("c2right"));
 		c2start = Integer.parseInt(prop.getProperty("c2start"));
 		c2select = Integer.parseInt(prop.getProperty("c2select"));		
+	}
+	private static void saveKeys(){
+		prop.setProperty("c1a", c1a+"");prop.setProperty("c2a", c2a+"");
+		prop.setProperty("c1b", c1b+"");prop.setProperty("c2b", c2b+"");
+		prop.setProperty("c1up", c1up+"");prop.setProperty("c2up", c2up+"");
+		prop.setProperty("c1down", c1down+"");prop.setProperty("c2down", c2down+"");
+		prop.setProperty("c1left", c1left+"");prop.setProperty("c2left", c2left+"");
+		prop.setProperty("c1right", c1right+"");prop.setProperty("c2right", c2right+"");
+		prop.setProperty("c1start", c1start+"");prop.setProperty("c2start", c2start+"");
+		prop.setProperty("c1select", c1select+"");prop.setProperty("c2select", c2select+"");
+	}
+	private static void loadAudio(){
+		AudioEnabled = prop.getProperty("audioenabled", "true").equals("true");
+		masterMixLevel = Integer.parseInt(prop.getProperty("mastermixlevel","100"));
+		pulse1MixLevel = Integer.parseInt(prop.getProperty("pulse1mixlevel","100"));
+		pulse2MixLevel = Integer.parseInt(prop.getProperty("pulse2mixlevel","100"));
+		triangleMixLevel = Integer.parseInt(prop.getProperty("trianglemixlevel","100"));
+		noiseMixLevel = Integer.parseInt(prop.getProperty("noisemixlevel","100"));
+		dmcMixLevel = Integer.parseInt(prop.getProperty("dmcmixlevel", "100"));
+	}
+	private static void saveAudio(){
+		prop.setProperty("audioenabled", AudioEnabled+"");
+		prop.setProperty("mastermixlevel", masterMixLevel+"");
+		prop.setProperty("pulse1mixlevel", pulse1MixLevel+"");
+		prop.setProperty("pulse2mixlevel", pulse2MixLevel+"");
+		prop.setProperty("trianglemixlevel", triangleMixLevel+"");
+		prop.setProperty("noisemixlevel", noiseMixLevel+"");
+		prop.setProperty("dmcmixlevel", dmcMixLevel+"");
+	}
+	private static void loadGraphics(){
+		RenderBackground = prop.getProperty("renderbackground", "true").equals("true");
+		RenderSprites = prop.getProperty("rendersprites", "true").equals("true");
+		RenderMethod = Integer.parseInt(prop.getProperty("rendermethod", "2"));
+		ShowFPS = prop.getProperty("showfps", "true").equals("true");
+		selectedPalette = prop.getProperty("selectedpalette","defaultPalette");
+		NesColors.updatePalette(selectedPalette);
+	}
+	private static void saveGraphics(){
+		prop.setProperty("renderbackground", RenderBackground+"");
+		prop.setProperty("rendersprites", RenderSprites+"");
+		prop.setProperty("rendermethod", 2+"");
+		prop.setProperty("showfps", ShowFPS+"");
+		prop.setProperty("selectedpalette", selectedPalette);
+	}
+	private static void loadEmulation(){
+		politeFrameTiming = prop.getProperty("politeframetiming", "true").equals("true");
+		frameLimit = prop.getProperty("framelimit", "true").equals("true");
+		autoLoad = prop.getProperty("autoload", "true").equals("true");
+	}
+	private static void saveEmulation(){
+		prop.setProperty("politeframetiming", politeFrameTiming+"");
+		prop.setProperty("framelimit", frameLimit+"");
+		prop.setProperty("autoload", autoLoad+"");
 	}
 }

@@ -5,7 +5,6 @@ import javax.swing.JFrame;
 
 import com.NES;
 
-import video.NesColors;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -49,7 +48,6 @@ public class MainUI extends JFrame {
 		Action startCPU = new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				if(!sys.rom.equals(null)){
-					sys.begin = true;
 					if(sys.nes!=null)
 						sys.nes.flag=false;
 					try {
@@ -61,8 +59,6 @@ public class MainUI extends JFrame {
 					sys.current = new Thread(sys.nes);
 					sys.current.start();
 				}
-				else
-					sys.begin = false;	
 			}
 		};
 		Action loadRom = new AbstractAction(){
@@ -70,7 +66,7 @@ public class MainUI extends JFrame {
 				int returnval = sys.fc.showOpenDialog(sys.mainWindow);
 				if(returnval == JFileChooser.APPROVE_OPTION){
 					sys.rom = sys.fc.getSelectedFile();
-					if(sys.autoload){
+					if(UserSettings.autoLoad){
 						if(sys.nes!=null)
 							sys.nes.flag=false;
 						sys.nes = new NES(sys.rom,sys);
@@ -82,12 +78,12 @@ public class MainUI extends JFrame {
 		};
 		Action autoLoad = new AbstractAction(){
 			public void actionPerformed(ActionEvent e) {
-				sys.autoload = !sys.autoload;
+				UserSettings.autoLoad = !UserSettings.autoLoad;
 			}
 		};
 		Action showFPS = new AbstractAction(){
 			public void actionPerformed(ActionEvent e) {
-				sys.showFPS = !sys.showFPS;
+				UserSettings.ShowFPS = !UserSettings.ShowFPS;
 			}
 		};
 		Action saveState1= new AbstractAction(){
@@ -183,12 +179,12 @@ public class MainUI extends JFrame {
 		
 		JCheckBoxMenuItem chckbxmntmAutoload = new JCheckBoxMenuItem("AutoLoad");
 		chckbxmntmAutoload.addActionListener(autoLoad);
-		chckbxmntmAutoload.setSelected(true);
+		chckbxmntmAutoload.setSelected(UserSettings.autoLoad);
 		mnSystem.add(chckbxmntmAutoload);
 		
 		JCheckBoxMenuItem chckbxmntmShowFps = new JCheckBoxMenuItem("Show FPS");
 		chckbxmntmShowFps.addActionListener(showFPS);
-		chckbxmntmShowFps.setSelected(true);
+		chckbxmntmShowFps.setSelected(UserSettings.ShowFPS);
 		mnSystem.add(chckbxmntmShowFps);
 		
 		JMenu mnSaveState = new JMenu("Save State");
@@ -252,7 +248,7 @@ public class MainUI extends JFrame {
 					UserSettings.AudioEnabled=!UserSettings.AudioEnabled;
 			}
 		});
-		chckbxmntmEnableAudio.setSelected(true);
+		chckbxmntmEnableAudio.setSelected(UserSettings.AudioEnabled);
 		mnNewMenu.add(chckbxmntmEnableAudio);
 		
 		JMenuItem mntmAudioMixer = new JMenuItem("Audio Mixer");
@@ -320,7 +316,6 @@ public class MainUI extends JFrame {
 				sys.advancedGraphicsWindow.setVisible(true);
 			}
 		});
-		ButtonGroup paletteGroup = new ButtonGroup();
 		
 		mnGraphics.add(mntmMoreSettings);
 		JMenu mnControl = new JMenu("Control");

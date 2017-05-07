@@ -7,10 +7,7 @@ import java.awt.Graphics;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
 import video.NesColors;
-import video.NesDisplay;
-
 import javax.swing.JTabbedPane;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
@@ -52,7 +49,7 @@ public class AdvancedGraphics extends JFrame {
 				UserSettings.RenderBackground=!UserSettings.RenderBackground;
 			}
 		});
-		chckbxShowBackground.setSelected(true);
+		chckbxShowBackground.setSelected(UserSettings.RenderBackground);
 		chckbxShowBackground.setBounds(27, 29, 131, 23);
 		panel.add(chckbxShowBackground);
 		
@@ -62,7 +59,7 @@ public class AdvancedGraphics extends JFrame {
 				UserSettings.RenderSprites=!UserSettings.RenderSprites;
 			}
 		});
-		chckbxShowSprites.setSelected(true);
+		chckbxShowSprites.setSelected(UserSettings.RenderSprites);
 		chckbxShowSprites.setBounds(27, 70, 110, 23);
 		panel.add(chckbxShowSprites);
 		
@@ -72,7 +69,7 @@ public class AdvancedGraphics extends JFrame {
 				UserSettings.frameLimit=!UserSettings.frameLimit;
 			}
 		});
-		chckbxEnableFrameLimit.setSelected(true);
+		chckbxEnableFrameLimit.setSelected(UserSettings.frameLimit);
 		chckbxEnableFrameLimit.setBounds(27, 115, 169, 23);
 		panel.add(chckbxEnableFrameLimit);
 		
@@ -82,7 +79,7 @@ public class AdvancedGraphics extends JFrame {
 				UserSettings.politeFrameTiming=!UserSettings.politeFrameTiming;
 			}
 		});
-		chckbxPoliteFrameTiming.setSelected(true);
+		chckbxPoliteFrameTiming.setSelected(UserSettings.politeFrameTiming);
 		chckbxPoliteFrameTiming.setBounds(27, 167, 169, 23);
 		panel.add(chckbxPoliteFrameTiming);
 		
@@ -103,6 +100,8 @@ public class AdvancedGraphics extends JFrame {
 		panel_1.setLayout(null);
 		
 		JPanel panel_2 = new JPanel(){
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void paint(Graphics g){
 				int[] palette = NesColors.getpalette(UserSettings.selectedPalette);
@@ -117,10 +116,11 @@ public class AdvancedGraphics extends JFrame {
 		panel_2.setBounds(21, 11, 259, 105);
 		panel_1.add(panel_2);
 		
-		JComboBox comboBox_1 = new JComboBox(NesColors.palettes);
+		JComboBox<String> comboBox_1 = new JComboBox<String>(NesColors.palettes);
+		comboBox_1.setSelectedIndex(Arrays.asList(NesColors.palettes).indexOf(UserSettings.selectedPalette));
 		comboBox_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JComboBox cb = (JComboBox)e.getSource();
+				JComboBox<?> cb = (JComboBox<?>)e.getSource();
 				String s = cb.getSelectedItem().toString();
 				NesColors.updatePalette(s);
 				UserSettings.selectedPalette=s;
