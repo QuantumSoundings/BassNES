@@ -171,6 +171,7 @@ public class UserSettings {
 		RenderMethod = Integer.parseInt(prop.getProperty("rendermethod", "2"));
 		ShowFPS = prop.getProperty("showfps", "true").equals("true");
 		selectedPalette = prop.getProperty("selectedpalette","defaultPalette");
+		NesColors.setCustomPalette(prop.getProperty("custompalette",""));
 		NesColors.updatePalette(selectedPalette);
 	}
 	private static void saveGraphics(){
@@ -179,6 +180,7 @@ public class UserSettings {
 		prop.setProperty("rendermethod", 2+"");
 		prop.setProperty("showfps", ShowFPS+"");
 		prop.setProperty("selectedpalette", selectedPalette);
+		prop.setProperty("custompalette", NesColors.getCustomPalette());
 	}
 	private static void loadEmulation(){
 		politeFrameTiming = prop.getProperty("politeframetiming", "true").equals("true");
