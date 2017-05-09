@@ -210,6 +210,7 @@ public class MMC3 extends Mapper {
 	}
 	@Override
 	public byte ppureadPT(int index){
+		check(index);
 		return CHR_ROM[index/0x400][index%0x400];
 	}
 	@Override
@@ -315,8 +316,8 @@ public class MMC3 extends Mapper {
 		}
 		if(scanlinecount==0&&irqenable){
 			if(!doingIRQ){
-				//System.out.println("Generating IRQ at scanline: "+ppu.scanline+" pcycle: "+ppu.pcycle+" iflag: "+cpu.IFlag );
-				cpu.doIRQ++;
+				//System.out.println("Generating IRQ at scanline: "+ppu.scanline+" pcycle: "+ppu.pcycle);
+				ppu.setirq=true;
 			}
 			doingIRQ=true;
 			//if(control.checkDebug())

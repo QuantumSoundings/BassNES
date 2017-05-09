@@ -57,7 +57,7 @@ public class ppu2C02 implements java.io.Serializable{
 	int PPUCTRL_bna;//base nametable address
 	boolean PPUCTRL_vraminc;//vram increment on cpu read/write ppudata
 	boolean PPUCTRL_spta;//sprite pattern table base address
-	boolean PPUCTRL_bpta;//background pattern table base address
+	public boolean PPUCTRL_bpta;//background pattern table base address
 	boolean PPUCTRL_ss;//sprite size; 0 = 8x8;1= 8x16
 	boolean PPUCTRL_ms;//master/slave select
 	boolean PPUCTRL_genNmi;
@@ -120,7 +120,6 @@ public class ppu2C02 implements java.io.Serializable{
 		OPEN_BUS = b;
 		switch(index){
 		case 0x2000:
-			//System.out.println("Writeing PPUCTRL:"+Integer.toBinaryString(Byte.toUnsignedInt(b)));
 			t&=~0xc00;
 			t|=(b&3)<<10;
 			PPUCTRL=b;
@@ -128,11 +127,9 @@ public class ppu2C02 implements java.io.Serializable{
 			PPUCTRL_vraminc = (b & 4) != 0;
 			PPUCTRL_spta = (b & 8) != 0;
 			PPUCTRL_bpta = (b & 16) != 0;
-			//System.out.println("Base Nametable:"+PPUCTRL_bna);
 			PPUCTRL_ss = (b & 32) != 0;
 			PPUCTRL_ms = (b & 64) != 0;
 			PPUCTRL_genNmi = (b & 128) != 0;
-			//PPUCTRL_genNmi=true;
 			if(scanline==-1&&pcycle==2)
 				map.cpu.setNMI(false);
 			else
@@ -147,18 +144,14 @@ public class ppu2C02 implements java.io.Serializable{
 			PPUMASK_sl = (b & 4) != 0;
 			leftmask_s = PPUMASK_sl?0:8;
 			PPUMASK_sb = (b & 8) != 0;
-			//System.out.println("Setting background to "+PPUMASK_sb);
 			PPUMASK_ss = (b & 16) != 0;
 			render = PPUMASK_ss||PPUMASK_sb;
 			PPUMASK_colorbits = (b&0b11100000)<<3;
 			break;
 		case 0x2003:
-			//System.out.println("Setting OAMADDR to: "+Byte.toUnsignedInt(b));
 			OAMADDR = b;
 			break;
 		case 0x2004:
-			//OAMDATA = Byte.toUnsignedInt(b);
-			//System.out.println("Writing :"+b+" at: "+Byte.toUnsignedInt(OAMADDR));
 			if(scanline>=240||(!dorender())){
 				if((OAMADDR&0x03)==0x02)
 					b&=0xe3;
@@ -167,7 +160,6 @@ public class ppu2C02 implements java.io.Serializable{
 			}
 			else
 				OAMADDR+=4;
-			//OAMADDR%=256;
 			break;
 		case 0x2005:
 			if (even){
@@ -186,14 +178,12 @@ public class ppu2C02 implements java.io.Serializable{
 			break;
 		case 0x2006:
 			if(even){
-				//System.out.println("FIRST WRITE!");
 				t &=0xc0ff;
 				t|= (Byte.toUnsignedInt(b)&0x3f)<<8;
 				t&=0x3fff;
 				even = false;
 			}
 			else{
-				//System.out.println("Second WRITE!");
 				t &=0x7f00;
 				t|= Byte.toUnsignedInt(b);
 				tv=v;
@@ -229,8 +219,6 @@ public class ppu2C02 implements java.io.Serializable{
 			break;
 		default: System.out.println("Something went wrong in ppureg write");
 		}
-	//PPUSTATUS_lsb = b&0b11111;
-	//OPEN_BUS=b;
 
 	}
 	boolean block;
@@ -239,7 +227,6 @@ public class ppu2C02 implements java.io.Serializable{
 		tv=v;
 		switch(index){
 		case 0x2002:
-			//b = (byte) PPUSTATUS_lsb;
 			b |= PPUSTATUS_so?0x20:0;
 			b |= PPUSTATUS_sz?0x40:0;
 			if(!(scanline==241&&(pcycle==2)))
@@ -326,56 +313,60 @@ public class ppu2C02 implements java.io.Serializable{
 	}
 	
 	public void getBG(){
-		//cyclepart++;
 		switch((pcycle-1)%8){
-		case 0:
+		case 0://name table
 			shiftreg16a = (shiftreg16a<<8)|ptablemap1;			
 			shiftreg16b = (shiftreg16b<<8)|ptablemap0;
 			palettelatchold = palettelatchnew;
 			palettelatchnew = (atablebyte<<2);
 			cyclepart=0;
-			break;
-		case 1://name table
 			nametablebyte = Byte.toUnsignedInt(map.ppureadNT(0x2000|(v&0x0fff)))<<4;
 			nametablebyte+=(PPUCTRL_bpta?0x1000:0);
-			cyclepart=1;
 			break;
-		case 2: cyclepart=2;break;
-		case 3://attribute table
+		case 1: cyclepart=1;break;
+		case 2://attribute table
 			int tempx =0x23C0 | (v & 0x0C00) | ((v >> 4) & 0x38) | ((v >> 2) & 0x07);
 			byte attbyte = map.ppureadNT(tempx);
 			int sel = ((v & 2) >> 1) | ((v & 0x40) >> 5);
 			atablebyte = ((0xff&attbyte)>>(sel*2))&3;
-			cyclepart=3;
+			cyclepart=2;
 			break;
-		case 4: cyclepart=4; break;
-		case 5://tile low
+		case 3://tile low
 			nametablebyte = nametablebyte+((v&0x7000)>>>12);
 			ptablemap0 = Byte.toUnsignedInt(map.ppureadPT(nametablebyte));	
+			cyclepart=3;
+			break;
+		case 4:cyclepart=4;break;
+		case 5://tile high
+			ptablemap1 = Byte.toUnsignedInt(map.ppureadPT(nametablebyte+8));
 			cyclepart=5;
 			break;
-		case 6:cyclepart=6;break;
-		case 7://tile high
-			ptablemap1 = Byte.toUnsignedInt(map.ppureadPT(nametablebyte+8));
+		case 6: cyclepart=6;break;
+		case 7:
 			if(pcycle !=256)
 				incx();
 			else
 				incy();
 			cyclepart=7;
 			break;
-		case 8: case 9: case 10:case 11:case 12:case 13:case 14:case 15:case 16:case 17:case 18:case 19:case 20:
-			default: break;
+		case 8:case 9: case 10:case 11:case 12:case 13:case 14:case 15:case 16:case 17:case 18:case 19:case 20:
+			default:cyclepart++; break;
 		}	
 	}
 	boolean spriteoverdelay;
+	public boolean setirq;
 	public void doCycle(){
-		if(delayset){// FIXME    //Sprite zero flag set 1 cycle too early
+		if(delayset){// FIXME    //All of these are set 1 cycle too early
 			delayset=false;
 			PPUSTATUS_sz=true;
 		}
 		else if(spriteoverdelay){
 			spriteoverdelay=false;
 			PPUSTATUS_so=true;
+		}
+		else if(setirq){//refers to mmc3 irq
+			map.cpu.doIRQ++;
+			setirq=false;
 		}
 		if(pcycle>339){
 			if(scanline==finalscanline){
@@ -433,14 +424,11 @@ public class ppu2C02 implements java.io.Serializable{
 		else if(cycle<=320){
 			if(render){
 				OAMADDR=0;
-				if(cycle==260)
-					map.scanlinecounter();
-				else if(scanline==-1&&cycle>=280&&cycle<=304)
+				if(scanline==-1&&cycle>=280&&cycle<=304)
 					v=t;
-				
+				if(cycle%8==4)
+					loadSprites();	
 			}
-			if(cycle%8==4&&scanline>=0)
-				loadSprites();
 		}
 		else if(cycle<=336){
 			if(render)
@@ -659,7 +647,7 @@ public class ppu2C02 implements java.io.Serializable{
 		  0x0F, 0x8F, 0x4F, 0xCF, 0x2F, 0xAF, 0x6F, 0xEF, 0x1F, 0x9F, 0x5F, 0xDF, 0x3F, 0xBF, 0x7F, 0xFF
 		};
 	void loadSprites(){
-		if(Byte.toUnsignedInt(oambuffer[4*oamBCounter])!=0xff){
+		//if(Byte.toUnsignedInt(oambuffer[4*oamBCounter])!=0xff){
 			spriteco[spritec] = Byte.toUnsignedInt(oambuffer[4*oamBCounter+3]);
 			byte attributes = oambuffer[4*oamBCounter+2];
 			spritepalette[spritec] = attributes&3;
@@ -691,16 +679,17 @@ public class ppu2C02 implements java.io.Serializable{
 				tileindex+=y;
 			}
 			if((attributes&0x40)!=0)
-				spritebm[spritec] = (BitReverseTable256[Byte.toUnsignedInt(map.ppuread(tileindex))]<<8)|(BitReverseTable256[Byte.toUnsignedInt(map.ppuread(tileindex+8))]);
+				spritebm[spritec] = (BitReverseTable256[Byte.toUnsignedInt(map.ppureadPT(tileindex))]<<8)|(BitReverseTable256[Byte.toUnsignedInt(map.ppureadPT(tileindex+8))]);
 			else
-				spritebm[spritec] = (Byte.toUnsignedInt((map.ppuread(tileindex)))<<8)|Byte.toUnsignedInt((map.ppuread(tileindex+8)));	
+				spritebm[spritec] = (Byte.toUnsignedInt((map.ppureadPT(tileindex)))<<8)|Byte.toUnsignedInt((map.ppureadPT(tileindex+8)));	
 			if(tileindex<0)tileindex*=-1;
 			//spritehorizontal[spritec]=(attributes&0x40)!=0;
 			//spritebm[spritec] = (Byte.toUnsignedInt((map.ppuread(tileindex)))<<8)|Byte.toUnsignedInt((map.ppuread(tileindex+8)));
-			numsprites++;
+			if(scanline>=0&&Byte.toUnsignedInt(oambuffer[4*oamBCounter])!=0xff)
+				numsprites++;
 			spritec++;
 			oamBCounter++;
 			return;
-		}
+		//}
 	}
 }
