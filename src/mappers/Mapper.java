@@ -332,6 +332,8 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			return new AxROM();
 		case 9:
 			return new MMC2();
+		case 10:
+			return new MMC4();
 		default:
 			System.err.println("Unsupported Mapper id: "+i);
 		}

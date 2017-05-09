@@ -64,11 +64,11 @@ public class SystemUI {
                display.sendFrame(pixels);
            }
        };
-		try {
+		/*try {
 			runTests();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}
+		}*/
 		start();
 	}
 	public void start(){
