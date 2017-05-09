@@ -21,6 +21,9 @@ public class ppu2C02 implements java.io.Serializable{
 	//cycles per scanline = 341
 	//one frame is 262 scanlines
 	//memory access is 2 cycles long
+	//pal stuff
+	int finalscanline;
+	boolean palregion;
 	double currentFPS;
 	boolean oddframe = false;
 	int oamcounter = 0;
@@ -103,6 +106,14 @@ public class ppu2C02 implements java.io.Serializable{
 		scanline = 0;
 		pcycle = 0;
 		renderer= new Renderer();
+		
+	}
+	public void setpal(boolean pal){
+		if(pal)
+			finalscanline = 310;
+		else
+			finalscanline = 260;
+		palregion=pal;
 	}
 	boolean even = true;
 	public void writeRegisters(int index,byte b){
@@ -367,7 +378,7 @@ public class ppu2C02 implements java.io.Serializable{
 			PPUSTATUS_so=true;
 		}
 		if(pcycle>339){
-			if(scanline==260){
+			if(scanline==finalscanline){
 				scanline=-1;pcycle=0;
 				oddframe=!oddframe;
 				doneFrame=true;
@@ -436,7 +447,7 @@ public class ppu2C02 implements java.io.Serializable{
 				getBG();
 		}
 		else if(cycle==339){
-			if(scanline==-1&&!oddframe&&render){
+			if(scanline==-1&&!oddframe&&render&&!palregion){
 				pcycle=-1;scanline=0;
 			}
 		}

@@ -21,11 +21,12 @@ public class NES implements Runnable {
 	//Master clock speed.
 	int systemclock = 21477272;
 	final int cpudiv = 12;
+	final int palcpudiv = 16;
 	//final int apudiv = 24;
 	final int ppudiv = 4;
-	final int framediv= 89490;
+	final int palppudiv = 5;
 	public int cpuclock=0;
-	//private int mclock;
+	private int mclock;
 	
 	boolean batteryExists;
 	boolean pal;
@@ -58,7 +59,9 @@ public class NES implements Runnable {
 		map.cpu.setPC(((map.cpureadu(0xfffd)<<8)|(map.cpureadu(0xfffc))));
 	}
 	public void run(){
-		System.out.println("NES STARTED RUNNING");	
+		System.out.println("NES STARTED RUNNING");
+		if(pal)
+			palrun();
 		while(flag){
 			runFrame();
 			if(pause){
@@ -78,6 +81,50 @@ public class NES implements Runnable {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+	}
+	public void palrun(){
+		while(flag){
+			runPalFrame();
+			if(pause){
+				while(pause){
+					try{
+						Thread.sleep(200);
+					} catch(InterruptedException e){
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+	public void runPalFrame(){
+		frameStartTime = System.nanoTime();
+		while(!map.ppu.doneFrame){
+			if(mclock%palcpudiv==0){
+				map.cpu.run_cycle();
+				map.apu.doCycle();
+			}
+			if(mclock%palppudiv==0){
+				map.ppu.doCycle();
+			}
+			mclock++;
+		}
+		map.ppu.doneFrame=false;
+		frameStopTime = System.nanoTime() - frameStartTime;
+		if(frameStopTime<20000000&&UserSettings.frameLimit)
+			try {
+				while(System.nanoTime()-frameStartTime<20000000){
+					if(UserSettings.politeFrameTiming)
+						Thread.sleep(0,100000);
+				}
+			} catch ( InterruptedException e){
+				e.printStackTrace();
+			}
+		if(framecount%50==0){
+			double x = 1000.0/(System.currentTimeMillis()-fpsStartTime);
+			currentFPS = x*50;
+			fpsStartTime=System.currentTimeMillis();
+		}
+		framecount++;
 	}
 	public void runFrame(){
 		frameStartTime = System.nanoTime();
@@ -177,7 +224,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/smb3.nes");
+		//rom = new File(System.getProperty("user.dir")+"/megaman3.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);
@@ -194,8 +241,12 @@ public class NES implements Runnable {
 		System.out.println("CHR_ROM:"+(CHR_ROM.length/0x400)+"KB");
 		map.setCHR(CHR_ROM);
 		map.setMirror(header[6]&1);
-		if(header[9]==1)
+		if(header[9]==1||rom.getName().contains("(E)")){
 			pal = true;
+			System.out.println("Pal Game");
+		}
+		System.out.println(Integer.toBinaryString(Byte.toUnsignedInt(header[9])));
+		map.ppu.setpal(pal);
 		sx.close();
 		if(batteryExists)
 			loadSave();

@@ -10,6 +10,7 @@ import java.util.Scanner;
 /**
  *
  * @author Andrew
+ * Expanded by Jordan Howe
  */
 public class NesColors {
 

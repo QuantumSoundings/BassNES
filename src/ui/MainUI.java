@@ -337,6 +337,8 @@ public class MainUI extends JFrame {
 		JCheckBoxMenuItem chckbxmntmShowDebug = new JCheckBoxMenuItem("Show Debug");
 		chckbxmntmShowDebug.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(sys.debugWindow==null)
+					sys.debugWindow= new DebugUI();
 				sys.debugWindow.setVisible(!sys.debugWindow.isVisible());
 			}
 		});
