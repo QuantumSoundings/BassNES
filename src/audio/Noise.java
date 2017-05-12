@@ -64,7 +64,7 @@ public class Noise extends Channel{
 			tcount--;
 		if(lengthcount==0||(shiftreg&1)==0)
 			return;
-		total += decay;
+		total += 2*decay;
 		return;
 	}
 	@Override

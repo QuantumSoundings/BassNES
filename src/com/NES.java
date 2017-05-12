@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Scanner;
 
 public class NES implements Runnable {
 	private volatile Mapper map;
@@ -126,6 +127,7 @@ public class NES implements Runnable {
 		}
 		framecount++;
 	}
+	boolean dodebug;
 	public void runFrame(){
 		frameStartTime = System.nanoTime();
 		/*for(int i=29667;i!=0;i--){
@@ -136,11 +138,14 @@ public class NES implements Runnable {
 			map.ppu.doCycle();
 		}*/
 		while(!map.ppu.doneFrame){
-				map.cpu.run_cycle();
-				map.apu.doCycle();
-				map.ppu.doCycle();
-				map.ppu.doCycle();
-				map.ppu.doCycle();
+			//if((map.cpu.program_counter==0x5c00)||dodebug||false)//0xe2c5||dodebug||false)
+			//	debug();
+			map.ppu.doCycle();
+			map.ppu.doCycle();
+			map.ppu.doCycle();
+			map.cpu.run_cycle();
+			map.apu.doCycle();
+				
 		}
 		map.ppu.doneFrame=false;
 		frameStopTime = System.nanoTime() - frameStartTime;
@@ -224,7 +229,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/feg.nes");
+		rom = new File(System.getProperty("user.dir")+"/cv3.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);
@@ -252,15 +257,21 @@ public class NES implements Runnable {
 			loadSave();
 	}
 	
-	/*private void debug(){
+	private void debug(){
+		Scanner s = new Scanner(System.in);
 		System.out.println("Timing: "
 				+" PPU scanline:"+map.ppu.scanline
 				+" VRAM ADDR: " +Integer.toHexString(map.ppu.v)
-				+" Ticks: "+ map.ppu.pcycle+"/"+(Integer.toHexString((int)c))
+				+" Ticks: "+ map.ppu.pcycle//+"/"+(Integer.toHexString((int)c))
 				+" Rendering?: "+map.ppu.dorender()
 				+" vBlank:"+map.ppu.PPUSTATUS_vb
 				+" PPUSTATUS:"+Integer.toBinaryString(map.ppu.PPUSTATUS));
 		map.cpu.debug(0);
+		String st =s.nextLine();
+		if(st.equals("c"))
+			dodebug=false;
+		else
+			dodebug=true;
 		
-	}*/
+	}
 }

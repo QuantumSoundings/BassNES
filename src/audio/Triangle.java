@@ -61,6 +61,7 @@ public class Triangle extends Channel {
 		}
 		block=false;
 	}
+	boolean odd;
 	@Override
 	public final void clockTimer(){
 		if(tcount==0){
@@ -69,10 +70,15 @@ public class Triangle extends Channel {
 		}
 		else
 			tcount--;
-		if(linearcount==0||lengthcount==0)
+		odd=!odd;
+		if(odd){	
+			if(linearcount==0||lengthcount==0){
+			sequenceNum = 8;
 			return;
-		total+= sequencer[sequenceNum];
-		return;
+			}	
+			total+= sequencer[sequenceNum];
+		}
+		
 	}
 	@Override
 	public int getOutput(){

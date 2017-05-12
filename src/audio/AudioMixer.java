@@ -41,7 +41,7 @@ public class AudioMixer implements java.io.Serializable {
 		noise = n;
 		dmc = d;
 	}
-	/*private int highpass_filter(int sample) {
+	private int highpass_filter(int sample) {
 	        //for killing the dc in the signal
 	        sample += dckiller;
 	        dckiller -= sample >> 8;//the actual high pass part
@@ -52,7 +52,7 @@ public class AudioMixer implements java.io.Serializable {
         sample += lpaccum;
         lpaccum -= sample * 0.9;
         return lpaccum;
-    }*/
+    }
 	public final void sample(){	
 		//pulse1.buildOutput();
 		//pulse2.buildOutput();
@@ -64,21 +64,39 @@ public class AudioMixer implements java.io.Serializable {
 			sendOutput();
 		return;
 	}
+	double lasttriangleout=0;
+	int decayframes;
 	public void sendOutput(){
 		double p1 = getAverageSample(pulse1,UserSettings.pulse1MixLevel);
 		double p2 = getAverageSample(pulse2,UserSettings.pulse2MixLevel);
 		double t = getAverageSample(triangle,UserSettings.triangleMixLevel);
+		/*if(t<lasttriangleout&&decayframes<64){
+			t *= decayframes/64.0 * lasttriangleout;
+			lasttriangleout = t;
+			
+			decayframes++;
+		}
+		else if(t>lasttriangleout&&decayframes<64){
+			t *= decayframes/64.0* lasttriangleout;
+			lasttriangleout = t;
+			decayframes++;
+			
+		}
+		if(decayframes==64)
+			decayframes= 0;
+			*/
 		double n = getAverageSample(noise,UserSettings.noiseMixLevel);
 		double d = getAverageSample(dmc,UserSettings.dmcMixLevel);
 		double pulse_out = 0.00752 * (p1+p2);//pulse_table[p1+p2];
 		double tnd_out = 0.00851*t + 0.00494*n + 0.00335*d;//tnd_table[3*t + 2*n + d];
 		double sample = pulse_out + tnd_out;
-		//sample-=.5;
-		sample = ((sample*32768)*(UserSettings.masterMixLevel/100.0));
-		audio.outputSample((int)sample);
+		sample-=.5;
+		sample = ((sample*30000)*(UserSettings.masterMixLevel/100.0));
+		audio.outputSample(lowpass_filter(highpass_filter((int)sample)));
 	}
 	final double getAverageSample(Channel chan,int UserMix){
 		double d =((chan.total/cyclespersample)*(UserMix/100.0));
+		//double d = chan.getOutput() * (UserMix/100.0);
 		chan.total=0;
 		return d;	
 	}

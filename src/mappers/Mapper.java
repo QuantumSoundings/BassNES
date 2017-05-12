@@ -8,7 +8,7 @@ import com.NES;
 import com.ppu2C02;
 
 import ui.SystemUI;
-public class Mapper implements java.io.Serializable {//There will be class that inheriet this class. Better to have all reads and writes go through this
+public class Mapper implements java.io.Serializable {//There will be class that inherit this class. Better to have all reads and writes go through this
 	private static final long serialVersionUID = 6655950169350506050L;
 	//for callback
 	public transient SystemUI system;
@@ -170,6 +170,9 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	public byte ppureadPT(int index){
 		return CHR_ROM[(index&0x1000)!=0?1:0][index%0x1000];
 	}
+	public byte ppureadAT(int index){
+		return ppureadNT(index);
+	}
 	public byte ppuread(int index){
 		if(index<0x2000)
 			if(index<0x1000)
@@ -328,6 +331,8 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			return new CNROM();
 		case 4:
 			return new MMC3();
+		case 5:
+			return new MMC5();
 		case 7:
 			return new AxROM();
 		case 9:

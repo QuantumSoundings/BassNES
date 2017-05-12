@@ -56,7 +56,7 @@ public class MMC3 extends Mapper {
 	int bankselect;
 	int bankdata;
 	@Override
-	public void cartridgeWrite(int index, byte b){
+	public final void cartridgeWrite(int index, byte b){
 		if(index<0x8000)
 			PRG_RAM[index-0x6000]=b;
 		else if(index>=0x8000&&index<0xa000){
@@ -102,7 +102,7 @@ public class MMC3 extends Mapper {
 		}
 	}
 	
-	void selectBank(byte b){
+	private void selectBank(byte b){
 		switch(bankselect&0b111){
 		case 0://select 2kb chr bank at CHR_ROM[0-1] (4-5)
 			if(CHR_mode){
@@ -166,7 +166,7 @@ public class MMC3 extends Mapper {
 		
 	}
 	@Override
-	byte cartridgeRead(int index){
+	final byte cartridgeRead(int index){
 		if(index<0x8000&&index>=0x6000)
 			return PRG_RAM[index-0x6000];
 		else if(index>=0x8000&&index<0xa000)
@@ -182,7 +182,7 @@ public class MMC3 extends Mapper {
 	}
 	
 	@Override
-	public byte ppuread(int index){
+	public final byte ppuread(int index){
 		if(index<0x2000){
 			if(index<0x400)
 				return CHR_ROM[0][index];
@@ -209,12 +209,12 @@ public class MMC3 extends Mapper {
 			return ppu_palette[(index&0xff)%0x20];
 	}
 	@Override
-	public byte ppureadPT(int index){
+	public final byte ppureadPT(int index){
 		check(index);
 		return CHR_ROM[index/0x400][index%0x400];
 	}
 	@Override
-	public void ppuwrite(int index,byte b){
+	public final void ppuwrite(int index,byte b){
 		if(index<0x2000&&CHR_ram){
 			//check(index);
 			switch(index/0x400){
@@ -245,7 +245,7 @@ public class MMC3 extends Mapper {
 	}
 	
 	@Override
-	int ppuNameTableMirror(int index){
+	final int ppuNameTableMirror(int index){
 		index%=0x1000;
 		if(mirrormode){
 			if(index<0x400)
@@ -316,8 +316,7 @@ public class MMC3 extends Mapper {
 		}
 		if(scanlinecount==0&&irqenable){
 			if(!doingIRQ){
-				//System.out.println("Generating IRQ at scanline: "+ppu.scanline+" pcycle: "+ppu.pcycle);
-				ppu.setirq=true;
+				cpu.doIRQ++;
 			}
 			doingIRQ=true;
 			//if(control.checkDebug())

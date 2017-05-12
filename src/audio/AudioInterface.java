@@ -15,38 +15,39 @@ public class AudioInterface implements java.io.Serializable {
 	transient SourceDataLine sdl;
 	transient byte[] audiobuffer;
 	int bufptr = 0;
-	public final int samplerate = 48000;
+	public final int samplerate = 44100;
 	
 	public AudioInterface(){
 		restartSDL();
 	}
 	public void restartSDL(){
 		AudioFormat form = new AudioFormat(samplerate,16,2,true,false);
-		audiobuffer = new byte[(samplerate*2)/22];
+		audiobuffer = new byte[samplerate/60 *2 *4];
 		try {
 			sdl = AudioSystem.getSourceDataLine(form);
-			sdl.open(form,audiobuffer.length*8);
+			sdl.open(form,audiobuffer.length*3);
 			sdl.start();
 		} catch (LineUnavailableException e) {
 			e.printStackTrace();
 		}	
 	}
 	public void outputSample(int sample){
-		if(sample>32768)
-			sample=32768;
-		if(sample<-32768)
-			sample=-32768;
+		if(sample>30000)
+			sample=30000;
+		if(sample<-30000)
+			sample=-30000;
 		audiobuffer[bufptr] = (byte)(sample&0xff);
 		audiobuffer[bufptr+1]=(byte)((sample>>8)&0xff);
 		audiobuffer[bufptr+2] = (byte)(sample&0xff);
 		audiobuffer[bufptr+3]=(byte)((sample>>8)&0xff);
 		bufptr+=4;
 		if(bufptr+4>=audiobuffer.length-1){
-			if(sdl.available()>bufptr-4&&UserSettings.AudioEnabled)
+			if((sdl.available()>bufptr-4&&UserSettings.AudioEnabled)||UserSettings.lockvideotoaudio)
 				sdl.write(audiobuffer,0,bufptr-4);
 			bufptr=0;
 		}
 	}
+	//public void blip_add_delta
 	public void close(){
 		sdl.close();
 	}

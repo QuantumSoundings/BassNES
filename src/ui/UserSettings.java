@@ -16,6 +16,7 @@ public class UserSettings {
 	public static boolean politeFrameTiming = true;
 	public static boolean frameLimit = true;
 	public static boolean autoLoad = true;
+	public static boolean lockvideotoaudio=false;
 	
 	
 	//Graphics Settings
@@ -51,6 +52,7 @@ public class UserSettings {
 	public static int c2right;
 	public static int c2start;
 	public static int c2select;
+	
 
 	public UserSettings(){
 		try {
