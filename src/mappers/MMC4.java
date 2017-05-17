@@ -60,6 +60,18 @@ public class MMC4 extends Mapper {
 		}
 		else if(index>=0xf000&&index<=0xffff){
 			mirrormode = (b&1)==1;
+			if(mirrormode){
+				nametables[0]=ppu_internal_ram[0];
+				nametables[1]=ppu_internal_ram[0];
+				nametables[2]=ppu_internal_ram[1];
+				nametables[3]=ppu_internal_ram[1];
+			}
+			else{
+				nametables[0]=ppu_internal_ram[0];
+				nametables[1]=ppu_internal_ram[1];
+				nametables[2]=ppu_internal_ram[0];
+				nametables[3]=ppu_internal_ram[1];
+			}
 		}
 	}
 	@Override
@@ -89,10 +101,13 @@ public class MMC4 extends Mapper {
 	}
 	@Override
 	public byte ppuread(int index){
-		if(index>=0x2000&&index<=0x2fff)
-			return ppu_ram[ppuNameTableMirror(index)];
-		else if(index>=0x3000&&index<=0x3eff)
-			return ppu_ram[ppuNameTableMirror(index-0x1000)];
+		if(index<0x2000){
+			return ppureadPT(index);
+		}
+		else if(index>=0x2000&&index<=0x3eff){
+			index&=0xfff;
+			return nametables[index/0x400][index%0x400];
+		}
 		else{
 			index = index&0x1f;
 			index-= (index>=0x10&&(index&3)==0)?0x10:0;

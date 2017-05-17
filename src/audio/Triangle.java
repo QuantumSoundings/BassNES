@@ -70,14 +70,14 @@ public class Triangle extends Channel {
 		}
 		else
 			tcount--;
-		odd=!odd;
-		if(odd){	
+		//odd=!odd;
+		//if(odd){	
 			if(linearcount==0||lengthcount==0){
-			sequenceNum = 8;
+			//sequenceNum = 8;
 			return;
 			}	
 			total+= sequencer[sequenceNum];
-		}
+		//}
 		
 	}
 	@Override

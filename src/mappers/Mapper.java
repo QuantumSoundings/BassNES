@@ -22,7 +22,8 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	public Controller control2;
 
 	byte[] cpu_ram= new byte[0x800];
-	byte[] ppu_ram= new byte[0x1fff];
+	byte[][] ppu_internal_ram= new byte[2][0x400];
+	byte[][] nametables = new byte[4][0x400];
 	public byte[] ppu_palette = new byte[]{63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63};
 	public byte[] ppu_oam = new byte[256];	
 	byte[] cpu_mmr = new byte[0x18];
@@ -60,6 +61,18 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	public void setNes(NES n){ nes = n;}
 	public void setMirror(int i){
 		mirrormode= (i == 0);
+		if(mirrormode){
+			nametables[0]=ppu_internal_ram[0];
+			nametables[1]=ppu_internal_ram[0];
+			nametables[2]=ppu_internal_ram[1];
+			nametables[3]=ppu_internal_ram[1];
+		}
+		else{
+			nametables[0]=ppu_internal_ram[0];
+			nametables[1]=ppu_internal_ram[1];
+			nametables[2]=ppu_internal_ram[0];
+			nametables[3]=ppu_internal_ram[1];
+		}
 		System.out.println("Mode set to:"+mirrormode);
 	}
 	boolean blockppu(){
@@ -130,10 +143,9 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			else
 				CHR_ROM[1][index%0x1000]=b;
 		}
-		else if(index>=0x2000&&index<=0x2fff)
-			ppu_ram[ppuNameTableMirror(index)]=b;
-		else if(index>=0x3000&&index<=0x3eff){
-			ppu_ram[ppuNameTableMirror(index-0x1000)]=b;
+		else if(index>=0x2000&&index<=0x3eff){
+			index&=0xfff;
+			nametables[index/0x400][index%0x400] = b;
 		}
 		else{
 			int i = (index&0x1f);//%0x20;
@@ -142,30 +154,9 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			ppu_palette[i]=b;
 		}
 	}
-	int ppuNameTableMirror(int index){
-		if(mirrormode){//default is horizontal
-			if(index>=0x2000&&index<0x2400)
-				return index-0x2000;
-			else if(index>=0x2400&&index<0x2800)
-				return index-0x2400;
-			else if(index>=0x2800&&index<0x2c00)
-				return index-0x2400;
-			else
-				return index-0x2800;
-		}
-		else{
-			if(index>=0x2000&&index<0x2400)
-				return index-0x2000;
-			else if(index>=0x2400&&index<0x2800)
-				return index-0x2000;
-			else if(index>=0x2800&&index<0x2c00)
-				return index-0x2800;
-			else
-				return index-0x2800;
-		}
-	}
 	public byte ppureadNT(int index){
-		return ppu_ram[ppuNameTableMirror(index)];
+		index&=0xfff;
+		return nametables[index/0x400][index%0x400];
 	}
 	public byte ppureadPT(int index){
 		return CHR_ROM[(index&0x1000)!=0?1:0][index%0x1000];
@@ -179,10 +170,10 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 				return CHR_ROM[0][index];
 			else
 				return CHR_ROM[1][index%0x1000];
-		else if(index>=0x2000&&index<=0x2fff)
-			return ppu_ram[ppuNameTableMirror(index)];
-		else if(index>=0x3000&&index<=0x3eff)
-			return ppu_ram[ppuNameTableMirror(index-0x1000)];
+		else if(index>=0x2000&&index<=0x3eff){
+			index&=0xfff;
+			return nametables[index/0x400][index%0x400];
+		}
 		else{
 			index = index&0x1f;
 			index-= (index>=0x10&&(index&3)==0)?0x10:0;

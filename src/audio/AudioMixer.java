@@ -48,11 +48,7 @@ public class AudioMixer implements java.io.Serializable {
 	        dckiller += (sample > 0 ? -1 : 1);//guarantees the signal decays to exactly zero
 	        return sample;
 	    }
-	private int lowpass_filter(int sample) {
-        sample += lpaccum;
-        lpaccum -= sample * 0.9;
-        return lpaccum;
-    }
+
 	public final void sample(){	
 		//pulse1.buildOutput();
 		//pulse2.buildOutput();
@@ -70,29 +66,13 @@ public class AudioMixer implements java.io.Serializable {
 		double p1 = getAverageSample(pulse1,UserSettings.pulse1MixLevel);
 		double p2 = getAverageSample(pulse2,UserSettings.pulse2MixLevel);
 		double t = getAverageSample(triangle,UserSettings.triangleMixLevel);
-		/*if(t<lasttriangleout&&decayframes<64){
-			t *= decayframes/64.0 * lasttriangleout;
-			lasttriangleout = t;
-			
-			decayframes++;
-		}
-		else if(t>lasttriangleout&&decayframes<64){
-			t *= decayframes/64.0* lasttriangleout;
-			lasttriangleout = t;
-			decayframes++;
-			
-		}
-		if(decayframes==64)
-			decayframes= 0;
-			*/
 		double n = getAverageSample(noise,UserSettings.noiseMixLevel);
 		double d = getAverageSample(dmc,UserSettings.dmcMixLevel);
 		double pulse_out = 0.00752 * (p1+p2);//pulse_table[p1+p2];
 		double tnd_out = 0.00851*t + 0.00494*n + 0.00335*d;//tnd_table[3*t + 2*n + d];
 		double sample = pulse_out + tnd_out;
-		sample-=.5;
 		sample = ((sample*30000)*(UserSettings.masterMixLevel/100.0));
-		audio.outputSample(lowpass_filter(highpass_filter((int)sample)));
+		audio.outputSample((int)sample);
 	}
 	final double getAverageSample(Channel chan,int UserMix){
 		double d =((chan.total/cyclespersample)*(UserMix/100.0));

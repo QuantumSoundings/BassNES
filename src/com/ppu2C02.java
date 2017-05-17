@@ -67,7 +67,7 @@ public class ppu2C02 implements java.io.Serializable{
 	boolean PPUMASK_bl;//show background in leftmost 8px of screen;1=show
 	boolean PPUMASK_sl;//show sprites in leftmost 8px of screen;1=show;
 	boolean PPUMASK_sb;//show background
-	public boolean PPUMASK_ss;//show sprites
+	public boolean PPUMASK_ss=false;//show sprites
 	boolean render;
 	int PPUMASK_colorbits;//the three color emphasis bits; bit 1=red bit 2=green bit 3 = blue
 	int leftmask_b=0;
@@ -115,6 +115,9 @@ public class ppu2C02 implements java.io.Serializable{
 			finalscanline = 260;
 		palregion=pal;
 	}
+	public boolean getSpriteSize(){
+		return PPUCTRL_ss;
+	}
 	boolean even = true;
 	public void writeRegisters(int index,byte b){
 		OPEN_BUS = b;
@@ -126,7 +129,7 @@ public class ppu2C02 implements java.io.Serializable{
 			PPUCTRL_bna=b&0x3;
 			PPUCTRL_vraminc = (b & 4) != 0;
 			PPUCTRL_spta = (b & 8) != 0;
-			PPUCTRL_bpta = (b & 16) != 0;
+			PPUCTRL_bpta = (b & 16) != 0;	
 			PPUCTRL_ss = (b & 32) != 0;
 			PPUCTRL_ms = (b & 64) != 0;
 			PPUCTRL_genNmi = (b & 128) != 0;
@@ -420,7 +423,7 @@ public class ppu2C02 implements java.io.Serializable{
 		map.cpu.doNMI=PPUCTRL_genNmi;
 		renderer.buildFrame(pixels, 2);
 		pixelnum = 0;
-		map.system.videoCallback(renderer.colorized);
+		//map.system.videoCallback(renderer.colorized);
 	}
 
 	private void drawpixel(){

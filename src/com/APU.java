@@ -185,8 +185,10 @@ public class APU implements java.io.Serializable{
 			evenclock = true;
 			cyclenum++;
 		}
-		else
+		else{
 			evenclock = false;
+			dmc.buildOutput();	
+		}
 		if(stepmode4){
 			switch(cpucounter){
 			case 7459: stepNumber = 0;frameClock();break;

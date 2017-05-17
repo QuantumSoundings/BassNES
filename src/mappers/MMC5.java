@@ -3,6 +3,7 @@ package mappers;
 import java.util.Arrays;
 
 public class MMC5 extends Mapper {
+	private static final long serialVersionUID = -3309464442109236184L;
 	private int PRG_mode;
 	private int CHR_mode;
 	private int PRG_ram_protect_1;//must be 0x2 to enable writes
@@ -11,7 +12,7 @@ public class MMC5 extends Mapper {
 	private byte[] EXT_ram = new byte[0x400];
 	private byte[][] nametables = new byte[4][0x400];
 	private int[] nametable_assignments = new int[4];
-	private byte[][] internal_ram = new byte[2][0x400];
+	private byte[][] ppu_internal_ram = new byte[2][0x400];
 	private final byte[] all_zero = new byte[0x400];
 	private byte[] fill_mode = new byte[0x400];
 	private int fill_mode_tile;
@@ -140,9 +141,9 @@ public class MMC5 extends Mapper {
 				//pos= pos>>(i*2);
 				switch(pos&3){
 				case 0:
-					nametables[i] = internal_ram[0];nametable_assignments[i] = 0;break;
+					nametables[i] = ppu_internal_ram[0];nametable_assignments[i] = 0;break;
 				case 1:
-					nametables[i] = internal_ram[1];nametable_assignments[i] = 1;break;
+					nametables[i] = ppu_internal_ram[1];nametable_assignments[i] = 1;break;
 				case 2:
 					if(EXT_ram_mode == 0 || EXT_ram_mode ==1)
 						nametables[i] = EXT_ram;
@@ -293,14 +294,18 @@ public class MMC5 extends Mapper {
 	private void setupCHR(){
 		switch(CHR_mode){
 		case 0:
-			CHR_ROM[0] = CHRbanks[0];
-			CHR_ROM[1] = CHRbanks[1];
-			CHR_ROM[2] = CHRbanks[2];
-			CHR_ROM[3] = CHRbanks[3];
-			CHR_ROM[4] = CHRbanks[4];
-			CHR_ROM[5] = CHRbanks[5];
-			CHR_ROM[6] = CHRbanks[6];
-			CHR_ROM[7] = CHRbanks[7];
+			CHR_ROM[0] = CHRbanks[chrbanksa[7]&(CHRbanks.length-1)];
+			CHR_ROM[1] = CHRbanks[(chrbanksa[7]+1)&(CHRbanks.length-1)];
+			CHR_ROM[2] = CHRbanks[(chrbanksa[7]+2)&(CHRbanks.length-1)];
+			CHR_ROM[3] = CHRbanks[(chrbanksa[7]+3)&(CHRbanks.length-1)];
+			CHR_ROM[4] = CHRbanks[(chrbanksa[7]+4)&(CHRbanks.length-1)];
+			CHR_ROM[5] = CHRbanks[(chrbanksa[7]+5)&(CHRbanks.length-1)];
+			CHR_ROM[6] = CHRbanks[(chrbanksa[7]+6)&(CHRbanks.length-1)];
+			CHR_ROM[7] = CHRbanks[(chrbanksa[7]+7)&(CHRbanks.length-1)];
+			CHR_ROMB[0]= CHRbanks[(chrbanksb[3]<<3)&(CHRbanks.length-1)];
+			CHR_ROMB[1]= CHRbanks[((chrbanksb[3]<<3)+1)&(CHRbanks.length-1)];
+			CHR_ROMB[2]= CHRbanks[((chrbanksb[3]<<3)+2)&(CHRbanks.length-1)];
+			CHR_ROMB[3]= CHRbanks[((chrbanksb[3]<<3)+3)&(CHRbanks.length-1)];
 			break;
 			
 		case 3:
@@ -399,7 +404,7 @@ public class MMC5 extends Mapper {
 				EXT_ram[i%0x400] = b;break;
 			}*/
 		}
-		else{
+		else if(index>=0x3f00&&index<=0x3fff){
 			int i = (index&0x1f);//%0x20;
 			if(i%4==0)
 				i+= i>=0x10?-0x10:0;
@@ -429,15 +434,16 @@ public class MMC5 extends Mapper {
 				return EXT_ram[i%0x400];
 			}*/
 		}
-		else{
+		else if(index>=0x3f00&&index<=0x3fff){
 			index = index&0x1f;
 			index-= (index>=0x10&&(index&3)==0)?0x10:0;
 			return ppu_palette[index];
 		}
+		return 0;
 	}
 	@Override
 	public byte ppureadPT(int index){
-		if(ppu.PPUMASK_ss){
+		if(ppu.getSpriteSize()){
 			if(ppu.spritefetch)
 				return CHR_ROM[index/0x400][index%0x400];
 			else{

@@ -140,6 +140,8 @@ public class NES implements Runnable {
 		while(!map.ppu.doneFrame){
 			//if((map.cpu.program_counter==0x5c00)||dodebug||false)//0xe2c5||dodebug||false)
 			//	debug();
+			//if(map.ppu.scanline == 240)
+			//	map.printMemoryPPU(0x3f00, 0x20);
 			map.ppu.doCycle();
 			map.ppu.doCycle();
 			map.ppu.doCycle();
@@ -164,6 +166,7 @@ public class NES implements Runnable {
 			fpsStartTime=System.currentTimeMillis();
 		}
 		framecount++;
+		system.videoCallback(map.ppu.renderer.colorized);
 	}
 	public double getFPS(){
 		return currentFPS;
