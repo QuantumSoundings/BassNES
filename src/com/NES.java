@@ -233,7 +233,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/cv3j.nes");
+		rom = new File(System.getProperty("user.dir")+"/megaman3.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

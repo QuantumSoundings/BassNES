@@ -31,7 +31,6 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 
 	byte[][] PRG_ROM = new byte[2][0x4000];
 	byte[][] PRGbanks;
-	//boolean PRG_32k;
 	byte[] PRG_RAM=new byte[0x2000];
 	byte[][] CHR_ROM = new byte[2][0x1000];
 	byte[][] CHRbanks;
@@ -139,10 +138,11 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	public void ppuwrite(int index,byte b){
 		if(index<0x2000&&CHR_ram){
 			//System.out.println("Wwriting to char ram");
-			if(index<0x1000)
-				CHR_ROM[0][index]=b;
-			else
-				CHR_ROM[1][index%0x1000]=b;
+			CHR_ROM[index/0x1000][index%1000]=b;
+			//if(index<0x1000)
+			//	CHR_ROM[0][index]=b;
+			//else
+			//	CHR_ROM[1][index%0x1000]=b;
 		}
 		else if(index>=0x2000&&index<=0x3eff){
 			index&=0xfff;
@@ -160,17 +160,18 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		return nametables[index/0x400][index%0x400];
 	}
 	public byte ppureadPT(int index){
-		return CHR_ROM[(index&0x1000)!=0?1:0][index%0x1000];
+		return CHR_ROM[index/0x1000][index%0x1000];
 	}
 	public byte ppureadAT(int index){
 		return ppureadNT(index);
 	}
 	public byte ppuread(int index){
 		if(index<0x2000)
-			if(index<0x1000)
-				return CHR_ROM[0][index];
-			else
-				return CHR_ROM[1][index%0x1000];
+			return CHR_ROM[index/0x1000][index%0x1000];
+			//if(index<0x1000)
+			//	return CHR_ROM[0][index];
+			//else
+			//	return CHR_ROM[1][index%0x1000];
 		else if(index>=0x2000&&index<=0x3eff){
 			index&=0xfff;
 			return nametables[index/0x400][index%0x400];
@@ -269,7 +270,6 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		if(prg.length ==16384*2){
 			PRG_ROM[0]=Arrays.copyOfRange(prg, 0,0x4000);
 			PRG_ROM[1]=Arrays.copyOfRange(prg, 0x4000, 0x8000);
-			//PRG_32k = true;
 		}
 		else{
 			PRG_ROM[0]=Arrays.copyOfRange(prg, 0,0x4000);
@@ -332,7 +332,9 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		case 10:
 			return new MMC4();
 		case 24:
-			return new VRC6_24();
+			return new VRC6(24);
+		case 26:
+			return new VRC6(26);
 		default:
 			System.err.println("Unsupported Mapper id: "+i);
 		}
