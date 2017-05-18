@@ -76,7 +76,7 @@ public class Channel implements java.io.Serializable {
 	public void enable(){
 		enable = true;
 	}
-	public int getOutput(){
+	public double getOutput(){
 		return 0;
 	}
 	public void envelopeClock(){

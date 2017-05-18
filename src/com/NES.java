@@ -137,7 +137,7 @@ public class NES implements Runnable {
 			map.ppu.doCycle();
 			map.ppu.doCycle();
 		}*/
-		while(!map.ppu.doneFrame){
+		/*while(!map.ppu.doneFrame){
 			//if((map.cpu.program_counter==0x5c00)||dodebug||false)//0xe2c5||dodebug||false)
 			//	debug();
 			//if(map.ppu.scanline == 240)
@@ -148,7 +148,8 @@ public class NES implements Runnable {
 			map.cpu.run_cycle();
 			map.apu.doCycle();
 				
-		}
+		}*/
+		map.runFrame();
 		map.ppu.doneFrame=false;
 		frameStopTime = System.nanoTime() - frameStartTime;
 		if(frameStopTime<15800000&&UserSettings.frameLimit)
@@ -232,7 +233,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/cv3.nes");
+		rom = new File(System.getProperty("user.dir")+"/cv3j.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);
@@ -260,6 +261,7 @@ public class NES implements Runnable {
 			loadSave();
 	}
 	
+	@SuppressWarnings("unused")
 	private void debug(){
 		Scanner s = new Scanner(System.in);
 		System.out.println("Timing: "
@@ -275,6 +277,6 @@ public class NES implements Runnable {
 			dodebug=false;
 		else
 			dodebug=true;
-		
+		s.close();
 	}
 }

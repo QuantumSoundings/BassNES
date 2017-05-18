@@ -1,4 +1,6 @@
 package com;
+import java.util.ArrayList;
+
 import audio.*;
 import mappers.Mapper;
 
@@ -10,6 +12,7 @@ public class APU implements java.io.Serializable{
 	private final Pulse pulse2 = new Pulse(false);
 	private final Noise noise = new Noise();
 	private final DMC dmc;
+	private ArrayList<Channel> expansionAudio;
 	public AudioInterface audio;
 	public final AudioMixer mix;
 	private final Mapper map;
@@ -27,15 +30,23 @@ public class APU implements java.io.Serializable{
 	private int cpucounter;
 	public long cyclenum;
 	private int cycleper;
+	private boolean expansion;
 	
 	
 	public APU(Mapper m){
 		
 		map = m;
 		dmc =new DMC(map);
-		mix = new AudioMixer(pulse1,pulse2,triangle,noise,dmc);
+		expansionAudio = new ArrayList<Channel>();
+		mix = new AudioMixer(pulse1,pulse2,triangle,noise,dmc,expansionAudio);
 		cycleper= mix.intcyclespersample;
 		cpucounter = 10;
+		
+		expansion = false;
+	}
+	public void addExpansionChannel(Channel chan){
+		expansionAudio.add(chan);
+		expansion = true;
 	}
 	public void writeRegister(int index,byte b){
 		if(index>=0x4000&&index<0x4004){
@@ -184,11 +195,16 @@ public class APU implements java.io.Serializable{
 			dmc.clockTimer();
 			evenclock = true;
 			cyclenum++;
+			
+			
 		}
 		else{
 			evenclock = false;
 			dmc.buildOutput();	
 		}
+		if(expansion)
+			for(Channel chan:expansionAudio)
+				chan.clockTimer();
 		if(stepmode4){
 			switch(cpucounter){
 			case 7459: stepNumber = 0;frameClock();break;

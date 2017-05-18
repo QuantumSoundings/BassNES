@@ -77,7 +77,7 @@ public class ppu2C02 implements java.io.Serializable{
 	int PPUSTATUS_lsb;//bottom 5 bits last written to a ppu register
 	boolean PPUSTATUS_so;//sprite overflow;
 	boolean PPUSTATUS_sz;//sprite zero hit flag
-	boolean PPUSTATUS_vb;//vertical blank started
+	public boolean PPUSTATUS_vb;//vertical blank started
 	//0x2003
 	public byte OAMADDR;
 	//0x2004

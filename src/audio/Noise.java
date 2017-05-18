@@ -68,7 +68,7 @@ public class Noise extends Channel{
 		return;
 	}
 	@Override
-	public int getOutput(){
+	public double getOutput(){
 		if(lengthcount==0||(shiftreg&1)==0)
 			return 0;
 		if(constantvolume)

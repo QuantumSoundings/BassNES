@@ -15,8 +15,8 @@ public class MMC5 extends Mapper {
 	private byte[][] ppu_internal_ram = new byte[2][0x400];
 	private final byte[] all_zero = new byte[0x400];
 	private byte[] fill_mode = new byte[0x400];
-	private int fill_mode_tile;
-	private int fill_mode_color;
+	private byte fill_mode_tile;
+	private byte fill_mode_color;
 	private int[] chrbanksa = new int[8];
 	private int[] chrbanksb = new int[4];
 	private byte[][] CHR_ROMB = new byte[4][0x400];
@@ -71,6 +71,9 @@ public class MMC5 extends Mapper {
 			case 2:
 				EXT_ram[index%0x400] = b;
 				break;
+			case 3:
+				if(PRG_ram_protect_1==2&&PRG_ram_protect_2==1)
+					EXT_ram[index%0x400] = b;
 			default: break;
 			}
 		}
@@ -158,9 +161,15 @@ public class MMC5 extends Mapper {
 			}
 			break;
 		case 0x5106:
-			fill_mode_tile = Byte.toUnsignedInt(b);break;
+			fill_mode_tile = b;
+			for(int i = 0; i<0x3c0;i++)
+				fill_mode[i] = fill_mode_tile;
+			break;
 		case 0x5107:
-			fill_mode_color = b&3;break;
+			fill_mode_color = (byte) (((b&3)<<6)|((b&3)<<4)|((b&3)<<2)|(b&3));
+			for(int i = 0x3c0; i<0x400;i++)
+				fill_mode[i] = fill_mode_color;
+			break;
 		}
 			
 	}

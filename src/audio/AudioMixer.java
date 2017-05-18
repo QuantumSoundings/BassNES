@@ -1,5 +1,7 @@
 package audio;
 
+import java.util.ArrayList;
+
 import ui.UserSettings;
 
 public class AudioMixer implements java.io.Serializable {
@@ -11,6 +13,8 @@ public class AudioMixer implements java.io.Serializable {
 	final Pulse pulse2;
 	final Noise noise;
 	final DMC dmc;
+	private ArrayList<Channel> expansionAudio;
+
 	int samplenum;
 	int lpaccum = 0;
 	int dckiller = 0;
@@ -31,7 +35,7 @@ public class AudioMixer implements java.io.Serializable {
 			,0.693763291,0.695990928,0.698208065,0.700414776,0.702611133,0.70479721,0.706973079,0.709138811,0.711294476,0.713440145,0.715575887,0.71770177,0.719817864,0.721924234,0.724020949,0.726108075,0.728185676,0.730253819,0.732312567,0.734361984,0.736402134,0.73843308,0.740454883,0.744471308,0.742467605
 	};
 	
-	public AudioMixer(Pulse p1, Pulse p2, Triangle t, Noise n, DMC d){
+	public AudioMixer(Pulse p1, Pulse p2, Triangle t, Noise n, DMC d,ArrayList<Channel> exp){
 		audio = new AudioInterface();
 		cyclespersample = 1789773.0/audio.samplerate;
 		intcyclespersample = (int)cyclespersample;
@@ -40,15 +44,16 @@ public class AudioMixer implements java.io.Serializable {
 		triangle = t;
 		noise = n;
 		dmc = d;
+		expansionAudio=exp;
 	}
-	private int highpass_filter(int sample) {
+	/*private int highpass_filter(int sample) {
 	        //for killing the dc in the signal
 	        sample += dckiller;
 	        dckiller -= sample >> 8;//the actual high pass part
 	        dckiller += (sample > 0 ? -1 : 1);//guarantees the signal decays to exactly zero
 	        return sample;
 	    }
-
+	*/
 	public final void sample(){	
 		//pulse1.buildOutput();
 		//pulse2.buildOutput();
@@ -71,6 +76,11 @@ public class AudioMixer implements java.io.Serializable {
 		double pulse_out = 0.00752 * (p1+p2);//pulse_table[p1+p2];
 		double tnd_out = 0.00851*t + 0.00494*n + 0.00335*d;//tnd_table[3*t + 2*n + d];
 		double sample = pulse_out + tnd_out;
+		double expansion = 0;
+		for(Channel chan: expansionAudio){
+			expansion+= getAverageExpansion(chan,100);
+		}
+		sample+=expansion;
 		sample = ((sample*30000)*(UserSettings.masterMixLevel/100.0));
 		audio.outputSample((int)sample);
 	}
@@ -79,5 +89,10 @@ public class AudioMixer implements java.io.Serializable {
 		//double d = chan.getOutput() * (UserMix/100.0);
 		chan.total=0;
 		return d;	
+	}
+	final double getAverageExpansion(Channel chan,int UserMix){
+		double d =((chan.getOutput()/cyclespersample)*(UserMix/100.0));
+		chan.total = 0;
+		return d;
 	}
 }

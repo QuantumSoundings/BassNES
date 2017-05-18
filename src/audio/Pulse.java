@@ -114,7 +114,7 @@ public class Pulse extends Channel {
 		}
 	}
 	@Override
-	public int getOutput(){
+	public double getOutput(){
 		if(lengthcount==0||!output||decay==0||timer<8)
 			return 0;
 		return decay;

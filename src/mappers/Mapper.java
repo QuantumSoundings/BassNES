@@ -1,5 +1,6 @@
 package mappers;
 import java.util.Arrays;
+import java.util.Scanner;
 
 import com.APU;
 import com.CPU_6502;
@@ -330,9 +331,42 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			return new MMC2();
 		case 10:
 			return new MMC4();
+		case 24:
+			return new VRC6_24();
 		default:
 			System.err.println("Unsupported Mapper id: "+i);
 		}
 		return null;
+	}
+	public void runFrame() {
+		while(!ppu.doneFrame){
+			//if((map.cpu.program_counter==0x5c00)||dodebug||false)//0xe2c5||dodebug||false)
+			//	debug();
+			//if(map.ppu.scanline == 240)
+			//	map.printMemoryPPU(0x3f00, 0x20);
+			ppu.doCycle();
+			ppu.doCycle();
+			ppu.doCycle();
+			cpu.run_cycle();
+			apu.doCycle();				
+		}
+		
+	}
+	boolean dodebug;
+	void debug(){
+		Scanner s = new Scanner(System.in);
+		System.out.println("Timing: "
+				+" PPU scanline:"+ppu.scanline
+				+" VRAM ADDR: " +Integer.toHexString(ppu.v)
+				+" Ticks: "+ ppu.pcycle//+"/"+(Integer.toHexString((int)c))
+				+" Rendering?: "+ppu.dorender()
+				+" vBlank:"+ppu.PPUSTATUS_vb);
+				//+" PPUSTATUS:"+Integer.toBinaryString(ppu.PPUSTATUS));
+		cpu.debug(0);
+		String st = s.nextLine();
+		if(st.equals("c"))
+			dodebug=false;
+		else
+			dodebug=true;
 	}
 }

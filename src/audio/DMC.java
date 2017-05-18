@@ -137,7 +137,7 @@ public class DMC extends Channel{
 		
 	}
 	@Override
-	public int getOutput(){
+	public double getOutput(){
 		return outputlevel;	
 	}
 	@Override

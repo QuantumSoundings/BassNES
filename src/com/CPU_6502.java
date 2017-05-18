@@ -26,7 +26,7 @@ public class CPU_6502 implements java.io.Serializable{
 	implied 11*/
 	
 	//registers
-	int program_counter;
+	public int program_counter;
 	private byte stack_pointer;
 	public byte accumulator;
 	private byte x_index_register;
@@ -86,7 +86,7 @@ public class CPU_6502 implements java.io.Serializable{
 		setFlags((byte)0x34);
 	}
 	
-	void run_cycle(){
+	public void run_cycle(){
 		if(writeDMA){
 			if(dmac ==513){
 				dmac =0;
@@ -157,7 +157,7 @@ public class CPU_6502 implements java.io.Serializable{
 			return map.cpuread(program_counter);
 		}
 	}
-	void debug(double i){
+	public void debug(double i){
 		System.out.println("PC:" + Integer.toHexString(program_counter) + " Current Instruction: " + inst_name.get(current_instruction)
 				//+ " Instruction Hex: "+Integer.toHexString(Byte.toUnsignedInt(current_instruction))
 				+ " Instruction Cycle: "+instruction_cycle

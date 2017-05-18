@@ -9,7 +9,7 @@ https://pastebin.com/jP7mCCKi
 
 Currently supported mappers:
 
-0,1,2,3,4,7,9,10
+0,1,2,3,4,5,7,9,10,24
 
 These mappers give a good mix of compatibility covering most games for the NES.
 

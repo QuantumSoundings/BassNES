@@ -81,7 +81,7 @@ public class Triangle extends Channel {
 		
 	}
 	@Override
-	public int getOutput(){
+	public double getOutput(){
 		if(linearcount==0||lengthcount==0)
 			return 0;
 		else
