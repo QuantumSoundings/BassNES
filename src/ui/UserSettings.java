@@ -34,6 +34,8 @@ public class UserSettings {
 	public static int triangleMixLevel=100;
 	public static int noiseMixLevel=100;
 	public static int dmcMixLevel=100;
+	public static int vrc6MixLevel=100;
+	public static int sampleRate = 44100;
 	
 	//Controller Bindings
 	public static int c1a;
@@ -157,6 +159,7 @@ public class UserSettings {
 		triangleMixLevel = Integer.parseInt(prop.getProperty("trianglemixlevel","100"));
 		noiseMixLevel = Integer.parseInt(prop.getProperty("noisemixlevel","100"));
 		dmcMixLevel = Integer.parseInt(prop.getProperty("dmcmixlevel", "100"));
+		sampleRate = Integer.parseInt(prop.getProperty("samplerate", "44100"));
 	}
 	private static void saveAudio(){
 		prop.setProperty("audioenabled", AudioEnabled+"");
@@ -166,6 +169,7 @@ public class UserSettings {
 		prop.setProperty("trianglemixlevel", triangleMixLevel+"");
 		prop.setProperty("noisemixlevel", noiseMixLevel+"");
 		prop.setProperty("dmcmixlevel", dmcMixLevel+"");
+		prop.setProperty("samplerate", sampleRate+"");
 	}
 	private static void loadGraphics(){
 		RenderBackground = prop.getProperty("renderbackground", "true").equals("true");

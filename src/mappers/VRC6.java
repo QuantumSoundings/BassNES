@@ -86,25 +86,13 @@ public class VRC6 extends Mapper {
 				setCHR();
 				switch((b>>2)&3){
 				case 0:
-					nametables[0]=ppu_internal_ram[0];
-					nametables[1]=ppu_internal_ram[1];
-					nametables[2]=ppu_internal_ram[0];
-					nametables[3]=ppu_internal_ram[1];break;
+					setNameTable(Mirror.Vertical);break;
 				case 1:
-					nametables[0]=ppu_internal_ram[0];
-					nametables[1]=ppu_internal_ram[0];
-					nametables[2]=ppu_internal_ram[1];
-					nametables[3]=ppu_internal_ram[1];break;
+					setNameTable(Mirror.Horizontal);break;
 				case 2:
-					nametables[0]=ppu_internal_ram[0];
-					nametables[1]=ppu_internal_ram[0];
-					nametables[2]=ppu_internal_ram[0];
-					nametables[3]=ppu_internal_ram[0];break;
+					setNameTable(Mirror.SingleScreenLow);break;
 				case 3:
-					nametables[0]=ppu_internal_ram[1];
-					nametables[1]=ppu_internal_ram[1];
-					nametables[2]=ppu_internal_ram[1];
-					nametables[3]=ppu_internal_ram[1];break;
+					setNameTable(Mirror.SingleScreenHigh);break;
 				}
 				break;
 			case 0xc000:case 0xc001:case 0xc002:case 0xc003:
@@ -216,5 +204,6 @@ public class VRC6 extends Mapper {
 			clockIRQ();
 			apu.doCycle();	
 		}
+		ppu.doneFrame=false;
 	}
 }

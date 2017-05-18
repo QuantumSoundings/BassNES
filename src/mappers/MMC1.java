@@ -70,36 +70,6 @@ public class MMC1 extends Mapper {
 			CHR_ram = true;
 		}
 	}
-	/*@Override
-	int ppuNameTableMirror(int index){
-		switch(Mirror_mode){
-		case 0:
-			if(index>=0x2400&&index<0x2800)
-				return index%0x400;
-			else if(index>=0x2800&&index<0x2c00)
-				return index%0x400;
-			else if(index>=0x2c00)
-				return index%0x400;
-			else return index%0x400;
-		case 1:
-			if(index>=0x2000&&index<0x2400)
-				return index-0x1600;
-			else if(index>=0x2400&&index<0x2800)
-				return index-0x2000;
-			else if(index>=0x2800&&index<0x2c00)
-				return index-0x2400;
-			else return index-0x2800;
-		case 2:
-			mirrormode=false;
-			return super.ppuNameTableMirror(index);
-		case 3:
-			mirrormode=true;
-			return super.ppuNameTableMirror(index);
-		default:
-			System.out.println("Something went wrong in ppunametable mirroring");
-			return 0;
-		}
-	}*/
 	@Override
 	byte cartridgeRead(int index){
 		if(index<0x8000&&index>=0x6000)
@@ -115,25 +85,13 @@ public class MMC1 extends Mapper {
 			Mirror_mode = shiftregister&0b11;
 			switch(Mirror_mode){
 			case 0:
-				nametables[0] = ppu_internal_ram[0];
-				nametables[1] = ppu_internal_ram[0];
-				nametables[2] = ppu_internal_ram[0];
-				nametables[3] = ppu_internal_ram[0];break;
+				setNameTable(Mirror.SingleScreenLow);break;
 			case 1:
-				nametables[0] = ppu_internal_ram[1];
-				nametables[1] = ppu_internal_ram[2];
-				nametables[2] = ppu_internal_ram[3];
-				nametables[3] = ppu_internal_ram[4];break;
+				setNameTable(Mirror.SingleScreenHigh);break;
 			case 2:
-				nametables[0] = ppu_internal_ram[0];
-				nametables[1] = ppu_internal_ram[1];
-				nametables[2] = ppu_internal_ram[0];
-				nametables[3] = ppu_internal_ram[1];break;
+				setNameTable(Mirror.Vertical);break;
 			case 3:
-				nametables[0] = ppu_internal_ram[0];
-				nametables[1] = ppu_internal_ram[0];
-				nametables[2] = ppu_internal_ram[1];
-				nametables[3] = ppu_internal_ram[1];break;
+				setNameTable(Mirror.Horizontal);break;
 			}
 			PRG_ROM_mode = (shiftregister&0b1100)>>2;
 			CHR_ROM_mode = (shiftregister&0b10000)>>4;

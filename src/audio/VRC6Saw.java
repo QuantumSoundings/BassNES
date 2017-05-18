@@ -1,5 +1,7 @@
 package audio;
 
+import ui.UserSettings;
+
 public class VRC6Saw extends Channel {
 	
 	
@@ -57,6 +59,10 @@ public class VRC6Saw extends Channel {
 		}
 		total+=accumulator>>3;
 		//System.out.println("Clocking pulse");
+	}
+	@Override
+	public int getOutputSettings(){
+		return UserSettings.vrc6MixLevel;
 	}
 	@Override
 	public double getOutput(){

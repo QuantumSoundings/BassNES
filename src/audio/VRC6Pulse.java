@@ -1,5 +1,7 @@
 package audio;
 
+import ui.UserSettings;
+
 public class VRC6Pulse extends Channel {
 
 	int dutynumber;
@@ -60,6 +62,10 @@ public class VRC6Pulse extends Channel {
 				return;
 		total+=volume;
 		//System.out.println("Clocking pulse");
+	}
+	@Override
+	public int getOutputSettings(){
+		return UserSettings.vrc6MixLevel;
 	}
 	@Override
 	public double getOutput(){

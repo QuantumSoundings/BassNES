@@ -3,20 +3,32 @@ import java.util.ArrayList;
 
 import audio.*;
 import mappers.Mapper;
+import ui.UserSettings;
 
 
 public class APU implements java.io.Serializable{
 	private static final long serialVersionUID = 2400733667863038798L;
+	
+	private final Mapper map;
+	//Default Audio Channels
 	private final Triangle triangle = new Triangle();
 	private final Pulse pulse1 = new Pulse(true);
 	private final Pulse pulse2 = new Pulse(false);
 	private final Noise noise = new Noise();
 	private final DMC dmc;
+	//Expansion Audio Channels
 	private ArrayList<Channel> expansionAudio;
-	public AudioInterface audio;
-	public final AudioMixer mix;
-	private final Mapper map;
-	//Vars for save state
+	//public AudioInterface audio;
+	
+	//Mixing Variables
+	private double cyclespersample;
+	private int intcyclespersample;
+	private int samplenum;
+	//public final AudioMixer mix;
+	
+	
+	
+
 	private boolean stepmode4=true;
 	int stepcycle;
 	private boolean irqInhibit;
@@ -29,7 +41,6 @@ public class APU implements java.io.Serializable{
 	public int framecounter;
 	private int cpucounter;
 	public long cyclenum;
-	private int cycleper;
 	private boolean expansion;
 	
 	
@@ -38,10 +49,9 @@ public class APU implements java.io.Serializable{
 		map = m;
 		dmc =new DMC(map);
 		expansionAudio = new ArrayList<Channel>();
-		mix = new AudioMixer(pulse1,pulse2,triangle,noise,dmc,expansionAudio);
-		cycleper= mix.intcyclespersample;
-		cpucounter = 10;
-		
+		cyclespersample = 1789773.0/UserSettings.sampleRate;
+		intcyclespersample = (int)cyclespersample;
+		cpucounter = 10;	
 		expansion = false;
 	}
 	public void addExpansionChannel(Channel chan){
@@ -168,7 +178,6 @@ public class APU implements java.io.Serializable{
 			}
 			else{}
 		}
-		//update();
 	}
 	private void setIRQ(){
 		if(!irqInhibit){
@@ -178,7 +187,44 @@ public class APU implements java.io.Serializable{
 			}
 		}
 	}
-	private int samplenum;
+	//Audio Mixing methods
+	final double getAverageSample(Channel chan,int UserMix){
+		double d =((chan.total/cyclespersample)*(UserMix/100.0));
+		chan.total=0;
+		return d;	
+	}
+	final double getAverageExpansion(Channel chan,int UserMix){
+		double d =((chan.getOutput()/cyclespersample)*(UserMix/100.0));
+		chan.total = 0;
+		return d;
+	}
+	public void sendOutput(){
+		double p1 = getAverageSample(pulse1,UserSettings.pulse1MixLevel);
+		double p2 = getAverageSample(pulse2,UserSettings.pulse2MixLevel);
+		double t = getAverageSample(triangle,UserSettings.triangleMixLevel);
+		double n = getAverageSample(noise,UserSettings.noiseMixLevel);
+		double d = getAverageSample(dmc,UserSettings.dmcMixLevel);
+		double pulse_out = 0.00752 * (p1+p2);
+		double tnd_out = 0.00851*t + 0.00494*n + 0.00335*d;
+		double sample = pulse_out + tnd_out;
+		double expansion = 0;
+		for(Channel chan: expansionAudio)
+			expansion+= getAverageExpansion(chan,chan.getOutputSettings());
+		sample+=expansion;
+		sample = ((sample*30000)*(UserSettings.masterMixLevel/100.0));
+		map.system.audioSampleCallback((int)sample);
+	}
+	private void sendOutputUnMixed(){
+		int[] output = new int[5+expansionAudio.size()];
+		output[0] = (int) getAverageSample(pulse1,UserSettings.pulse1MixLevel);
+		output[1] = (int) getAverageSample(pulse2,UserSettings.pulse1MixLevel);
+		output[2] = (int) getAverageSample(triangle,UserSettings.pulse1MixLevel);
+		output[3] = (int) getAverageSample(noise,UserSettings.pulse1MixLevel);
+		output[4] = (int) getAverageSample(dmc,UserSettings.pulse1MixLevel);
+		for(int i = 5;i<output.length;i++)
+			output[i] = (int) getAverageExpansion(expansionAudio.get(i-5),100);
+		map.system.unmixedAudioSampleCallback(output);
+	}
 	public void doCycle(){
 		if(delay>0){
 			delay--;
@@ -238,8 +284,8 @@ public class APU implements java.io.Serializable{
 		}
 		cpucounter++;
 		samplenum++;
-		if((samplenum%cycleper)==0)
-			mix.sendOutput();
+		if((samplenum%intcyclespersample)==0)
+			sendOutput();
 	}
 
 }

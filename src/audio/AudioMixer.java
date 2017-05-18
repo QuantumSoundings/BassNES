@@ -2,12 +2,13 @@ package audio;
 
 import java.util.ArrayList;
 
+import mappers.Mapper;
 import ui.UserSettings;
 
 public class AudioMixer implements java.io.Serializable {
 
 	private static final long serialVersionUID = -5418535414924993071L;
-	public final AudioInterface audio;
+	final Mapper map;
 	final Triangle triangle;
 	final Pulse pulse1;
 	final Pulse pulse2;
@@ -35,9 +36,9 @@ public class AudioMixer implements java.io.Serializable {
 			,0.693763291,0.695990928,0.698208065,0.700414776,0.702611133,0.70479721,0.706973079,0.709138811,0.711294476,0.713440145,0.715575887,0.71770177,0.719817864,0.721924234,0.724020949,0.726108075,0.728185676,0.730253819,0.732312567,0.734361984,0.736402134,0.73843308,0.740454883,0.744471308,0.742467605
 	};
 	
-	public AudioMixer(Pulse p1, Pulse p2, Triangle t, Noise n, DMC d,ArrayList<Channel> exp){
-		audio = new AudioInterface();
-		cyclespersample = 1789773.0/audio.samplerate;
+	public AudioMixer(Pulse p1, Pulse p2, Triangle t, Noise n, DMC d,ArrayList<Channel> exp,Mapper m){
+		cyclespersample = 1789773.0/UserSettings.sampleRate;
+		map = m;
 		intcyclespersample = (int)cyclespersample;
 		pulse1 = p1;
 		pulse2 = p2;
@@ -54,12 +55,7 @@ public class AudioMixer implements java.io.Serializable {
 	        return sample;
 	    }
 	*/
-	public final void sample(){	
-		//pulse1.buildOutput();
-		//pulse2.buildOutput();
-		//noise.buildOutput();
-		//triangle.buildOutput();
-		//dmc.buildOutput();	
+	public final void sample(){		
 		samplenum++;
 		if((samplenum%intcyclespersample)==0)
 			sendOutput();
@@ -73,8 +69,8 @@ public class AudioMixer implements java.io.Serializable {
 		double t = getAverageSample(triangle,UserSettings.triangleMixLevel);
 		double n = getAverageSample(noise,UserSettings.noiseMixLevel);
 		double d = getAverageSample(dmc,UserSettings.dmcMixLevel);
-		double pulse_out = 0.00752 * (p1+p2);//pulse_table[p1+p2];
-		double tnd_out = 0.00851*t + 0.00494*n + 0.00335*d;//tnd_table[3*t + 2*n + d];
+		double pulse_out = 0.00752 * (p1+p2);
+		double tnd_out = 0.00851*t + 0.00494*n + 0.00335*d;
 		double sample = pulse_out + tnd_out;
 		double expansion = 0;
 		for(Channel chan: expansionAudio){
@@ -82,7 +78,6 @@ public class AudioMixer implements java.io.Serializable {
 		}
 		sample+=expansion;
 		sample = ((sample*30000)*(UserSettings.masterMixLevel/100.0));
-		audio.outputSample((int)sample);
 	}
 	final double getAverageSample(Channel chan,int UserMix){
 		double d =((chan.total/cyclespersample)*(UserMix/100.0));

@@ -64,18 +64,10 @@ public class MMC2 extends Mapper{
 		}
 		else if(index>=0xf000&&index<=0xffff){
 			mirrormode = (b&1)==1;
-			if(mirrormode){
-				nametables[0]=ppu_internal_ram[0];
-				nametables[1]=ppu_internal_ram[0];
-				nametables[2]=ppu_internal_ram[1];
-				nametables[3]=ppu_internal_ram[1];
-			}
-			else{
-				nametables[0]=ppu_internal_ram[0];
-				nametables[1]=ppu_internal_ram[1];
-				nametables[2]=ppu_internal_ram[0];
-				nametables[3]=ppu_internal_ram[1];
-			}
+			if(mirrormode)
+				setNameTable(Mirror.Horizontal);
+			else
+				setNameTable(Mirror.Vertical);
 		}
 	}
 	@Override

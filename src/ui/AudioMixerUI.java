@@ -150,6 +150,26 @@ public class AudioMixerUI extends JFrame {
 		lblDmc.setHorizontalAlignment(SwingConstants.CENTER);
 		lblDmc.setBounds(329, 121, 46, 14);
 		contentPane.add(lblDmc);
+		
+		JSlider slider_6 = new JSlider();
+		slider_6.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				JSlider source = (JSlider) arg0.getSource();
+				UserSettings.vrc6MixLevel=source.getValue();
+			}
+		});
+		slider_6.setValue(100);
+		slider_6.setPaintTicks(true);
+		slider_6.setPaintLabels(true);
+		slider_6.setOrientation(SwingConstants.VERTICAL);
+		slider_6.setMajorTickSpacing(20);
+		slider_6.setBounds(89, 139, 50, 99);
+		contentPane.add(slider_6);
+		
+		JLabel lblVrc = new JLabel("VRC6");
+		lblVrc.setHorizontalAlignment(SwingConstants.CENTER);
+		lblVrc.setBounds(89, 236, 46, 14);
+		contentPane.add(lblVrc);
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 	}
 }

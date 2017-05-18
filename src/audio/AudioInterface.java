@@ -8,22 +8,18 @@ import javax.sound.sampled.SourceDataLine;
 import ui.UserSettings;
 
 public class AudioInterface implements java.io.Serializable {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 25781276857491755L;
 	transient SourceDataLine sdl;
 	transient byte[] audiobuffer;
 	transient int[] audioints;
-	int bufptr = 0;
-	public final int samplerate = 48000;
+	int bufptr = 0;	
 	
 	public AudioInterface(){
 		restartSDL();
 	}
 	public void restartSDL(){
-		AudioFormat form = new AudioFormat(samplerate,16,2,true,false);
-		audioints = new int[samplerate/60];
+		AudioFormat form = new AudioFormat(UserSettings.sampleRate,16,2,true,false);
+		audioints = new int[UserSettings.sampleRate/60];
 		audiobuffer = new byte[audioints.length*4];
 		try {
 			sdl = AudioSystem.getSourceDataLine(form);
@@ -34,10 +30,10 @@ public class AudioInterface implements java.io.Serializable {
 		}	
 	}
 	public void outputSample(int sample){
-		if(sample>30000)
-			sample=30000;
-		if(sample<-30000)
-			sample=-30000;
+		if(sample>32768)
+			sample=32768;
+		if(sample<-32768)
+			sample=-32768;
 		audioints[bufptr] = sample;
 		bufptr++;
 		if(bufptr>=audioints.length){
@@ -47,8 +43,7 @@ public class AudioInterface implements java.io.Serializable {
 	}
 	
 	public void sendsample(){
-		lowpass();
-		
+		lowpass();	
 		for(int i: audioints){
 			audiobuffer[bufptr] = (byte) (i&0xff);
 			audiobuffer[bufptr+1] = (byte) ((i>>8)&0xff);

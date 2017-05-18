@@ -15,6 +15,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
 import com.NES;
+
+import audio.AudioInterface;
 import video.NesDisplay;
 interface UpdateEventListener extends EventListener{
 	public void doframe();
@@ -25,13 +27,14 @@ public class SystemUI {
 	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow;
 	File rom;
 	NesDisplay display;
-	KeyChecker keys;
+	private KeyChecker keys;
 	public UpdateEventListener listener;
-	int[] pixels;
+	private int[] pixels;
 	Thread current;
 	Thread render;
 	Properties prop;
 	String testoutput;
+	private AudioInterface audio;
 	
 	public SystemUI(){
 		try {
@@ -40,6 +43,7 @@ public class SystemUI {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		audio = new AudioInterface();
 		rom = new File("zelda.nes");
 		mainWindow = new MainUI(this);
 		//debugWindow = new DebugUI();
@@ -47,28 +51,20 @@ public class SystemUI {
 		audiomixerWindow = new AudioMixerUI(this);
 		advancedGraphicsWindow = new AdvancedGraphics();
 		keys = new KeyChecker();
-		mainWindow.addKeyListener(keys);
-		mainWindow.setFocusable(true);
-		mainWindow.requestFocusInWindow();
 		display = new NesDisplay();
 		display.setSize(256, 240);
-		mainWindow.add(display);
-		mainWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		mainWindow.setResizable(false);
-		display.updateScaling(2);
-		mainWindow.getContentPane().setPreferredSize(new Dimension(256*2,240*2));
-		mainWindow.pack();		
-		mainWindow.setVisible(true);		
+		display.updateScaling(2);		
 		listener = new UpdateEventListener(){
             public void doframe() {
                display.sendFrame(pixels);
            }
        };
-		/*try {
+       setupMainWindow();
+		try {
 			runTests();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}*/
+		}
 		start();
 	}
 	public void start(){
@@ -82,10 +78,20 @@ public class SystemUI {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+	}
+	private void setupMainWindow(){
+		mainWindow.addKeyListener(keys);
+		mainWindow.setFocusable(true);
+		mainWindow.requestFocusInWindow();
+		mainWindow.add(display);
+		mainWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		mainWindow.setResizable(false);
+		mainWindow.getContentPane().setPreferredSize(new Dimension(256*2,240*2));
+		mainWindow.pack();		
+		mainWindow.setVisible(true);
 	}
 	int pass,fail,totalpass,total,regression;
 	void runTests() throws InterruptedException{
@@ -143,7 +149,7 @@ public class SystemUI {
 			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/blarggapu/11.len_reload_timing.nes"),-991011135);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-        if(true|all){
+        if(false|all){
 			testoutput+= "\n PPU_VBL_NMI Tests \n\n";
 			testrom(5000/speed, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/01-vbl_basics.nes"),1036527745);
 			testrom(5000/speed, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/02-vbl_set_time.nes"),-236117247 );
@@ -246,9 +252,7 @@ public class SystemUI {
 		nes.flag=false;
 		testoutput+= "\n\n Overall results: "+totalpass+"/"+total+" Passed     " +(regression>0?regression+" Regressions":"");
 		System.out.println(testoutput);
-
-		
-		
+		UserSettings.frameLimit=true;
 	}
 	void testrom(int delay,File r,int goodhash) throws InterruptedException{
 		BufferedImage bi = new BufferedImage(display.getWidth(),display.getHeight(),BufferedImage.TYPE_INT_RGB);
@@ -308,5 +312,13 @@ public class SystemUI {
 				listener.doframe();
 	        }
 	    });
+	}
+	public void audioFrameCallback(int[] audiosamples){
+	}
+	public void audioSampleCallback(int audiosample){
+		audio.outputSample(audiosample);
+	}
+	public void unmixedAudioSampleCallback(int[] audiosample){
+		
 	}
 }

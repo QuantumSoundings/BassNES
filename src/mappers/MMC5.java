@@ -402,16 +402,6 @@ public class MMC5 extends Mapper {
 		else if(index>=0x2000&&index<=0x3eff){
 			int i = index&0xfff;
 			nametables[i/0x400][index%0x400] = b;
-			/*int x = nametable_assignments[i/0x400];
-			switch(x){
-			case 0:
-				internal_ram[0][i%0x400] = b;break;
-			case 1:
-				//System.out.println("IRAM 1 write");
-				internal_ram[1][i%0x400] = b;break;
-			case 2:
-				EXT_ram[i%0x400] = b;break;
-			}*/
 		}
 		else if(index>=0x3f00&&index<=0x3fff){
 			int i = (index&0x1f);//%0x20;
@@ -433,15 +423,6 @@ public class MMC5 extends Mapper {
 		else if(index>=0x2000&&index<=0x3eff){
 			int i = index&0xfff;
 			return nametables[i/0x400][i%0x400];
-			/*int x = nametable_assignments[i/0x400];
-			switch(x){
-			case 0:
-				return internal_ram[0][i%0x400];
-			case 1:
-				return internal_ram[1][i%0x400];
-			case 2:
-				return EXT_ram[i%0x400];
-			}*/
 		}
 		else if(index>=0x3f00&&index<=0x3fff){
 			index = index&0x1f;

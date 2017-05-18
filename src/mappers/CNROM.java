@@ -14,10 +14,7 @@ public class CNROM extends Mapper{
 	@Override
 	public void cartridgeWrite(int i, byte b){
 		super.cartridgeWrite(i, b);
-		//if(i>=0x6000&&i<0x8000)
-		//	PRG_RAM[i-0x6000]=b;
 		if(i>=0x8000&&i<=0xffff){
-			//System.out.println("Changing chrom to: "+Byte.toUnsignedInt(b));
 			CHR_ROM[0] = Arrays.copyOfRange(CHRbanks[b&(CHRbanks.length-1)],0,0x1000);
 			CHR_ROM[1] = Arrays.copyOfRange(CHRbanks[b&(CHRbanks.length-1)],0x1000,0x2000);
 		}	

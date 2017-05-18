@@ -144,6 +144,9 @@ public class Channel implements java.io.Serializable {
 				linearhalt=false;
 			}
 	}
+	public int getOutputSettings(){
+		return 0;
+	}
 	public void buildOutput(){
 		total+=getOutput();
 	}

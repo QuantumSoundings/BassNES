@@ -11,6 +11,8 @@ import com.ppu2C02;
 import ui.SystemUI;
 public class Mapper implements java.io.Serializable {//There will be class that inherit this class. Better to have all reads and writes go through this
 	private static final long serialVersionUID = 6655950169350506050L;
+	public static enum Mirror{Horizontal,Vertical,SingleScreenLow,SingleScreenHigh};
+	
 	//for callback
 	public transient SystemUI system;
 	
@@ -61,19 +63,35 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	public void setNes(NES n){ nes = n;}
 	public void setMirror(int i){
 		mirrormode= (i == 0);
-		if(mirrormode){
+		if(mirrormode)
+			setNameTable(Mirror.Horizontal);
+		else
+			setNameTable(Mirror.Vertical);
+		System.out.println("Mode set to:"+mirrormode);
+	}
+	public final void setNameTable(final Mapper.Mirror mirroringType){
+		switch(mirroringType){
+		case Horizontal:
 			nametables[0]=ppu_internal_ram[0];
 			nametables[1]=ppu_internal_ram[0];
 			nametables[2]=ppu_internal_ram[1];
-			nametables[3]=ppu_internal_ram[1];
-		}
-		else{
+			nametables[3]=ppu_internal_ram[1];break;
+		case Vertical:
 			nametables[0]=ppu_internal_ram[0];
 			nametables[1]=ppu_internal_ram[1];
 			nametables[2]=ppu_internal_ram[0];
-			nametables[3]=ppu_internal_ram[1];
+			nametables[3]=ppu_internal_ram[1];break;
+		case SingleScreenLow:
+			nametables[0]=ppu_internal_ram[0];
+			nametables[1]=ppu_internal_ram[0];
+			nametables[2]=ppu_internal_ram[0];
+			nametables[3]=ppu_internal_ram[0];break;
+		case SingleScreenHigh:
+			nametables[0]=ppu_internal_ram[1];
+			nametables[1]=ppu_internal_ram[1];
+			nametables[2]=ppu_internal_ram[1];
+			nametables[3]=ppu_internal_ram[1];break;
 		}
-		System.out.println("Mode set to:"+mirrormode);
 	}
 	boolean blockppu(){
 		return apu.cyclenum>14700;
@@ -110,8 +128,6 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		else if(index>=0x2000 && index<0x4000)
 			return ppuregisterhandler((index%8)+0x2000,(byte)0,false);
 		else if(index>=0x4000 && index<=0x40ff){
-			//if(index ==0x4014)
-			//	return cpu_mmr[0x14];
 			if(index ==0x4015){
 				return apu.readRegisters(index);
 			}
@@ -134,15 +150,14 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	public void controllerWrite(int index, byte b){
 		control.inputRegister(b);
 		control2.inputRegister(b);
-	}	
+	}
+	//This method is reserved for general ppu writes through the data register
 	public void ppuwrite(int index,byte b){
 		if(index<0x2000&&CHR_ram){
-			//System.out.println("Wwriting to char ram");
-			CHR_ROM[index/0x1000][index%1000]=b;
-			//if(index<0x1000)
-			//	CHR_ROM[0][index]=b;
-			//else
-			//	CHR_ROM[1][index%0x1000]=b;
+			if(index<0x1000)
+				CHR_ROM[0][index]=b;
+			else
+				CHR_ROM[1][index%0x1000]=b;
 		}
 		else if(index>=0x2000&&index<=0x3eff){
 			index&=0xfff;
@@ -155,23 +170,10 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			ppu_palette[i]=b;
 		}
 	}
-	public byte ppureadNT(int index){
-		index&=0xfff;
-		return nametables[index/0x400][index%0x400];
-	}
-	public byte ppureadPT(int index){
-		return CHR_ROM[index/0x1000][index%0x1000];
-	}
-	public byte ppureadAT(int index){
-		return ppureadNT(index);
-	}
+	//This method is reserved for general ppu reads through the data register
 	public byte ppuread(int index){
 		if(index<0x2000)
-			return CHR_ROM[index/0x1000][index%0x1000];
-			//if(index<0x1000)
-			//	return CHR_ROM[0][index];
-			//else
-			//	return CHR_ROM[1][index%0x1000];
+			return CHR_ROM[(index&0x1000)!=0?1:0][index%0x1000];
 		else if(index>=0x2000&&index<=0x3eff){
 			index&=0xfff;
 			return nametables[index/0x400][index%0x400];
@@ -182,13 +184,23 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			return ppu_palette[index];
 		}
 	}
+	public byte ppureadNT(int index){
+		index&=0xfff;
+		return nametables[index/0x400][index%0x400];
+	}
+	public byte ppureadPT(int index){
+		return CHR_ROM[(index&0x1000)!=0?1:0][index%0x1000];
+	}
+	public byte ppureadAT(int index){
+		return ppureadNT(index);
+	}
 	public byte ppureadoam(int index){
 		return ppu_oam[index%256];
 	}
 	public void ppuwriteoam(int index,byte b){
 		ppu_oam[index]=b;
 	}
-	byte ppuregisterhandler(int index,byte x,boolean write){
+	private byte ppuregisterhandler(int index,byte x,boolean write){
 		if(index ==0x2000){//PPUCTRL
 			if(write&&blockppu())
 				ppu.writeRegisters(index, x);
@@ -275,7 +287,6 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			PRG_ROM[0]=Arrays.copyOfRange(prg, 0,0x4000);
 			PRG_ROM[1]=Arrays.copyOfRange(prg, 0,0x4000);
 		}
-
 	}
 	public void check(int i){}
 	public void setCHR(byte[] chr){
@@ -310,6 +321,24 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		}
 		System.out.println("]");
 	}
+	boolean dodebug;
+	Scanner s = new Scanner(System.in);
+	void debug(){
+		//Scanner s = new Scanner(System.in);
+		System.out.println("Timing: "
+				+" PPU scanline:"+ppu.scanline
+				+" VRAM ADDR: " +Integer.toHexString(ppu.v)
+				+" Ticks: "+ ppu.pcycle//+"/"+(Integer.toHexString((int)c))
+				+" Rendering?: "+ppu.dorender()
+				+" vBlank:"+ppu.PPUSTATUS_vb);
+				//+" PPUSTATUS:"+Integer.toBinaryString(ppu.PPUSTATUS));
+		cpu.debug(0);
+		String st = s.nextLine();
+		if(st.equals("c"))
+			dodebug=false;
+		else
+			dodebug=true;
+	}
 	public void scanlinecounter(){}
 	public static Mapper getmapper(int i){
 		switch(i){
@@ -342,33 +371,13 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	}
 	public void runFrame() {
 		while(!ppu.doneFrame){
-			//if((map.cpu.program_counter==0x5c00)||dodebug||false)//0xe2c5||dodebug||false)
-			//	debug();
-			//if(map.ppu.scanline == 240)
-			//	map.printMemoryPPU(0x3f00, 0x20);
 			ppu.doCycle();
 			ppu.doCycle();
 			ppu.doCycle();
 			cpu.run_cycle();
 			apu.doCycle();				
 		}
-		
+		ppu.doneFrame=false;
 	}
-	boolean dodebug;
-	void debug(){
-		Scanner s = new Scanner(System.in);
-		System.out.println("Timing: "
-				+" PPU scanline:"+ppu.scanline
-				+" VRAM ADDR: " +Integer.toHexString(ppu.v)
-				+" Ticks: "+ ppu.pcycle//+"/"+(Integer.toHexString((int)c))
-				+" Rendering?: "+ppu.dorender()
-				+" vBlank:"+ppu.PPUSTATUS_vb);
-				//+" PPUSTATUS:"+Integer.toBinaryString(ppu.PPUSTATUS));
-		cpu.debug(0);
-		String st = s.nextLine();
-		if(st.equals("c"))
-			dodebug=false;
-		else
-			dodebug=true;
-	}
+	
 }

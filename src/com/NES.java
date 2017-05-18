@@ -75,7 +75,6 @@ public class NES implements Runnable {
 				}
 			}
 		}
-		map.apu.mix.audio.close();
 		if(batteryExists)
 			try {
 				saveGame();
@@ -130,27 +129,7 @@ public class NES implements Runnable {
 	boolean dodebug;
 	public void runFrame(){
 		frameStartTime = System.nanoTime();
-		/*for(int i=29667;i!=0;i--){
-			map.cpu.run_cycle();
-			map.apu.doCycle();
-			map.ppu.doCycle();
-			map.ppu.doCycle();
-			map.ppu.doCycle();
-		}*/
-		/*while(!map.ppu.doneFrame){
-			//if((map.cpu.program_counter==0x5c00)||dodebug||false)//0xe2c5||dodebug||false)
-			//	debug();
-			//if(map.ppu.scanline == 240)
-			//	map.printMemoryPPU(0x3f00, 0x20);
-			map.ppu.doCycle();
-			map.ppu.doCycle();
-			map.ppu.doCycle();
-			map.cpu.run_cycle();
-			map.apu.doCycle();
-				
-		}*/
 		map.runFrame();
-		map.ppu.doneFrame=false;
 		frameStopTime = System.nanoTime() - frameStartTime;
 		if(frameStopTime<15800000&&UserSettings.frameLimit)
 			try {
@@ -195,10 +174,10 @@ public class NES implements Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		map.apu.mix.audio.close();
+		//map.apu.mix.audio.close();
 		map = (Mapper) in.readObject();
 		map.apu = (APU) in.readObject();
-		map.apu.mix.audio.restartSDL();
+		//map.apu.mix.audio.restartSDL();
 		map.cpu = (CPU_6502) in.readObject();
 		map.ppu = (ppu2C02) in.readObject();
 		map.setSystem(system);
@@ -233,7 +212,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/megaman3.nes");
+		//rom = new File(System.getProperty("user.dir")+"/cv3j.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

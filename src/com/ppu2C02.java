@@ -423,9 +423,7 @@ public class ppu2C02 implements java.io.Serializable{
 		map.cpu.doNMI=PPUCTRL_genNmi;
 		renderer.buildFrame(pixels, 2);
 		pixelnum = 0;
-		//map.system.videoCallback(renderer.colorized);
 	}
-
 	private void drawpixel(){
 		if(render||(v&0x3f00)!=0x3f00){
 			int backgroundcolor=0;
