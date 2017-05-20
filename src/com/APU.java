@@ -246,7 +246,7 @@ public class APU implements java.io.Serializable{
 		}
 		else{
 			evenclock = false;
-			dmc.buildOutput();	
+			//dmc.buildOutput();	
 		}
 		if(expansion)
 			for(Channel chan:expansionAudio)

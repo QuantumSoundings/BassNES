@@ -122,7 +122,7 @@ public class ppu2C02 implements java.io.Serializable{
 	public void writeRegisters(int index,byte b){
 		OPEN_BUS = b;
 		switch(index){
-		case 0x2000:
+		case 0:
 			t&=~0xc00;
 			t|=(b&3)<<10;
 			PPUCTRL=b;
@@ -139,7 +139,7 @@ public class ppu2C02 implements java.io.Serializable{
 				map.cpu.setNMI(PPUCTRL_genNmi&&PPUSTATUS_vb);
 
 			break;
-		case 0x2001:
+		case 1:
 			PPUMASK=Byte.toUnsignedInt(b);
 			PPUMASK_grey = (b & 1) != 0;
 			PPUMASK_bl = (b & 2) != 0;
@@ -151,10 +151,10 @@ public class ppu2C02 implements java.io.Serializable{
 			render = PPUMASK_ss||PPUMASK_sb;
 			PPUMASK_colorbits = (b&0b11100000)<<3;
 			break;
-		case 0x2003:
+		case 3:
 			OAMADDR = b;
 			break;
-		case 0x2004:
+		case 4:
 			if(scanline>=240||(!dorender())){
 				if((OAMADDR&0x03)==0x02)
 					b&=0xe3;
@@ -164,7 +164,7 @@ public class ppu2C02 implements java.io.Serializable{
 			else
 				OAMADDR+=4;
 			break;
-		case 0x2005:
+		case 5:
 			if (even){
 				t&= ~0x1f;
 				fineX = b&7;
@@ -179,7 +179,7 @@ public class ppu2C02 implements java.io.Serializable{
 				even = true;
 			}
 			break;
-		case 0x2006:
+		case 6:
 			if(even){
 				t &=0xc0ff;
 				t|= (Byte.toUnsignedInt(b)&0x3f)<<8;
@@ -196,7 +196,7 @@ public class ppu2C02 implements java.io.Serializable{
 				even = true;
 			}
 			break;
-		case 0x2007:
+		case 7:
 			tv=v;
 			map.ppuwrite((v&0x3fff), b);
 			if(!dorender()||scanline>240&&scanline<=261)
@@ -229,7 +229,7 @@ public class ppu2C02 implements java.io.Serializable{
 		byte b = 0;
 		tv=v;
 		switch(index){
-		case 0x2002:
+		case 2:
 			b |= PPUSTATUS_so?0x20:0;
 			b |= PPUSTATUS_sz?0x40:0;
 			if(!(scanline==241&&(pcycle==0)))
@@ -242,14 +242,14 @@ public class ppu2C02 implements java.io.Serializable{
 			map.cpu.setNMI(false);
 			OPEN_BUS = b;
 			break;
-		case 0x2004:
+		case 4:
 			OPEN_BUS = map.ppureadoam(Byte.toUnsignedInt(OAMADDR));
 			if(dorender()&&pcycle<=65&&scanline<241)
 				return (byte)0xff;
 			else{
 				return map.ppureadoam(Byte.toUnsignedInt(OAMADDR));
 			}
-		case 0x2007:
+		case 7:
 			if((v&0x3fff)<0x3f00){
 				b = PPUDATA_readbuffer;
 				PPUDATA_readbuffer = map.ppuread((v&0x3fff));

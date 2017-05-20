@@ -60,11 +60,11 @@ public class SystemUI {
            }
        };
        setupMainWindow();
-		try {
+		/*try {
 			runTests();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}
+		}*/
 		start();
 	}
 	public void start(){

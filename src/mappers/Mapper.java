@@ -101,7 +101,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			cpu_ram[index%0x800]=b;
 		}
 		else if(index>=0x2000&&index<0x4000)
-			ppuregisterhandler((index%8)+0x2000,b,true);
+			ppuregisterhandler(index%8,b,true);
 		else if(index>=0x4000 && index<=0x4017){
 			if(index==0x4014){
 				 cpu_mmr[0x14]=b;
@@ -126,7 +126,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		if(index<0x2000)
 			return cpu_ram[index%0x800];
 		else if(index>=0x2000 && index<0x4000)
-			return ppuregisterhandler((index%8)+0x2000,(byte)0,false);
+			return ppuregisterhandler(index%8,(byte)0,false);
 		else if(index>=0x4000 && index<=0x40ff){
 			if(index ==0x4015){
 				return apu.readRegisters(index);
@@ -201,62 +201,63 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		ppu_oam[index]=b;
 	}
 	private byte ppuregisterhandler(int index,byte x,boolean write){
-		if(index ==0x2000){//PPUCTRL
+		switch(index){
+		case 0:
 			if(write&&blockppu())
 				ppu.writeRegisters(index, x);
 			else if(write&&!blockppu())
 				ppu.OPEN_BUS=x;
 			else
 				return ppu.OPEN_BUS;
-		}
-		else if(index ==0x2001){//PPUMASK
+			break;
+		case 1:
 			if(write&&blockppu())
 				ppu.writeRegisters(index, x);
 			else if(write&&!blockppu())
 				ppu.OPEN_BUS=x;
 			else
 				return ppu.OPEN_BUS;
-		}
-		else if(index ==0x2002){//PPUSTATUS
+			break;
+		case 2:
 			if(write)
 				ppu.OPEN_BUS=x;
 			else
 				return ppu.readRegister(index);
-			
-		}
-		else if(index ==0x2003){//OAMADDR
+			break;
+		case 3:
 			if(write)
 				ppu.writeRegisters(index, x);
 			else
 				return ppu.OPEN_BUS;
-		}
-		else if(index ==0x2004){//needs work for full accuracy OAMDATA
+			break;
+		case 4:
 			if(write)
 				ppu.writeRegisters(index, x);
 			else
 				return ppu.readRegister(index);
-		}
-		else if(index ==0x2005){//PPUSCRL
+			break;
+		case 5:
 			if(write&&blockppu())
 				ppu.writeRegisters(index, x);
 			else if(write&&!blockppu())
 				ppu.OPEN_BUS=x;
 			else
 				return ppu.OPEN_BUS;
-		}
-		else if(index ==0x2006){//PPUADDR
+			break;
+		case 6:
 			if(write&&blockppu())
 				ppu.writeRegisters(index, x);
 			else if(write&&!blockppu())
 				ppu.OPEN_BUS=x;
 			else
 				return ppu.OPEN_BUS;
-		}
-		else if(index ==0x2007){
+			break;
+		case 7:
 			if(write)
 				ppu.writeRegisters(index, x);
 			else
 				return ppu.readRegister(index);
+			break;
 		}
 		return 0;
 	}
@@ -322,8 +323,8 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		System.out.println("]");
 	}
 	boolean dodebug;
-	Scanner s = new Scanner(System.in);
-	void debug(){
+	//Scanner s = new Scanner(System.in);
+	/*void debug(){
 		//Scanner s = new Scanner(System.in);
 		System.out.println("Timing: "
 				+" PPU scanline:"+ppu.scanline
@@ -338,7 +339,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			dodebug=false;
 		else
 			dodebug=true;
-	}
+	}*/
 	public void scanlinecounter(){}
 	public static Mapper getmapper(int i){
 		switch(i){

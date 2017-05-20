@@ -11,7 +11,7 @@ import video.NesColors;
 
 public class UserSettings {
 	static Properties prop;
-	public final static String version = "0.2.1";
+	public final static String version = "0.2.4";
 	//Emulation Settings
 	public static boolean politeFrameTiming = true;
 	public static boolean frameLimit = true;
