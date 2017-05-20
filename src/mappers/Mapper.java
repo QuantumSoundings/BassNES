@@ -361,6 +361,10 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			return new MMC2();
 		case 10:
 			return new MMC4();
+		case 11:
+			return new Mapper_11();
+		case 13:
+			return new Mapper_13();
 		case 24:
 			return new VRC6(24);
 		case 26:
