@@ -55,7 +55,7 @@ public class NesColors {
             colors[7][j] = compose_col(r * att, g * att, b * att);
             for(int i = 8; i<16;i++){
             	for(int x = 0; x< colorarray.length;x++)
-            		colors[i][x] = colorarray[x&0x30];
+            		colors[i][x] = colors[i-8][x&0x30];
             		
             }
 

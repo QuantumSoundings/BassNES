@@ -30,7 +30,7 @@ public class Pulse extends Channel {
 			tcount--;
 		if(lengthcount==0||!output||decay==0||timer<8)
 			return;
-		total+=decay*2;
+		total+=decay;
 		return;
 	}
 	

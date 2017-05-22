@@ -212,7 +212,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//rom = new File(System.getProperty("user.dir")+"/tests/dmc/dpcmletterbox.nes");
+		rom = new File(System.getProperty("user.dir")+"/tests/copper.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

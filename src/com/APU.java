@@ -34,7 +34,7 @@ public class APU implements java.io.Serializable{
 	private boolean irqInhibit;
 	private boolean frameInterrupt;
 	boolean doFrameStep;
-	private boolean evenclock=true;
+	private boolean evenclock=false;
 	private int block;
 	private int stepNumber;
 	private int delay=-1;
