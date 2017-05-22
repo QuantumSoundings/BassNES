@@ -32,7 +32,7 @@ public class NesColors {
         for (int i = 0; i < colorarray.length; ++i) {
             colorarray[i] |= 0xff000000;
         }
-        int[][] colors = new int[8][colorarray.length];
+        int[][] colors = new int[16][colorarray.length];
         for (int j = 0; j < colorarray.length; ++j) {
             int col = colorarray[j];
             int r = r(col);
@@ -53,6 +53,11 @@ public class NesColors {
             colors[6][j] = compose_col(r * att, g, b);
             //de-emph all 3 colors
             colors[7][j] = compose_col(r * att, g * att, b * att);
+            for(int i = 8; i<16;i++){
+            	for(int x = 0; x< colorarray.length;x++)
+            		colors[i][x] = colorarray[x&0x30];
+            		
+            }
 
         }
         return colors;

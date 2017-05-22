@@ -51,7 +51,7 @@ public class CPU_6502 implements java.io.Serializable{
 	int lowpc;	
 	//DMA variables
 	public boolean writeDMA = false;
-	int dmac=0;
+	public int dmac=0;
 	int dmain = 0;
 	public int dxx = 0;
 	int cpuinc=0;
@@ -85,8 +85,16 @@ public class CPU_6502 implements java.io.Serializable{
 		stack_pointer = (byte)0xfd;
 		setFlags((byte)0x34);
 	}
-	
+	int stallcount;
+	public void stall(int i){
+		stallcount = i;
+	}
+	byte dmadata;
 	public void run_cycle(){
+		if(stallcount>0){
+			stallcount--;
+			return;
+		}
 		if(writeDMA){
 			if(dmac ==513){
 				dmac =0;
@@ -98,14 +106,16 @@ public class CPU_6502 implements java.io.Serializable{
 				dmac++;
 				//dxx = map.cpureadu(0x4014)<<8;
 				//dxx<<=8;
+				dmadata = map.cpuread(dxx+cpuinc);
 				dmain = map.ppu.OAMADDR;
 			}
 			else if(dmac%2==1){
 				dmac++;
+				dmadata = map.cpuread(dxx+cpuinc);
 				//where it reads
 			}
 			else{
-				map.cpuwriteoam(dmain,map.cpuread(dxx+cpuinc));
+				map.cpuwriteoam(dmain,dmadata);
 				if(dmain==255)
 					dmain=0;
 				else
@@ -115,7 +125,7 @@ public class CPU_6502 implements java.io.Serializable{
 			}
 		}
 		else{
-			executeInstruction();
+				executeInstruction();
 		}
 	}
 	

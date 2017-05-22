@@ -27,7 +27,10 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	byte[] cpu_ram= new byte[0x800];
 	byte[][] ppu_internal_ram= new byte[2][0x400];
 	byte[][] nametables = new byte[4][0x400];
-	public byte[] ppu_palette = new byte[]{63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63,63};
+	public byte[] ppu_palette = new byte[]{0x09, 0x01, 0x00, 0x01, 0x00, 0x02, 0x02, 0x0D,
+            0x08, 0x10, 0x08, 0x24, 0x00, 0x00, 0x04, 0x2C, 0x09, 0x01, 0x34,
+            0x03, 0x00, 0x04, 0x00, 0x14, 0x08, 0x3A, 0x00, 0x02, 0x00, 0x20,
+            0x2C, 0x08};
 	public byte[] ppu_oam = new byte[256];	
 	byte[] cpu_mmr = new byte[0x18];
 
@@ -43,9 +46,11 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	
 	public boolean olda12;
 	public byte openbus;
+	public boolean lastcpuwrite;
+	public int lastwriteaddress;
 	
 	public Mapper(){
-		ppu_palette[0]=0xf;
+		//ppu_palette[0]=0xf;
 		ppu = new ppu2C02(this);
 		cpu = new CPU_6502(this);
 		apu = new APU(this);
@@ -369,6 +374,8 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			return new VRC6(24);
 		case 26:
 			return new VRC6(26);
+		case 71:
+			return new Mapper_71();
 		default:
 			System.err.println("Unsupported Mapper id: "+i);
 		}

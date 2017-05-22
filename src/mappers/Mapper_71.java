@@ -2,19 +2,12 @@ package mappers;
 
 import java.util.Arrays;
 
-public class UxROM extends Mapper{
-	private static final long serialVersionUID = 5199302433584064014L;
-	byte[][] PRGbanks;
-	public UxROM(){
+public class Mapper_71 extends Mapper{
+	public Mapper_71(){
 		super();
-		System.out.println("Mapper 2 (UxROM) Fully Supported!");
+		System.out.println("Making a Mapper 71");
 	}
-	@Override
-	public void cartridgeWrite(int index, byte b){
-		if(index>=0x8000&&index<=0xffff){
-			PRG_ROM[0]=PRGbanks[(b&0xf)%PRGbanks.length];
-		}
-	}
+	
 	@Override
 	public void setPRG(byte[] prg){
 		PRGbanks = new byte[prg.length/0x4000][0x4000];
@@ -24,6 +17,7 @@ public class UxROM extends Mapper{
 		System.out.println("Bank size:" +PRGbanks.length);
 		PRG_ROM[0]=PRGbanks[0];
 		PRG_ROM[1]=PRGbanks[PRGbanks.length-1];
+		//printMemory(0xff00, 0xff);
 	}
 	@Override
 	public void setCHR(byte[] chr){
@@ -33,6 +27,18 @@ public class UxROM extends Mapper{
 			}
 		}
 		else CHR_ram = true;
+	}
+	@Override
+	public void cartridgeWrite(int index, byte b){
+		if(index>=0x8000&&index<=0x9fff){
+			if((b&16)!=0)
+				setNameTable(Mirror.SingleScreenHigh);
+			else
+				setNameTable(Mirror.SingleScreenLow);
+		}
+		else if(index>=0xc000&&index<=0xffff){
+			PRG_ROM[0] = PRGbanks[(b&0xf)&(PRGbanks.length-1)];
+		}
 	}
 	
 }

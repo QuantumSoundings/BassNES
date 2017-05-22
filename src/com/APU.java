@@ -34,7 +34,7 @@ public class APU implements java.io.Serializable{
 	private boolean irqInhibit;
 	private boolean frameInterrupt;
 	boolean doFrameStep;
-	private boolean evenclock;
+	private boolean evenclock=true;
 	private int block;
 	private int stepNumber;
 	private int delay=-1;
@@ -53,6 +53,7 @@ public class APU implements java.io.Serializable{
 		intcyclespersample = (int)cyclespersample;
 		cpucounter = 10;	
 		expansion = false;
+		writeRegister(0x4015,(byte)0);
 	}
 	public void addExpansionChannel(Channel chan){
 		expansionAudio.add(chan);
@@ -91,10 +92,19 @@ public class APU implements java.io.Serializable{
 				noise.disable();
 			else
 				noise.enable();
-			if((b&16)==0)
-				dmc.disable();
-			else
-				dmc.enable();
+			if((b&16)==0){
+				dmc.sampleremaining=0;
+				dmc.silence = true;
+			}
+			else{
+				if(dmc.sampleremaining==0){
+					dmc.restart();
+				}
+			}
+			//if(dmc.irqflag){
+			//	map.cpu.doIRQ--;
+			//	dmc.irqflag=false;
+			//}
 			dmc.clearFlag();
 		}
 		else if(index==0x4017){
@@ -234,20 +244,14 @@ public class APU implements java.io.Serializable{
 			delay =-1;
 		}
 		triangle.clockTimer();
-		if(!evenclock){
+		dmc.clockTimer();
+		if(evenclock){
 			pulse1.clockTimer();
 			pulse2.clockTimer();
 			noise.clockTimer();	
-			dmc.clockTimer();
-			evenclock = true;
 			cyclenum++;
-			
-			
 		}
-		else{
-			evenclock = false;
-			//dmc.buildOutput();	
-		}
+		evenclock=!evenclock;
 		if(expansion)
 			for(Channel chan:expansionAudio)
 				chan.clockTimer();

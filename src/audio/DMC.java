@@ -6,56 +6,53 @@ public class DMC extends Channel{
 
 	final Mapper map;
 	
-	boolean irqEnable;
-	public boolean irqflag;
-	boolean silence;
-	int outputlevel;
-	int sampleaddress;
-	int addressStart;
-	public int samplelength;
+	boolean irqEnable= false;
+	public boolean irqflag = false;
+	public boolean silence=true;
+	boolean bufferempty = true;
+	int outputlevel = 0;
+	int sampleaddress=0xc000;
+	int addressStart=0xc000;
+	public int samplelength=1;
 	public int sampleremaining=0;
 	int samplebuffer=0;
-	public int stallcpu;
-	int rate;
-	int temprate;
-	int bitsremaining;
-	int shiftreg;
+	int rate=0x36;
+	int temprate = 0x36;
+	int bitsremaining=8;
+	int shiftreg = 0;
 	
 	
 	final int[] rateindex = new int[]{428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106,  84,  72,  54};
-	//double[] pitchtable = new double[]{4181.71,4709.93,5264.04,5593.04,6257.95,7046.35,7919.35,8363.42,9419.86,11186.1,12604.0,13982.6,16884.6,21306.8,24858.0,33143.9};
 	public DMC(Mapper m) {
 		super();
 		map = m;
 		bitsremaining=8;
+		loop = false;
 	}
 	
 	public void registerWrite(int index,byte b){
 		switch(index%4){
 		case 0: 
-			irqEnable = (b & 0x80) != 0;
+			irqEnable = (b & 0x80) == 0x80;
 			if(!irqEnable&&irqflag){
 				map.cpu.doIRQ--;
 				irqflag=false;
 			}
-			loop = (b & 0x40) != 0;
-			rate = rateindex[b&0xf]/2;
+			loop = (b & 0x40) == 0x40;
+			rate = rateindex[b&0xf];
 			//System.out.println("Write to $4010: "+Integer.toBinaryString(Byte.toUnsignedInt(b))+" rate: "+rate);
-			temprate = rate;
 			break;
 		case 1: 
 			outputlevel = b&0b1111111;
 			//System.out.println("Writing to dmc Direct load: "+outputlevel);
 			break;			
 		case 2: 
-			sampleaddress=Byte.toUnsignedInt(b)*64 + 0xc000;
-			addressStart = sampleaddress;
+			addressStart=(Byte.toUnsignedInt(b)<<6) + 0xc000;
 			//System.out.println("Writing to dmc sample address: "+Integer.toHexString(sampleaddress));
 			break;
 		case 3: 
-			samplelength= Byte.toUnsignedInt(b)*16+1;
+			samplelength= (Byte.toUnsignedInt(b)<<4)+1;
 			//System.out.println("Writing to dmc sample length: "+samplelength);
-			sampleremaining = samplelength;
 			break;
 		}		
 	}
@@ -67,73 +64,120 @@ public class DMC extends Channel{
 	}
 	@Override
 	public final void clockTimer(){
-		if(temprate==0){
-			outputUnit();
+		
+		if(bufferempty && sampleremaining >0)
+			memoryreader();	
+		temprate--;
+		if(temprate ==0){
+			if(!silence){
+				outputlevel+=(shiftreg&1)==1?2:-2;
+				if(outputlevel>127) outputlevel-=2;
+				else if(outputlevel<0) outputlevel +=2;	
+				shiftreg>>=1;
+				--bitsremaining;
+			}
+			if(bitsremaining<=0){
+				bitsremaining = 8;
+				if(bufferempty)
+					silence = true;
+				else{
+					silence = false;
+					shiftreg = samplebuffer;
+					bufferempty = true;
+				}
+			}
+			
+			temprate = rate;
+		}
+		total+=outputlevel;
+		/*if(temprate==0){
+			//outputUnit();
 			temprate=rate;
 		}
 		else
 			temprate--;
-		total+=outputlevel;
-		return;
+		if(temprate==0)
+			outputUnit();
+		total+=2*outputlevel;
+		return;*/
 	}
-	
-	void memoryreader(){
-		if(sampleremaining!=0 && samplebuffer==0){
+	public void memoryreader(){
+		if(sampleremaining>0){
 			//System.out.println("Fetching new Sample; Samples remaining: "+sampleremaining); 
-			if(map.cpu.writeDMA)
-				stallcpu=2;
-			else
-				stallcpu=4;
-			samplebuffer = map.cpureadu(sampleaddress);
-			if(sampleaddress==0xffff)
+			samplebuffer = map.cpureadu(sampleaddress++);
+			bufferempty = false;
+			if(map.cpu.writeDMA){
+				/*System.out.println("DMAC: "+map.cpu.dmac);
+				if(map.cpu.dmac == 2)
+					map.cpu.stall(1);
+				else if(map.cpu.dmac == 1)
+					map.cpu.stall(3);
+				else{
+					System.out.println("Stalling 2");
+					map.cpu.stall(2);
+				}*/
+				map.cpu.stall(2);//tallcpu(2);//stallcpu=2;
+			}
+				
+			else{
+				//System.out.println("Non DMA stall");
+				/*if(map.lastcpuwrite)
+					if(map.lastwriteaddress==0x4014)
+						map.cpu.stall(2);
+					else
+						map.cpu.stall(3);
+				else*/
+					map.cpu.stall(4);
+			}
+			//	map.cpu.stall(4);//stallcpu(4);//stallcpu=4;
+			
+			if(sampleaddress>0xffff)
 				sampleaddress = 0x8000;
-			else
-				sampleaddress++;
+			--sampleremaining;
+			if(sampleremaining == 0){
+				if(loop)
+					restart();
+				else if(irqEnable && !irqflag){
+					//System.out.println("DMC IRQ scanline: "+map.ppu.scanline);
+					++map.cpu.doIRQ;
+					irqflag = true;
+				}
+			}
+		}
+		else
+			silence = true;
 			
-			sampleremaining--;
-		}
-		else if(sampleremaining==0&&loop){
-			//System.out.println("Looping sample");
-			sampleaddress = addressStart;//restart sample
-			sampleremaining = samplelength;
-		}
-		else if(sampleremaining==0&&irqEnable){
-			if(!irqflag)
-				map.cpu.doIRQ++;
-			irqflag=true;
-		}	
 	}
-	
-	void stealCycles(int i){
-		while(i>0){
-			
-		}
+	public void restart(){
+		sampleaddress = addressStart;
+		sampleremaining = samplelength;
+		silence=false;
 	}
 	void outputUnit(){
 		//System.out.println("In the outputunit");
-		if(bitsremaining==0){
+		
+		if(bitsremaining<=0){
 			bitsremaining = 8;
-			if(samplebuffer==0){
+			if(bufferempty){
 				silence=true;
 			}
 			else{
 				silence=false;
 				shiftreg=samplebuffer;
 				samplebuffer=0;	
+				bufferempty = true;
+				
 			}
-			memoryreader();
+			//memoryreader();
 		}
 		if(!silence){
 			outputlevel+=(shiftreg&1)==1?2:-2;
-			if(outputlevel>127) outputlevel=127;
-			else if(outputlevel<0) outputlevel =0;
-			//if((shiftreg&1)==1)
-			//	outputlevel += (outputlevel+2>127?0:2);
-			//else
-				//outputlevel -= outputlevel-2<0?0:2;		
+			if(outputlevel>127) outputlevel=126;
+			else if(outputlevel<0) outputlevel =1;	
+			shiftreg>>>=1;
+			bitsremaining--;
 		}
-		shiftreg>>=1;
-		bitsremaining--;
+		
 		
 	}
 	@Override
@@ -144,17 +188,6 @@ public class DMC extends Channel{
 	public void buildOutput(){
 		total+=outputlevel;
 	}
-	@Override
-	public void enable(){
-		//System.out.println("Enabling dmc channel");
-		if(sampleremaining==0){
-			sampleremaining=samplelength;
-		}
-		//enable=true;
-	}
-	@Override
-	public void disable(){
-		sampleremaining = 0;
-	}
+	
 
 }

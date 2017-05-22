@@ -100,11 +100,11 @@ public class SystemUI {
 		testoutput="";
 		boolean all = true;
 		int speed = 2;
-        if(true|all){
+        if(false|all){
 			testoutput = " Blargg PPU Tests \n\n";
 			testrom(5000, new File(System.getProperty("user.dir")+"/tests/blarggppu/sprite_ram.nes"),-991011135 );
 			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/blarggppu/palette_ram.nes"),-991011135 );
-			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/blarggppu/power_up_palette.nes"),0);
+			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/blarggppu/power_up_palette.nes"),-991011135);
 			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/blarggppu/vbl_clear_time.nes"),-991011135 );
 			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/blarggppu/vram_access.nes"),-991011135 );
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
@@ -149,6 +149,16 @@ public class SystemUI {
 			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/blarggapu/11.len_reload_timing.nes"),-991011135);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
+        if(false|all){
+        	testoutput+= "\n Various DMC Tests \n\n";
+			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/dmc/dma_2007_read.nes"),0);
+			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/dmc/dma_2007_write.nes"),41608769);
+			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/dmc/dma_4016_read.nes"),0);
+			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/dmc/double_2007_read.nes"),0);
+			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/dmc/read_write_2007.nes"),498004161);
+			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/dmc/sprdma_and_dmc_dma.nes"),0);
+			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
+        }
         if(false|all){
 			testoutput+= "\n PPU_VBL_NMI Tests \n\n";
 			testrom(5000/speed, new File(System.getProperty("user.dir")+"/tests/ppu_vbl_nmi/01-vbl_basics.nes"),1036527745);
@@ -232,11 +242,11 @@ public class SystemUI {
 			testrom(27000/speed, new File(System.getProperty("user.dir")+"/tests/test_ppu_read_buffer.nes"),-1484609023 );
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-        if(false|all){
+        /*if(false|all){
 			testoutput+= "\n PPU OpenBus test\n\n";
 			testrom(7000/speed, new File(System.getProperty("user.dir")+"/tests/ppu_open_bus.nes"),0);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
-		}
+		}*/
         if(false|all){
 			testoutput+= "\n CPU Execution Space tests\n\n";
 			testrom(3000/speed, new File(System.getProperty("user.dir")+"/tests/execspace/test_cpu_exec_space_ppuio.nes"),-939378239);

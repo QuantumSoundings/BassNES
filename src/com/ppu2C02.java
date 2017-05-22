@@ -150,6 +150,8 @@ public class ppu2C02 implements java.io.Serializable{
 			PPUMASK_ss = (b & 16) != 0;
 			render = PPUMASK_ss||PPUMASK_sb;
 			PPUMASK_colorbits = (b&0b11100000)<<3;
+			if(PPUMASK_grey)
+				PPUMASK_colorbits|=0x800;
 			break;
 		case 3:
 			OAMADDR = b;
