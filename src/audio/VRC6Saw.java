@@ -5,8 +5,17 @@ import ui.UserSettings;
 public class VRC6Saw extends Channel {
 	
 	
+	
+	private static final long serialVersionUID = 6678747718079279169L;
 	int accumRate;
 	int accumulator;
+	public VRC6Saw(){
+		super();
+	}
+	@Override
+	public int getUserMixLevel(){
+		return UserSettings.vrc6MixLevel;
+	}
 	public void registerWrite(int index,byte b,int clock){
 		//System.out.println("Write to pulse");
 		switch(index%4){

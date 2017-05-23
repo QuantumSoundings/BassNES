@@ -51,7 +51,7 @@ public class AudioInterface implements java.io.Serializable {
 			audiobuffer[bufptr+3] = (byte) ((i>>8)&0xff);
 			bufptr+=4;
 		}
-		if((sdl.available()>=audiobuffer.length&&UserSettings.AudioEnabled)||UserSettings.lockvideotoaudio)
+		if((sdl.available()>=audiobuffer.length&&UserSettings.AudioEnabled)||UserSettings.lockVideoToAudio)
 				sdl.write(audiobuffer,0,audiobuffer.length);
 		bufptr=0;
 	}

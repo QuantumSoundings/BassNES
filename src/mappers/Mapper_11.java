@@ -3,6 +3,8 @@ package mappers;
 import java.util.Arrays;
 
 public class Mapper_11 extends Mapper{
+
+	private static final long serialVersionUID = -8539386315915429584L;
 	public Mapper_11(){
 		super();
 		System.out.println("Making mapper 11");

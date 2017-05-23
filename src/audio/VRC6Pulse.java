@@ -4,6 +4,7 @@ import ui.UserSettings;
 
 public class VRC6Pulse extends Channel {
 
+	private static final long serialVersionUID = -9117535976094772034L;
 	int dutynumber;
 	public boolean[] current_duty = new boolean[]{false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
 	boolean[] duty0 = new boolean[]{true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
@@ -15,6 +16,13 @@ public class VRC6Pulse extends Channel {
 	boolean[] duty6 = new boolean[]{true,true,true,true,true,true,true,false,false,false,false,false,false,false,false,false};
 	boolean[] duty7 = new boolean[]{true,true,true,true,true,true,true,true,false,false,false,false,false,false,false,false};
 	private boolean dutymode;
+	public VRC6Pulse(){
+		super();
+	}
+	@Override
+	public int getUserMixLevel(){
+		return UserSettings.vrc6MixLevel;
+	}
 	public void registerWrite(int index,byte b,int clock){
 		//System.out.println("Write to pulse");
 		switch(index%4){

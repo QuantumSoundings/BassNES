@@ -344,8 +344,6 @@ public class ppu2C02 implements java.io.Serializable{
 				incy();
 			cyclepart=7;
 			break;
-		case 8:case 9: case 10:case 11:case 12:case 13:case 14:case 15:case 16:case 17:case 18:case 19:case 20:
-			default:cyclepart++; break;
 		}	
 	}
 	boolean prevrender;
@@ -443,7 +441,6 @@ public class ppu2C02 implements java.io.Serializable{
 						int bit =  (((spritebm[i]>>(off))&1)<<1)|((spritebm[i]>>((off)+8))&1);
 						if(bit!=0){
 							if(oldspritezero&&!PPUSTATUS_sz&&i==0&&PPUMASK_sb&&backgroundcolor!=0&&leftmask_s<cycle&&cycle<256){
-								//delayset=true;
 								PPUSTATUS_sz = true;
 							}
 							if(UserSettings.RenderSprites&&(spritepriority[i]||backgroundcolor==0)){
@@ -456,7 +453,6 @@ public class ppu2C02 implements java.io.Serializable{
 				}
 			}
 			pixels[pixelnum++] = (PPUMASK_colorbits)|(0xff&map.ppu_palette[backgroundcolor]);
-			//pixels[pixelnum++] = (PPUMASK_colorbits)|pixelColor();
 		}
 		else
 			pixels[pixelnum++] = (PPUMASK_colorbits)|Byte.toUnsignedInt(map.ppuread(v));
@@ -476,11 +472,6 @@ public class ppu2C02 implements java.io.Serializable{
 				int off = (cycle-spriteco[i]-1);
 				if(off>=0&&off<8){
 					int bit =  (((spritebm[i]>>(7-off))&1)<<1)|((spritebm[i]>>((7-off)+8))&1);
-					//int bit;
-					//if(spritehorizontal[i])
-					//	bit = (((spritebm[i]>>(off))&1)<<1)|((spritebm[i]>>(off+8))&1);
-					//else
-					//	bit = (((spritebm[i]>>(7-off))&1)<<1)|((spritebm[i]>>((7-off)+8))&1);
 					if(bit!=0){
 						if(oldspritezero&&!PPUSTATUS_sz&&i==0&&PPUMASK_sb&&backgroundcolor!=0&&leftmask_s<cycle&&cycle<256){
 							delayset=true;

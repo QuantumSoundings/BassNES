@@ -16,7 +16,7 @@ public class UserSettings {
 	public static boolean politeFrameTiming = true;
 	public static boolean frameLimit = true;
 	public static boolean autoLoad = true;
-	public static boolean lockvideotoaudio=false;
+	public static boolean lockVideoToAudio=false;
 	
 	
 	//Graphics Settings
@@ -35,7 +35,8 @@ public class UserSettings {
 	public static int noiseMixLevel=100;
 	public static int dmcMixLevel=100;
 	public static int vrc6MixLevel=100;
-	public static int sampleRate = 44100;
+	public static int namcoMixLevel=100;
+	public static int sampleRate = 48000;
 	
 	//Controller Bindings
 	public static int c1a;
@@ -159,6 +160,8 @@ public class UserSettings {
 		triangleMixLevel = Integer.parseInt(prop.getProperty("trianglemixlevel","100"));
 		noiseMixLevel = Integer.parseInt(prop.getProperty("noisemixlevel","100"));
 		dmcMixLevel = Integer.parseInt(prop.getProperty("dmcmixlevel", "100"));
+		vrc6MixLevel = Integer.parseInt(prop.getProperty("vrc6mixlevel", "100"));
+		namcoMixLevel = Integer.parseInt(prop.getProperty("namcomixlevel", "100"));
 		sampleRate = Integer.parseInt(prop.getProperty("samplerate", "44100"));
 	}
 	private static void saveAudio(){
@@ -169,6 +172,8 @@ public class UserSettings {
 		prop.setProperty("trianglemixlevel", triangleMixLevel+"");
 		prop.setProperty("noisemixlevel", noiseMixLevel+"");
 		prop.setProperty("dmcmixlevel", dmcMixLevel+"");
+		prop.setProperty("vrc6mixlevel", vrc6MixLevel+"");
+		prop.setProperty("namcomixlevel", namcoMixLevel+"");
 		prop.setProperty("samplerate", sampleRate+"");
 	}
 	private static void loadGraphics(){
@@ -192,10 +197,12 @@ public class UserSettings {
 		politeFrameTiming = prop.getProperty("politeframetiming", "true").equals("true");
 		frameLimit = prop.getProperty("framelimit", "true").equals("true");
 		autoLoad = prop.getProperty("autoload", "true").equals("true");
+		lockVideoToAudio = prop.getProperty("lockvideotoaudio","false").equals("true");
 	}
 	private static void saveEmulation(){
 		prop.setProperty("politeframetiming", politeFrameTiming+"");
 		prop.setProperty("framelimit", frameLimit+"");
 		prop.setProperty("autoload", autoLoad+"");
+		prop.setProperty("lockvideotoaudio", lockVideoToAudio+"");
 	}
 }

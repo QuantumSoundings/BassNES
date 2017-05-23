@@ -115,8 +115,9 @@ public class AdvancedGraphics extends JFrame {
 		};
 		panel_2.setBounds(21, 11, 259, 105);
 		panel_1.add(panel_2);
-		
-		JComboBox<String> comboBox_1 = new JComboBox<String>(NesColors.palettes);
+		String[] pal = NesColors.palettes;
+		@SuppressWarnings("rawtypes")
+		JComboBox<String> comboBox_1 = new JComboBox(pal);
 		comboBox_1.setSelectedIndex(Arrays.asList(NesColors.palettes).indexOf(UserSettings.selectedPalette));
 		comboBox_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

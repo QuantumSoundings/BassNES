@@ -1,6 +1,5 @@
 package mappers;
 import java.util.Arrays;
-import java.util.Scanner;
 
 import com.APU;
 import com.CPU_6502;
@@ -370,12 +369,19 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			return new Mapper_11();
 		case 13:
 			return new Mapper_13();
+		case 19:
+			return new Namco(163);
 		case 24:
 			return new VRC6(24);
 		case 26:
 			return new VRC6(26);
 		case 71:
 			return new Mapper_71();
+		case 75:
+			return new VRC1();
+		case 210:
+			return new Namco(175);
+			
 		default:
 			System.err.println("Unsupported Mapper id: "+i);
 		}

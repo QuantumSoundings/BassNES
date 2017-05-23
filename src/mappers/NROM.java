@@ -7,5 +7,8 @@ public class NROM extends Mapper{
 		super();
 		System.out.println("MAKING AN NROM");
 	}	
+	@Override
+	void cartridgeWrite(int index,byte b){
+	}
 	
 }
