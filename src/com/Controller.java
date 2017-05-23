@@ -23,11 +23,7 @@ public class Controller implements java.io.Serializable{
 		nextKey = 0;
 		//keys = new Keycheckerc1();		
 	}
-	/*public void setframe(JFrame f){
-		f.addKeyListener(keys);
-		f.setFocusable(true);
-		//f.requestFocusInWindow();
-	}*/
+	
 	public byte getControllerStatus(){
 		int getNextKey = map.system.pollController()[controllerNum][nextKey]?1:0;
 		if(!strobe)
@@ -46,8 +42,5 @@ public class Controller implements java.io.Serializable{
 			nextKey = 0;
 		}
 	}
-	//public boolean checkDebug(){
-	//	return map.system.pollController();
-	//}
 	
 }

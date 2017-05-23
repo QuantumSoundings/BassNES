@@ -29,7 +29,7 @@ public class AudioSettingsUI extends JFrame {
 	 * Create the frame.
 	 */
 	public AudioSettingsUI(SystemUI s) {
-		setTitle("Audio Mixer");
+		setTitle("Audio Settings");
 		sys =s;
 		//noinspection MagicConstant
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

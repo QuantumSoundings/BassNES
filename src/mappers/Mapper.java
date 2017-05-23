@@ -135,8 +135,10 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			if(index ==0x4015){
 				return apu.readRegisters(index);
 			}
-			if(index ==0x4016||index==0x4017)
-				return (byte) ((openbus&0b11100000)|controllerRead(index));
+			if(index ==0x4016)
+				return (byte) ((openbus&0b11100000)|control.getControllerStatus());
+			else if(index==0x4017)
+				return (byte) ((openbus&0b11100000)|control2.getControllerStatus());
 			return openbus;
 		}
 		else

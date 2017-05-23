@@ -199,6 +199,9 @@ public class NES implements Runnable {
 		else
 			System.out.println("Save not found!");
 	}
+	public void restartaudio(){
+		map.apu.updateaudio();
+	}
 	public void saveGame() throws IOException{
 		System.out.println("Attempting to save game.");
 		save = new File(romName+".sav");
@@ -212,7 +215,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/basket.nes");
+		//rom = new File(System.getProperty("user.dir")+"/cv3j.nes");
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);

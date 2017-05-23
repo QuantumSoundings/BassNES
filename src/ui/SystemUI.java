@@ -60,11 +60,11 @@ public class SystemUI {
            }
        };
        setupMainWindow();
-		/*try {
+		try {
 			runTests();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}*/
+		}
 		start();
 	}
 	public void start(){
@@ -98,7 +98,7 @@ public class SystemUI {
 		Thread.sleep(500);
 		UserSettings.frameLimit=false;
 		testoutput="";
-		boolean all = false;
+		boolean all = true;
 		int speed = 2;
         if(false|all){
 			testoutput = " Blargg PPU Tests \n\n";
@@ -338,6 +338,7 @@ public class SystemUI {
 		
 	}
 	public void resetaudio(){
+		nes.restartaudio();
 		audio.restartSDL();
 	}
 }

@@ -44,22 +44,25 @@ public class KeyChecker implements KeyListener, java.io.Serializable {
 			start = true;
 		else if(key == UserSettings.c1select)
 			select = true;
-		else if(key ==UserSettings.c2up)
-			up = true;
+		
+		
+		
+		if(key ==UserSettings.c2up)
+			up2 = true;
 		else if(key == UserSettings.c2down)
-			down = true;
+			down2 = true;
 		else if(key == UserSettings.c2left)
-			left = true;
+			left2 = true;
 		else if(key == UserSettings.c2right)
-			right = true;
+			right2 = true;
 		else if(key == UserSettings.c2a)
-			a = true;
+			a2 = true;
 		else if(key == UserSettings.c2b)
-			b = true;
+			b2 = true;
 		else if(key == UserSettings.c2start)
-			start = true;
+			start2 = true;
 		else if(key == UserSettings.c2select)
-			select = true;
+			select2 = true;
 		else if(key == debugkey)
 			debug = !debug;
 	}
@@ -82,22 +85,24 @@ public class KeyChecker implements KeyListener, java.io.Serializable {
 			start = false;
 		else if(key == UserSettings.c1select)
 			select = false;
-		else if(key ==UserSettings.c2up)
-			up = false;
+		
+		
+		if(key ==UserSettings.c2up)
+			up2 = false;
 		else if(key == UserSettings.c2down)
-			down = false;
+			down2 = false;
 		else if(key == UserSettings.c2left)
-			left = false;
+			left2 = false;
 		else if(key == UserSettings.c2right)
-			right = false;
+			right2 = false;
 		else if(key == UserSettings.c2a)
-			a = false;
+			a2 = false;
 		else if(key == UserSettings.c2b)
-			b = false;
+			b2 = false;
 		else if(key == UserSettings.c2start)
-			start = false;
+			start2 = false;
 		else if(key == UserSettings.c2select)
-			select = false;
+			select2 = false;
 		//else if(key == debugkey)
 		//	debug = !debug;
 	}

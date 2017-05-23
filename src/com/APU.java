@@ -62,6 +62,10 @@ public class APU implements java.io.Serializable{
 		//expansionAudioArray = (Channel[]) expansionAudio.toArray();
 		expansion = true;
 	}
+	public void updateaudio(){
+		cyclespersample = 1789773.0/UserSettings.sampleRate;
+		intcyclespersample = (int)cyclespersample;
+	}
 	public void writeRegister(int index,byte b){
 		if(index>=0x4000&&index<0x4004){
 			pulse1.registerWrite(index, b,cpucounter);
@@ -202,12 +206,12 @@ public class APU implements java.io.Serializable{
 	}
 	//Audio Mixing methods
 	final double getAverageSample(Channel chan,int UserMix){
-		double d =((chan.total/intcyclespersample)*(UserMix/100.0));
+		double d =((chan.total/cyclespersample)*(UserMix/100.0));
 		chan.total=0;
 		return d;	
 	}
 	final double getAverageExpansion(Channel chan,int UserMix){
-		double d =((chan.getOutput()/intcyclespersample)*(UserMix/100.0));
+		double d =((chan.getOutput()/cyclespersample)*(UserMix/100.0));
 		chan.total = 0;
 		return d;
 	}

@@ -75,7 +75,7 @@ public class VRC6Saw extends Channel {
 	}
 	@Override
 	public double getOutput(){
-		return total * 0.00752;
+		return total * 0.00376;
 		
 	}
 }
