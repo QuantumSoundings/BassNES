@@ -2,9 +2,7 @@ package mappers;
 
 import java.util.Arrays;
 
-import audio.Channel;
 import audio.NamcoSound;
-import mappers.Mapper.Mirror;
 
 public class Namco extends Mapper{
 
@@ -208,6 +206,9 @@ public class Namco extends Mapper{
 			PRG_ROM[0] = PRGbanks[(b&0x3f)&(PRGbanks.length-1)];
 			if(mappertype==129||mappertype==163){
 				soundEnable = (b&0x40)!=0;
+				if(!soundEnable){
+					soundChannel.disable();
+				}
 			}
 			else if(mappertype ==340){
 				switch(Byte.toUnsignedInt(b)>>6){
@@ -255,8 +256,14 @@ public class Namco extends Mapper{
 			if(hasirq)
 				return (byte) ((irqcounter>>8)&0xff);
 		}
-		else if(index<0x8000)
-			return PRG_RAM[index-0x6000];
+		else if(index<0x8000){
+			if(mappertype==175){
+				if(PRGramenable)
+					return PRG_RAM[index-0x6000];
+			}
+			else
+				return PRG_RAM[index-0x6000];
+		}
 		else if(index<0xa000)
 			return PRG_ROM[0][index-0x8000];
 		else if(index<0xc000)
@@ -276,22 +283,6 @@ public class Namco extends Mapper{
 			soundMemory[soundAddress] = b;
 		}
 		else{
-			/*if(soundAddress<=0x47)
-				soundChannel.registerWrite(soundAddress%8, b, 0);
-			else if(soundAddress<=0x4f)
-				soundChannel.registerWrite(soundAddress%8, b, 1);
-			else if(soundAddress<=0x57)
-				soundChannel.registerWrite(soundAddress%8, b, 2);
-			else if(soundAddress<=0x5f)
-				soundChannel.registerWrite(soundAddress%8, b, 3);
-			else if(soundAddress<=0x67)
-				soundChannel.registerWrite(soundAddress%8, b, 4);
-			else if(soundAddress<=0x6f)
-				soundChannel.registerWrite(soundAddress%8, b, 5);
-			else if(soundAddress<=0x77)
-				soundChannel.registerWrite(soundAddress%8, b, 6);
-			else if(soundAddress<=0x7f)
-				soundChannel.registerWrite(soundAddress%8, b, 7);*/
 			soundChannel.registerWrite(soundAddress%8, b, (soundAddress/8)-8);
 			soundMemory[soundAddress] = b;
 			if(soundAddress==0x7f)

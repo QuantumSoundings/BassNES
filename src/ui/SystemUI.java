@@ -60,11 +60,11 @@ public class SystemUI {
            }
        };
        setupMainWindow();
-		try {
+		/*try {
 			runTests();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}
+		}*/
 		start();
 	}
 	public void start(){
@@ -329,7 +329,11 @@ public class SystemUI {
 	        }
 	    });
 	}
-	public void audioFrameCallback(int[] audiosamples){
+	public void audioFrameCallback(){
+		while(audio.lock);
+		audio.inaudio = true;
+		audio.sendsample();
+		audio.inaudio = false;
 	}
 	public void audioSampleCallback(int audiosample){
 		audio.outputSample(audiosample);
@@ -338,7 +342,14 @@ public class SystemUI {
 		
 	}
 	public void resetaudio(){
+		while(audio.inaudio);
+		audio.lock=true;
 		nes.restartaudio();
 		audio.restartSDL();
+		audio.lock=false;
+		
+	}
+	public void showscope(){
+		audio.showscope();
 	}
 }

@@ -6,7 +6,6 @@ import ui.SystemUI;
 import ui.UserSettings;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -217,7 +216,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		//rom = new File(System.getProperty("user.dir")+"/cv3j.nes");
+		rom = new File(System.getProperty("user.dir")+"/cv3j.nsf");
 		String ext = rom.getName().substring(rom.getName().lastIndexOf(".")+1);
 		switch(ext){
 		case "nes": loadiNES(rom);break;
@@ -261,7 +260,7 @@ public class NES implements Runnable {
 		sx.read(header);
 		if(header[0]==0x4e&&header[1]==0x45
 				&&header[2]==0x53&&header[3]==0x4d&&header[4]==0x1a){//verified header
-			int versionNumber = header[5];
+			//int versionNumber = header[5];
 			int totalsongs = Byte.toUnsignedInt(header[6]);
 			int startsong = Byte.toUnsignedInt(header[7]);
 			int dataloadaddr = ((header[9]&0xff)<<8)|(header[8]&0xff);
@@ -271,7 +270,7 @@ public class NES implements Runnable {
 			String artistname = new String(Arrays.copyOfRange(header, 0x2e, 0x4d));
 			int playspeed = ((header[0x6f]&0xff)<<8)|(header[0x6e]&0xff);
 			byte[] bankswitch = Arrays.copyOfRange(header, 0x70, 0x78);
-			int palplayspeed = ((header[0x79]&0xff)<<8)|(header[0x78]&0xff);
+			//int palplayspeed = ((header[0x79]&0xff)<<8)|(header[0x78]&0xff);
 			int tuneregion = header[0x7a]&3;
 			byte extrasoundchips = header[0x7b];
 			long size = rom.length()-0x80;

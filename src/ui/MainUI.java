@@ -259,6 +259,14 @@ public class MainUI extends JFrame {
 		});
 		mnNewMenu.add(mntmAudioMixer);
 		
+		JMenuItem mntmShowOscillascope = new JMenuItem("Show Oscilloscope");
+		mntmShowOscillascope.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				sys.showscope();
+			}
+		});
+		mnNewMenu.add(mntmShowOscillascope);
+		
 		JMenu mnGraphics = new JMenu("Graphics");
 		mnGraphics.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		menuBar.add(mnGraphics);

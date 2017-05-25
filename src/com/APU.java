@@ -18,7 +18,7 @@ public class APU implements java.io.Serializable{
 	private final DMC dmc;
 	//Expansion Audio Channels
 	private ArrayList<Channel> expansionAudio;
-	private Channel[] expansionAudioArray;
+	//private Channel[] expansionAudioArray;
 	//public AudioInterface audio;
 	
 	//Mixing Variables
@@ -50,7 +50,7 @@ public class APU implements java.io.Serializable{
 		map = m;
 		dmc =new DMC(map);
 		expansionAudio = new ArrayList<Channel>();
-		expansionAudioArray = new Channel[0];
+		//expansionAudioArray = new Channel[0];
 		cyclespersample = 1789773.0/UserSettings.sampleRate;
 		intcyclespersample = (int)cyclespersample;
 		cpucounter = 10;
@@ -233,7 +233,7 @@ public class APU implements java.io.Serializable{
 		map.system.audioSampleCallback((int)sample);
 		//System.out.println(sample);
 	}
-	private void sendOutputUnMixed(){
+	/*private void sendOutputUnMixed(){
 		int[] output = new int[5+expansionAudioArray.length];
 		output[0] = (int) getAverageSample(pulse1,UserSettings.pulse1MixLevel);
 		output[1] = (int) getAverageSample(pulse2,UserSettings.pulse2MixLevel);
@@ -244,7 +244,7 @@ public class APU implements java.io.Serializable{
 		for(Channel chan: expansionAudioArray)
 			output[i++] = (int) getAverageExpansion(chan,chan.getUserMixLevel());
 		map.system.unmixedAudioSampleCallback(output);
-	}
+	}*/
 	public void doCycle(){
 		if(delay>0){
 			delay--;

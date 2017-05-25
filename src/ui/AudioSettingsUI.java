@@ -62,7 +62,7 @@ public class AudioSettingsUI extends JFrame {
 			}
 		});
 		comboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"44,100 Hz", "48,000 Hz", "96,000 Hz"}));
-		comboBox.setBounds(10, 53, 74, 20);
+		comboBox.setBounds(10, 53, 84, 20);
 		panel_1.add(comboBox);
 		
 		JLabel lblSamplingRate = new JLabel("Sampling Rate");

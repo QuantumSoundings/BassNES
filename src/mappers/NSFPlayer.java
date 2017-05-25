@@ -1,34 +1,63 @@
 package mappers;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
+import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import audio.NamcoSound;
 import audio.VRC6Pulse;
 import audio.VRC6Saw;
+import ui.UserSettings;
 
 public class NSFPlayer extends Mapper{
 
 	private static final long serialVersionUID = 2962869930880758980L;
+	//Extra Audio Channels
 	private VRC6Pulse vrc6pulse1;
 	private VRC6Pulse vrc6pulse2;
 	private VRC6Saw vrc6saw;
 	private NamcoSound namco;
 	private byte[] namcomemory;
+	private int soundAddress;
+	private boolean addrAutoInc;
+	
+	//NSF Header Information
+	private byte[] initialbanks;
 	private int initaddr;
 	private int playaddr;
 	private int playspeed;
 	private int currentsong;
 	private int totalsongs;
-	private int region;
 	private String title;
 	private String artist;
-	public NSFPlayer(){
-		super();
-		System.out.println("Making an NSF Player!");
-	}
+	
+	//Player Variables
+	private byte irqstatus;
+	private int irqcounter;
+	private boolean irqEnable;
+	private int irqreload;
+	private boolean doingIRQ;
+	private int nextirq;
+	private int trackcutoff = 2*60*60;
+	private int tracktimer= 0;
+	private String tracktimestring = timeformat(trackcutoff);
+	private boolean doingBanking;
+	private Font largefont;
+	private Font smallfont;
+	
+	//Player Control Variables
+	boolean pause = false;
+	boolean primednext;
+	boolean primedprev;
+	boolean looping = false;
+	boolean playingforever = false;
+	
 	/*****************************************
 	* NSF BIOS by Quietust, all credits to him!
 	* Taken from the Nintendulator source code:
@@ -55,50 +84,61 @@ public class NSFPlayer extends Mapper{
 		0x8D,0x11,0x3E,0x8C,0x12,0x3E,0xAD,0x12,0x3E,0x58,0xAD,0x10,0x3E,0x20,0xF6,0x3F,
 		0x8D,0x13,0x3E,0x4C,0x17,0x3F,0x6C,0x00,0x3E,0x6C,0x02,0x3E,0x03,0x3F,0x1A,0x3F
 	};
-	byte[] initialbanks;
+	
+	public NSFPlayer(){
+		super();
+		System.out.println("Making an NSF Player!");
+		Map<TextAttribute, Object> attributes = new HashMap<>();
+
+		attributes.put(TextAttribute.FAMILY, "Default");
+		attributes.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_SEMIBOLD);
+		attributes.put(TextAttribute.SIZE, 14);
+		largefont = Font.getFont(attributes);
+		attributes.put(TextAttribute.FAMILY, "Default");
+		attributes.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_SEMIBOLD);
+		attributes.put(TextAttribute.SIZE, 10);
+		smallfont = Font.getFont(attributes);
+	}
+	
 	@Override
 	public void loadData(byte[] data, byte[] banks,int loadaddr){
 		initialbanks = banks;
 		PRG_ROM = new byte[8][0x1000];
-		boolean doingBanking=false;
+		doingBanking=false;
 		for(byte b:banks){
 			if(b!=0){
 				doingBanking=true;
 				break;
 			}
 		}
-		if(!doingBanking){
+		if(!doingBanking){		
 			int cBank = (loadaddr/0x1000) -8;
 			int offset = 0x1000-(loadaddr%0x1000);
-			PRG_ROM[cBank] = Arrays.copyOfRange(data, 0,offset<data.length?offset:data.length-1);
+			System.out.println(Integer.toHexString(loadaddr)+" "+cBank+" "+Integer.toHexString(offset));
+			System.arraycopy(data, 0, PRG_ROM[cBank], loadaddr%0x1000, offset);
 			cBank++;
 			while(offset+0x1000<data.length){
-				PRG_ROM[cBank] = Arrays.copyOfRange(data, offset, offset+0x1000);
+				System.arraycopy(data, offset, PRG_ROM[cBank], 0, 0x1000);
 				offset+=0x1000;
 				cBank++;
 			}
 			if(offset<data.length){
-				PRG_ROM[cBank] = Arrays.copyOfRange(data, offset, data.length-1);
+				System.arraycopy(data, offset, PRG_ROM[cBank], 0, data.length-offset);
 			}
+			
 		}
 		else{
 			int padding = 0xfff&loadaddr;
 			byte[] databanks = new byte[padding+data.length];
-			//System.out.println(Arrays.toString(data));
 			System.arraycopy(data, 0, databanks, padding, data.length);
 			PRGbanks = new byte[databanks.length/0x1000][0x1000];
 			for(int i=0;i*0x1000<databanks.length;i++){
 				PRGbanks[i]=Arrays.copyOfRange(databanks, i*0x1000, (i*0x1000)+0x1000);
 			}
-			PRG_ROM[0] = PRGbanks[banks[0]];
-			PRG_ROM[1] = PRGbanks[banks[1]];
-			PRG_ROM[2] = PRGbanks[banks[2]];
-			PRG_ROM[3] = PRGbanks[banks[3]];
-			PRG_ROM[4] = PRGbanks[banks[4]];
-			PRG_ROM[5] = PRGbanks[banks[5]];
-			PRG_ROM[6] = PRGbanks[banks[6]];
-			//System.out.println(Arrays.toString(PRG_ROM[6]));
-			PRG_ROM[7] = PRGbanks[banks[7]];
+			PRG_ROM[0] = PRGbanks[banks[0]];PRG_ROM[1] = PRGbanks[banks[1]];
+			PRG_ROM[2] = PRGbanks[banks[2]];PRG_ROM[3] = PRGbanks[banks[3]];
+			PRG_ROM[4] = PRGbanks[banks[4]];PRG_ROM[5] = PRGbanks[banks[5]];
+			PRG_ROM[6] = PRGbanks[banks[6]];PRG_ROM[7] = PRGbanks[banks[7]];
 		}
 	}
 	byte soundchip;
@@ -113,15 +153,9 @@ public class NSFPlayer extends Mapper{
 			apu.addExpansionChannel(vrc6pulse2);
 			apu.addExpansionChannel(vrc6saw);
 		}
-		if((b&2)==2){//vrc7
-			
-		}
-		if((b&4)==4){//fds
-			
-		}
-		if((b&8)==8){//mmc5
-		
-		}
+		if((b&2)==2){}//vrc7
+		if((b&4)==4){}//fds
+		if((b&8)==8){}//mmc5
 		if((b&16)==16){//namco
 			namcomemory = new byte[0x80];
 			namco = new NamcoSound(namcomemory);
@@ -136,76 +170,40 @@ public class NSFPlayer extends Mapper{
 		playspeed = (int) (playspeed*(1789773.0/1000000.0));
 		currentsong = startsong-1;
 		totalsongs = total;
-		region = 0;
 		title = name;
 		this.artist = artist;
 	}
-	byte[] vars;
 	@Override
 	public void setCHR(byte[] chr){
 		init();
 		doingIRQ=true;
 		cpu.doIRQ++;
 	}
-	@Override
-	byte cartridgeRead(int index){
-		if(index>=0x6000&&index<=0x7fff){
-			return PRG_RAM[index%0x2000];
-		}
-		else if(index>=0x8000&&index<=0x8fff){
-			return PRG_ROM[0][index%0x1000];
-		}
-		else if(index>=0x9000&&index<=0x9fff){
-			return PRG_ROM[1][index%0x1000];
-		}
-		else if(index>=0xa000&&index<=0xafff){
-			return PRG_ROM[2][index%0x1000];
-		}
-		else if(index>=0xb000&&index<=0xbfff){
-			return PRG_ROM[3][index%0x1000];
-		}
-		else if(index>=0xc000&&index<=0xcfff){
-			return PRG_ROM[4][index%0x1000];
-		}
-		else if(index>=0xd000&&index<=0xdfff){
-			return PRG_ROM[5][index%0x1000];
-		}
-		else if(index>=0xe000&&index<=0xefff){
-			return PRG_ROM[6][index%0x1000];
-		}
-		else if(index>=0xf000&&index<=0xfff9){
-			return PRG_ROM[7][index%0x1000];
-		}
-		else if(index==0xffff)
-			return 0x3f;
-		else if(index==0xfffe)
-			return 0x1a;
-		return 0;
-	}
-	@Override
-	void cartridgeWrite(int index,byte b){
-		if(index>=0x5ff8&&index<=0x5fff){
-			PRG_ROM[index%8] = PRGbanks[(b&0xff)];
-		}
-		else if(index>=0x6000&&index<=0x7fff){
-			PRG_RAM[index%0x2000] = b;
+	private void soundwrite(byte b){
+		if(soundAddress<0x40){
+			namcomemory[soundAddress] = b;
 		}
 		else{
-			switch(index){
-			case 0x9000:vrc6pulse1.registerWrite(0, b, 0);break;
-			case 0x9001:vrc6pulse1.registerWrite(1, b, 0);break;
-			case 0x9002:vrc6pulse1.registerWrite(2, b, 0);break;
-			case 0xa000:vrc6pulse2.registerWrite(0, b, 0);break;
-			case 0xa001:vrc6pulse2.registerWrite(1, b, 0);break;
-			case 0xa002:vrc6pulse2.registerWrite(2, b, 0);break;
-			case 0xb000:vrc6saw.registerWrite(0, b, 0);break;
-			case 0xb001:vrc6saw.registerWrite(1, b, 0);break;
-			case 0xb002:vrc6saw.registerWrite(2, b, 0);break;
-			}
+			namco.registerWrite(soundAddress%8, b, (soundAddress/8)-8);
+			namcomemory[soundAddress] = b;
+			if(soundAddress==0x7f)
+				namco.setEnables((b&0x70)>>4);				
+		}
+		if(addrAutoInc){
+			soundAddress++;
+			if(soundAddress==0x80)
+				soundAddress = 0;
 		}
 	}
-	byte irqstatus;
-	
+	private byte soundread(){
+		byte b = namcomemory[soundAddress];
+		if(addrAutoInc){
+			soundAddress++;
+			if(soundAddress==0x80)
+				soundAddress = 0;
+		}
+		return b;
+	}
 	private byte varread(int index){
 		switch(index){
 		case 0x3e00:return (byte) (initaddr&0xff);
@@ -216,7 +214,7 @@ public class NSFPlayer extends Mapper{
 		case 0x3e05:return (byte) (playspeed&0xff);
 		case 0x3e06:return (byte) ((playspeed>>8)&0xff);
 		case 0x3e07:return (byte) ((playspeed>>8)&0xff);
-		case 0x3e08:return initialbanks[index&0x7];
+		case 0x3e08:return initialbanks[0];
 		case 0x3e09:return initialbanks[1];
 		case 0x3e0a:return initialbanks[2];
 		case 0x3e0b:return initialbanks[3];
@@ -235,11 +233,8 @@ public class NSFPlayer extends Mapper{
 		}
 		return 0;
 	}
-	int irqcounter;
-	boolean irqEnable;
-	int irqreload;
-	private void varwrite(int index,byte b){
-		
+	
+	private void varwrite(int index,byte b){		
 		switch(index){
 		case 0x3e10:
 			irqreload&=0xff00;
@@ -258,96 +253,101 @@ public class NSFPlayer extends Mapper{
 			break;
 		}
 	}
+	
 	@Override
 	public byte cpuread(int index){
-		if(index<0x2000)
-			return cpu_ram[index%0x800];
-		else if(index>=0x2000 && index<0x3000)
-			return ppuregisterhandler(index%8,(byte)0,false);
+		if(index<=0x800){
+			return cpu_ram[index];
+		}
 		else if(index>=0x3e00&&index<=0x3e13)
 			return varread(index);
 		else if(index>=0x3f00&&index<=0x3fff)
 			return (byte) nsfbios[index-0x3f00];
-		else if(index>=0x4000 && index<=0x40ff){
-			if(index ==0x4015){
-				return apu.readRegisters(index);
-			}
-			if(index ==0x4016)
-				return (byte) ((openbus&0b11100000)|control.getControllerStatus());
-			else if(index==0x4017)
-				return (byte) ((openbus&0b11100000)|control2.getControllerStatus());
-			return openbus;
+		else if(index==0x4015)
+			return apu.readRegisters(index);
+		else if(index>=0x4040&&index<=0x407f){}//FDS
+		else if(index==0x4090){}//FDS
+		else if(index==0x4092){}//FDS
+		else if(index==0x4800)//Namco
+			return soundread();
+		else if(index==0x5205||index==0x5206){}//MMC5
+		else if(index>=0x5c00&&index<=0x5ff5){}//MMC5
+		else if(index>=0x6000&&index<=0xfff9){//PRG_ROM
+			if(index<=0x7fff)
+				return PRG_RAM[index%0x2000];
+			return PRG_ROM[(index/0x1000)-8][index%0x1000]; 
 		}
 		else
-			return cartridgeRead(index);
+			switch(index){
+			case 0xffff: return 0x3f;
+			case 0xfffe: return 0x1a;
+			}
+		return 0;
 	}
+	@Override
 	public void cpuwrite(int index,byte b){
-		if(index<0x2000){
-			cpu_ram[index%0x800]=b;
-		}
-		else if(index>=0x2000&&index<0x3000)
-			ppuregisterhandler(index%8,b,true);
-		else if(index>=0x3e00&&index<=0x3e13){
+		if(index<=0x800)
+			cpu_ram[index]=b;
+		else if(index>=0x3e00&&index<=0x3e13)
 			varwrite(index,b);
-		}
-		else if(index>=0x3f00&&index<=0x3fff){
+		else if(index>=0x3f00&&index<=0x3fff)  //NSF bios
 			nsfbios[index-0x3f00] = b;		
+		else if(index>=0x4000&&index<=0x4013)  //APU
+			apu.writeRegister(index, b);
+		else if(index==0x4015||index==0x4017)  //APU
+			apu.writeRegister(index, b);
+		else if(index>=0x4040&&index<=0x4080){}//FDS
+		else if(index>=0x4082&&index<=0x408a){}//FDS
+		else if(index==0x4800)                 //namco
+			soundwrite(b);
+		else if(index==0x5205||index==0x5206){}//MMC5 multiply
+		else if(index>=0x5c00&&index<=0x5ff5){}//MMC5 exram
+		else if(index==0x5ff6||index==0x5ff7){}//FDS bank switching
+		else if(index>=0x5ff8&&index<=0x5fff){  //Bank Switching
+			if(doingBanking)
+				PRG_ROM[index%8] = PRGbanks[(b&0xff)];
 		}
-		else if(index>=0x4000 && index<=0x4017){
-			if(index==0x4014){
-				 cpu_mmr[0x14]=b;
-				 cpu.dxx=Byte.toUnsignedInt(b)<<8;
-				cpu.writeDMA=true;
+		else if(index>=0x6000&&index<=0x7fff)  //PRG_RAM
+			PRG_RAM[index%0x2000] = b;
+		else{                                  //Various registers
+			switch(index){
+			case 0x9000:vrc6pulse1.registerWrite(0, b, 0);break;
+			case 0x9001:vrc6pulse1.registerWrite(1, b, 0);break;
+			case 0x9002:vrc6pulse1.registerWrite(2, b, 0);break;
+			case 0xa000:vrc6pulse2.registerWrite(0, b, 0);break;
+			case 0xa001:vrc6pulse2.registerWrite(1, b, 0);break;
+			case 0xa002:vrc6pulse2.registerWrite(2, b, 0);break;
+			case 0xb000:vrc6saw.registerWrite(0, b, 0);break;
+			case 0xb001:vrc6saw.registerWrite(1, b, 0);break;
+			case 0xb002:vrc6saw.registerWrite(2, b, 0);break;
+			case 0xf800:
+				soundAddress = (b&0x7f);
+				addrAutoInc = (b&0x80)!=0;
+				break;	
 			}
-			else if(index==0x4016)
-				controllerWrite(index,b);
-			else if(index>=0x4000&&index<=0x4013)
-				apu.writeRegister(index, b);
-			else if(index==0x4015||index==0x4017)
-				apu.writeRegister(index, b);
-			openbus=b;
 		}
-		else
-			cartridgeWrite(index,b);
 	}
-	byte[] vectorinit;
 	private void init(){
 		cpu.program_counter=0x3f03;	
-	}
-	boolean doingIRQ;
-	byte[] vectorplay;
-	private void play(){
-		cpu.program_counter=playaddr;
-		cpu.current_instruction = cpuread(cpu.program_counter);
-		while(cpu.getCurrentInstruction()!=0){
-			cpu.run_cycle();
-			apu.doCycle();
-			//cpu.debug(0);
-		}
-		apu.doCycle();apu.doCycle();apu.doCycle();apu.doCycle();apu.doCycle();
-		cpu.instruction_cycle=1;
-		int i = 0/0;
 	}
 	private void nextTrack(){
 		currentsong+=1;
 		nextirq=0;
-		tracktimer=tracktimerreload;
+		tracktimer=0;
 	}
 	private void prevTrack(){
-		currentsong-=1;
-		if(currentsong<0)
-			currentsong=0;
+		if(tracktimer/60<5){
+			currentsong-=1;
+			if(currentsong<0)
+				currentsong=0;
+		}
 		nextirq=0;
-		tracktimer=tracktimerreload;
+		tracktimer=0;
 	}
 	boolean initdone = false;
-	int nextirq;
-	int tracktimerreload = 2*60*60;
-	int tracktimer= tracktimerreload;
-	String tracktimestring = timeformat(tracktimerreload);
-	boolean pause = false;
-	boolean primednext;
-	boolean primedprev;
+	
+	
+	
 	BufferedImage image = new BufferedImage(256,240,BufferedImage.TYPE_INT_RGB);
 	private String timeformat(int i){
 		String out = i/(60*60)+":";
@@ -360,19 +360,26 @@ public class NSFPlayer extends Mapper{
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, 256, 240);
 		g.setColor(Color.BLUE);
-		g.drawString("Arrow keys to skip tracks. Up arrow to pause.", 0, 40);
+		g.setFont(largefont);
+		g.drawString("Key Bindings", 0, 20);
+		g.drawString("NSF Player Status:", 0, 100);
 		g.drawString("Title: "+title, 0, 180);
 		g.drawString("Artist: "+artist, 0, 210);
-		g.drawString("Track "+(currentsong+1)+"/"+totalsongs+"         "+timeformat(tracktimerreload-tracktimer)+"/"+tracktimestring
+		g.drawString("Track "+(currentsong+1)+"/"+totalsongs+"         "+timeformat(tracktimer)+"/"+tracktimestring
 				, 0, 230);
+		g.setFont(smallfont);
+		g.drawString("Next Track: "+KeyEvent.getKeyText(UserSettings.nsfnext), 0, 35);
+		g.drawString("Prev Track: "+KeyEvent.getKeyText(UserSettings.nsfprev), 0, 45);
+		g.drawString("Pause: "+KeyEvent.getKeyText(UserSettings.nsfpause), 0, 55);
+		g.drawString("Loop: "+KeyEvent.getKeyText(UserSettings.nsfloop), 0, 65);
+		g.drawString("Forever Mode: "+KeyEvent.getKeyText(UserSettings.nsfplayforever), 0, 75);
+		g.drawString((!pause?"Playing":"Paused"), 0, 115);
+		g.drawString((playingforever?"Playing Current Song Forever":""), 0, 125);
+		g.drawString((looping?"Looping Current Song":""), 0, 135);
 		g.dispose();
 		image.getRGB(0, 0, 256, 240, ppu.renderer.colorized, 0, 256);	
 	}
-	@Override
-	public void runFrame() {
-		if(!initdone)
-			init();
-		initdone = true;
+	private void pollPlayerControls(){
 		boolean[] controls =system.pollController()[2];
 		pause = controls[0];
 		if(controls[1]){
@@ -391,7 +398,16 @@ public class NSFPlayer extends Mapper{
 				prevTrack();
 			primedprev = false;
 		}
-		//System.out.println(Arrays.toString(initialbanks));
+		playingforever = controls[3];
+		looping = controls[4];
+	}
+	
+	@Override
+	public void runFrame() {
+		if(!initdone)
+			init();
+		initdone = true;
+		pollPlayerControls();
 		while(cpu.program_counter!=0x3ff9&&!pause){
 			cpu.run_cycle();
 			if(irqEnable){
@@ -405,17 +421,20 @@ public class NSFPlayer extends Mapper{
 					doingIRQ=true;
 				}
 			}
-			apu.doCycle();	
-			//cpu.debug(0);
+			apu.doCycle();
 		}
 		nextirq=2;
 		cpu.run_cycle();cpu.run_cycle();cpu.run_cycle();cpu.run_cycle();cpu.run_cycle();
-		apu.doCycle();apu.doCycle();apu.doCycle();apu.doCycle();
+		apu.doCycle();apu.doCycle();apu.doCycle();apu.doCycle();apu.doCycle();
 		if(!pause)
-			tracktimer--;
-		if(tracktimer==0){
-			nextTrack();
-		}
+			if(++tracktimer==trackcutoff&&!playingforever){
+				if(looping){
+					nextirq=0;
+					tracktimer=0;
+				}
+				else
+					nextTrack();
+			}
 		drawscreen();
 	}
 }
