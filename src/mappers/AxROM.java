@@ -47,8 +47,8 @@ public class AxROM extends Mapper{
 		for(int i=0;i*0x4000<prg.length;i++){
 			PRGbanks[i]=Arrays.copyOfRange(prg, i*0x4000, (i*0x4000)+0x4000);
 		}
-		PRG_ROM[0]=PRGbanks[0];
-		PRG_ROM[1]=PRGbanks[1];
+		PRG_ROM[0]=PRGbanks[PRGbanks.length-2];
+		PRG_ROM[1]=PRGbanks[PRGbanks.length-1];
 	}
 
 }

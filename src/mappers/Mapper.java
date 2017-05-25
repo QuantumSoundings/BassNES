@@ -55,6 +55,8 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		apu = new APU(this);
 		control = new Controller(this,0);
 		control2 = new Controller(this,1);
+		
+
 	}
 	public void setcomponents(CPU_6502 c,ppu2C02 p,Controller cont,Controller cont2, APU a){
 		cpu = c;
@@ -206,7 +208,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	public void ppuwriteoam(int index,byte b){
 		ppu_oam[index]=b;
 	}
-	private byte ppuregisterhandler(int index,byte x,boolean write){
+	protected byte ppuregisterhandler(int index,byte x,boolean write){
 		switch(index){
 		case 0:
 			if(write&&blockppu())
@@ -346,7 +348,10 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		else
 			dodebug=true;
 	}*/
+	public void loadData(byte[] data, byte[] banks,int loadaddr){}
 	public void scanlinecounter(){}
+	public void addExtraAudio(byte b){};
+	public void setNSFVariables(int playaddr,int initaddr,int playspeed, int startsong, int tuneregion, int tuneregion2, String songname, String artistname){}
 	public static Mapper getmapper(int i){
 		switch(i){
 		case 0:
@@ -379,11 +384,14 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			return new VRC6(26);
 		case 71:
 			return new Mapper_71();
+		case 73:
+			return new VRC3();
 		case 75:
 			return new VRC1();
 		case 210:
 			return new Namco(175);
-			
+		case 1001:
+			return new NSFPlayer();
 		default:
 			System.err.println("Unsupported Mapper id: "+i);
 		}

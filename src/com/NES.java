@@ -6,10 +6,12 @@ import ui.SystemUI;
 import ui.UserSettings;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class NES implements Runnable {
@@ -216,31 +218,75 @@ public class NES implements Runnable {
 	}
 	public void loadrom(File rom) throws IOException{
 		//rom = new File(System.getProperty("user.dir")+"/cv3j.nes");
+		String ext = rom.getName().substring(rom.getName().lastIndexOf(".")+1);
+		switch(ext){
+		case "nes": loadiNES(rom);break;
+		case "nsf": loadNSF(rom);break;
+		}
+		
+	}
+	private void loadiNES(File rom) throws IOException{
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
 		sx.read(header);
-		byte[] PRG_ROM = new byte[16384*Byte.toUnsignedInt(header[4])];
-		sx.read(PRG_ROM);
-		byte[] CHR_ROM = new byte[8192*Byte.toUnsignedInt(header[5])];
-		sx.read(CHR_ROM);
-		batteryExists = (header[6]&2)!=0?true:false;
-		int id = Byte.toUnsignedInt(header[6])>>4;
-		id|= Byte.toUnsignedInt(header[7])&0xf0;
-		map = Mapper.getmapper(id);
-		System.out.println("PRG_ROM:"+(PRG_ROM.length/0x400)+"KB");
-		map.setPRG(PRG_ROM);
-		System.out.println("CHR_ROM:"+(CHR_ROM.length/0x400)+"KB");
-		map.setCHR(CHR_ROM);
-		map.setMirror(header[6]&1);
-		if(header[9]==1||rom.getName().contains("(E)")){
-			pal = true;
-			System.out.println("Pal Game");
+		if(header[0]==0x4e&&header[1]==0x45&&header[2]==0x53&&header[3]==0x1a){//verified header
+			byte[] PRG_ROM = new byte[16384*Byte.toUnsignedInt(header[4])];
+			sx.read(PRG_ROM);
+			byte[] CHR_ROM = new byte[8192*Byte.toUnsignedInt(header[5])];
+			sx.read(CHR_ROM);
+			batteryExists = (header[6]&2)!=0?true:false;
+			int id = Byte.toUnsignedInt(header[6])>>4;
+			id|= Byte.toUnsignedInt(header[7])&0xf0;
+			map = Mapper.getmapper(id);
+			System.out.println("PRG_ROM:"+(PRG_ROM.length/0x400)+"KB");
+			map.setPRG(PRG_ROM);
+			System.out.println("CHR_ROM:"+(CHR_ROM.length/0x400)+"KB");
+			map.setCHR(CHR_ROM);
+			map.setMirror(header[6]&1);
+			if(header[9]==1||rom.getName().contains("(E)")){
+				pal = true;
+				System.out.println("Pal Game");
+			}
+			System.out.println(Integer.toBinaryString(Byte.toUnsignedInt(header[9])));
+			map.ppu.setpal(pal);
+			
+			if(batteryExists)
+				loadSave();
 		}
-		System.out.println(Integer.toBinaryString(Byte.toUnsignedInt(header[9])));
-		map.ppu.setpal(pal);
 		sx.close();
-		if(batteryExists)
-			loadSave();
+	}
+	private void loadNSF(File rom) throws IOException{
+		FileInputStream sx = new FileInputStream(rom); 
+		byte[] header = new byte[0x80];
+		sx.read(header);
+		if(header[0]==0x4e&&header[1]==0x45
+				&&header[2]==0x53&&header[3]==0x4d&&header[4]==0x1a){//verified header
+			int versionNumber = header[5];
+			int totalsongs = Byte.toUnsignedInt(header[6]);
+			int startsong = Byte.toUnsignedInt(header[7]);
+			int dataloadaddr = ((header[9]&0xff)<<8)|(header[8]&0xff);
+			int datainitaddr = ((header[0xb]&0xff)<<8)|(header[0xa]&0xff);
+			int dataplayaddr = ((header[0xd]&0xff)<<8)|(header[0xc]&0xff);
+			String songname = new String(Arrays.copyOfRange(header, 0xe,0x2d));
+			String artistname = new String(Arrays.copyOfRange(header, 0x2e, 0x4d));
+			int playspeed = ((header[0x6f]&0xff)<<8)|(header[0x6e]&0xff);
+			byte[] bankswitch = Arrays.copyOfRange(header, 0x70, 0x78);
+			int palplayspeed = ((header[0x79]&0xff)<<8)|(header[0x78]&0xff);
+			int tuneregion = header[0x7a]&3;
+			byte extrasoundchips = header[0x7b];
+			long size = rom.length()-0x80;
+			byte[] data = new byte[(int) size];
+			
+			map = Mapper.getmapper(1001);
+			sx.read(data);
+			map.loadData(data, bankswitch, dataloadaddr);
+			map.addExtraAudio(extrasoundchips);
+			map.setNSFVariables(dataplayaddr, datainitaddr, playspeed,startsong,totalsongs,tuneregion,songname,artistname);
+			map.setCHR(new byte[0]);
+			map.setSystem(system);
+			
+		}
+		sx.close();
 	}
 	
 	@SuppressWarnings("unused")

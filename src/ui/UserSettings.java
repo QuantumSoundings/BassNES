@@ -55,6 +55,9 @@ public class UserSettings {
 	public static int c2right;
 	public static int c2start;
 	public static int c2select;
+	public static int nsfpause=KeyEvent.VK_UP;
+	public static int nsfnext=KeyEvent.VK_RIGHT;
+	public static int nsfprev=KeyEvent.VK_LEFT;
 	
 
 	public UserSettings(){

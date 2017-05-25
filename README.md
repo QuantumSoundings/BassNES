@@ -23,8 +23,6 @@ Unimplemented (Planned) Features:
 
 - FDS support
 
-- NSF support
-
 - Significantly tested PAL support (has experimental support)
 
 - Use of controllers as input devices

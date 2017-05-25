@@ -67,6 +67,7 @@ public class APU implements java.io.Serializable{
 		intcyclespersample = (int)cyclespersample;
 	}
 	public void writeRegister(int index,byte b){
+		//System.out.println("Writing to apu register");
 		if(index>=0x4000&&index<0x4004){
 			pulse1.registerWrite(index, b,cpucounter);
 		}
@@ -230,6 +231,7 @@ public class APU implements java.io.Serializable{
 		sample+=expansion;
 		sample = ((sample*30000)*(UserSettings.masterMixLevel/100.0));
 		map.system.audioSampleCallback((int)sample);
+		//System.out.println(sample);
 	}
 	private void sendOutputUnMixed(){
 		int[] output = new int[5+expansionAudioArray.length];

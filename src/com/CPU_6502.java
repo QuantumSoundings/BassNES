@@ -29,7 +29,7 @@ public class CPU_6502 implements java.io.Serializable{
 	public int program_counter;
 	private byte stack_pointer;
 	public byte accumulator;
-	private byte x_index_register;
+	public byte x_index_register;
 	private byte y_index_register;
 	//flags
 	private boolean NFlag;
@@ -42,7 +42,7 @@ public class CPU_6502 implements java.io.Serializable{
 	//other stuff
 	private boolean doOp=false;
 	private boolean brokenaddress = false;
-	int instruction_cycle;
+	public int instruction_cycle;
 	public byte current_instruction;
 	private byte tempregister;
 	int address;
@@ -95,40 +95,40 @@ public class CPU_6502 implements java.io.Serializable{
 			stallcount--;
 			return;
 		}
-		if(writeDMA){
-			if(dmac ==513){
-				dmac =0;
-				dmain=0;
-				cpuinc=0;
-				writeDMA=false;
-			}
-			else if(dmac==0){
-				dmac++;
-				//dxx = map.cpureadu(0x4014)<<8;
-				//dxx<<=8;
-				dmadata = map.cpuread(dxx+cpuinc);
-				dmain = map.ppu.OAMADDR;
-			}
-			else if(dmac%2==1){
-				dmac++;
-				dmadata = map.cpuread(dxx+cpuinc);
-				//where it reads
-			}
-			else{
-				map.cpuwriteoam(dmain,dmadata);
-				if(dmain==255)
-					dmain=0;
-				else
-					dmain++;
-				cpuinc++;
-				dmac++;
-			}
+		if(writeDMA)
+			dma();
+		else
+			executeInstruction();
+	}
+	private void dma(){
+		if(dmac ==513){
+			dmac =0;
+			dmain=0;
+			cpuinc=0;
+			writeDMA=false;
+		}
+		else if(dmac==0){
+			dmac++;
+			//dxx = map.cpureadu(0x4014)<<8;
+			//dxx<<=8;
+			dmadata = map.cpuread(dxx+cpuinc);
+			dmain = map.ppu.OAMADDR;
+		}
+		else if(dmac%2==1){
+			dmac++;
+			dmadata = map.cpuread(dxx+cpuinc);
+			//where it reads
 		}
 		else{
-				executeInstruction();
+			map.cpuwriteoam(dmain,dmadata);
+			if(dmain==255)
+				dmain=0;
+			else
+				dmain++;
+			cpuinc++;
+			dmac++;
 		}
 	}
-	
 	private void pollInterrupts(){
 		if(doNMI&&!oldnmi){
 			nmi=true;
@@ -207,7 +207,9 @@ public class CPU_6502 implements java.io.Serializable{
 		ZFlag = (x & (1 << 1)) > 0;
 		CFlag = (x & 1) > 0;
 	}
-
+	public int getCurrentInstruction(){
+		return Byte.toUnsignedInt(current_instruction);
+	}
 	private void executeInstruction(){
 		if(instruction_cycle ==1){
 			if(doOp){

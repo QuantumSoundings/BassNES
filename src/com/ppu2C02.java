@@ -93,9 +93,9 @@ public class ppu2C02 implements java.io.Serializable{
 	public boolean doneFrame;
 	//boolean oddskip = false;
 	public int v,t,x;
-	Renderer renderer;
+	public Renderer renderer;
 	private int[] pixels;
-	int pixelnum;
+	public int pixelnum;
 	//registers	
 	Mapper map;
 	int tv;
