@@ -234,13 +234,33 @@ public class AudioSettingsUI extends JFrame {
 		slider_7.setPaintLabels(true);
 		slider_7.setOrientation(SwingConstants.VERTICAL);
 		slider_7.setMajorTickSpacing(20);
-		slider_7.setBounds(81, 109, 50, 99);
+		slider_7.setBounds(81, 112, 50, 99);
 		panel.add(slider_7);
 		
 		JLabel lblNamco = new JLabel("Namco");
 		lblNamco.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNamco.setBounds(81, 208, 46, 14);
 		panel.add(lblNamco);
+		
+		JSlider slider_8 = new JSlider();
+		slider_8.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				JSlider source = (JSlider) arg0.getSource();
+				UserSettings.mmc5MixLevel=source.getValue();
+			}
+		});
+		slider_8.setValue(100);
+		slider_8.setPaintTicks(true);
+		slider_8.setPaintLabels(true);
+		slider_8.setOrientation(SwingConstants.VERTICAL);
+		slider_8.setMajorTickSpacing(20);
+		slider_8.setBounds(150, 112, 50, 99);
+		panel.add(slider_8);
+		
+		JLabel lblMmc = new JLabel("MMC5");
+		lblMmc.setHorizontalAlignment(SwingConstants.CENTER);
+		lblMmc.setBounds(154, 208, 46, 14);
+		panel.add(lblMmc);
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 	}
 }

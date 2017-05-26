@@ -36,6 +36,7 @@ public class UserSettings {
 	public static int dmcMixLevel=100;
 	public static int vrc6MixLevel=100;
 	public static int namcoMixLevel=100;
+	public static int mmc5MixLevel=100;
 	public static int sampleRate = 48000;
 	
 	//Controller Bindings
@@ -167,6 +168,7 @@ public class UserSettings {
 		dmcMixLevel = Integer.parseInt(prop.getProperty("dmcmixlevel", "100"));
 		vrc6MixLevel = Integer.parseInt(prop.getProperty("vrc6mixlevel", "100"));
 		namcoMixLevel = Integer.parseInt(prop.getProperty("namcomixlevel", "100"));
+		mmc5MixLevel = Integer.parseInt(prop.getProperty("mmc5mixlevel", "100"));
 		sampleRate = Integer.parseInt(prop.getProperty("samplerate", "44100"));
 	}
 	private static void saveAudio(){
@@ -179,6 +181,7 @@ public class UserSettings {
 		prop.setProperty("dmcmixlevel", dmcMixLevel+"");
 		prop.setProperty("vrc6mixlevel", vrc6MixLevel+"");
 		prop.setProperty("namcomixlevel", namcoMixLevel+"");
+		prop.setProperty("mmc5mixlevel", mmc5MixLevel+"");
 		prop.setProperty("samplerate", sampleRate+"");
 	}
 	private static void loadGraphics(){

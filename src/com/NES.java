@@ -50,7 +50,6 @@ public class NES implements Runnable {
 	
 	public NES(File rom,SystemUI s){
 		system = s;
-		romName = rom.getName().substring(0,rom.getName().length()-4);
 		try {
 			loadrom(rom);
 		} catch (IOException e) {
@@ -189,10 +188,11 @@ public class NES implements Runnable {
 	public void unpause(){pause=false;}
 	public void loadSave() throws IOException{
 		save = new File(romName+".sav");
+		System.out.println(save.getAbsolutePath());
 		if(save.exists()){
 				System.out.println("Save Found! Loading...");
 				FileInputStream sx = new FileInputStream(save);
-				byte[] savearray = new byte[0x2000];
+				byte[] savearray = new byte[(int)save.length()];
 				sx.read(savearray);
 				map.restoreSave(savearray);
 				sx.close();
@@ -216,7 +216,8 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/cv3j.nsf");
+		rom = new File(System.getProperty("user.dir")+"/justbreed.nsf");
+		romName = rom.getName().substring(0,rom.getName().length()-4);
 		String ext = rom.getName().substring(rom.getName().lastIndexOf(".")+1);
 		switch(ext){
 		case "nes": loadiNES(rom);break;

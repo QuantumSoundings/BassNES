@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import audio.MMC5Audio;
 import audio.NamcoSound;
 import audio.VRC6Pulse;
 import audio.VRC6Saw;
@@ -18,7 +19,7 @@ import ui.UserSettings;
 public class NSFPlayer extends Mapper{
 
 	private static final long serialVersionUID = 2962869930880758980L;
-	//Extra Audio Channels
+	//Extra Audio Channels/Related Components
 	private VRC6Pulse vrc6pulse1;
 	private VRC6Pulse vrc6pulse2;
 	private VRC6Saw vrc6saw;
@@ -26,6 +27,13 @@ public class NSFPlayer extends Mapper{
 	private byte[] namcomemory;
 	private int soundAddress;
 	private boolean addrAutoInc;
+	private MMC5Audio mmc5;
+	private byte[] mmc5exram;
+	private boolean multlowready;
+	private boolean multhighready;
+	private int multlow;
+	private int multhigh;
+	private int multproduct;
 	
 	//NSF Header Information
 	private byte[] initialbanks;
@@ -155,7 +163,11 @@ public class NSFPlayer extends Mapper{
 		}
 		if((b&2)==2){}//vrc7
 		if((b&4)==4){}//fds
-		if((b&8)==8){}//mmc5
+		if((b&8)==8){//mmc5
+			mmc5 = new MMC5Audio(this);
+			mmc5exram = new byte[0x400];
+			apu.addExpansionChannel(mmc5);
+		}
 		if((b&16)==16){//namco
 			namcomemory = new byte[0x80];
 			namco = new NamcoSound(namcomemory);
@@ -265,13 +277,18 @@ public class NSFPlayer extends Mapper{
 			return (byte) nsfbios[index-0x3f00];
 		else if(index==0x4015)
 			return apu.readRegisters(index);
-		else if(index>=0x4040&&index<=0x407f){}//FDS
-		else if(index==0x4090){}//FDS
-		else if(index==0x4092){}//FDS
+		else if(index>=0x4040&&index<=0x407f){}//FDS TODO
+		else if(index==0x4090){}//FDS TODO
+		else if(index==0x4092){}//FDS TODO
 		else if(index==0x4800)//Namco
 			return soundread();
-		else if(index==0x5205||index==0x5206){}//MMC5
-		else if(index>=0x5c00&&index<=0x5ff5){}//MMC5
+		else if(index==0x5205||index==0x5206){//MMC5
+			if(index==0x5205)return (byte) (multproduct&0xff);
+			else return (byte) ((multproduct>>8)&0xff);
+		}
+		else if(index>=0x5c00&&index<=0x5ff5){//MMC5
+			return mmc5exram[index%0x400];
+		}
 		else if(index>=0x6000&&index<=0xfff9){//PRG_ROM
 			if(index<=0x7fff)
 				return PRG_RAM[index%0x2000];
@@ -296,13 +313,29 @@ public class NSFPlayer extends Mapper{
 			apu.writeRegister(index, b);
 		else if(index==0x4015||index==0x4017)  //APU
 			apu.writeRegister(index, b);
-		else if(index>=0x4040&&index<=0x4080){}//FDS
-		else if(index>=0x4082&&index<=0x408a){}//FDS
+		else if(index>=0x4040&&index<=0x4080){}//FDS TODO
+		else if(index>=0x4082&&index<=0x408a){}//FDS TODO
 		else if(index==0x4800)                 //namco
 			soundwrite(b);
-		else if(index==0x5205||index==0x5206){}//MMC5 multiply
-		else if(index>=0x5c00&&index<=0x5ff5){}//MMC5 exram
-		else if(index==0x5ff6||index==0x5ff7){}//FDS bank switching
+		else if(index>=0x5000&&index<=0x5015){//MMC5 Audio Registers
+			//System.out.println("WRite to mmc5");
+			mmc5.registerWrite(index, b, 0);
+		}
+		else if(index==0x5205||index==0x5206){//MMC5 multiply
+			if(index==0x5205){
+				multlow = b&0xff;
+				multlowready = true;
+				doMultiply();
+			}else{
+				multhigh = b&0xff;
+				multhighready = true;
+				doMultiply();
+			}
+		}
+		else if(index>=0x5c00&&index<=0x5ff5){//MMC5 exram
+			mmc5exram[index%0x400] = b;
+		}
+		else if(index==0x5ff6||index==0x5ff7){}//FDS bank switching TODO
 		else if(index>=0x5ff8&&index<=0x5fff){  //Bank Switching
 			if(doingBanking)
 				PRG_ROM[index%8] = PRGbanks[(b&0xff)];
@@ -325,6 +358,13 @@ public class NSFPlayer extends Mapper{
 				addrAutoInc = (b&0x80)!=0;
 				break;	
 			}
+		}
+	}
+	private void doMultiply(){
+		if(multhighready&&multlowready){
+			multproduct = multlow*multhigh;
+			multlowready = false;
+			multhighready = false;
 		}
 	}
 	private void init(){

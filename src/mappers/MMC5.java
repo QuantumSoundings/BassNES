@@ -2,6 +2,8 @@ package mappers;
 
 import java.util.Arrays;
 
+import audio.MMC5Audio;
+
 public class MMC5 extends Mapper {
 	private static final long serialVersionUID = -3309464442109236184L;
 	private int PRG_mode;
@@ -23,10 +25,14 @@ public class MMC5 extends Mapper {
 	private byte[][] PRG_RAM_banks = new byte[8][0x2000];
 	private byte[][] PRG_MAP = new byte[4][0x2000];
 	private boolean[] PRG_MAP_writable = new boolean[4]; 
+	
+	private MMC5Audio channel;
 	public MMC5(){
 		super();
 		System.out.println("Making an MMC5!");
-		EXT_ram_mode = 2;
+		EXT_ram_mode = 0;
+		channel = new MMC5Audio(this);
+		apu.addExpansionChannel(channel);
 	}
 	@Override
 	public void setPRG(byte[] prg){
@@ -54,9 +60,16 @@ public class MMC5 extends Mapper {
 	}
 	@Override
 	void cartridgeWrite(int index,byte b){
+		if(index>=0x5000&&index<=0x5007){
+			channel.registerWrite(index, b, 0);
+		}
+		else if(index==0x5010||index==0x5011){
+			//System.out.println("Writing PCM index: "+Integer.toHexString(index) +" data: "+Integer.toBinaryString(Byte.toUnsignedInt(b)));
+			channel.registerWrite(index, b, 0);
+		}
 		if(index>=0x5100&&index<=0x5107)
 			configuration(index,b);
-		else if(index>=0x5113&&index<=0x5116)
+		else if(index>=0x5113&&index<=0x5117)
 			prgBankSwitching(index,b);
 		else if(index>=0x5120&&index<=0x5130)
 			chrBankSwitching(index,b);
@@ -79,18 +92,24 @@ public class MMC5 extends Mapper {
 		}
 		else if(index>=0x6000&&index<=0x7fff)
 			PRG_RAM[index%0x2000] = b;
-		else if(index>=0x8000&&index<=0x9fff&&PRG_MAP_writable[0])
+		/*else if(index>=0x8000&&index<=0x9fff&&PRG_MAP_writable[0])
 			PRG_MAP[0][index%0x2000] = b;
 		else if(index>=0xa000&&index<=0xbfff&&PRG_MAP_writable[1])
 			PRG_MAP[1][index%0x2000] = b;
 		else if(index>=0xc000&&index<=0xdfff&&PRG_MAP_writable[2])
 			PRG_MAP[2][index%0x2000] = b;
-			
+			*/
 	}
 	@Override
 	byte cartridgeRead(int index){
 		switch(index){
+		case 0x5011:
+			//System.out.println("Reading pcm irq");
+			return channel.readRegister(0x5011);
+		case 0x5015:
+			return channel.readRegister(0x5015);
 		case 0x5204:
+			//System.out.println("irq read");
 			byte b = (byte) (irqpending?0x80:0);
 			irqpending = false;
 			if(doingIRQ){
@@ -99,8 +118,8 @@ public class MMC5 extends Mapper {
 			}
 			b|= (ppu.dorender()&&ppu.scanline<240)?0x40:0;
 			return b;
-		case 0x5205:break;
-		case 0x5206:break;
+		case 0x5205:return (byte) (multproduct&0xff);
+		case 0x5206:return (byte) ((multproduct>>8)&0xff);
 		}
 		if(index>=0x5c00&&index<=0x5fff){
 			switch(EXT_ram_mode){
@@ -135,7 +154,8 @@ public class MMC5 extends Mapper {
 		case 0x5103:
 			PRG_ram_protect_2 = b&3;break;
 		case 0x5104:
-			System.out.println("EXTRAM MODE: "+Integer.toBinaryString(Byte.toUnsignedInt(b)));
+			if(EXT_ram_mode!=(b&3))
+				System.out.println("EXTRAM MODE: "+Integer.toBinaryString(Byte.toUnsignedInt(b)));
 			EXT_ram_mode = b&3;break;
 		case 0x5105:
 			//System.out.println("NameTable Assignments: "+Integer.toBinaryString(Byte.toUnsignedInt(b)));
@@ -174,9 +194,12 @@ public class MMC5 extends Mapper {
 			
 	}
 	private void prgBankSwitching(int index,byte b){
-		if(index==0x5113)//PRG_Ram banking
+		if(index==0x5113){//PRG_Ram banking
+			//System.out.println("5113: "+Integer.toHexString(Byte.toUnsignedInt(b)));
 			PRG_RAM = PRG_RAM_banks[((b&4)*4)+(b&3)];
+		}
 		else if(index==0x5114){
+			//System.out.println("5114: "+Integer.toHexString(Byte.toUnsignedInt(b)));
 			if(PRG_mode==3){
 				if(b>0){
 					PRG_MAP[0] = PRG_RAM_banks[((b&4)*4)+(b&3)];
@@ -253,7 +276,7 @@ public class MMC5 extends Mapper {
 				PRG_MAP_writable[3]=false;
 				break;
 			case 2: case 3:
-				PRG_MAP[3] = PRGbanks[b&(PRGbanks.length-1)];
+				PRG_MAP[3] = PRGbanks[(b&0b1111111)&(PRGbanks.length-1)];
 				PRG_MAP_writable[3]=false;
 			}
 		}
@@ -261,8 +284,9 @@ public class MMC5 extends Mapper {
 		
 	}
 	private boolean lastbanksprite;
+	private int upperchr;
 	private void chrBankSwitching(int index,byte b){//TODO - figure this shit out.
-		int val = Byte.toUnsignedInt(b);
+		int val = upperchr|Byte.toUnsignedInt(b);
 		//System.out.println(Integer.toHexString(index)+": "+Integer.toHexString(Byte.toUnsignedInt(b)));
 		switch(index){
 		case 0x5120:
@@ -282,23 +306,30 @@ public class MMC5 extends Mapper {
 		case 0x5127:
 			chrbanksa[7] = val;setupCHR();lastbanksprite = true;break;
 		case 0x5128:
-			//System.out.println("BG 0: "+val+" "+CHRbanks.length);
+			System.out.println("BG 0: "+val+" "+CHRbanks.length);
 			chrbanksb[0] = val;setupCHR();lastbanksprite = false;break;
 		case 0x5129:
-			//System.out.println("BG 1: "+val);
+			System.out.println("BG 1: "+val);
 
 			chrbanksb[1] = val;setupCHR();lastbanksprite = false;break;
 		case 0x512a:
-			//System.out.println("BG 2: "+val);
+			System.out.println("BG 2: "+val);
 
 			chrbanksb[2] = val;setupCHR();lastbanksprite = false;break;
 		case 0x512b:
-			//System.out.println("BG 3: "+val);
+			System.out.println("BG 3: "+val);
 
 			chrbanksb[3] = val;setupCHR();lastbanksprite = false;break;
-
+		case 0x5130:
+			System.out.println("Writing upper chr bits "+ Integer.toHexString(cpu.program_counter));
+			if(cpu.program_counter==0x5c19)
+				dodebug = true;
+			upperchr = (val&3)<<8;
+			break;
 		default: break;
 		}
+		if(!ppu.PPUMASK_ss)
+			lastbanksprite = true;
 	}
 	private void setupCHR(){
 		switch(CHR_mode){
@@ -340,6 +371,11 @@ public class MMC5 extends Mapper {
 	private boolean inFrame;
 	private boolean irqEnable;
 	private boolean irqpending;
+	private boolean multlowready;
+	private boolean multhighready;
+	private int multlow;
+	private int multhigh;
+	private int multproduct;
 	private void otherRegisters(int index,byte b){
 		switch(index){
 		case 0x5200:System.out.println("Vertical Split Write: "+Integer.toBinaryString(Byte.toUnsignedInt(b)));break;
@@ -347,9 +383,24 @@ public class MMC5 extends Mapper {
 		case 0x5202:System.out.println("VSplit Bank Write");break;
 		case 0x5203:irqscanline = Byte.toUnsignedInt(b);break;
 		case 0x5204:irqEnable = b<0;break;
-		case 0x5205:System.out.println("write to multiply");break;
-		case 0x5206:System.out.println("write to multiply");break;
+		case 0x5205:
+			multlow = b&0xff;
+			multlowready = true;
+			doMultiply();
+			break;
+		case 0x5206:
+			multhigh = b&0xff;
+			multhighready = true;
+			doMultiply();
+			break;
 			default: break;
+		}
+	}
+	private void doMultiply(){
+		if(multhighready&&multlowready){
+			multproduct = multlow*multhigh;
+			multlowready = false;
+			multhighready = false;
 		}
 	}
 	private void clockirq(){
@@ -434,6 +485,7 @@ public class MMC5 extends Mapper {
 	@Override
 	public byte ppureadPT(int index){
 		if(ppu.getSpriteSize()){
+			System.out.println("THEY BE BIG SPRITES");
 			if(ppu.spritefetch)
 				return CHR_ROM[index/0x400][index%0x400];
 			else{
@@ -443,5 +495,30 @@ public class MMC5 extends Mapper {
 		}
 		return CHR_ROM[index/0x400][index%0x400];
 	}
-
+	@Override
+	public void restoreSave(byte[] save){
+		for(int i = 0; i<8;i++){
+			System.arraycopy(save, i*0x2000, PRG_RAM_banks[i], 0, 0x2000);
+		}
+	}
+	public byte[] getSave(){
+		byte[] save = new byte[8*0x2000];
+		for(int i = 0; i<8;i++){
+			System.arraycopy(PRG_RAM_banks[i], 0, save, i*0x2000, 0x2000);
+		}
+		return save;
+	}
+	@Override
+	public void runFrame() {
+		while(!ppu.doneFrame){
+			ppu.doCycle();
+			ppu.doCycle();
+			ppu.doCycle();
+			cpu.run_cycle();
+			//if(dodebug)
+			//	cpu.debug(0);
+			apu.doCycle();				
+		}
+		ppu.doneFrame=false;
+	}
 }

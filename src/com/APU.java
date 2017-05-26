@@ -214,6 +214,7 @@ public class APU implements java.io.Serializable{
 	final double getAverageExpansion(Channel chan,int UserMix){
 		double d =((chan.getOutput()/cyclespersample)*(UserMix/100.0));
 		chan.total = 0;
+		//System.out.println(d);
 		return d;
 	}
 	public void sendOutput(){

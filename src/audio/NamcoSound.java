@@ -129,7 +129,7 @@ public class NamcoSound extends Channel {
 		return UserSettings.namcoMixLevel;
 	}
 	@Override
-	public double  getOutput(){
+	public double getOutput(){
 		//System.out.println(total);
 		double out = total *.00047;
 		total = 0;

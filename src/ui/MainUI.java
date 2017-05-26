@@ -251,7 +251,7 @@ public class MainUI extends JFrame {
 		chckbxmntmEnableAudio.setSelected(UserSettings.AudioEnabled);
 		mnNewMenu.add(chckbxmntmEnableAudio);
 		
-		JMenuItem mntmAudioMixer = new JMenuItem("Audio Mixer");
+		JMenuItem mntmAudioMixer = new JMenuItem("Audio Settings");
 		mntmAudioMixer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				sys.audiomixerWindow.setVisible(true);
