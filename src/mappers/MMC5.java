@@ -306,22 +306,22 @@ public class MMC5 extends Mapper {
 		case 0x5127:
 			chrbanksa[7] = val;setupCHR();lastbanksprite = true;break;
 		case 0x5128:
-			System.out.println("BG 0: "+val+" "+CHRbanks.length);
+			//System.out.println("BG 0: "+val+" "+CHRbanks.length);
 			chrbanksb[0] = val;setupCHR();lastbanksprite = false;break;
 		case 0x5129:
-			System.out.println("BG 1: "+val);
+			//System.out.println("BG 1: "+val);
 
 			chrbanksb[1] = val;setupCHR();lastbanksprite = false;break;
 		case 0x512a:
-			System.out.println("BG 2: "+val);
+			//System.out.println("BG 2: "+val);
 
 			chrbanksb[2] = val;setupCHR();lastbanksprite = false;break;
 		case 0x512b:
-			System.out.println("BG 3: "+val);
+			//System.out.println("BG 3: "+val);
 
 			chrbanksb[3] = val;setupCHR();lastbanksprite = false;break;
 		case 0x5130:
-			System.out.println("Writing upper chr bits "+ Integer.toHexString(cpu.program_counter));
+			//System.out.println("Writing upper chr bits "+ Integer.toHexString(cpu.program_counter));
 			if(cpu.program_counter==0x5c19)
 				dodebug = true;
 			upperchr = (val&3)<<8;
@@ -485,7 +485,7 @@ public class MMC5 extends Mapper {
 	@Override
 	public byte ppureadPT(int index){
 		if(ppu.getSpriteSize()){
-			System.out.println("THEY BE BIG SPRITES");
+			//System.out.println("THEY BE BIG SPRITES");
 			if(ppu.spritefetch)
 				return CHR_ROM[index/0x400][index%0x400];
 			else{

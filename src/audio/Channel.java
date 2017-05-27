@@ -151,6 +151,15 @@ public class Channel implements java.io.Serializable {
 	public int getOutputSettings(){
 		return 0;
 	}
+	public double getFrequency(){
+		return 0;
+	}
+	public Object[] getInfo(){
+		return new Object[0];
+	}
+	public String getName(){
+		return "";
+	}
 	public void buildOutput(){
 		total+=getOutput();
 	}

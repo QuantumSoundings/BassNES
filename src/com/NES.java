@@ -216,7 +216,7 @@ public class NES implements Runnable {
 		sx.close();
 	}
 	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/justbreed.nsf");
+		rom = new File(System.getProperty("user.dir")+"/kingofkings.nsf");
 		romName = rom.getName().substring(0,rom.getName().length()-4);
 		String ext = rom.getName().substring(rom.getName().lastIndexOf(".")+1);
 		switch(ext){
@@ -287,6 +287,9 @@ public class NES implements Runnable {
 			
 		}
 		sx.close();
+	}
+	public Object[][] getAudioChannelInfo(){
+		return map.apu.channelInfo();
 	}
 	
 	@SuppressWarnings("unused")

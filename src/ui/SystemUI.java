@@ -43,7 +43,7 @@ public class SystemUI {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		audio = new AudioInterface();
+		audio = new AudioInterface(this);
 		rom = new File("zelda.nes");
 		mainWindow = new MainUI(this);
 		//debugWindow = new DebugUI();
@@ -348,6 +348,9 @@ public class SystemUI {
 		audio.restartSDL();
 		audio.lock=false;
 		
+	}
+	public Object[][] getFreq(){
+		return nes.getAudioChannelInfo();
 	}
 	public void showscope(){
 		audio.showscope();

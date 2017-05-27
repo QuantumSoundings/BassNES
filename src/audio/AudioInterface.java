@@ -5,20 +5,23 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
-import ui.Scope;
+import ui.Visualizer;
+import ui.SystemUI;
 import ui.UserSettings;
 
 public class AudioInterface implements java.io.Serializable {
 	private static final long serialVersionUID = 25781276857491755L;
 	transient SourceDataLine sdl;
+	SystemUI sys;
 	transient byte[] audiobuffer;
 	transient int[] audioints;
 	int bufptr = 0;	
 	public boolean lock;
 	public boolean inaudio;
-	Scope scope;
-	public AudioInterface(){
-		scope = new Scope();
+	Visualizer scope;
+	public AudioInterface(SystemUI s){
+		sys = s;
+		scope = new Visualizer();
 		restartSDL();
 	}
 	public void restartSDL(){
@@ -62,6 +65,7 @@ public class AudioInterface implements java.io.Serializable {
 				sdl.write(audiobuffer,0,audiobuffer.length);
 				if(scope.isVisible()){
 					if(scopefrequency==scopecount++){
+						scope.setFreq(sys.getFreq());
 						scope.paintscope();
 						scopecount = 0;
 					}

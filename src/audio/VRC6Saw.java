@@ -74,6 +74,21 @@ public class VRC6Saw extends Channel {
 		return UserSettings.vrc6MixLevel;
 	}
 	@Override
+	public double getFrequency(){
+		if(!enable||accumRate==0)
+			return 0;
+		return 1789773 / (14.0 * (timer + 1));
+	}
+	private final String name = "VRC6 Saw";
+	@Override
+	public Object[] getInfo(){
+		return new Object[]{name,getFrequency()};
+	}
+	@Override
+	public String getName(){
+		return "VRC6 Saw";
+	}
+	@Override
 	public double getOutput(){
 		return total * 0.00376;
 		

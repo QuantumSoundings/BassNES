@@ -65,17 +65,19 @@ public class Triangle extends Channel {
 	@Override
 	public final void clockTimer(){
 		if(tcount==0){
-			sequenceNum=(sequenceNum+1)%32;
+			if(linearcount==0||lengthcount==0){}
+			else
+				sequenceNum=(sequenceNum+1)%32;
 			tcount=timer;
 		}
 		else
 			tcount--;
 		//odd=!odd;
 		//if(odd){	
-			if(linearcount==0||lengthcount==0){
+			
 			//sequenceNum = 8;
-			return;
-			}	
+			//return;
+			//}	
 			total+= sequencer[sequenceNum];
 		//}
 		
@@ -86,6 +88,21 @@ public class Triangle extends Channel {
 			return 0;
 		else
 			return sequencer[sequenceNum];
+	}
+	private final String name = "Triangle";
+	@Override
+	public Object[] getInfo(){
+		return new Object[]{name,getFrequency()};
+	}
+	@Override
+	public double getFrequency(){
+		if(getOutput()==0)
+			return 0;
+		return 1789773 / (32.0 * (timer + 1));
+	}
+	@Override
+	public String getName(){
+		return "Triangle";
 	}
 	@Override
 	public void buildOutput(){

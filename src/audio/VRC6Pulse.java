@@ -76,6 +76,21 @@ public class VRC6Pulse extends Channel {
 		return UserSettings.vrc6MixLevel;
 	}
 	@Override
+	public double getFrequency(){
+		if(!enable)
+			return 0;
+		return 1789773 / (16.0 * (timer + 1));
+	}
+	private final String name = "VRC6 Pulse";
+	@Override
+	public Object[] getInfo(){
+		return new Object[]{name,getFrequency()};
+	}
+	@Override
+	public String getName(){
+		return "VRC6 Pulse";
+	}
+	@Override
 	public double getOutput(){
 		return total * 0.00376;
 		

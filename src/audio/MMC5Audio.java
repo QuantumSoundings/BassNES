@@ -118,7 +118,7 @@ public class MMC5Audio extends Channel{
 	@Override
 	public double getOutput(){
 		//System.out.println("total: "+total +" p1: "+pulse1.total+" p2: "+pulse2.total);
-		double out = total*0.00376;
+		double out = total*0.00216;
 		total = 0;
 		out += pulse1.total*0.00376;
 		pulse1.total=0;
@@ -129,6 +129,16 @@ public class MMC5Audio extends Channel{
 	@Override
 	public int getOutputSettings(){
 		return UserSettings.mmc5MixLevel;
+	}
+	private final String name1 = "MMC5 Pulse 1";
+	private final String name2 = "MMC5 Pulse 2";
+	@Override
+	public Object[] getInfo(){
+		return new Object[]{name1,pulse1.getFrequency(),name2,pulse2.getFrequency()};
+	}
+	@Override
+	public String getName(){
+		return "MMC5 Audio";
 	}
 	@Override
 	public int getUserMixLevel(){

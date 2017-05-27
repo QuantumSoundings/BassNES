@@ -18,6 +18,7 @@ public class Pulse extends Channel {
 		super();
 		p1=number;
 		duty = 0;
+		name = getName();
 	}
 	@Override
 	public final void clockTimer(){
@@ -115,9 +116,24 @@ public class Pulse extends Channel {
 	}
 	@Override
 	public double getOutput(){
-		if(lengthcount==0||!output||decay==0||timer<8)
+		if(lengthcount==0||decay==0||timer<8)
 			return 0;
 		return decay;
+	}
+	@Override
+	public double getFrequency(){
+		if(getOutput()==0)
+			return 0;
+		return 1789773 / (16.0 * (timer + 1));
+	}
+	@Override
+	public Object[] getInfo(){
+		return new Object[]{name,getFrequency()};
+	}
+	private final String name;
+	@Override
+	public String getName(){
+		return "Pulse "+(p1?"1":"2");
 	}
 	@Override
 	public void buildOutput(){

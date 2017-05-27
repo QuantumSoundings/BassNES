@@ -56,11 +56,13 @@ public class APU implements java.io.Serializable{
 		cpucounter = 10;
 		expansion = false;
 		writeRegister(0x4015,(byte)0);
+		freq = new Object[3][2];
 	}
 	public void addExpansionChannel(Channel chan){
 		expansionAudio.add(chan);
 		//expansionAudioArray = (Channel[]) expansionAudio.toArray();
 		expansion = true;
+		freq = new Object[3+expansionAudio.size()][];
 	}
 	public void updateaudio(){
 		cyclespersample = 1789773.0/UserSettings.sampleRate;
@@ -204,6 +206,16 @@ public class APU implements java.io.Serializable{
 				frameInterrupt=true;
 			}
 		}
+	}
+	Object[][] freq;
+	public Object[][] channelInfo(){
+		freq[0] = pulse1.getInfo();
+		freq[1] = pulse2.getInfo();
+		freq[2] = triangle.getInfo();
+		int i = 3;
+		for(Channel chan: expansionAudio)
+			freq[i++] = chan.getInfo();
+		return freq;
 	}
 	//Audio Mixing methods
 	final double getAverageSample(Channel chan,int UserMix){

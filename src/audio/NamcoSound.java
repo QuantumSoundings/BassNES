@@ -20,7 +20,7 @@ public class NamcoSound extends Channel {
 	private boolean[] enables;
 	private int currentchannel;
 	private int outputlevel;
-	
+	private int enabledChannels;
 	public NamcoSound(byte[] sound){
 		phase = new int[8];
 		wavelength = new int[8];
@@ -110,6 +110,11 @@ public class NamcoSound extends Channel {
 			else
 				enables[i]=false;
 		}
+		enabledChannels= 0;
+		for(boolean t:enables)
+			if(t)
+				enabledChannels++;
+		
 	}
 	private void sumoutput(){
 		outputlevel = 0;
@@ -127,6 +132,19 @@ public class NamcoSound extends Channel {
 	@Override
 	public int getUserMixLevel(){
 		return UserSettings.namcoMixLevel;
+	}
+	@Override
+	public Object[] getInfo(){
+		Object[] out = new Object[2*enabledChannels];
+		int x = 0;
+		for(int i = 8-enabledChannels;i<8;i++){
+			out[x++] = "Channel "+i;
+			out[x++] = getFrequency(i);
+		}
+		return out;
+	}
+	public double getFrequency(int channel){
+		return (1789773.0 * timers[channel])/(15 * 65536 * wavelength[channel]);// * enabledChannels);
 	}
 	@Override
 	public double getOutput(){
