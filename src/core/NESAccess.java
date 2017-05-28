@@ -20,7 +20,7 @@ public interface NESAccess {
 	public void unpause();
 	/**
 	 * 
-	 * @return - A double representing the amount of frames proccessed in the last second.
+	 * @return - A double representing the amount of frames processed in the last second.
 	 */
 	public double getFPS();
 	
@@ -35,8 +35,10 @@ public interface NESAccess {
 	 * @param rate- Rate in Hz.
 	 */
 	public void setSampleRate(int rate);
-	
-	
+	/**
+	 * Causes the thread running the NES instance to terminate.
+	 */
+	public void exit();
 	public void saveState(String slot) throws IOException;
 	public void restoreState(String slot) throws IOException, ClassNotFoundException;
 	

@@ -23,11 +23,6 @@ public class KeyChecker implements KeyListener, java.io.Serializable {
 	private boolean left2=false;
 	private boolean right2=false;
 	private boolean debug=false;
-	private boolean nsfpause = false;
-	private boolean nsfnext = false;
-	private boolean nsfprev = false;
-	private boolean nsfplayforever=false;
-	private boolean nsfloop = false;
 	//controller bindings
 	int debugkey=KeyEvent.VK_P;
 	@Override
@@ -68,17 +63,6 @@ public class KeyChecker implements KeyListener, java.io.Serializable {
 			start2 = true;
 		else if(key == UserSettings.c2select)
 			select2 = true;
-		
-		if(key==UserSettings.nsfpause)
-			nsfpause = !nsfpause;
-		else if(key==UserSettings.nsfnext)
-			nsfnext = true;
-		else if(key==UserSettings.nsfprev)
-			nsfprev = true;
-		else if(key==UserSettings.nsfloop)
-			nsfloop = !nsfloop;
-		else if(key==UserSettings.nsfplayforever)
-			nsfplayforever = !nsfplayforever;
 		
 		
 		if(key == debugkey)
@@ -121,18 +105,12 @@ public class KeyChecker implements KeyListener, java.io.Serializable {
 			start2 = false;
 		else if(key == UserSettings.c2select)
 			select2 = false;
-		
-		if(key==UserSettings.nsfnext)
-			nsfnext = false;
-		else if(key==UserSettings.nsfprev)
-			nsfprev = false;
 		//else if(key == debugkey)
 		//	debug = !debug;
 	}
 	public boolean[][] currentKeys(){
 		return new boolean[][]{{a,b,select,start,up, !up && down,left, !left && right},
-		{a2,b2,select2,start2,up2, !up2 && down2,left2, !left2 && right2},
-		{nsfpause,nsfnext,nsfprev,nsfplayforever,nsfloop}};
+		{a2,b2,select2,start2,up2, !up2 && down2,left2, !left2 && right2}};
 	}
 	@Override
 	public void keyTyped(KeyEvent arg0) {

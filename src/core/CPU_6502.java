@@ -10,19 +10,21 @@ public class CPU_6502 implements java.io.Serializable{
 	private static final long serialVersionUID = -5451202977751017819L;
 	final Mapper map;
 	boolean showInvalid=false;
-	/*immediate 0
-	zero 1
-	zerox 2
-	zeroy 3
-	absolute 4
-	absolutex 5
-	absolutey 6
-	(indirect,x) 7
-	(indirect),y 8
-	accumulator 9
-	relative 10
-	implied 11*/
-	
+	/**
+	 * Addressing modes for the cpu:
+	 * immediate 0
+	 * zero 1
+	 * zerox 2
+	 * zeroy 3
+	 * absolute 4
+	 * absolutex 5
+	 * absolutey 6
+	 * (indirect,x) 7
+	 * (indirect),y 8
+	 * accumulator 9
+	 * relative 10
+	 * implied 11
+	 */
 	//registers
 	public int program_counter;
 	private byte stack_pointer;
@@ -69,32 +71,18 @@ public class CPU_6502 implements java.io.Serializable{
 			"TAY","LDA","TAX","ATX","LDY","LDA","LDX","LAX","BCS","LDA","","LAX","LDY","LDA","LDX","LAX","CLV","LDA","TSX","LAS","LDY","LDA","LDX","LAX","CPY","CMP","SKB","DCP","CPY","CMP","DEC","DCP","INY","CMP","DEX",
 			"AXS","CPY","CMP","DEC","DCP","BNE","CMP","","DCP","SKB","CMP","DEC","DCP","CLD","CMP","NOP16","DCP","SKW","CMP","DEC","DCP","CPX","SBC","SKB","ISB","CPX","SBC","INC","ISB","INX","SBC","NOP","SBC","CPX","SBC",
 			"INC","ISB","BEQ","SBC","","ISB","SKB","SBC","INC","ISB","SED","SBC","NOP17","ISB","SKW","SBC","INC","ISB"};
-    //public Hashtable<Byte,String> inst_name;//instruction name
+	
 	public CPU_6502(Mapper mapper) {
 		map = mapper;
-		//Scanner s;
-		//inst_name = new Hashtable<Byte,String>();
-		//s = new Scanner((this.getClass().getResourceAsStream("cpu_instructions.txt")));
-		/*while(s.hasNext()){
-			byte x = Integer.valueOf(s.next(), 16).byteValue();
-			s.nextInt();
-			s.nextInt();
-            //inst_type[Byte.toUnsignedInt(x)]=type;
-            //inst_mode[Byte.toUnsignedInt(x)]=mode;
-			inst_name.put(x, s.next());
-			s.nextInt();
-            //inst_len[Byte.toUnsignedInt(x)] = len;
-		}
-		s.close();*/
 		instruction_cycle = 1;
 		stack_pointer = (byte)0xfd;
 		setFlags((byte)0x34);
 	}
-	int stallcount;
+	private int stallcount;
 	public void stall(int i){
 		stallcount = i;
 	}
-	byte dmadata;
+	private byte dmadata;
 	public void run_cycle(){
 		if(stallcount>0){
 			stallcount--;
@@ -105,6 +93,9 @@ public class CPU_6502 implements java.io.Serializable{
 		else
 			executeInstruction();
 	}
+	/**
+	 * Executes a DMA read/copy.
+	 */
 	private void dma(){
 		if(dmac ==513){
 			dmac =0;
@@ -114,8 +105,6 @@ public class CPU_6502 implements java.io.Serializable{
 		}
 		else if(dmac==0){
 			dmac++;
-			//dxx = map.cpureadu(0x4014)<<8;
-			//dxx<<=8;
 			dmadata = map.cpuread(dxx+cpuinc);
 			dmain = map.ppu.OAMADDR;
 		}

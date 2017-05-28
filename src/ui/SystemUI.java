@@ -44,7 +44,7 @@ public class SystemUI implements NESCallback {
 			e1.printStackTrace();
 		}
 		audio = new AudioInterface(this);
-		rom = new File("zelda.nes");
+		rom = new File("allstars.nes");
 		mainWindow = new MainUI(this);
 		//debugWindow = new DebugUI();
 		keyconfigWindow = new ControlUI(prop,this);
@@ -268,7 +268,7 @@ public class SystemUI implements NESCallback {
 			testrom(10000/speed, new File(System.getProperty("user.dir")+"/tests/holydiver/M1_P128K_C128K_S8K.nes"),0);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
         }*/
-		nes.flag=false;
+		nes.exit();
 		testoutput+= "\n\n Overall results: "+totalpass+"/"+total+" Passed     " +(regression>0?regression+" Regressions":"");
 		System.out.println(testoutput);
 		UserSettings.frameLimit=true;
@@ -289,7 +289,7 @@ public class SystemUI implements NESCallback {
 	}
 	void reset() throws InterruptedException{
 		if(nes!=null)
-			nes.flag=false;
+			nes.exit();
 		Thread.sleep(500);
 	}
 	int getHash(BufferedImage bufferedImage){
@@ -304,21 +304,22 @@ public class SystemUI implements NESCallback {
 		Thread.sleep(delay);
 	}
 	public void saveState(int slot){
-		nes.pause=true;
+		nes.pause();
 		try {
 			nes.saveState("savestateY.txt".replaceAll("Y", slot+""));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		nes.pause=false;
+		nes.unpause();
 	}
 	public void restoreState(int slot){
-		nes.pause=true;
+		nes.pause();
 		try {
 			nes.restoreState("savestateY.txt".replaceAll("Y", slot+""));
 		} catch (ClassNotFoundException | IOException e) {
 			e.printStackTrace();
 		}
+		nes.unpause();
 	}
 	public boolean[][] pollController(){
 		return keys.currentKeys();	

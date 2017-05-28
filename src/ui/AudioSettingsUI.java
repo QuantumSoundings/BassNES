@@ -54,9 +54,12 @@ public class AudioSettingsUI extends JFrame {
 				String s = cb.getSelectedItem().toString();
 				int index =Arrays.asList(samplingrates).indexOf(s);
 				switch(index){
-				case 0: UserSettings.sampleRate = 44100;break;
-				case 1: UserSettings.sampleRate = 48000;break;
-				case 2: UserSettings.sampleRate = 96000;break;
+				case 0: UserSettings.sampleRate = 44100;
+					sys.nes.setSampleRate(44100);break;
+				case 1: UserSettings.sampleRate = 48000;
+					sys.nes.setSampleRate(44100);break;
+				case 2: UserSettings.sampleRate = 96000;
+					sys.nes.setSampleRate(44100);break;
 				}
 				sys.resetaudio();	
 			}

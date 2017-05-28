@@ -13,6 +13,8 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import core.NES;
 
@@ -34,7 +36,13 @@ public class MainUI extends JFrame {
         //noinspection MagicConstant
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 256, 240);
-		
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		menuBar.setPreferredSize(new Dimension(240,25));
@@ -47,7 +55,7 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(!sys.rom.equals(null)){
 					if(sys.nes!=null)
-						sys.nes.flag=false;
+						sys.nes.exit();
 					try {
 						Thread.sleep(500);
 					} catch (InterruptedException e1) {
@@ -66,7 +74,7 @@ public class MainUI extends JFrame {
 					sys.rom = sys.fc.getSelectedFile();
 					if(UserSettings.autoLoad){
 						if(sys.nes!=null)
-							sys.nes.flag=false;
+							sys.nes.exit();
 						sys.nes = new NES(sys.rom,sys);
 						sys.current = new Thread(sys.nes);
 						sys.current.start();
@@ -357,7 +365,7 @@ public class MainUI extends JFrame {
 			@Override
 			public void windowClosing(WindowEvent evt){
 				if(sys.nes!=null)
-					sys.nes.flag=false;
+					sys.nes.exit();
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
