@@ -7,7 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import video.NesColors;
+import core.video.NesColors;
 
 public class UserSettings {
 	static Properties prop;

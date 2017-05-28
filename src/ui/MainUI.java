@@ -2,10 +2,6 @@ package ui;
 
 
 import javax.swing.JFrame;
-
-import com.NES;
-
-
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -17,6 +13,8 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
+
+import core.NES;
 
 import java.awt.event.ActionListener;
 import java.awt.Dimension;

@@ -7,7 +7,9 @@ import java.awt.Graphics;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import video.NesColors;
+
+import core.video.NesColors;
+
 import javax.swing.JTabbedPane;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;

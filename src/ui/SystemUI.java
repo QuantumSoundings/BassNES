@@ -14,10 +14,8 @@ import java.util.Properties;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
-import com.NES;
-import com.NESCallback;
-
-import video.NesDisplay;
+import core.NES;
+import core.NESCallback;
 interface UpdateEventListener extends EventListener{
 	public void doVideoFrame();
 	public void doAudioFrame();
