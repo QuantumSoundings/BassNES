@@ -1,6 +1,4 @@
-package com;
-
-import ui.SystemUI;
+package ui;
 
 public class Emulator {
 	public static void main(String[] args) {

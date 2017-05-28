@@ -381,7 +381,7 @@ public class MMC5 extends Mapper {
 	private int irqscanline;
 	private int irqcounter;
 	private boolean doingIRQ;
-	private boolean inFrame;
+	//private boolean inFrame;
 	private boolean irqEnable;
 	private boolean irqpending;
 	private boolean multlowready;

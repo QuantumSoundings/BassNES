@@ -63,7 +63,10 @@ public class NSFPlayer extends Mapper{
 	boolean pause = false;
 	boolean primednext;
 	boolean primedprev;
+	boolean prevpause;
+	boolean prevlooping;
 	boolean looping = false;
+	boolean prevforever;
 	boolean playingforever = false;
 	
 	/*****************************************
@@ -408,11 +411,11 @@ public class NSFPlayer extends Mapper{
 		g.drawString("Track "+(currentsong+1)+"/"+totalsongs+"         "+timeformat(tracktimer)+"/"+tracktimestring
 				, 0, 230);
 		g.setFont(smallfont);
-		g.drawString("Next Track: "+KeyEvent.getKeyText(UserSettings.nsfnext), 0, 35);
-		g.drawString("Prev Track: "+KeyEvent.getKeyText(UserSettings.nsfprev), 0, 45);
-		g.drawString("Pause: "+KeyEvent.getKeyText(UserSettings.nsfpause), 0, 55);
-		g.drawString("Loop: "+KeyEvent.getKeyText(UserSettings.nsfloop), 0, 65);
-		g.drawString("Forever Mode: "+KeyEvent.getKeyText(UserSettings.nsfplayforever), 0, 75);
+		g.drawString("Next Track: "+KeyEvent.getKeyText(UserSettings.c1right), 0, 35);
+		g.drawString("Prev Track: "+KeyEvent.getKeyText(UserSettings.c1left), 0, 45);
+		g.drawString("Pause: "+KeyEvent.getKeyText(UserSettings.c1start), 0, 55);
+		g.drawString("Loop: "+KeyEvent.getKeyText(UserSettings.c1a), 0, 65);
+		g.drawString("Forever Mode: "+KeyEvent.getKeyText(UserSettings.c1b), 0, 75);
 		g.drawString((!pause?"Playing":"Paused"), 0, 115);
 		g.drawString((playingforever?"Playing Current Song Forever":""), 0, 125);
 		g.drawString((looping?"Looping Current Song":""), 0, 135);
@@ -420,9 +423,12 @@ public class NSFPlayer extends Mapper{
 		image.getRGB(0, 0, 256, 240, ppu.renderer.colorized, 0, 256);	
 	}
 	private void pollPlayerControls(){
-		boolean[] controls =system.pollController()[2];
-		pause = controls[0];
-		if(controls[1]){
+		boolean[] controls =system.pollController()[0];
+		if(!prevpause&&controls[3]){
+			pause = !pause;
+		}
+		prevpause = controls[3];
+		if(controls[7]){
 			primednext = true;
 		}
 		else{
@@ -430,7 +436,7 @@ public class NSFPlayer extends Mapper{
 				nextTrack();
 			primednext = false;
 		}
-		if(controls[2]){
+		if(controls[6]){
 			primedprev = true;
 		}
 		else{
@@ -438,8 +444,12 @@ public class NSFPlayer extends Mapper{
 				prevTrack();
 			primedprev = false;
 		}
-		playingforever = controls[3];
-		looping = controls[4];
+		if(!prevforever&&controls[1])
+			playingforever = !playingforever;
+		prevforever = controls[1];
+		if(!prevlooping&&controls[0])
+			looping = !looping;
+		prevlooping = controls[0];
 	}
 	
 	@Override

@@ -15,13 +15,14 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
 import com.NES;
+import com.NESCallback;
 
-import audio.AudioInterface;
 import video.NesDisplay;
 interface UpdateEventListener extends EventListener{
-	public void doframe();
+	public void doVideoFrame();
+	public void doAudioFrame();
 }
-public class SystemUI {
+public class SystemUI implements NESCallback {
 	public NES nes;
 	final JFileChooser fc = new JFileChooser();
 	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow;
@@ -30,6 +31,7 @@ public class SystemUI {
 	private KeyChecker keys;
 	public UpdateEventListener listener;
 	private int[] pixels;
+	private int[] audiobuffer;
 	Thread current;
 	Thread render;
 	Properties prop;
@@ -55,9 +57,12 @@ public class SystemUI {
 		display.setSize(256, 240);
 		display.updateScaling(2);		
 		listener = new UpdateEventListener(){
-            public void doframe() {
+            public void doVideoFrame() {
                display.sendFrame(pixels);
            }
+            public void doAudioFrame(){
+            	audio.setAudioFrame(audiobuffer);
+            }
        };
        setupMainWindow();
 		/*try {
@@ -325,15 +330,18 @@ public class SystemUI {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 	        public void run(){
-				listener.doframe();
+				listener.doVideoFrame();
 	        }
 	    });
 	}
-	public void audioFrameCallback(){
-		while(audio.lock);
-		audio.inaudio = true;
-		audio.sendsample();
-		audio.inaudio = false;
+	public void audioFrameCallback(int[] audioInts){
+		audiobuffer = audioInts;
+		EventQueue.invokeLater(new Runnable() {
+			@Override
+			public void run(){
+				listener.doAudioFrame();
+			}
+		});
 	}
 	public void audioSampleCallback(int audiosample){
 		audio.outputSample(audiosample);
@@ -344,12 +352,11 @@ public class SystemUI {
 	public void resetaudio(){
 		while(audio.inaudio);
 		audio.lock=true;
-		nes.restartaudio();
+		nes.setSampleRate(UserSettings.sampleRate);
 		audio.restartSDL();
-		audio.lock=false;
-		
+		audio.lock=false;	
 	}
-	public Object[][] getFreq(){
+	public Object[][] AudioChannelInfoCallback(){
 		return nes.getAudioChannelInfo();
 	}
 	public void showscope(){

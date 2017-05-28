@@ -185,7 +185,7 @@ public class Visualizer extends JFrame {
 			for(int i = 0; i<chan.length;i+=2){
 				double r = search((double)chan[i+1]);
 				int index = Arrays.binarySearch(notefreq, r);
-				if(notename[index].length()>0&&freqs.indexOf(notename[index])==-1){//&&((String)chan[0]).equals("VRC6 Saw")){
+				if(notename[index].length()>0&&freqs.indexOf(notename[index])==-1){
 					colorKey(notename[index]);
 					freqs.append(notename[index]);
 				}

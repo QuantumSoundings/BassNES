@@ -259,7 +259,7 @@ public class MainUI extends JFrame {
 		});
 		mnNewMenu.add(mntmAudioMixer);
 		
-		JMenuItem mntmShowOscillascope = new JMenuItem("Show Oscilloscope");
+		JMenuItem mntmShowOscillascope = new JMenuItem("Show Visualizer");
 		mntmShowOscillascope.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				sys.showscope();

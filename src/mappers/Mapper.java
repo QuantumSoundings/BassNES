@@ -5,15 +5,15 @@ import com.APU;
 import com.CPU_6502;
 import com.Controller;
 import com.NES;
+import com.NESCallback;
 import com.ppu2C02;
-
-import ui.SystemUI;
+//import ui.SystemUI;
 public class Mapper implements java.io.Serializable {//There will be class that inherit this class. Better to have all reads and writes go through this
 	private static final long serialVersionUID = 6655950169350506050L;
 	public static enum Mirror{Horizontal,Vertical,SingleScreenLow,SingleScreenHigh};
 	
 	//for callback
-	public transient SystemUI system;
+	public transient NESCallback system;
 	
 	//System Components
 	transient NES nes;
@@ -65,7 +65,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		control = cont;
 		control2 = cont2;
 	}
-	public void setSystem(SystemUI sys){system = sys;}
+	public void setSystem(NESCallback system2){system = system2;}
 	public void setNes(NES n){ nes = n;}
 	public void setMirror(int i){
 		mirrormode= (i == 0);

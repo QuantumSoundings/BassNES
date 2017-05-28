@@ -2,7 +2,6 @@ package com;
 import java.io.File;
 
 import mappers.Mapper;
-import ui.SystemUI;
 import ui.UserSettings;
 
 import java.io.FileInputStream;
@@ -13,34 +12,33 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class NES implements Runnable {
+public class NES implements Runnable,NESAccess {
 	private volatile Mapper map;
 	private String romName;
-	private SystemUI system;
+	private NESCallback system;
 	File save;
 	
 	//clock settings NTSC
 	//Master clock speed.
-	int systemclock = 21477272;
-	final int cpudiv = 12;
-	final int palcpudiv = 16;
+	//int systemclock = 21477272;
+	//final int cpudiv = 12;
+	//final int palcpudiv = 16;
 	//final int apudiv = 24;
-	final int ppudiv = 4;
-	final int palppudiv = 5;
-	public int cpuclock=0;
-	private int mclock;
+	//final int ppudiv = 4;
+	//final int palppudiv = 5;
+	//public int cpuclock=0;
+	//private int mclock;
 	
 	boolean batteryExists;
 	boolean pal;
 	public volatile boolean flag = true;
 	public volatile boolean doaudio = true;
 	public volatile boolean pause = false;
-	
+	private boolean pauseConfirmed = false;
 	//Frame rate/timing variables
 	private long frameStartTime;
 	private long frameStopTime;
 	private long fpsStartTime;
-	//private long fpsStopTime;
 	private double currentFPS;
 	private int framecount=0;
 	
@@ -48,7 +46,7 @@ public class NES implements Runnable {
 	//private int p=0;
 	//private double c =0.0;
 	
-	public NES(File rom,SystemUI s){
+	public NES(File rom,NESCallback s){
 		system = s;
 		try {
 			loadrom(rom);
@@ -61,8 +59,6 @@ public class NES implements Runnable {
 	}
 	public void run(){
 		System.out.println("NES STARTED RUNNING");
-		if(pal)
-			palrun();
 		while(flag){
 			runFrame();
 			if(pause){
@@ -82,21 +78,7 @@ public class NES implements Runnable {
 				e.printStackTrace();
 			}
 	}
-	public void palrun(){
-		while(flag){
-			runPalFrame();
-			if(pause){
-				while(pause){
-					try{
-						Thread.sleep(200);
-					} catch(InterruptedException e){
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-	}
-	public void runPalFrame(){
+	/*public void runPalFrame(){
 		frameStartTime = System.nanoTime();
 		while(!map.ppu.doneFrame){
 			if(mclock%palcpudiv==0){
@@ -125,7 +107,7 @@ public class NES implements Runnable {
 			fpsStartTime=System.currentTimeMillis();
 		}
 		framecount++;
-	}
+	}*/
 	boolean dodebug;
 	public void runFrame(){
 		frameStartTime = System.nanoTime();
@@ -174,17 +156,24 @@ public class NES implements Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		//map.apu.mix.audio.close();
 		map = (Mapper) in.readObject();
 		map.apu = (APU) in.readObject();
-		//map.apu.mix.audio.restartSDL();
 		map.cpu = (CPU_6502) in.readObject();
 		map.ppu = (ppu2C02) in.readObject();
 		map.setSystem(system);
 		in.close();
 		pause = false;
 	}
-	public void pause(){pause = true;}
+	public void pause(){
+		pause = true;
+		while(!pauseConfirmed){
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		};
+	}
 	public void unpause(){pause=false;}
 	public void loadSave() throws IOException{
 		save = new File(romName+".sav");
@@ -200,9 +189,6 @@ public class NES implements Runnable {
 		else
 			System.out.println("Save not found!");
 	}
-	public void restartaudio(){
-		map.apu.updateaudio();
-	}
 	public void saveGame() throws IOException{
 		System.out.println("Attempting to save game.");
 		save = new File(romName+".sav");
@@ -215,8 +201,8 @@ public class NES implements Runnable {
 		sx.write(savearray);
 		sx.close();
 	}
-	public void loadrom(File rom) throws IOException{
-		rom = new File(System.getProperty("user.dir")+"/kingofkings.nsf");
+	private void loadrom(File rom) throws IOException{
+		rom = new File(System.getProperty("user.dir")+"/cv3j.nsf");
 		romName = rom.getName().substring(0,rom.getName().length()-4);
 		String ext = rom.getName().substring(rom.getName().lastIndexOf(".")+1);
 		switch(ext){
@@ -283,15 +269,18 @@ public class NES implements Runnable {
 			map.addExtraAudio(extrasoundchips);
 			map.setNSFVariables(dataplayaddr, datainitaddr, playspeed,startsong,totalsongs,tuneregion,songname,artistname);
 			map.setCHR(new byte[0]);
-			map.setSystem(system);
-			
+			map.setSystem(system);			
 		}
 		sx.close();
 	}
+	
+	
 	public Object[][] getAudioChannelInfo(){
 		return map.apu.channelInfo();
 	}
-	
+	public void setSampleRate(int rate){
+		map.apu.setSampleRate(rate);
+	}
 	@SuppressWarnings("unused")
 	private void debug(){
 		Scanner s = new Scanner(System.in);

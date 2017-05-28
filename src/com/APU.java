@@ -25,6 +25,8 @@ public class APU implements java.io.Serializable{
 	private double cyclespersample;
 	private int intcyclespersample;
 	private int samplenum;
+	public int[] samples;
+	int sampleptr;
 	//public final AudioMixer mix;
 	
 	
@@ -57,6 +59,7 @@ public class APU implements java.io.Serializable{
 		expansion = false;
 		writeRegister(0x4015,(byte)0);
 		freq = new Object[3][2];
+		samples = new int[1000];
 	}
 	public void addExpansionChannel(Channel chan){
 		expansionAudio.add(chan);
@@ -64,8 +67,8 @@ public class APU implements java.io.Serializable{
 		expansion = true;
 		freq = new Object[3+expansionAudio.size()][];
 	}
-	public void updateaudio(){
-		cyclespersample = 1789773.0/UserSettings.sampleRate;
+	public void setSampleRate(int rate){
+		cyclespersample = 1789773.0/rate;
 		intcyclespersample = (int)cyclespersample;
 	}
 	public void writeRegister(int index,byte b){
@@ -229,6 +232,10 @@ public class APU implements java.io.Serializable{
 		//System.out.println(d);
 		return d;
 	}
+	public void resetAudioBuffer(){
+		samples = new int[UserSettings.sampleRate/60+10];
+		sampleptr = 0;
+	}
 	public void sendOutput(){
 		double p1 = getAverageSample(pulse1,UserSettings.pulse1MixLevel);
 		double p2 = getAverageSample(pulse2,UserSettings.pulse2MixLevel);
@@ -243,6 +250,11 @@ public class APU implements java.io.Serializable{
 			expansion+= getAverageExpansion(chan,chan.getUserMixLevel());
 		sample+=expansion;
 		sample = ((sample*30000)*(UserSettings.masterMixLevel/100.0));
+		//try{
+		//samples[sampleptr++] = (int) sample;
+		//}catch(Exception e){
+		//	System.out.println(sampleptr +" "+ (UserSettings.sampleRate/60.0));
+		//}
 		map.system.audioSampleCallback((int)sample);
 		//System.out.println(sample);
 	}

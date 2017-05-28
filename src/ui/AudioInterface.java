@@ -1,13 +1,9 @@
-package audio;
+package ui;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
-
-import ui.Visualizer;
-import ui.SystemUI;
-import ui.UserSettings;
 
 public class AudioInterface implements java.io.Serializable {
 	private static final long serialVersionUID = 25781276857491755L;
@@ -52,6 +48,11 @@ public class AudioInterface implements java.io.Serializable {
 			sendsample();
 		}
 	}
+	public void setAudioFrame(int[] audiobuf){
+		audioints = audiobuf;
+		audiobuffer = new byte[audioints.length*4];
+		sendsample();
+	}
 	public void sendsample(){
 		lowpass();	
 		for(int i: audioints){
@@ -65,7 +66,8 @@ public class AudioInterface implements java.io.Serializable {
 				sdl.write(audiobuffer,0,audiobuffer.length);
 				if(scope.isVisible()){
 					if(scopefrequency==scopecount++){
-						scope.setFreq(sys.getFreq());
+						scope.setAudio(audioints);
+						scope.setFreq(sys.AudioChannelInfoCallback());
 						scope.paintscope();
 						scopecount = 0;
 					}
