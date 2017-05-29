@@ -16,7 +16,6 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import core.NES;
 
 import java.awt.event.ActionListener;
 import java.awt.Dimension;
@@ -33,7 +32,6 @@ public class MainUI extends JFrame {
 		
 		setTitle("Nes Emulator");
 		sys = s;
-        //noinspection MagicConstant
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 256, 240);
 		try {
@@ -61,7 +59,7 @@ public class MainUI extends JFrame {
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
-					sys.nes = new NES(sys.rom,sys);
+					sys.createNES(sys.rom);
 					sys.current = new Thread(sys.nes);
 					sys.current.start();
 				}
@@ -75,7 +73,7 @@ public class MainUI extends JFrame {
 					if(UserSettings.autoLoad){
 						if(sys.nes!=null)
 							sys.nes.exit();
-						sys.nes = new NES(sys.rom,sys);
+						sys.createNES(sys.rom);
 						sys.current = new Thread(sys.nes);
 						sys.current.start();
 					}
@@ -357,6 +355,15 @@ public class MainUI extends JFrame {
 			}
 		});
 		mnDebug.add(chckbxmntmShowDebug);
+		
+		JMenuItem mntmDebugInfo = new JMenuItem("Debug Info");
+		mntmDebugInfo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sys.nes.pause();
+				sys.debugInfo.setVisible(true);
+			}
+		});
+		mnDebug.add(mntmDebugInfo);
 		//contentPane = new JPanel();
 		//contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		//contentPane.setLayout(new BorderLayout(0, 0));

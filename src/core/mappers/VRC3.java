@@ -2,6 +2,8 @@ package core.mappers;
 
 import java.util.Arrays;
 
+import core.CPU_6502.IRQSource;
+
 public class VRC3 extends Mapper {
 
 	/**
@@ -52,13 +54,13 @@ public class VRC3 extends Mapper {
 				irqcounter = irqlatch;
 			}
 			if(doingIRQ){
-				cpu.doIRQ--;
+				cpu.removeIRQ(IRQSource.External);
 				doingIRQ=false;
 			}
 		}
 		else if(index<=0xdfff){
 			if(doingIRQ){
-				cpu.doIRQ--;
+				cpu.removeIRQ(IRQSource.External);
 				doingIRQ=false;
 			}
 			irqEnable = irqacknowledge;
@@ -80,7 +82,7 @@ public class VRC3 extends Mapper {
 					irqcounter++;
 					if(irqcounter>0xffff){
 						if(!doingIRQ)
-							cpu.doIRQ++;
+							cpu.setIRQ(IRQSource.External);
 						doingIRQ=true;
 						irqcounter=irqlatch;
 					}
@@ -88,7 +90,7 @@ public class VRC3 extends Mapper {
 				else{
 					if((irqcounter&0xff)==0xff){
 						if(!doingIRQ)
-							cpu.doIRQ++;
+							cpu.setIRQ(IRQSource.External);
 						doingIRQ=true;
 						irqcounter=irqlatch;
 					}

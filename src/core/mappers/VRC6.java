@@ -2,6 +2,7 @@ package core.mappers;
 
 import java.util.Arrays;
 
+import core.CPU_6502.IRQSource;
 import core.audio.VRC6Pulse;
 import core.audio.VRC6Saw;
 
@@ -116,13 +117,13 @@ public class VRC6 extends Mapper {
 					prescaler = 341;
 				}
 				if(doingIRQ){
-					cpu.doIRQ--;
+					cpu.removeIRQ(IRQSource.External);
 					doingIRQ=false;
 				}
 				break;
 			case 0xf002:
 				if(doingIRQ){
-					cpu.doIRQ--;
+					cpu.removeIRQ(IRQSource.External);
 					doingIRQ=false;
 				}
 				irqEnable = irqacknowledge;
@@ -182,7 +183,7 @@ public class VRC6 extends Mapper {
 			if(irqmode==1||(prescaler <=0&& irqmode==0)){
 				if(irqcounter==0xff){
 					if(!doingIRQ){
-						cpu.doIRQ++;
+						cpu.setIRQ(IRQSource.External);
 					}
 					doingIRQ=true;
 					irqcounter=irqlatch;

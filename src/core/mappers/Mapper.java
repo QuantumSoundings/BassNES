@@ -407,5 +407,16 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		}
 		ppu.doneFrame=false;
 	}
+	public void runCPUCycle() {
+		ppu.doCycle();
+		ppu.doCycle();
+		ppu.doCycle();
+		cpu.run_cycle();
+		apu.doCycle();
+		
+	}
+	public void setInitialPC() {
+		cpu.setPC(((cpureadu(0xfffd)<<8)|(cpureadu(0xfffc))));	
+	}
 	
 }

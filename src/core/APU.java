@@ -1,6 +1,7 @@
 package core;
 import java.util.ArrayList;
 
+import core.CPU_6502.IRQSource;
 import core.audio.*;
 import core.mappers.Mapper;
 import ui.UserSettings;
@@ -114,10 +115,6 @@ public class APU implements java.io.Serializable{
 					dmc.restart();
 				}
 			}
-			//if(dmc.irqflag){
-			//	map.cpu.doIRQ--;
-			//	dmc.irqflag=false;
-			//}
 			dmc.clearFlag();
 		}
 		else if(index==0x4017){
@@ -130,9 +127,9 @@ public class APU implements java.io.Serializable{
 				block=1;
 			}
 			irqInhibit = (b & 0x40) != 0;
-			if(irqInhibit&&frameInterrupt){
-				map.cpu.doIRQ--;
-				frameInterrupt = false;
+			if(irqInhibit){//&&frameInterrupt){
+				//frameInterrupt = false;
+				map.cpu.removeIRQ(IRQSource.FrameCounter);
 			}
 			if(!evenclock)
 				delay = 0;
@@ -150,10 +147,8 @@ public class APU implements java.io.Serializable{
 			b|= noise.lengthcount>0?8:0;
 			b|= dmc.sampleremaining>0?16:0;
 			b|= frameInterrupt?64:0;
-			if(frameInterrupt){
-				map.cpu.doIRQ--;
-				frameInterrupt = false;
-			}
+			frameInterrupt = false;
+			map.cpu.removeIRQ(IRQSource.FrameCounter);
 			b|= dmc.irqflag?128:0;
 			return b;
 		}
@@ -204,10 +199,8 @@ public class APU implements java.io.Serializable{
 	}
 	private void setIRQ(){
 		if(!irqInhibit){
-			if(!frameInterrupt){
-				map.cpu.doIRQ++;
-				frameInterrupt=true;
-			}
+			frameInterrupt=true;
+			map.cpu.setIRQ(IRQSource.FrameCounter);
 		}
 	}
 	Object[][] freq;

@@ -8,6 +8,8 @@ public class CPU_6502 implements java.io.Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = -5451202977751017819L;
+	public enum IRQSource{External,FrameCounter,DMC};
+	private boolean[] irqs = new boolean[3];
 	final Mapper map;
 	boolean showInvalid=false;
 	/**
@@ -137,6 +139,50 @@ public class CPU_6502 implements java.io.Serializable{
 		}
 		
 	}
+	public void setIRQ(IRQSource irq){
+		switch(irq){
+		case External:
+			if(!irqs[0]){
+				irqs[0] = true;
+				doIRQ++;
+			}
+			break;
+		case FrameCounter:
+			if(!irqs[1]){
+				irqs[1] = true;
+				doIRQ++;
+			}
+			break;
+		case DMC:
+			if(!irqs[2]){
+				irqs[2] = true;
+				doIRQ++;
+			}
+			break;
+		}
+	}
+	public void removeIRQ(IRQSource irq){
+		switch(irq){
+		case External:
+			if(irqs[0]){
+				irqs[0] = false;
+				doIRQ--;
+			}
+			break;
+		case FrameCounter:
+			if(irqs[1]){
+				irqs[1] = false;
+				doIRQ--;
+			}
+			break;
+		case DMC:
+			if(irqs[2]){
+				irqs[2] = false;
+				doIRQ--;
+			}
+			break;
+		}
+	}
 	public void setNMI(boolean donmi){
 		doNMI=donmi;
 		if(donmi&&!oldnmi)
@@ -161,11 +207,16 @@ public class CPU_6502 implements java.io.Serializable{
 			return map.cpuread(program_counter);
 		}
 	}
-	public void debug(double i){
-		System.out.println("PC:" + Integer.toHexString(program_counter) + " Current Instruction: " + inst_name[current_instruction&0xff]
+	public Object[] getDebugInfo(){
+		String name;
+		if(instruction_cycle ==1){
+			name = inst_name[map.cpureadu(program_counter)];
+		}
+		else
+			name = inst_name[current_instruction&0xff];
+		/*System.out.println("PC:" + Integer.toHexString(program_counter) + " Current Instruction: " + inst_name[current_instruction&0xff]
 				//+ " Instruction Hex: "+Integer.toHexString(Byte.toUnsignedInt(current_instruction))
 				+ " Instruction Cycle: "+instruction_cycle
-				+" total cycles: " +i
 				+" SP:"+ Integer.toHexString(Byte.toUnsignedInt(stack_pointer))
 				+" A:" + Integer.toHexString(Byte.toUnsignedInt(accumulator))
 				+" X:" + Integer.toHexString(Byte.toUnsignedInt(x_index_register))
@@ -178,6 +229,11 @@ public class CPU_6502 implements java.io.Serializable{
 				+" I:" +(IFlag?1:0)
 				+" Z:" +(ZFlag?1:0)
 				+" C:" +(CFlag?1:0));
+				*/
+		return new Object[] {program_counter, name, instruction_cycle,Byte.toUnsignedInt(stack_pointer),
+				Byte.toUnsignedInt(accumulator),Byte.toUnsignedInt(x_index_register),Byte.toUnsignedInt(y_index_register),NFlag,VFlag,DFlag,IFlag,ZFlag,CFlag,
+				irqs,nmiInterrupt
+		};
 	}
 
 	private byte buildFlags(){

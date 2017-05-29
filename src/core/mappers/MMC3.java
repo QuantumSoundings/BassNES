@@ -2,6 +2,8 @@ package core.mappers;
 
 import java.util.Arrays;
 
+import core.CPU_6502.IRQSource;
+
 public class MMC3 extends Mapper {
 
 	private static final long serialVersionUID = -8413903049772229695L;
@@ -95,8 +97,7 @@ public class MMC3 extends Mapper {
 			if(index%2==0){
 				//if(control.checkDebug())
 				//System.out.println("setting irq enable to false scanline: "+ppu.scanline);
-				if(doingIRQ)
-					cpu.doIRQ--;
+				cpu.removeIRQ(IRQSource.External);
 				doingIRQ=false;
 				irqenable = false;
 			}
@@ -275,9 +276,7 @@ public class MMC3 extends Mapper {
 			scanlinecount = irqreload;
 		}
 		if(scanlinecount==0&&irqenable){
-			if(!doingIRQ){
-				cpu.doIRQ++;
-			}
+			cpu.setIRQ(IRQSource.External);
 			doingIRQ=true;
 			//if(control.checkDebug())
 			//	System.out.println("Generating IRQ at scanline: "+ppu.scanline+" pcycle: "+ppu.pcycle+" iflag: " );

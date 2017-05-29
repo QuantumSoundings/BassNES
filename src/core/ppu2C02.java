@@ -108,6 +108,9 @@ public class ppu2C02 implements java.io.Serializable{
 		renderer= new Renderer();
 		
 	}
+	public Object[] getDebugInfo(){
+		return new Object[]{pcycle,scanline,PPUSTATUS_vb,PPUSTATUS_so,PPUSTATUS_sz};
+	}
 	public void setpal(boolean pal){
 		if(pal)
 			finalscanline = 310;

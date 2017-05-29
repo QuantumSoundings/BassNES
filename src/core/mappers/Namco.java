@@ -2,6 +2,7 @@ package core.mappers;
 
 import java.util.Arrays;
 
+import core.CPU_6502.IRQSource;
 import core.audio.NamcoSound;
 
 public class Namco extends Mapper{
@@ -78,7 +79,7 @@ public class Namco extends Mapper{
 				irqcounter &= 0xff00;
 				irqcounter |= b&0xff;
 				if(irqstopped){
-					cpu.doIRQ--;
+					cpu.removeIRQ(IRQSource.External);
 					irqstopped=false;
 				}
 			}
@@ -89,7 +90,7 @@ public class Namco extends Mapper{
 				irqcounter|=(b&0x7f)<<8;
 				irqEnable = (b&0x80)!=0;
 				if(irqstopped){
-					cpu.doIRQ--;
+					cpu.removeIRQ(IRQSource.External);
 					irqstopped=false;
 				}
 			}
@@ -307,7 +308,7 @@ public class Namco extends Mapper{
 		if(irqEnable&&!irqstopped){
 			irqcounter++;
 			if(irqcounter==0x7fff){
-				cpu.doIRQ++;
+				cpu.setIRQ(IRQSource.External);
 				irqstopped=true;
 			}
 		}

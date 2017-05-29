@@ -1,4 +1,5 @@
 package core.audio;
+import core.CPU_6502.IRQSource;
 import core.mappers.Mapper;
 
 public class DMC extends Channel{
@@ -34,10 +35,8 @@ public class DMC extends Channel{
 		switch(index%4){
 		case 0: 
 			irqEnable = (b & 0x80) == 0x80;
-			if(!irqEnable&&irqflag){
-				map.cpu.doIRQ--;
-				irqflag=false;
-			}
+			if(!irqEnable)
+				map.cpu.removeIRQ(IRQSource.DMC);
 			loop = (b & 0x40) == 0x40;
 			rate = rateindex[b&0xf];
 			//System.out.println("Write to $4010: "+Integer.toBinaryString(Byte.toUnsignedInt(b))+" rate: "+rate);
@@ -57,10 +56,7 @@ public class DMC extends Channel{
 		}		
 	}
 	public void clearFlag(){
-		if(irqflag){
-			irqflag = false;
-			map.cpu.doIRQ--;
-		}
+		map.cpu.removeIRQ(IRQSource.DMC);
 	}
 	@Override
 	public final void clockTimer(){
@@ -137,10 +133,8 @@ public class DMC extends Channel{
 			if(sampleremaining == 0){
 				if(loop)
 					restart();
-				else if(irqEnable && !irqflag){
-					//System.out.println("DMC IRQ scanline: "+map.ppu.scanline);
-					++map.cpu.doIRQ;
-					irqflag = true;
+				else if(irqEnable){
+					map.cpu.setIRQ(IRQSource.DMC);
 				}
 			}
 		}

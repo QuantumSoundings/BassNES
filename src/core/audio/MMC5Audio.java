@@ -1,5 +1,6 @@
 package core.audio;
 
+import core.CPU_6502.IRQSource;
 import core.mappers.Mapper;
 import ui.UserSettings;
 
@@ -56,10 +57,11 @@ public class MMC5Audio extends Channel{
 		case 0x5011:
 			//System.out.println("Writing pcm data: "+Integer.toBinaryString(Byte.toUnsignedInt(b)));
 			if(b==0&&irqEnable){
-				if(!doingIRQ){
-					System.out.println("Triggering IRQ");
-					map.cpu.doIRQ++;
-				}
+				map.cpu.setIRQ(IRQSource.External);
+				//if(!doingIRQ){
+				//	System.out.println("Triggering IRQ");
+				//	map.cpu.doIRQ++;
+				//}
 				doingIRQ=true;
 			}
 			else
@@ -82,9 +84,7 @@ public class MMC5Audio extends Channel{
 	public byte readRegister(int index){
 		if(index==0x5010){
 			byte out = (byte) (doingIRQ?0x80:0);
-			if(doingIRQ){
-				map.cpu.doIRQ--;
-			}
+			map.cpu.removeIRQ(IRQSource.External);
 			doingIRQ=false;
 			return out;
 		}

@@ -23,7 +23,7 @@ interface UpdateEventListener extends EventListener{
 public class SystemUI implements NESCallback {
 	public NES nes;
 	final JFileChooser fc = new JFileChooser();
-	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow;
+	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow,debugInfo;
 	File rom;
 	NesDisplay display;
 	private KeyChecker keys;
@@ -40,10 +40,10 @@ public class SystemUI implements NESCallback {
 		try {
 			UserSettings.loadSettings();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		audio = new AudioInterface(this);
+		debugInfo = new DebugInfo(this);
 		rom = new File("allstars.nes");
 		mainWindow = new MainUI(this);
 		//debugWindow = new DebugUI();
@@ -56,8 +56,8 @@ public class SystemUI implements NESCallback {
 		display.updateScaling(2);		
 		listener = new UpdateEventListener(){
             public void doVideoFrame() {
-               display.sendFrame(pixels);
-           }
+                display.sendFrame(pixels);
+            }
             public void doAudioFrame(){
             	audio.setAudioFrame(audiobuffer);
             }
@@ -101,7 +101,7 @@ public class SystemUI implements NESCallback {
 		Thread.sleep(500);
 		UserSettings.frameLimit=false;
 		testoutput="";
-		boolean all = true;
+		boolean all = false;
 		int speed = 2;
         if(false|all){
 			testoutput = " Blargg PPU Tests \n\n";
@@ -240,7 +240,7 @@ public class SystemUI implements NESCallback {
 			testrom(30000/speed, new File(System.getProperty("user.dir")+"/tests/oam_stress.nes"),-461204351);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-        if(false|all){
+        if(true|all){
 			testoutput+= "\n PPU ReadBuffer Mega test\n\n";
 			testrom(27000/speed, new File(System.getProperty("user.dir")+"/tests/test_ppu_read_buffer.nes"),-1484609023 );
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
@@ -298,10 +298,19 @@ public class SystemUI implements NESCallback {
 		return Arrays.hashCode(pixels);
 	}
 	void startnes(int delay) throws InterruptedException {
-		nes = new NES(rom,this);
+		createNES(rom);
 		current = new Thread(nes);
 		current.start();
 		Thread.sleep(delay);
+	}
+	public void createNES(File rom){
+		nes = new NES();
+		nes.setCallback(this);
+		try {
+			nes.loadRom(rom);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	public void saveState(int slot){
 		nes.pause();

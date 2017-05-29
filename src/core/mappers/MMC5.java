@@ -2,6 +2,7 @@ package core.mappers;
 
 import java.util.Arrays;
 
+import core.CPU_6502.IRQSource;
 import core.audio.MMC5Audio;
 
 public class MMC5 extends Mapper {
@@ -112,10 +113,8 @@ public class MMC5 extends Mapper {
 			//System.out.println("irq read");
 			byte b = (byte) (irqpending?0x80:0);
 			irqpending = false;
-			if(doingIRQ){
-				cpu.doIRQ--;
-				doingIRQ=false;
-			}
+			//doingIRQ=false;
+			cpu.removeIRQ(IRQSource.External);
 			b|= (ppu.dorender()&&ppu.scanline<239)?0x40:0;
 			return b;
 		case 0x5205:return (byte) (multproduct&0xff);
@@ -298,7 +297,7 @@ public class MMC5 extends Mapper {
 	}
 	private boolean lastbanksprite;
 	private int upperchr;
-	private void chrBankSwitching(int index,byte b){//TODO - figure this shit out.
+	private void chrBankSwitching(int index,byte b){//TODO - Mostly done.
 		int val = upperchr|Byte.toUnsignedInt(b);
 		//System.out.println(Integer.toHexString(index)+": "+Integer.toHexString(Byte.toUnsignedInt(b)));
 		switch(index){
@@ -380,7 +379,7 @@ public class MMC5 extends Mapper {
 	}
 	private int irqscanline;
 	private int irqcounter;
-	private boolean doingIRQ;
+	//private boolean doingIRQ;
 	//private boolean inFrame;
 	private boolean irqEnable;
 	private boolean irqpending;
@@ -391,7 +390,7 @@ public class MMC5 extends Mapper {
 	private int multproduct;
 	private void otherRegisters(int index,byte b){
 		switch(index){
-		case 0x5200:cpu.debug(0);System.out.println("Vertical Split Write: "+Integer.toBinaryString(Byte.toUnsignedInt(b)));break;
+		case 0x5200:System.out.println("Vertical Split Write: "+Integer.toBinaryString(Byte.toUnsignedInt(b)));break;
 		case 0x5201:System.out.println("VerticalS Scroll Write");break;
 		case 0x5202:System.out.println("VSplit Bank Write");break;
 		case 0x5203:irqscanline = Byte.toUnsignedInt(b);break;
@@ -420,19 +419,14 @@ public class MMC5 extends Mapper {
 		if(!(ppu.dorender()&&ppu.scanline<239)){
 			irqcounter=0;
 			irqpending = false;
-			if(doingIRQ){
-				cpu.doIRQ--;
-				doingIRQ=false;
-			}
 		}
 		else{
 			irqcounter++;
 			if(irqcounter==irqscanline){
 				irqpending = true;
-				if(irqEnable&&!doingIRQ){
-					//System.out.println("Doing IRQ");
-					cpu.doIRQ++;
-					doingIRQ=true;
+				if(irqEnable){
+					cpu.setIRQ(IRQSource.External);
+					//doingIRQ=true;
 				}
 			}
 		}

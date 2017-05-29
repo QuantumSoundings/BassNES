@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import core.CPU_6502.IRQSource;
 import core.audio.MMC5Audio;
 import core.audio.NamcoSound;
 import core.audio.VRC6Pulse;
@@ -192,7 +193,7 @@ public class NSFPlayer extends Mapper{
 	public void setCHR(byte[] chr){
 		init();
 		doingIRQ=true;
-		cpu.doIRQ++;
+		cpu.setIRQ(IRQSource.External);
 	}
 	private void soundwrite(byte b){
 		if(soundAddress<0x40){
@@ -241,7 +242,7 @@ public class NSFPlayer extends Mapper{
 		case 0x3e11:return 0;
 		case 0x3e12:
 			if(doingIRQ)
-				cpu.doIRQ--;
+				cpu.removeIRQ(IRQSource.External);
 			doingIRQ=false;
 			return irqstatus;
 		case 0x3e13:return (byte) (soundchip&0x3f);
@@ -465,7 +466,7 @@ public class NSFPlayer extends Mapper{
 				if(irqcounter==0){
 					irqcounter=irqreload;
 					if(!doingIRQ){
-						cpu.doIRQ++;
+						cpu.setIRQ(IRQSource.External);
 						irqstatus = (byte) nextirq;
 					}
 					doingIRQ=true;

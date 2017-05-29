@@ -46,18 +46,11 @@ public class NES implements Runnable,NESAccess {
 	//private int p=0;
 	//private double c =0.0;
 	
-	public NES(File rom,NESCallback s){
-		system = s;
-		try {
-			loadrom(rom);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}		
-		map.setNes(this);
-		map.setSystem(system);
-		map.cpu.setPC(((map.cpureadu(0xfffd)<<8)|(map.cpureadu(0xfffc))));
+	public NES(){}
+	public void setCallback(NESCallback system){
+		this.system=system;
 	}
-	private void loadrom(File rom) throws IOException{
+	public void loadRom(File rom) throws IOException{
 		//rom = new File(System.getProperty("user.dir")+"/cv3j.nsf");
 		romName = rom.getName().substring(0,rom.getName().length()-4);
 		String ext = rom.getName().substring(rom.getName().lastIndexOf(".")+1);
@@ -65,8 +58,12 @@ public class NES implements Runnable,NESAccess {
 		case "nes": loadiNES(rom);break;
 		case "nsf": loadNSF(rom);break;
 		}
+		map.setNes(this);
+		map.setSystem(system);
+		map.setInitialPC();
 		
 	}
+	
 	private void loadiNES(File rom) throws IOException{
 		FileInputStream sx = new FileInputStream(rom); 
 		byte[] header = new byte[16];
@@ -254,5 +251,25 @@ public class NES implements Runnable,NESAccess {
 	public void setSampleRate(int rate){
 		map.apu.setSampleRate(rate);
 	}
+	public void runCPUCycle() {
+		map.runCPUCycle();	
+	}
+	public Object[] getCPUDebugInfo() {
+		// TODO Auto-generated method stub
+		return map.cpu.getDebugInfo();
+	}
+	public Object[] getPPUDebugInfo() {
+		// TODO Auto-generated method stub
+		return map.ppu.getDebugInfo();
+	}
+	public int[] getAPUDebugInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public int[] getMapperDebugInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 
 }
