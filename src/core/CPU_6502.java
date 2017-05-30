@@ -2,7 +2,11 @@ package core;
 
 
 import core.mappers.Mapper;
-
+/**
+ *
+ * @author Jordan Howe
+ *
+ */
 public class CPU_6502 implements java.io.Serializable{
 	/**
 	 * 

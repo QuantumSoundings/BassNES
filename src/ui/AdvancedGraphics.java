@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import core.NES;
 import core.NesSettings;
 
 import javax.swing.JTabbedPane;
@@ -107,7 +108,7 @@ public class AdvancedGraphics extends JFrame {
 
 			@Override
 			public void paint(Graphics g){
-				int[] palette = sys.nes.getInternalPaletteRGB(NesSettings.selectedPalette);
+				int[] palette = NES.getInternalPaletteRGB(NesSettings.selectedPalette);
 				g.setColor(Color.BLACK);
 				for(int y = 0; y < 4; y++)
 					for(int x=0;x<16;x++){
@@ -126,7 +127,7 @@ public class AdvancedGraphics extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				JComboBox<?> cb = (JComboBox<?>)e.getSource();
 				String s = cb.getSelectedItem().toString();
-				sys.nes.setInternalPalette(s);
+				NES.setInternalPalette(s);
 				NesSettings.selectedPalette=s;
 				panel_2.repaint();	
 			}
@@ -136,15 +137,15 @@ public class AdvancedGraphics extends JFrame {
 			public void mouseReleased(MouseEvent arg0) {
 				int x = arg0.getX()/(panel_2.getWidth()/16);
 				int y = arg0.getY()/(panel_2.getHeight()/4);
-				int [] palette = sys.nes.getInternalPaletteRGB(NesSettings.selectedPalette);
-				int[] custom = sys.nes.getInternalPaletteRGB("custom");
+				int [] palette = NES.getInternalPaletteRGB(NesSettings.selectedPalette);
+				int[] custom = NES.getInternalPaletteRGB("custom");
 				Color newColor = JColorChooser.showDialog(null, "Choose a color", new Color(palette[y*16+x]));
 				if(newColor!=null){
 					NesSettings.selectedPalette="custom";
 					custom=Arrays.copyOf(palette, palette.length);
 					custom[y*16+x] = newColor.getRGB();
-					sys.nes.setCustomPalette(custom);
-					sys.nes.setInternalPalette("custom");
+					NES.setCustomPalette(custom);
+					NES.setInternalPalette("custom");
 					comboBox_1.setSelectedIndex(1);
 					panel_2.repaint();
 				}

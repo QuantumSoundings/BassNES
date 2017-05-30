@@ -8,7 +8,11 @@ import java.io.IOException;
 import java.util.Properties;
 
 import core.video.NesColors;
-
+/**
+ * Contains settings vital to the functioning of an NES object.
+ * @author Jordan Howe
+ *
+ */
 public class NesSettings {
 	static Properties prop;
 	//public final static String version = "0.2.4";
@@ -79,7 +83,6 @@ public class NesSettings {
 			e.printStackTrace();
 		}
 	}
-	
 	
 	
 	public void setSetting(String key,String value){

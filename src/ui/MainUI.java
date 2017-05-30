@@ -236,7 +236,7 @@ public class MainUI extends JFrame {
 		mntmPauseCpu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(sys.nes!=null)
-					sys.nes.pause= !sys.nes.pause;
+					sys.nes.togglePause();
 			}
 		});
 		mnCpu.add(mntmPauseCpu);
@@ -363,10 +363,6 @@ public class MainUI extends JFrame {
 			}
 		});
 		mnDebug.add(mntmDebugInfo);
-		//contentPane = new JPanel();
-		//contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		//contentPane.setLayout(new BorderLayout(0, 0));
-		//setContentPane(contentPane);
 		this.addWindowListener(new WindowAdapter(){
 			@Override
 			public void windowClosing(WindowEvent evt){

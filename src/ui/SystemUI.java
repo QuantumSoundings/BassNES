@@ -48,7 +48,7 @@ public class SystemUI implements NESCallback {
 		}
 		audio = new AudioInterface(this);
 		debugInfo = new Debugger(this);
-		rom = new File("megaman3.nes");
+		rom = new File("smb.nes");
 		mainWindow = new MainUI(this);
 		//debugWindow = new DebugUI();
 		keyconfigWindow = new ControlUI(prop,this);

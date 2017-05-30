@@ -46,6 +46,11 @@ public interface NESAccess {
 	 */
 	public void unpause();
 	/**
+	 * If nes is currently paused, togglePause() will return immediately. Otherwise
+	 * it will return when nes has been successfully paused.
+	 */
+	public void togglePause();
+	/**
 	 * 
 	 * @return - A double representing the amount of frames processed in the last second.
 	 */
@@ -88,17 +93,17 @@ public interface NESAccess {
 	 * Sets the internal palette for rendering modes 1 and 2. 
 	 * @param palette - Acceptable inputs can be found in NesSettings.palettes
 	 */
-	public void setInternalPalette(String palette);
+	public static void setInternalPalette(String palette) {}
 	/**
 	 * Returns an int[] containing the RGB values of the selected internal palette.
 	 * @return
 	 */
-	public int[] getInternalPaletteRGB(String palette);
+	public static int[] getInternalPaletteRGB(String palette) {return null;}
 	/**
 	 * Sets the internal palette to the supplied palette.
 	 * @param palette - int[] where the ints are in RGB format.
 	 */
-	public void setCustomPalette(int[] palette);
+	public static void setCustomPalette(int[] palette) {}
 	
 	
 	

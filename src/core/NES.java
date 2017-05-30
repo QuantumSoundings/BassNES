@@ -16,21 +16,10 @@ public class NES implements Runnable,NESAccess {
 	private NESCallback system;
 	private File save;
 	
-	//clock settings NTSC
-	//Master clock speed.
-	//int systemclock = 21477272;
-	//final int cpudiv = 12;
-	//final int palcpudiv = 16;
-	//final int apudiv = 24;
-	//final int ppudiv = 4;
-	//final int palppudiv = 5;
-	//public int cpuclock=0;
-	//private int mclock;
-	
 	private boolean batteryExists;
 	private boolean pal;
 	private volatile boolean flag = true;
-	public volatile boolean pause = false;
+	private volatile boolean pause = false;
 	private volatile boolean pauseConfirmed = false;
 	
 	//Frame rate/timing variables
@@ -40,15 +29,12 @@ public class NES implements Runnable,NESAccess {
 	private double currentFPS;
 	private int framecount=0;
 	
-	//debugging vars
-	//private int p=0;
-	//private double c =0.0;
 	
 	public NES(){}
 	public void setCallback(NESCallback system){
 		this.system=system;
 	}
-	public void loadRom(File rom) throws IOException{
+	public final void loadRom(File rom) throws IOException{
 		//rom = new File(System.getProperty("user.dir")+"/cv3j.nsf");
 		romName = rom.getName().substring(0,rom.getName().length()-4);
 		String ext = rom.getName().substring(rom.getName().lastIndexOf(".")+1);
@@ -125,7 +111,7 @@ public class NES implements Runnable,NESAccess {
 		}
 		sx.close();
 	}
-	public void run(){
+	public final void run(){
 		System.out.println("NES STARTED RUNNING");
 		while(flag){
 			autoRunFrame();
@@ -148,7 +134,7 @@ public class NES implements Runnable,NESAccess {
 				e.printStackTrace();
 			}
 	}
-	public void exit(){
+	public final void exit(){
 		flag = false;
 	}
 	private void autoRunFrame(){
@@ -172,14 +158,14 @@ public class NES implements Runnable,NESAccess {
 		framecount++;
 		system.videoCallback(map.ppu.renderer.colorized);
 	}
-	public void runFrame(){
+	public final void runFrame(){
 		map.runFrame();
 		system.videoCallback(map.ppu.renderer.colorized);
 	}
-	public double getFPS(){
+	public final double getFPS(){
 		return currentFPS;
 	}
-	public void saveState(String slot) throws IOException{
+	public final void saveState(String slot) throws IOException{
 		FileOutputStream fout = new FileOutputStream(slot);
 		ObjectOutputStream out = new ObjectOutputStream(fout);
 		try {
@@ -193,7 +179,7 @@ public class NES implements Runnable,NESAccess {
 		out.writeObject(map.ppu);
 		out.close();
 	}
-	public void restoreState(String slot) throws IOException, ClassNotFoundException{
+	public final void restoreState(String slot) throws IOException, ClassNotFoundException{
 		FileInputStream fin = new FileInputStream(slot);
 		ObjectInputStream in = new ObjectInputStream(fin);
 		pause = true;
@@ -210,7 +196,7 @@ public class NES implements Runnable,NESAccess {
 		in.close();
 		pause = false;
 	}
-	public void pause(){
+	public final void pause(){
 		pause = true;
 		while(!pauseConfirmed){
 			try {
@@ -220,8 +206,14 @@ public class NES implements Runnable,NESAccess {
 			}
 		};
 	}
-	public void unpause(){pause=false;}
-	public void loadSave() throws IOException{
+	public final void unpause(){pause=false;}
+	public final void togglePause(){
+		if(pause)
+			unpause();
+		else
+			pause();
+	}
+	public final void loadSave() throws IOException{
 		save = new File(romName+".sav");
 		System.out.println(save.getAbsolutePath());
 		if(save.exists()){
@@ -235,7 +227,7 @@ public class NES implements Runnable,NESAccess {
 		else
 			System.out.println("Save not found!");
 	}
-	public void saveGame() throws IOException{
+	public final void saveGame() throws IOException{
 		System.out.println("Attempting to save game.");
 		save = new File(romName+".sav");
 		if(save.exists()){
@@ -247,13 +239,13 @@ public class NES implements Runnable,NESAccess {
 		sx.write(savearray);
 		sx.close();
 	}
-	public Object[][] getAudioChannelInfo(){
+	public final Object[][] getAudioChannelInfo(){
 		return map.apu.channelInfo();
 	}
-	public void setSampleRate(int rate){
+	public final void setSampleRate(int rate){
 		map.apu.setSampleRate(rate);
 	}
-	public void runCPUCycle() {
+	public final void runCPUCycle() {
 		map.runCPUCycle();	
 		if(map.ppu.doneFrame){
 			system.videoCallback(map.ppu.renderer.colorized);
@@ -261,26 +253,26 @@ public class NES implements Runnable,NESAccess {
 		}
 		
 	}
-	public void setInternalPalette(String palette){
+	public static final void setInternalPalette(String palette){
 		NesColors.updatePalette(palette);
 	}
-	public int[] getInternalPaletteRGB(String palette){
+	public static final int[] getInternalPaletteRGB(String palette){
 		return NesColors.getpalette(palette);
 	}
-	public void setCustomPalette(int[] palette){
+	public static final void setCustomPalette(int[] palette){
 		NesColors.setCustomPalette(palette);
 	}
-	public Object[] getCPUDebugInfo() {
+	public final Object[] getCPUDebugInfo() {
 		return map.cpu.getDebugInfo();
 	}
-	public Object[] getPPUDebugInfo() {
+	public final Object[] getPPUDebugInfo() {
 		return map.ppu.getDebugInfo();
 	}
-	public int[] getAPUDebugInfo() {
+	public final int[] getAPUDebugInfo() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	public int[] getMapperDebugInfo() {
+	public final int[] getMapperDebugInfo() {
 		// TODO Auto-generated method stub
 		return null;
 	}
