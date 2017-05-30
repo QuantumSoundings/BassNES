@@ -126,8 +126,8 @@ public class APU implements java.io.Serializable{
 				block=1;
 			}
 			irqInhibit = (b & 0x40) != 0;
-			if(irqInhibit){//&&frameInterrupt){
-				//frameInterrupt = false;
+			if(irqInhibit&&frameInterrupt){
+				frameInterrupt = false;
 				map.cpu.removeIRQ(IRQSource.FrameCounter);
 			}
 			if(!evenclock)
