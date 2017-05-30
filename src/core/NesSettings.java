@@ -11,7 +11,7 @@ import core.video.NesColors;
 
 public class NesSettings {
 	static Properties prop;
-	public final static String version = "0.2.4";
+	//public final static String version = "0.2.4";
 	//Emulation Settings
 	public static boolean politeFrameTiming = true;
 	public static boolean frameLimit = true;
@@ -22,9 +22,23 @@ public class NesSettings {
 	//Graphics Settings
 	public static boolean RenderBackground=true;
 	public static boolean RenderSprites=true;
-	public static int RenderMethod=2;
+	/**
+	 * Internal rendering method. This variable determines the type of information present in the 
+	 * video callback. 
+	 * 1: No color emphasis. RGB.
+	 * 2: Color emphasis. RGB.
+	 * 3: Raw nes values.
+	 */
+	public static int RenderMethod=3;
 	public static boolean ShowFPS=true;
+	/**
+	 * The core comes with several internal palettes.
+	 */
 	public static String selectedPalette= "defaultPalette";
+	/**
+	 * Array of internal palette names to be used when settings the internal palette.
+	 */
+	public final static String[] palettes = {"defaultPalette","Custom","NTSCHardwareFBX","nesClassicFBX","compositeDirectFBX","sonypvmFBX"};
 	
 	//Audio Settings
 	public static boolean AudioEnabled=true;
@@ -87,11 +101,14 @@ public class NesSettings {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * Loads nes settings from saved config file. Or loads default values.
+	 * @throws IOException
+	 */
 	public static void loadSettings() throws IOException{
 		prop = new Properties();
 		File t = new File("config.properties");
 		if(!t.exists()){//default config
-			prop.setProperty("version", version);
 			prop.setProperty("c1up", KeyEvent.VK_UP+"");
 			prop.setProperty("c1down", KeyEvent.VK_DOWN+"");
 			prop.setProperty("c1left", KeyEvent.VK_LEFT+"");
@@ -117,11 +134,7 @@ public class NesSettings {
 			loadAudio();
 			loadGraphics();
 			loadEmulation();
-			if(!prop.getProperty("version").equals(version)||!prop.containsKey("version")){
-				//boolean x = t.delete();
-				//System.out.println(x);
-				//loadSettings();
-			}
+			
 		}
 	}
 
@@ -182,7 +195,7 @@ public class NesSettings {
 	private static void loadGraphics(){
 		RenderBackground = prop.getProperty("renderbackground", "true").equals("true");
 		RenderSprites = prop.getProperty("rendersprites", "true").equals("true");
-		RenderMethod = Integer.parseInt(prop.getProperty("rendermethod", "2"));
+		RenderMethod = Integer.parseInt(prop.getProperty("rendermethod", "3"));
 		ShowFPS = prop.getProperty("showfps", "true").equals("true");
 		selectedPalette = prop.getProperty("selectedpalette","defaultPalette");
 		NesColors.setCustomPalette(prop.getProperty("custompalette",""));

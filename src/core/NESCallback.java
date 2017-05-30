@@ -5,7 +5,9 @@ public interface NESCallback {
 	
 	/**
 	 * Called once per invocation of runFrame().
-	 * @param p - Array off pixels making up the current output of the nes display.
+	 * @param p - Array of integers representing the nes display output. Depending on
+	 * the value of NesSettings.RenderMethod, p will contain either RGB values for rendering to
+	 * the screen, or raw nes internal values.
 	 */
 	public void videoCallback(int[] pixels);
 	/**

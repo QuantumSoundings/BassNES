@@ -10,7 +10,7 @@ public interface NESAccess {
 	 */
 	/**
 	 * Sets up the call back for the nes machine. MUST be called before loadROM().
-	 * @param system- NESCallback Object
+	 * @param system - NESCallback Object
 	 */
 	public void setCallback(NESCallback system);
 	/**
@@ -20,6 +20,10 @@ public interface NESAccess {
 	 */
 	public void loadRom(File rom) throws IOException;
 	
+	
+	
+	
+	
 	/*
 	 * Runnable version oriented commands.
 	 */
@@ -28,7 +32,10 @@ public interface NESAccess {
 	 * These are the relevant methods.
 	 */
 	public void run();
-	
+	/**
+	 * Causes the thread running the NES instance to terminate.
+	 */
+	public void exit();
 	/**
 	 * Pauses a running NES instance. Returns when the nes has
 	 * successfully paused.
@@ -45,8 +52,9 @@ public interface NESAccess {
 	public double getFPS();
 	
 	
+	
 	/*
-	 * 
+	 * Single step functions
 	 */
 	/**
 	 * It can also be controlled by the main program. This method advances the execution
@@ -57,22 +65,55 @@ public interface NESAccess {
 	 * Runs a single cpu cycle on the nes machine. May or may not trigger audio or video callbacks.
 	 */
 	public void runCPUCycle();
+	
+	
+	
+	
+	/*
+	 * Audio Configuration
+	 */
 	/**
 	 * Sets the internal sampling rate for audio.
 	 * @param rate- Rate in Hz.
 	 */
 	public void setSampleRate(int rate);
-	/**
-	 * Causes the thread running the NES instance to terminate.
+	
+	
+	
+	
+	/*
+	 * Palette manipulation.
 	 */
-	public void exit();
+	/**
+	 * Sets the internal palette for rendering modes 1 and 2. 
+	 * @param palette - Acceptable inputs can be found in NesSettings.palettes
+	 */
+	public void setInternalPalette(String palette);
+	/**
+	 * Returns an int[] containing the RGB values of the selected internal palette.
+	 * @return
+	 */
+	public int[] getInternalPaletteRGB(String palette);
+	/**
+	 * Sets the internal palette to the supplied palette.
+	 * @param palette - int[] where the ints are in RGB format.
+	 */
+	public void setCustomPalette(int[] palette);
+	
+	
+	
+	
+		
+	
 	public void saveState(String slot) throws IOException;
 	public void restoreState(String slot) throws IOException, ClassNotFoundException;
 	
 	public void saveGame() throws IOException;
 	public void loadSave() throws IOException;
 	
-	
+	/*
+	 * Debug and nes state functions.
+	 */
 	public Object[][] getAudioChannelInfo();
 	/**
 	 * HIGHLY SUBJECT TO CHANGE.

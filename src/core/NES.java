@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
 import core.mappers.Mapper;
+import core.video.NesColors;
 
 public class NES implements Runnable,NESAccess {
 	private volatile Mapper map;
@@ -127,7 +128,7 @@ public class NES implements Runnable,NESAccess {
 	public void run(){
 		System.out.println("NES STARTED RUNNING");
 		while(flag){
-			runFrame();
+			autoRunFrame();
 			if(pause){
 				pauseConfirmed = true;
 				while(pause){
@@ -150,7 +151,7 @@ public class NES implements Runnable,NESAccess {
 	public void exit(){
 		flag = false;
 	}
-	public void runFrame(){
+	private void autoRunFrame(){
 		frameStartTime = System.nanoTime();
 		map.runFrame();
 		frameStopTime = System.nanoTime() - frameStartTime;
@@ -169,6 +170,10 @@ public class NES implements Runnable,NESAccess {
 			fpsStartTime=System.currentTimeMillis();
 		}
 		framecount++;
+		system.videoCallback(map.ppu.renderer.colorized);
+	}
+	public void runFrame(){
+		map.runFrame();
 		system.videoCallback(map.ppu.renderer.colorized);
 	}
 	public double getFPS(){
@@ -255,6 +260,15 @@ public class NES implements Runnable,NESAccess {
 			map.ppu.doneFrame=false;
 		}
 		
+	}
+	public void setInternalPalette(String palette){
+		NesColors.updatePalette(palette);
+	}
+	public int[] getInternalPaletteRGB(String palette){
+		return NesColors.getpalette(palette);
+	}
+	public void setCustomPalette(int[] palette){
+		NesColors.setCustomPalette(palette);
 	}
 	public Object[] getCPUDebugInfo() {
 		return map.cpu.getDebugInfo();

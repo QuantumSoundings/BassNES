@@ -423,7 +423,7 @@ public class ppu2C02 implements java.io.Serializable{
 	private void genFrame(){
 		PPUSTATUS_vb = true;
 		map.cpu.doNMI=PPUCTRL_genNmi;
-		renderer.buildFrame(pixels, 2);
+		renderer.buildFrame(pixels);
 		pixelnum = 0;
 	}
 	private void drawpixel(){
