@@ -1,5 +1,9 @@
 package core;
-
+/**
+ * Interface for an NES objects callback functions.
+ * @author Jordan Howe
+ *
+ */
 public interface NESCallback {
 	
 	

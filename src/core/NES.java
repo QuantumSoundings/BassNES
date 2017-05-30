@@ -9,7 +9,12 @@ import java.util.Arrays;
 
 import core.mappers.Mapper;
 import core.video.NesColors;
-
+/**
+ * Object representing an NES console. This and NesSettings are the only two files that should be interacted with.
+ * Object is a runnable, so it can occupy its own thread or be controlled through a main program.
+ * @author Jordan Howe
+ *
+ */
 public class NES implements Runnable,NESAccess {
 	private volatile Mapper map;
 	private String romName;
