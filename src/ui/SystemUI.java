@@ -16,6 +16,8 @@ import javax.swing.JFrame;
 
 import core.NES;
 import core.NESCallback;
+import ui.debugger.BreakPoint;
+import ui.debugger.Debugger;
 interface UpdateEventListener extends EventListener{
 	public void doVideoFrame();
 	public void doAudioFrame();
@@ -23,7 +25,8 @@ interface UpdateEventListener extends EventListener{
 public class SystemUI implements NESCallback {
 	public NES nes;
 	final JFileChooser fc = new JFileChooser();
-	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow,debugInfo;
+	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow;
+	Debugger debugInfo;
 	File rom;
 	NesDisplay display;
 	private KeyChecker keys;
@@ -43,8 +46,8 @@ public class SystemUI implements NESCallback {
 			e1.printStackTrace();
 		}
 		audio = new AudioInterface(this);
-		debugInfo = new DebugInfo(this);
-		rom = new File("allstars.nes");
+		debugInfo = new Debugger(this);
+		rom = new File("smb.nes");
 		mainWindow = new MainUI(this);
 		//debugWindow = new DebugUI();
 		keyconfigWindow = new ControlUI(prop,this);
@@ -70,18 +73,46 @@ public class SystemUI implements NESCallback {
 		}*/
 		start();
 	}
+	boolean debugMode = false;
+	boolean docpucycle= false;
+	public boolean dobreakseek=false;
 	public void start(){
 		while(true){
-			if(UserSettings.ShowFPS){
+			if(debugMode){
 				if(nes!=null)
-					mainWindow.setTitle("Nes Emulator     FPS: "+String.format("%.2f", nes.getFPS()));
+					nes.pause();
+				if(docpucycle){
+					nes.runCPUCycle();
+					debugInfo.updateInfo();
+					docpucycle = false;
+				}
+				else if(dobreakseek){
+					BreakPoint.setsystem(this);
+					seekBreakpoint();
+					dobreakseek = false;
+				}
+				
+				
+				
+				try {
+					Thread.sleep(20);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
-			else
-				mainWindow.setTitle("Nes Emulator");
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			else{
+				if(UserSettings.ShowFPS){
+					if(nes!=null)
+						mainWindow.setTitle("Nes Emulator     FPS: "+String.format("%.2f", nes.getFPS()));
+				}
+				else
+					mainWindow.setTitle("Nes Emulator");
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -369,5 +400,30 @@ public class SystemUI implements NESCallback {
 	}
 	public void showscope(){
 		audio.showscope();
+	}
+	public void enterDebug(){
+		debugMode = true;
+		debugInfo.setVisible(true);
+		nes.pause();
+		BreakPoint.setsystem(this);
+		//debugInfo.breakpoints.addElement(new BreakPoint(Variable.verticalblank,true));
+		//debugInfo.breakpointui.setListData((BreakPoint[])debugInfo.breakpoints.toArray());
+		debugInfo.updateInfo();
+	}
+	public void exitDebug(){
+		debugMode = false;
+		nes.unpause();
+	}
+	public void seekBreakpoint(){
+		boolean loop = true;
+		while(loop){
+			BreakPoint.updateData();
+			for(Object point: debugInfo.breakpoints.toArray())
+				if(((BreakPoint) point).checkbreakpoint())
+					loop = false;
+			nes.runCPUCycle();
+		}
+		debugInfo.updateInfo();
+		
 	}
 }

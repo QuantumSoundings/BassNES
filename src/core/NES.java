@@ -253,13 +253,16 @@ public class NES implements Runnable,NESAccess {
 	}
 	public void runCPUCycle() {
 		map.runCPUCycle();	
+		if(map.ppu.doneFrame){
+			system.videoCallback(map.ppu.renderer.colorized);
+			map.ppu.doneFrame=false;
+		}
+		
 	}
 	public Object[] getCPUDebugInfo() {
-		// TODO Auto-generated method stub
 		return map.cpu.getDebugInfo();
 	}
 	public Object[] getPPUDebugInfo() {
-		// TODO Auto-generated method stub
 		return map.ppu.getDebugInfo();
 	}
 	public int[] getAPUDebugInfo() {

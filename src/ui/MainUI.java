@@ -38,7 +38,6 @@ public class MainUI extends JFrame {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
 		JMenuBar menuBar = new JMenuBar();
@@ -356,11 +355,10 @@ public class MainUI extends JFrame {
 		});
 		mnDebug.add(chckbxmntmShowDebug);
 		
-		JMenuItem mntmDebugInfo = new JMenuItem("Debug Info");
+		JMenuItem mntmDebugInfo = new JMenuItem("Debugger");
 		mntmDebugInfo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sys.nes.pause();
-				sys.debugInfo.setVisible(true);
+				sys.enterDebug();
 			}
 		});
 		mnDebug.add(mntmDebugInfo);
