@@ -1,4 +1,4 @@
-package ui;
+package core;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -9,7 +9,7 @@ import java.util.Properties;
 
 import core.video.NesColors;
 
-public class UserSettings {
+public class NesSettings {
 	static Properties prop;
 	public final static String version = "0.2.4";
 	//Emulation Settings
@@ -58,7 +58,7 @@ public class UserSettings {
 	public static int c2select;
 	
 
-	public UserSettings(){
+	public NesSettings(){
 		try {
 			loadSettings();
 		} catch (IOException e) {

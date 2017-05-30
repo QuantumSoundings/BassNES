@@ -10,12 +10,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import core.NesSettings;
 import core.CPU_6502.IRQSource;
 import core.audio.MMC5Audio;
 import core.audio.NamcoSound;
 import core.audio.VRC6Pulse;
 import core.audio.VRC6Saw;
-import ui.UserSettings;
 
 public class NSFPlayer extends Mapper{
 
@@ -412,11 +412,11 @@ public class NSFPlayer extends Mapper{
 		g.drawString("Track "+(currentsong+1)+"/"+totalsongs+"         "+timeformat(tracktimer)+"/"+tracktimestring
 				, 0, 230);
 		g.setFont(smallfont);
-		g.drawString("Next Track: "+KeyEvent.getKeyText(UserSettings.c1right), 0, 35);
-		g.drawString("Prev Track: "+KeyEvent.getKeyText(UserSettings.c1left), 0, 45);
-		g.drawString("Pause: "+KeyEvent.getKeyText(UserSettings.c1start), 0, 55);
-		g.drawString("Loop: "+KeyEvent.getKeyText(UserSettings.c1a), 0, 65);
-		g.drawString("Forever Mode: "+KeyEvent.getKeyText(UserSettings.c1b), 0, 75);
+		g.drawString("Next Track: "+KeyEvent.getKeyText(NesSettings.c1right), 0, 35);
+		g.drawString("Prev Track: "+KeyEvent.getKeyText(NesSettings.c1left), 0, 45);
+		g.drawString("Pause: "+KeyEvent.getKeyText(NesSettings.c1start), 0, 55);
+		g.drawString("Loop: "+KeyEvent.getKeyText(NesSettings.c1a), 0, 65);
+		g.drawString("Forever Mode: "+KeyEvent.getKeyText(NesSettings.c1b), 0, 75);
 		g.drawString((!pause?"Playing":"Paused"), 0, 115);
 		g.drawString((playingforever?"Playing Current Song Forever":""), 0, 125);
 		g.drawString((looping?"Looping Current Song":""), 0, 135);

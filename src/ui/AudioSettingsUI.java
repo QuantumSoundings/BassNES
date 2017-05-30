@@ -9,6 +9,8 @@ import javax.swing.SwingConstants;
 import javax.swing.JLabel;
 import javax.swing.event.ChangeListener;
 
+import core.NesSettings;
+
 import javax.swing.event.ChangeEvent;
 import javax.swing.JTabbedPane;
 import javax.swing.JComboBox;
@@ -54,11 +56,11 @@ public class AudioSettingsUI extends JFrame {
 				String s = cb.getSelectedItem().toString();
 				int index =Arrays.asList(samplingrates).indexOf(s);
 				switch(index){
-				case 0: UserSettings.sampleRate = 44100;
+				case 0: NesSettings.sampleRate = 44100;
 					sys.nes.setSampleRate(44100);break;
-				case 1: UserSettings.sampleRate = 48000;
+				case 1: NesSettings.sampleRate = 48000;
 					sys.nes.setSampleRate(44100);break;
-				case 2: UserSettings.sampleRate = 96000;
+				case 2: NesSettings.sampleRate = 96000;
 					sys.nes.setSampleRate(44100);break;
 				}
 				sys.resetaudio();	
@@ -74,7 +76,7 @@ public class AudioSettingsUI extends JFrame {
 		
 		JCheckBox chckbxLockFrameRate = new JCheckBox("Lock Frame Rate to Audio");
 		chckbxLockFrameRate.setBounds(241, 30, 171, 23);
-		chckbxLockFrameRate.setSelected(UserSettings.lockVideoToAudio);
+		chckbxLockFrameRate.setSelected(NesSettings.lockVideoToAudio);
 		panel_1.add(chckbxLockFrameRate);
 		
 		JLabel lbloverridesOtherFps = new JLabel("(overrides other FPS settings)");
@@ -94,10 +96,10 @@ public class AudioSettingsUI extends JFrame {
 		slider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				JSlider source = (JSlider) arg0.getSource();
-				UserSettings.masterMixLevel=source.getValue();
+				NesSettings.masterMixLevel=source.getValue();
 			}
 		});
-		slider.setValue(UserSettings.masterMixLevel);
+		slider.setValue(NesSettings.masterMixLevel);
 		slider.setOrientation(SwingConstants.VERTICAL);
 		
 		JLabel lblMaster = new JLabel("Master");
@@ -114,10 +116,10 @@ public class AudioSettingsUI extends JFrame {
 		slider_1.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
-				UserSettings.pulse1MixLevel=source.getValue();
+				NesSettings.pulse1MixLevel=source.getValue();
 			}
 		});
-		slider_1.setValue(UserSettings.pulse1MixLevel);
+		slider_1.setValue(NesSettings.pulse1MixLevel);
 		slider_1.setOrientation(SwingConstants.VERTICAL);
 		
 		JLabel lblPulse = new JLabel("Pulse 1");
@@ -134,10 +136,10 @@ public class AudioSettingsUI extends JFrame {
 		slider_2.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
-				UserSettings.pulse2MixLevel=source.getValue();
+				NesSettings.pulse2MixLevel=source.getValue();
 			}
 		});
-		slider_2.setValue(UserSettings.pulse2MixLevel);
+		slider_2.setValue(NesSettings.pulse2MixLevel);
 		slider_2.setOrientation(SwingConstants.VERTICAL);
 		
 		JLabel lblPulse_1 = new JLabel("Pulse 2");
@@ -154,10 +156,10 @@ public class AudioSettingsUI extends JFrame {
 		slider_3.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
-				UserSettings.triangleMixLevel=source.getValue();
+				NesSettings.triangleMixLevel=source.getValue();
 			}
 		});
-		slider_3.setValue(UserSettings.triangleMixLevel);
+		slider_3.setValue(NesSettings.triangleMixLevel);
 		slider_3.setOrientation(SwingConstants.VERTICAL);
 		
 		JLabel lblTriangle = new JLabel("Triangle");
@@ -174,10 +176,10 @@ public class AudioSettingsUI extends JFrame {
 		slider_4.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
-				UserSettings.noiseMixLevel=source.getValue();
+				NesSettings.noiseMixLevel=source.getValue();
 			}
 		});
-		slider_4.setValue(UserSettings.noiseMixLevel);
+		slider_4.setValue(NesSettings.noiseMixLevel);
 		slider_4.setOrientation(SwingConstants.VERTICAL);
 		
 		JLabel lblNoise = new JLabel("Noise");
@@ -194,10 +196,10 @@ public class AudioSettingsUI extends JFrame {
 		slider_5.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
-				UserSettings.dmcMixLevel=source.getValue();
+				NesSettings.dmcMixLevel=source.getValue();
 			}
 		});
-		slider_5.setValue(UserSettings.dmcMixLevel);
+		slider_5.setValue(NesSettings.dmcMixLevel);
 		slider_5.setOrientation(SwingConstants.VERTICAL);
 		
 		JLabel lblDmc = new JLabel("DMC");
@@ -211,7 +213,7 @@ public class AudioSettingsUI extends JFrame {
 		slider_6.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				JSlider source = (JSlider) arg0.getSource();
-				UserSettings.vrc6MixLevel=source.getValue();
+				NesSettings.vrc6MixLevel=source.getValue();
 			}
 		});
 		slider_6.setValue(100);
@@ -229,7 +231,7 @@ public class AudioSettingsUI extends JFrame {
 		slider_7.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				JSlider source = (JSlider) arg0.getSource();
-				UserSettings.namcoMixLevel=source.getValue();
+				NesSettings.namcoMixLevel=source.getValue();
 			}
 		});
 		slider_7.setValue(100);
@@ -249,7 +251,7 @@ public class AudioSettingsUI extends JFrame {
 		slider_8.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				JSlider source = (JSlider) arg0.getSource();
-				UserSettings.mmc5MixLevel=source.getValue();
+				NesSettings.mmc5MixLevel=source.getValue();
 			}
 		});
 		slider_8.setValue(100);

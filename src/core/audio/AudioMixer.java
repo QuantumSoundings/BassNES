@@ -2,8 +2,8 @@ package core.audio;
 
 import java.util.ArrayList;
 
+import core.NesSettings;
 import core.mappers.Mapper;
-import ui.UserSettings;
 
 public class AudioMixer implements java.io.Serializable {
 
@@ -37,7 +37,7 @@ public class AudioMixer implements java.io.Serializable {
 	};
 	
 	public AudioMixer(Pulse p1, Pulse p2, Triangle t, Noise n, DMC d,ArrayList<Channel> exp,Mapper m){
-		cyclespersample = 1789773.0/UserSettings.sampleRate;
+		cyclespersample = 1789773.0/NesSettings.sampleRate;
 		map = m;
 		intcyclespersample = (int)cyclespersample;
 		pulse1 = p1;
@@ -64,11 +64,11 @@ public class AudioMixer implements java.io.Serializable {
 	double lasttriangleout=0;
 	int decayframes;
 	public void sendOutput(){
-		double p1 = getAverageSample(pulse1,UserSettings.pulse1MixLevel);
-		double p2 = getAverageSample(pulse2,UserSettings.pulse2MixLevel);
-		double t = getAverageSample(triangle,UserSettings.triangleMixLevel);
-		double n = getAverageSample(noise,UserSettings.noiseMixLevel);
-		double d = getAverageSample(dmc,UserSettings.dmcMixLevel);
+		double p1 = getAverageSample(pulse1,NesSettings.pulse1MixLevel);
+		double p2 = getAverageSample(pulse2,NesSettings.pulse2MixLevel);
+		double t = getAverageSample(triangle,NesSettings.triangleMixLevel);
+		double n = getAverageSample(noise,NesSettings.noiseMixLevel);
+		double d = getAverageSample(dmc,NesSettings.dmcMixLevel);
 		double pulse_out = 0.00752 * (p1+p2);
 		double tnd_out = 0.00851*t + 0.00494*n + 0.00335*d;
 		double sample = pulse_out + tnd_out;
@@ -77,7 +77,7 @@ public class AudioMixer implements java.io.Serializable {
 			expansion+= getAverageExpansion(chan,100);
 		}
 		sample+=expansion;
-		sample = ((sample*30000)*(UserSettings.masterMixLevel/100.0));
+		sample = ((sample*30000)*(NesSettings.masterMixLevel/100.0));
 	}
 	final double getAverageSample(Channel chan,int UserMix){
 		double d =((chan.total/cyclespersample)*(UserMix/100.0));

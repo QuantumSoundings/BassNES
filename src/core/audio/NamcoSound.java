@@ -1,6 +1,6 @@
 package core.audio;
 
-import ui.UserSettings;
+import core.NesSettings;
 
 public class NamcoSound extends Channel {
 
@@ -131,7 +131,7 @@ public class NamcoSound extends Channel {
 	}
 	@Override
 	public int getUserMixLevel(){
-		return UserSettings.namcoMixLevel;
+		return NesSettings.namcoMixLevel;
 	}
 	@Override
 	public Object[] getInfo(){

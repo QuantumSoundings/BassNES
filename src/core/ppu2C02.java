@@ -3,7 +3,6 @@ import java.util.Arrays;
 
 import core.mappers.Mapper;
 import core.video.Renderer;
-import ui.UserSettings;
 
 public class ppu2C02 implements java.io.Serializable{
 
@@ -434,7 +433,7 @@ public class ppu2C02 implements java.io.Serializable{
 			int offset = 15-(fineX+cyclepart);
 			if(PPUMASK_sb&&leftmask_b<cycle){
 				int bit = (((shiftreg16a>>(offset-1))&2))|((shiftreg16b>>offset)&1);
-				if(UserSettings.RenderBackground&&bit!=0)
+				if(NesSettings.RenderBackground&&bit!=0)
 					backgroundcolor =(offset>=8?palettelatchold:palettelatchnew)|bit;			
 			}
 			if(PPUMASK_ss){
@@ -446,7 +445,7 @@ public class ppu2C02 implements java.io.Serializable{
 							if(oldspritezero&&!PPUSTATUS_sz&&i==0&&PPUMASK_sb&&backgroundcolor!=0&&leftmask_s<cycle&&cycle<256){
 								PPUSTATUS_sz = true;
 							}
-							if(UserSettings.RenderSprites&&(spritepriority[i]||backgroundcolor==0)){
+							if(NesSettings.RenderSprites&&(spritepriority[i]||backgroundcolor==0)){
 								pixels[pixelnum++] = (PPUMASK_colorbits)|(0xff&map.ppu_palette[0x10+4*spritepalette[i]+bit]);
 								return;
 							}
@@ -467,7 +466,7 @@ public class ppu2C02 implements java.io.Serializable{
 		int offset = 15-(fineX+cyclepart);
 		if(PPUMASK_sb&&leftmask_b<cycle){
 			int bit = (((shiftreg16a>>(offset-1))&2))|((shiftreg16b>>offset)&1);
-			if(UserSettings.RenderBackground&&bit!=0)
+			if(NesSettings.RenderBackground&&bit!=0)
 				backgroundcolor =(offset>=8?palettelatchold:palettelatchnew)|bit;			
 		}
 		if(numsprites>0&&PPUMASK_ss){
@@ -479,7 +478,7 @@ public class ppu2C02 implements java.io.Serializable{
 						if(oldspritezero&&!PPUSTATUS_sz&&i==0&&PPUMASK_sb&&backgroundcolor!=0&&leftmask_s<cycle&&cycle<256){
 							delayset=true;
 						}
-						if(UserSettings.RenderSprites&&(spritepriority[i]||backgroundcolor==0)){
+						if(NesSettings.RenderSprites&&(spritepriority[i]||backgroundcolor==0)){
 							return 0xff&map.ppu_palette[0x10+4*spritepalette[i]+bit];
 						}
 						break;

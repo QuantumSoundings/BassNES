@@ -1,8 +1,5 @@
 package core;
 import java.io.File;
-
-import ui.UserSettings;
-
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -157,10 +154,10 @@ public class NES implements Runnable,NESAccess {
 		frameStartTime = System.nanoTime();
 		map.runFrame();
 		frameStopTime = System.nanoTime() - frameStartTime;
-		if(frameStopTime<15800000&&UserSettings.frameLimit)
+		if(frameStopTime<15800000&&NesSettings.frameLimit)
 			try {
 				while(System.nanoTime()-frameStartTime<15800000){
-					if(UserSettings.politeFrameTiming)
+					if(NesSettings.politeFrameTiming)
 						Thread.sleep(0,100000);
 				}
 			} catch ( InterruptedException e){

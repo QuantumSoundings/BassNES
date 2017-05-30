@@ -3,6 +3,8 @@ package ui;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import core.NesSettings;
+
 public class KeyChecker implements KeyListener, java.io.Serializable {
 
 	private static final long serialVersionUID = 6782112428112431713L;
@@ -28,40 +30,40 @@ public class KeyChecker implements KeyListener, java.io.Serializable {
 	@Override
 	public void keyPressed(KeyEvent event){
 		int key = event.getKeyCode();
-		if(key ==UserSettings.c1up)
+		if(key ==NesSettings.c1up)
 			up = true;
-		else if(key == UserSettings.c1down)
+		else if(key == NesSettings.c1down)
 			down = true;
-		else if(key == UserSettings.c1left)
+		else if(key == NesSettings.c1left)
 			left = true;
-		else if(key == UserSettings.c1right)
+		else if(key == NesSettings.c1right)
 			right = true;
-		else if(key == UserSettings.c1a)
+		else if(key == NesSettings.c1a)
 			a = true;
-		else if(key == UserSettings.c1b)
+		else if(key == NesSettings.c1b)
 			b = true;
-		else if(key == UserSettings.c1start)
+		else if(key == NesSettings.c1start)
 			start = true;
-		else if(key == UserSettings.c1select)
+		else if(key == NesSettings.c1select)
 			select = true;
 		
 		
 		
-		if(key ==UserSettings.c2up)
+		if(key ==NesSettings.c2up)
 			up2 = true;
-		else if(key == UserSettings.c2down)
+		else if(key == NesSettings.c2down)
 			down2 = true;
-		else if(key == UserSettings.c2left)
+		else if(key == NesSettings.c2left)
 			left2 = true;
-		else if(key == UserSettings.c2right)
+		else if(key == NesSettings.c2right)
 			right2 = true;
-		else if(key == UserSettings.c2a)
+		else if(key == NesSettings.c2a)
 			a2 = true;
-		else if(key == UserSettings.c2b)
+		else if(key == NesSettings.c2b)
 			b2 = true;
-		else if(key == UserSettings.c2start)
+		else if(key == NesSettings.c2start)
 			start2 = true;
-		else if(key == UserSettings.c2select)
+		else if(key == NesSettings.c2select)
 			select2 = true;
 		
 		
@@ -71,39 +73,39 @@ public class KeyChecker implements KeyListener, java.io.Serializable {
 	@Override
 	public void keyReleased(KeyEvent event){
 		int key = event.getKeyCode();
-		if(key ==UserSettings.c1up)
+		if(key ==NesSettings.c1up)
 			up = false;
-		else if(key == UserSettings.c1down)
+		else if(key == NesSettings.c1down)
 			down = false;
-		else if(key == UserSettings.c1left)
+		else if(key == NesSettings.c1left)
 			left = false;
-		else if(key == UserSettings.c1right)
+		else if(key == NesSettings.c1right)
 			right = false;
-		else if(key == UserSettings.c1a)
+		else if(key == NesSettings.c1a)
 			a = false;
-		else if(key == UserSettings.c1b)
+		else if(key == NesSettings.c1b)
 			b = false;
-		else if(key == UserSettings.c1start)
+		else if(key == NesSettings.c1start)
 			start = false;
-		else if(key == UserSettings.c1select)
+		else if(key == NesSettings.c1select)
 			select = false;
 		
 		
-		if(key ==UserSettings.c2up)
+		if(key ==NesSettings.c2up)
 			up2 = false;
-		else if(key == UserSettings.c2down)
+		else if(key == NesSettings.c2down)
 			down2 = false;
-		else if(key == UserSettings.c2left)
+		else if(key == NesSettings.c2left)
 			left2 = false;
-		else if(key == UserSettings.c2right)
+		else if(key == NesSettings.c2right)
 			right2 = false;
-		else if(key == UserSettings.c2a)
+		else if(key == NesSettings.c2a)
 			a2 = false;
-		else if(key == UserSettings.c2b)
+		else if(key == NesSettings.c2b)
 			b2 = false;
-		else if(key == UserSettings.c2start)
+		else if(key == NesSettings.c2start)
 			start2 = false;
-		else if(key == UserSettings.c2select)
+		else if(key == NesSettings.c2select)
 			select2 = false;
 		//else if(key == debugkey)
 		//	debug = !debug;

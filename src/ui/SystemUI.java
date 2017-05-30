@@ -16,6 +16,7 @@ import javax.swing.JFrame;
 
 import core.NES;
 import core.NESCallback;
+import core.NesSettings;
 import ui.debugger.BreakPoint;
 import ui.debugger.Debugger;
 interface UpdateEventListener extends EventListener{
@@ -41,7 +42,7 @@ public class SystemUI implements NESCallback {
 	
 	public SystemUI(){
 		try {
-			UserSettings.loadSettings();
+			NesSettings.loadSettings();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -102,7 +103,7 @@ public class SystemUI implements NESCallback {
 				}
 			}
 			else{
-				if(UserSettings.ShowFPS){
+				if(NesSettings.ShowFPS){
 					if(nes!=null)
 						mainWindow.setTitle("Nes Emulator     FPS: "+String.format("%.2f", nes.getFPS()));
 				}
@@ -130,7 +131,7 @@ public class SystemUI implements NESCallback {
 	int pass,fail,totalpass,total,regression;
 	void runTests() throws InterruptedException{
 		Thread.sleep(500);
-		UserSettings.frameLimit=false;
+		NesSettings.frameLimit=false;
 		testoutput="";
 		boolean all = false;
 		int speed = 2;
@@ -302,7 +303,7 @@ public class SystemUI implements NESCallback {
 		nes.exit();
 		testoutput+= "\n\n Overall results: "+totalpass+"/"+total+" Passed     " +(regression>0?regression+" Regressions":"");
 		System.out.println(testoutput);
-		UserSettings.frameLimit=true;
+		NesSettings.frameLimit=true;
 	}
 	void testrom(int delay,File r,int goodhash) throws InterruptedException{
 		BufferedImage bi = new BufferedImage(display.getWidth(),display.getHeight(),BufferedImage.TYPE_INT_RGB);
@@ -391,7 +392,7 @@ public class SystemUI implements NESCallback {
 	public void resetaudio(){
 		while(audio.inaudio);
 		audio.lock=true;
-		nes.setSampleRate(UserSettings.sampleRate);
+		nes.setSampleRate(NesSettings.sampleRate);
 		audio.restartSDL();
 		audio.lock=false;	
 	}

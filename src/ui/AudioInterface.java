@@ -5,6 +5,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
+import core.NesSettings;
+
 public class AudioInterface implements java.io.Serializable {
 	private static final long serialVersionUID = 25781276857491755L;
 	transient SourceDataLine sdl;
@@ -21,9 +23,9 @@ public class AudioInterface implements java.io.Serializable {
 		restartSDL();
 	}
 	public void restartSDL(){
-		AudioFormat form = new AudioFormat(UserSettings.sampleRate,16,2,true,false);
+		AudioFormat form = new AudioFormat(NesSettings.sampleRate,16,2,true,false);
 		bufptr=0;
-		audioints = new int[UserSettings.sampleRate/60];
+		audioints = new int[NesSettings.sampleRate/60];
 		scope.setAudio(audioints);
 		audiobuffer = new byte[audioints.length*4];
 		try {
@@ -62,7 +64,7 @@ public class AudioInterface implements java.io.Serializable {
 			audiobuffer[bufptr+3] = (byte) ((i>>8)&0xff);
 			bufptr+=4;
 		}
-		if((sdl.available()>=audiobuffer.length&&UserSettings.AudioEnabled)||UserSettings.lockVideoToAudio){
+		if((sdl.available()>=audiobuffer.length&&NesSettings.AudioEnabled)||NesSettings.lockVideoToAudio){
 				sdl.write(audiobuffer,0,audiobuffer.length);
 				if(scope.isVisible()){
 					if(scopefrequency==scopecount++){

@@ -16,6 +16,7 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import core.NesSettings;
 
 import java.awt.event.ActionListener;
 import java.awt.Dimension;
@@ -69,7 +70,7 @@ public class MainUI extends JFrame {
 				int returnval = sys.fc.showOpenDialog(sys.mainWindow);
 				if(returnval == JFileChooser.APPROVE_OPTION){
 					sys.rom = sys.fc.getSelectedFile();
-					if(UserSettings.autoLoad){
+					if(NesSettings.autoLoad){
 						if(sys.nes!=null)
 							sys.nes.exit();
 						sys.createNES(sys.rom);
@@ -81,12 +82,12 @@ public class MainUI extends JFrame {
 		};
 		Action autoLoad = new AbstractAction(){
 			public void actionPerformed(ActionEvent e) {
-				UserSettings.autoLoad = !UserSettings.autoLoad;
+				NesSettings.autoLoad = !NesSettings.autoLoad;
 			}
 		};
 		Action showFPS = new AbstractAction(){
 			public void actionPerformed(ActionEvent e) {
-				UserSettings.ShowFPS = !UserSettings.ShowFPS;
+				NesSettings.ShowFPS = !NesSettings.ShowFPS;
 			}
 		};
 		Action saveState1= new AbstractAction(){
@@ -182,12 +183,12 @@ public class MainUI extends JFrame {
 		
 		JCheckBoxMenuItem chckbxmntmAutoload = new JCheckBoxMenuItem("AutoLoad");
 		chckbxmntmAutoload.addActionListener(autoLoad);
-		chckbxmntmAutoload.setSelected(UserSettings.autoLoad);
+		chckbxmntmAutoload.setSelected(NesSettings.autoLoad);
 		mnSystem.add(chckbxmntmAutoload);
 		
 		JCheckBoxMenuItem chckbxmntmShowFps = new JCheckBoxMenuItem("Show FPS");
 		chckbxmntmShowFps.addActionListener(showFPS);
-		chckbxmntmShowFps.setSelected(UserSettings.ShowFPS);
+		chckbxmntmShowFps.setSelected(NesSettings.ShowFPS);
 		mnSystem.add(chckbxmntmShowFps);
 		
 		JMenu mnSaveState = new JMenu("Save State");
@@ -245,13 +246,13 @@ public class MainUI extends JFrame {
 		menuBar.add(mnNewMenu);
 		
 		JCheckBoxMenuItem chckbxmntmEnableAudio = new JCheckBoxMenuItem("Enable Audio");
-		UserSettings.AudioEnabled=true;
+		NesSettings.AudioEnabled=true;
 		chckbxmntmEnableAudio.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-					UserSettings.AudioEnabled=!UserSettings.AudioEnabled;
+					NesSettings.AudioEnabled=!NesSettings.AudioEnabled;
 			}
 		});
-		chckbxmntmEnableAudio.setSelected(UserSettings.AudioEnabled);
+		chckbxmntmEnableAudio.setSelected(NesSettings.AudioEnabled);
 		mnNewMenu.add(chckbxmntmEnableAudio);
 		
 		JMenuItem mntmAudioMixer = new JMenuItem("Audio Settings");
@@ -376,7 +377,7 @@ public class MainUI extends JFrame {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				UserSettings.saveSettings();
+				NesSettings.saveSettings();
 				System.exit(0);
 			}
 		});

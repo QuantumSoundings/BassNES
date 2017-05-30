@@ -1,8 +1,8 @@
 package core.audio;
 
+import core.NesSettings;
 import core.CPU_6502.IRQSource;
 import core.mappers.Mapper;
-import ui.UserSettings;
 
 public class MMC5Audio extends Channel{
 
@@ -128,7 +128,7 @@ public class MMC5Audio extends Channel{
 	}
 	@Override
 	public int getOutputSettings(){
-		return UserSettings.mmc5MixLevel;
+		return NesSettings.mmc5MixLevel;
 	}
 	private final String name1 = "MMC5 Pulse 1";
 	private final String name2 = "MMC5 Pulse 2";
@@ -142,6 +142,6 @@ public class MMC5Audio extends Channel{
 	}
 	@Override
 	public int getUserMixLevel(){
-		return UserSettings.mmc5MixLevel;
+		return NesSettings.mmc5MixLevel;
 	}
 }

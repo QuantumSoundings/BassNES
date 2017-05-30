@@ -1,6 +1,6 @@
 package core.audio;
 
-import ui.UserSettings;
+import core.NesSettings;
 
 public class VRC6Saw extends Channel {
 	
@@ -14,7 +14,7 @@ public class VRC6Saw extends Channel {
 	}
 	@Override
 	public int getUserMixLevel(){
-		return UserSettings.vrc6MixLevel;
+		return NesSettings.vrc6MixLevel;
 	}
 	public void registerWrite(int index,byte b,int clock){
 		//System.out.println("Write to pulse");
@@ -71,7 +71,7 @@ public class VRC6Saw extends Channel {
 	}
 	@Override
 	public int getOutputSettings(){
-		return UserSettings.vrc6MixLevel;
+		return NesSettings.vrc6MixLevel;
 	}
 	@Override
 	public double getFrequency(){

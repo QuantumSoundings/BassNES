@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import core.NesSettings;
 import core.video.NesColors;
 
 import javax.swing.JTabbedPane;
@@ -48,40 +49,40 @@ public class AdvancedGraphics extends JFrame {
 		JCheckBox chckbxShowBackground = new JCheckBox("Show Background");
 		chckbxShowBackground.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				UserSettings.RenderBackground=!UserSettings.RenderBackground;
+				NesSettings.RenderBackground=!NesSettings.RenderBackground;
 			}
 		});
-		chckbxShowBackground.setSelected(UserSettings.RenderBackground);
+		chckbxShowBackground.setSelected(NesSettings.RenderBackground);
 		chckbxShowBackground.setBounds(27, 29, 131, 23);
 		panel.add(chckbxShowBackground);
 		
 		JCheckBox chckbxShowSprites = new JCheckBox("Show Sprites");
 		chckbxShowSprites.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				UserSettings.RenderSprites=!UserSettings.RenderSprites;
+				NesSettings.RenderSprites=!NesSettings.RenderSprites;
 			}
 		});
-		chckbxShowSprites.setSelected(UserSettings.RenderSprites);
+		chckbxShowSprites.setSelected(NesSettings.RenderSprites);
 		chckbxShowSprites.setBounds(27, 70, 110, 23);
 		panel.add(chckbxShowSprites);
 		
 		JCheckBox chckbxEnableFrameLimit = new JCheckBox("Enable Frame Limit");
 		chckbxEnableFrameLimit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				UserSettings.frameLimit=!UserSettings.frameLimit;
+				NesSettings.frameLimit=!NesSettings.frameLimit;
 			}
 		});
-		chckbxEnableFrameLimit.setSelected(UserSettings.frameLimit);
+		chckbxEnableFrameLimit.setSelected(NesSettings.frameLimit);
 		chckbxEnableFrameLimit.setBounds(27, 115, 169, 23);
 		panel.add(chckbxEnableFrameLimit);
 		
 		JCheckBox chckbxPoliteFrameTiming = new JCheckBox("Polite Frame Timing");
 		chckbxPoliteFrameTiming.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				UserSettings.politeFrameTiming=!UserSettings.politeFrameTiming;
+				NesSettings.politeFrameTiming=!NesSettings.politeFrameTiming;
 			}
 		});
-		chckbxPoliteFrameTiming.setSelected(UserSettings.politeFrameTiming);
+		chckbxPoliteFrameTiming.setSelected(NesSettings.politeFrameTiming);
 		chckbxPoliteFrameTiming.setBounds(27, 167, 169, 23);
 		panel.add(chckbxPoliteFrameTiming);
 		
@@ -106,7 +107,7 @@ public class AdvancedGraphics extends JFrame {
 
 			@Override
 			public void paint(Graphics g){
-				int[] palette = NesColors.getpalette(UserSettings.selectedPalette);
+				int[] palette = NesColors.getpalette(NesSettings.selectedPalette);
 				g.setColor(Color.BLACK);
 				for(int y = 0; y < 4; y++)
 					for(int x=0;x<16;x++){
@@ -120,13 +121,13 @@ public class AdvancedGraphics extends JFrame {
 		String[] pal = NesColors.palettes;
 		@SuppressWarnings("rawtypes")
 		JComboBox<String> comboBox_1 = new JComboBox(pal);
-		comboBox_1.setSelectedIndex(Arrays.asList(NesColors.palettes).indexOf(UserSettings.selectedPalette));
+		comboBox_1.setSelectedIndex(Arrays.asList(NesColors.palettes).indexOf(NesSettings.selectedPalette));
 		comboBox_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				JComboBox<?> cb = (JComboBox<?>)e.getSource();
 				String s = cb.getSelectedItem().toString();
 				NesColors.updatePalette(s);
-				UserSettings.selectedPalette=s;
+				NesSettings.selectedPalette=s;
 				panel_2.repaint();	
 			}
 		});
@@ -135,10 +136,10 @@ public class AdvancedGraphics extends JFrame {
 			public void mouseReleased(MouseEvent arg0) {
 				int x = arg0.getX()/(panel_2.getWidth()/16);
 				int y = arg0.getY()/(panel_2.getHeight()/4);
-				int [] palette = NesColors.getpalette(UserSettings.selectedPalette);
+				int [] palette = NesColors.getpalette(NesSettings.selectedPalette);
 				Color newColor = JColorChooser.showDialog(null, "Choose a color", new Color(palette[y*16+x]));
 				if(newColor!=null){
-					UserSettings.selectedPalette="custom";
+					NesSettings.selectedPalette="custom";
 					NesColors.custom=Arrays.copyOf(palette, palette.length);
 					NesColors.custom[y*16+x] = newColor.getRGB();
 					NesColors.updatePalette("Custom");

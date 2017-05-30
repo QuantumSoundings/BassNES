@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import core.CPU_6502.IRQSource;
 import core.audio.*;
 import core.mappers.Mapper;
-import ui.UserSettings;
 
 
 public class APU implements java.io.Serializable{
@@ -54,7 +53,7 @@ public class APU implements java.io.Serializable{
 		dmc =new DMC(map);
 		expansionAudio = new ArrayList<Channel>();
 		//expansionAudioArray = new Channel[0];
-		cyclespersample = 1789773.0/UserSettings.sampleRate;
+		cyclespersample = 1789773.0/NesSettings.sampleRate;
 		intcyclespersample = (int)cyclespersample;
 		cpucounter = 10;
 		expansion = false;
@@ -226,15 +225,15 @@ public class APU implements java.io.Serializable{
 		return d;
 	}
 	public void resetAudioBuffer(){
-		samples = new int[UserSettings.sampleRate/60+10];
+		samples = new int[NesSettings.sampleRate/60+10];
 		sampleptr = 0;
 	}
 	public void sendOutput(){
-		double p1 = getAverageSample(pulse1,UserSettings.pulse1MixLevel);
-		double p2 = getAverageSample(pulse2,UserSettings.pulse2MixLevel);
-		double t = getAverageSample(triangle,UserSettings.triangleMixLevel);
-		double n = getAverageSample(noise,UserSettings.noiseMixLevel);
-		double d = getAverageSample(dmc,UserSettings.dmcMixLevel);
+		double p1 = getAverageSample(pulse1,NesSettings.pulse1MixLevel);
+		double p2 = getAverageSample(pulse2,NesSettings.pulse2MixLevel);
+		double t = getAverageSample(triangle,NesSettings.triangleMixLevel);
+		double n = getAverageSample(noise,NesSettings.noiseMixLevel);
+		double d = getAverageSample(dmc,NesSettings.dmcMixLevel);
 		double pulse_out = 0.00752 * (p1+p2);
 		double tnd_out = 0.00851*t + 0.00494*n + 0.00335*d;
 		double sample = pulse_out + tnd_out;
@@ -242,7 +241,7 @@ public class APU implements java.io.Serializable{
 		for(Channel chan: expansionAudio)
 			expansion+= getAverageExpansion(chan,chan.getUserMixLevel());
 		sample+=expansion;
-		sample = ((sample*30000)*(UserSettings.masterMixLevel/100.0));
+		sample = ((sample*30000)*(NesSettings.masterMixLevel/100.0));
 		//try{
 		//samples[sampleptr++] = (int) sample;
 		//}catch(Exception e){
