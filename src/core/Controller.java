@@ -11,7 +11,7 @@ public class Controller implements java.io.Serializable{
 	boolean strobe;
 	int output;
 	int keysPressed;
-	int nextKey;
+	public int nextKey;
 	boolean debug;
 	
 	public Controller(Mapper m,int num){
@@ -25,7 +25,11 @@ public class Controller implements java.io.Serializable{
 	}
 	
 	public byte getControllerStatus(){
-		int getNextKey = map.system.pollController()[controllerNum][nextKey]?1:0;
+		int getNextKey=0;
+		if(nextKey>7)
+			getNextKey = 1;
+		else
+			getNextKey = map.system.pollController()[controllerNum][nextKey]?1:0;
 		if(!strobe)
 			nextKey++;
 		output&=0x11111110;
