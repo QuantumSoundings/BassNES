@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import core.CPU_6502.IRQSource;
+import core.NesSettings;
 import core.audio.MMC5Audio;
 import core.audio.NamcoSound;
 import core.audio.VRC6Pulse;
@@ -51,7 +52,7 @@ public class NSFPlayer extends Mapper{
 	private int irqreload;
 	private boolean doingIRQ;
 	private int nextirq;
-	private int trackcutoff = 2*60*60;
+	private int trackcutoff = NesSettings.nsfPlayerSongLength;
 	private int tracktimer= 0;
 	private String tracktimestring = timeformat(trackcutoff);
 	private boolean doingBanking;
@@ -375,7 +376,9 @@ public class NSFPlayer extends Mapper{
 		cpu.program_counter=0x3f03;	
 	}
 	private void nextTrack(){
-		currentsong+=1;
+		if(currentsong+1!=totalsongs){
+			currentsong+=1;
+		}
 		nextirq=0;
 		tracktimer=0;
 	}
