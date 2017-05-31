@@ -152,7 +152,7 @@ public class MMC1 extends Mapper {
 		case 0: case 1:
 			//System.out.println("Switching prgrom case 0/1");
 			PRG_ROM[0] = PRGbanks[(banknumber)&(lastbank)];
-			PRG_ROM[1] = PRGbanks[((banknumber)&(lastbank))+1];
+			PRG_ROM[1] = PRGbanks[((banknumber+1)&(lastbank))];
 			break;
 		case 2:
 			//System.out.println("Switching prgrom case 2");
