@@ -44,7 +44,7 @@ public class AudioInterface implements java.io.Serializable {
 			sample=32768;
 		if(sample<-32768)
 			sample=-32768;
-		audioints[bufptr++] = (int)(sample*1.5);
+		audioints[bufptr++] = (int)(sample*1);
 		if(bufptr>=audioints.length){
 			bufptr = 0;
 			sendsample();

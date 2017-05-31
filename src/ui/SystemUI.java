@@ -48,7 +48,7 @@ public class SystemUI implements NESCallback {
 		}
 		audio = new AudioInterface(this);
 		debugInfo = new Debugger(this);
-		rom = new File("smb.nes");
+		rom = new File("one winged angel.nsf");
 		mainWindow = new MainUI(this);
 		//debugWindow = new DebugUI();
 		keyconfigWindow = new ControlUI(prop,this);
@@ -272,7 +272,7 @@ public class SystemUI implements NESCallback {
 			testrom(30000/speed, new File(System.getProperty("user.dir")+"/tests/oam_stress.nes"),-461204351);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-        if(true|all){
+        if(false|all){
 			testoutput+= "\n PPU ReadBuffer Mega test\n\n";
 			testrom(27000/speed, new File(System.getProperty("user.dir")+"/tests/test_ppu_read_buffer.nes"),-1484609023 );
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
@@ -294,13 +294,24 @@ public class SystemUI implements NESCallback {
 			testrom(8000/speed, new File(System.getProperty("user.dir")+"/tests/dummywrites/cpu_dummy_writes_ppumem.nes"),-2086578175);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-       /* if(false|all){
+        if(false|all){
         	testoutput+= "\n Holy Diver Batman tests\n\n";
-			testrom(10000/speed, new File(System.getProperty("user.dir")+"/tests/holydiver/M0_P32K_C8K_V.nes"),86500417);
-			testrom(10000/speed, new File(System.getProperty("user.dir")+"/tests/holydiver/M1_P128K_C128K_S8K.nes"),0);
+			//testrom(10000/speed, new File(System.getProperty("user.dir")+"/tests/holydiver/M0_P32K_C8K_V.nes"),86500417);
+			//testrom(10000/speed, new File(System.getProperty("user.dir")+"/tests/holydiver/M1_P128K_C128K_S8K.nes"),0);
+			//testrom(10000/speed, new File(System.getProperty("user.dir")+"/tests/holydiver/M1_P128K_C128K_W8K.nes"),0);
+			//testrom(10000/speed, new File(System.getProperty("user.dir")+"/tests/holydiver/M1_P128K_C128K.nes"),0);
+			//testrom(10000/speed, new File(System.getProperty("user.dir")+"/tests/holydiver/M1_P128K_C32K_S8K.nes"),0);
+			//testrom(10000/speed, new File(System.getProperty("user.dir")+"/tests/holydiver/M1_P128K_C32K_W8K.nes"),0);
+			//testrom(10000/speed, new File(System.getProperty("user.dir")+"/tests/holydiver/M1_P128K_C32K.nes"),0);
+			testrom(10000/speed, new File(System.getProperty("user.dir")+"/tests/holydiver/M1_P128K.nes"),0);
+			//testrom(10000/speed, new File(System.getProperty("user.dir")+"/tests/holydiver/M1_P512K_S32K.nes"),0);
+			//testrom(10000/speed, new File(System.getProperty("user.dir")+"/tests/holydiver/M1_P512K_S8K.nes"),0);
+
+
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
-        }*/
-		nes.exit();
+        }
+        if(nes!=null)
+        	nes.exit();
 		testoutput+= "\n\n Overall results: "+totalpass+"/"+total+" Passed     " +(regression>0?regression+" Regressions":"");
 		System.out.println(testoutput);
 		NesSettings.frameLimit=true;

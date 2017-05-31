@@ -70,6 +70,7 @@ public class NES implements Runnable,NESAccess {
 			map.setPRG(PRG_ROM);
 			System.out.println("CHR_ROM:"+(CHR_ROM.length/0x400)+"KB");
 			map.setCHR(CHR_ROM);
+			map.setPRGRAM(batteryExists);
 			map.setMirror(header[6]&1);
 			if(header[9]==1||rom.getName().contains("(E)")){
 				pal = true;
@@ -104,6 +105,7 @@ public class NES implements Runnable,NESAccess {
 			int tuneregion = header[0x7a]&3;
 			byte extrasoundchips = header[0x7b];
 			long size = rom.length()-0x80;
+			System.out.println(size/0x400 +"KB");
 			byte[] data = new byte[(int) size];
 			
 			map = Mapper.getmapper(1001);

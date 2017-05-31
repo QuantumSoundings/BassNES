@@ -139,10 +139,12 @@ public class NSFPlayer extends Mapper{
 		}
 		else{
 			int padding = 0xfff&loadaddr;
+			System.out.println(padding);
 			byte[] databanks = new byte[padding+data.length];
 			System.arraycopy(data, 0, databanks, padding, data.length);
-			PRGbanks = new byte[databanks.length/0x1000][0x1000];
-			for(int i=0;i*0x1000<databanks.length;i++){
+			System.out.println(databanks.length/0x1000+" "+databanks.length%0x1000);
+			PRGbanks = new byte[databanks.length/0x1000+2][0x1000];
+			for(int i=0;(i*0x1000)<databanks.length;i++){
 				PRGbanks[i]=Arrays.copyOfRange(databanks, i*0x1000, (i*0x1000)+0x1000);
 			}
 			PRG_ROM[0] = PRGbanks[banks[0]];PRG_ROM[1] = PRGbanks[banks[1]];

@@ -47,6 +47,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	public byte openbus;
 	public boolean lastcpuwrite;
 	public int lastwriteaddress;
+	public int lastreadaddress;
 	
 	public Mapper(){
 		//ppu_palette[0]=0xf;
@@ -127,7 +128,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	}
 	public void cpuwriteoam(int index,byte b){
 		ppu_oam[index]=b;
-	}	
+	}
 	public byte cpuread(int index){
 		if(index<0x2000)
 			return cpu_ram[index%0x800];
@@ -308,6 +309,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			CHR_ROM[1]=Arrays.copyOfRange(chr, 0x1000, 0x2000);
 		}
 	}
+	public void setPRGRAM(boolean present){}
 	//Debug functions
 	public void printMemory(int offset,int length){
 		System.out.print("[");

@@ -1,6 +1,6 @@
 package core;
 /**
- * Interface for an NES objects callback functions.
+ * Interface for an NES object's callback functions.
  * @author Jordan Howe
  *
  */
@@ -21,7 +21,7 @@ public interface NESCallback {
 	 */
 	public void unmixedAudioSampleCallback(int[] audiosample);
 	/**
-	 * Called many times per invocationo of runFrame().
+	 * Called many times per invocation of runFrame().
 	 * @param audiosample- Premixed output off the audio channels.
 	 */
 	public void audioSampleCallback(int audiosample);

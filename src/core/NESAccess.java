@@ -89,7 +89,6 @@ public interface NESAccess {
 	
 	
 	
-	
 	/*
 	 * Palette manipulation.
 	 */
