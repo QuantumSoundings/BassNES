@@ -52,9 +52,9 @@ public class NSFPlayer extends Mapper{
 	private int irqreload;
 	private boolean doingIRQ;
 	private int nextirq;
-	private int trackcutoff = NesSettings.nsfPlayerSongLength;
+	//private int trackcutoff = NesSettings.nsfPlayerSongLength;
 	private int tracktimer= 0;
-	private String tracktimestring = timeformat(trackcutoff);
+	//private String tracktimestring = timeformat(trackcutoff);
 	private boolean doingBanking;
 	private Font largefont;
 	private Font smallfont;
@@ -412,7 +412,7 @@ public class NSFPlayer extends Mapper{
 		g.drawString("NSF Player Status:", 0, 100);
 		g.drawString("Title: "+title, 0, 180);
 		g.drawString("Artist: "+artist, 0, 210);
-		g.drawString("Track "+(currentsong+1)+"/"+totalsongs+"         "+timeformat(tracktimer)+"/"+tracktimestring
+		g.drawString("Track "+(currentsong+1)+"/"+totalsongs+"         "+timeformat(tracktimer)+"/"+timeformat(NesSettings.nsfPlayerSongLength)
 				, 0, 230);
 		g.setFont(smallfont);
 		g.drawString("Next Track: Right", 0, 35);
@@ -481,7 +481,7 @@ public class NSFPlayer extends Mapper{
 		cpu.run_cycle();cpu.run_cycle();cpu.run_cycle();cpu.run_cycle();cpu.run_cycle();
 		apu.doCycle();apu.doCycle();apu.doCycle();apu.doCycle();apu.doCycle();
 		if(!pause)
-			if(++tracktimer==trackcutoff&&!playingforever){
+			if(++tracktimer>=NesSettings.nsfPlayerSongLength&&!playingforever){
 				if(looping){
 					nextirq=0;
 					tracktimer=0;

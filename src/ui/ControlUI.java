@@ -5,7 +5,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import core.NesSettings;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -47,14 +46,14 @@ public class ControlUI extends JFrame {
 		lblAButton.setBounds(45, 24, 59, 14);
 		contentPane.add(lblAButton);
 		
-		JButton btnNewButton = new JButton("<"+KeyEvent.getKeyText(NesSettings.c1a)+">");
+		JButton btnNewButton = new JButton("<"+KeyEvent.getKeyText(UISettings.c1a)+">");
 		btnNewButton.setBounds(114, 20, 83, 23);
 		btnNewButton.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				btnNewButton.setText("<"+KeyEvent.getKeyText(arg0.getKeyCode())+">");
 				//prop.setProperty("c1a",arg0.getKeyCode()+"");
-				NesSettings.c1a = arg0.getKeyCode();
+				UISettings.c1a = arg0.getKeyCode();
 			}
 		});
 		btnNewButton.addActionListener(new ActionListener() {
@@ -68,14 +67,14 @@ public class ControlUI extends JFrame {
 		lblAButton_1.setBounds(232, 24, 59, 14);
 		contentPane.add(lblAButton_1);
 		
-		JButton btnNewButton_8 = new JButton("<"+KeyEvent.getKeyText(NesSettings.c2a)+">");
+		JButton btnNewButton_8 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2a)+">");
 		btnNewButton_8.setBounds(301, 20, 83, 23);
 		btnNewButton_8.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_8.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
 				//prop.setProperty("c2a",e.getKeyCode()+"");
-				NesSettings.c2a = e.getKeyCode();
+				UISettings.c2a = e.getKeyCode();
 			}
 		});
 		contentPane.add(btnNewButton_8);
@@ -84,14 +83,14 @@ public class ControlUI extends JFrame {
 		lblBButton.setBounds(45, 52, 59, 14);
 		contentPane.add(lblBButton);
 		
-		JButton btnNewButton_1 = new JButton("<"+KeyEvent.getKeyText(NesSettings.c1b)+">");
+		JButton btnNewButton_1 = new JButton("<"+KeyEvent.getKeyText(UISettings.c1b)+">");
 		btnNewButton_1.setBounds(114, 48, 83, 23);
 		btnNewButton_1.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				btnNewButton_1.setText("<"+KeyEvent.getKeyText(arg0.getKeyCode())+">");
 				//prop.setProperty("c1b",arg0.getKeyCode()+"");
-				NesSettings.c1b = arg0.getKeyCode();
+				UISettings.c1b = arg0.getKeyCode();
 			}
 		});
 		btnNewButton_1.addActionListener(new ActionListener() {
@@ -105,14 +104,14 @@ public class ControlUI extends JFrame {
 		lblBButton_1.setBounds(232, 52, 59, 14);
 		contentPane.add(lblBButton_1);
 		
-		JButton btnNewButton_9 = new JButton("<"+KeyEvent.getKeyText(NesSettings.c2b)+">");
+		JButton btnNewButton_9 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2b)+">");
 		btnNewButton_9.setBounds(301, 48, 83, 23);
 		btnNewButton_9.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_9.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
 				//prop.setProperty("c2b",e.getKeyCode()+"");
-				NesSettings.c2b = e.getKeyCode();
+				UISettings.c2b = e.getKeyCode();
 			}
 		});
 		contentPane.add(btnNewButton_9);
@@ -121,14 +120,14 @@ public class ControlUI extends JFrame {
 		lblUpdpad.setBounds(45, 80, 42, 14);
 		contentPane.add(lblUpdpad);
 		
-		JButton btnNewButton_2 = new JButton("<"+KeyEvent.getKeyText(NesSettings.c1up)+">");
+		JButton btnNewButton_2 = new JButton("<"+KeyEvent.getKeyText(UISettings.c1up)+">");
 		btnNewButton_2.setBounds(114, 76, 83, 23);
 		btnNewButton_2.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_2.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
 				//prop.setProperty("c1up",e.getKeyCode()+"");
-				NesSettings.c1up = e.getKeyCode();
+				UISettings.c1up = e.getKeyCode();
 			}
 		});
 		btnNewButton_2.addActionListener(new ActionListener() {
@@ -138,14 +137,14 @@ public class ControlUI extends JFrame {
 		});
 		contentPane.add(btnNewButton_2);
 		
-		JButton btnNewButton_10 = new JButton("<"+KeyEvent.getKeyText(NesSettings.c2up)+">");
+		JButton btnNewButton_10 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2up)+">");
 		btnNewButton_10.setBounds(301, 76, 83, 23);
 		btnNewButton_10.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_10.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
 				//prop.setProperty("c2up",e.getKeyCode()+"");
-				NesSettings.c2up = e.getKeyCode();
+				UISettings.c2up = e.getKeyCode();
 			}
 		});
 		
@@ -158,14 +157,14 @@ public class ControlUI extends JFrame {
 		lblDown.setBounds(45, 108, 42, 14);
 		contentPane.add(lblDown);
 		
-		JButton btnNewButton_3 = new JButton("<"+KeyEvent.getKeyText(NesSettings.c1down)+">");
+		JButton btnNewButton_3 = new JButton("<"+KeyEvent.getKeyText(UISettings.c1down)+">");
 		btnNewButton_3.setBounds(114, 104, 83, 23);
 		btnNewButton_3.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_3.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
 				//prop.setProperty("c1down",e.getKeyCode()+"");
-				NesSettings.c1down = e.getKeyCode();
+				UISettings.c1down = e.getKeyCode();
 
 			}
 		});
@@ -176,14 +175,14 @@ public class ControlUI extends JFrame {
 		});
 		contentPane.add(btnNewButton_3);
 		
-		JButton btnNewButton_4 = new JButton("<"+KeyEvent.getKeyText(NesSettings.c1left)+">");
+		JButton btnNewButton_4 = new JButton("<"+KeyEvent.getKeyText(UISettings.c1left)+">");
 		btnNewButton_4.setBounds(114, 132, 83, 23);
 		btnNewButton_4.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_4.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
 				//prop.setProperty("c1left",e.getKeyCode()+"");
-				NesSettings.c1left = e.getKeyCode();
+				UISettings.c1left = e.getKeyCode();
 
 			}
 		});
@@ -197,14 +196,14 @@ public class ControlUI extends JFrame {
 		lblDown_1.setBounds(239, 108, 35, 14);
 		contentPane.add(lblDown_1);
 		
-		JButton btnNewButton_11 = new JButton("<"+KeyEvent.getKeyText(NesSettings.c2down)+">");
+		JButton btnNewButton_11 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2down)+">");
 		btnNewButton_11.setBounds(301, 104, 83, 23);
 		btnNewButton_11.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_11.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
 				//prop.setProperty("c2down",e.getKeyCode()+"");
-				NesSettings.c2up = e.getKeyCode();
+				UISettings.c2up = e.getKeyCode();
 			}
 		});
 		contentPane.add(btnNewButton_11);
@@ -214,14 +213,14 @@ public class ControlUI extends JFrame {
 		contentPane.add(lblLeft);
 		contentPane.add(btnNewButton_4);
 		
-		JButton btnNewButton_12 = new JButton("<"+KeyEvent.getKeyText(NesSettings.c2left)+">");
+		JButton btnNewButton_12 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2left)+">");
 		btnNewButton_12.setBounds(301, 132, 83, 23);
 		btnNewButton_12.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_12.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
 				//prop.setProperty("c2left",e.getKeyCode()+"");
-				NesSettings.c2left = e.getKeyCode();
+				UISettings.c2left = e.getKeyCode();
 			}
 		});
 		
@@ -234,14 +233,14 @@ public class ControlUI extends JFrame {
 		lblRight.setBounds(45, 164, 42, 14);
 		contentPane.add(lblRight);
 		
-		JButton btnNewButton_5 = new JButton("<"+KeyEvent.getKeyText(NesSettings.c1right)+">");
+		JButton btnNewButton_5 = new JButton("<"+KeyEvent.getKeyText(UISettings.c1right)+">");
 		btnNewButton_5.setBounds(114, 160, 83, 23);
 		btnNewButton_5.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_5.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
 				//prop.setProperty("c1right",e.getKeyCode()+"");
-				NesSettings.c1right = e.getKeyCode();
+				UISettings.c1right = e.getKeyCode();
 
 			}
 		});
@@ -256,14 +255,14 @@ public class ControlUI extends JFrame {
 		lblRight_1.setBounds(240, 164, 34, 14);
 		contentPane.add(lblRight_1);
 		
-		JButton btnNewButton_13 = new JButton("<"+KeyEvent.getKeyText(NesSettings.c2right)+">");
+		JButton btnNewButton_13 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2right)+">");
 		btnNewButton_13.setBounds(301, 160, 83, 23);
 		btnNewButton_13.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_13.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
 				//prop.setProperty("c2right",e.getKeyCode()+"");
-				NesSettings.c2right = e.getKeyCode();
+				UISettings.c2right = e.getKeyCode();
 
 			}
 		});
@@ -273,14 +272,14 @@ public class ControlUI extends JFrame {
 		lblStart.setBounds(45, 192, 42, 14);
 		contentPane.add(lblStart);
 		
-		JButton btnNewButton_6 = new JButton("<"+KeyEvent.getKeyText(NesSettings.c1start)+">");
+		JButton btnNewButton_6 = new JButton("<"+KeyEvent.getKeyText(UISettings.c1start)+">");
 		btnNewButton_6.setBounds(114, 188, 83, 23);
 		btnNewButton_6.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_6.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
 				//prop.setProperty("c1start",e.getKeyCode()+"");
-				NesSettings.c1start = e.getKeyCode();
+				UISettings.c1start = e.getKeyCode();
 
 			}
 		});
@@ -291,14 +290,14 @@ public class ControlUI extends JFrame {
 		});
 		contentPane.add(btnNewButton_6);
 		
-		JButton btnNewButton_14 = new JButton("<"+KeyEvent.getKeyText(NesSettings.c2start)+">");
+		JButton btnNewButton_14 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2start)+">");
 		btnNewButton_14.setBounds(301, 188, 83, 23);
 		btnNewButton_14.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_14.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
 				//prop.setProperty("c2start",e.getKeyCode()+"");
-				NesSettings.c2start = e.getKeyCode();
+				UISettings.c2start = e.getKeyCode();
 
 			}
 		});
@@ -312,14 +311,14 @@ public class ControlUI extends JFrame {
 		lblSelect.setBounds(45, 220, 42, 14);
 		contentPane.add(lblSelect);
 		
-		JButton btnNewButton_7 = new JButton("<"+KeyEvent.getKeyText(NesSettings.c1select)+">");
+		JButton btnNewButton_7 = new JButton("<"+KeyEvent.getKeyText(UISettings.c1select)+">");
 		btnNewButton_7.setBounds(114, 216, 83, 23);
 		btnNewButton_7.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_7.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
 				//prop.setProperty("c1select",e.getKeyCode()+"");
-				NesSettings.c1select = e.getKeyCode();
+				UISettings.c1select = e.getKeyCode();
 
 			}
 		});
@@ -330,14 +329,14 @@ public class ControlUI extends JFrame {
 		});
 		contentPane.add(btnNewButton_7);
 		
-		JButton btnNewButton_15 = new JButton("<"+KeyEvent.getKeyText(NesSettings.c2select)+">");
+		JButton btnNewButton_15 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2select)+">");
 		btnNewButton_15.setBounds(301, 216, 83, 23);
 		btnNewButton_15.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				btnNewButton_15.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
 				//prop.setProperty("c2select",e.getKeyCode()+"");
-				NesSettings.c2select = e.getKeyCode();
+				UISettings.c2select = e.getKeyCode();
 
 			}
 		});

@@ -28,7 +28,7 @@ public class SystemUI implements NESCallback {
 	final JFileChooser fc = new JFileChooser();
 	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow;
 	Debugger debugInfo;
-	File rom;
+	File rom,configuration;
 	NesDisplay display;
 	private KeyChecker keys;
 	public UpdateEventListener listener;
@@ -41,8 +41,10 @@ public class SystemUI implements NESCallback {
 	private AudioInterface audio;
 	
 	public SystemUI(){
+		configuration = new File("config.properties");
 		try {
-			NesSettings.loadSettings();
+			NesSettings.loadSettings(configuration);
+			UISettings.loadSettings(configuration);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -103,7 +105,7 @@ public class SystemUI implements NESCallback {
 				}
 			}
 			else{
-				if(NesSettings.ShowFPS){
+				if(UISettings.ShowFPS){
 					if(nes!=null)
 						mainWindow.setTitle("Nes Emulator     FPS: "+String.format("%.2f", nes.getFPS()));
 				}
@@ -347,7 +349,7 @@ public class SystemUI implements NESCallback {
 		Thread.sleep(delay);
 	}
 	public void createNES(File rom){
-		nes = new NES();
+		nes = new NES(this);
 		nes.setCallback(this);
 		try {
 			nes.loadRom(rom);
@@ -418,8 +420,6 @@ public class SystemUI implements NESCallback {
 		debugInfo.setVisible(true);
 		nes.pause();
 		BreakPoint.setsystem(this);
-		//debugInfo.breakpoints.addElement(new BreakPoint(Variable.verticalblank,true));
-		//debugInfo.breakpointui.setListData((BreakPoint[])debugInfo.breakpoints.toArray());
 		debugInfo.updateInfo();
 	}
 	public void exitDebug(){

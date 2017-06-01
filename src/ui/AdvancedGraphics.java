@@ -128,7 +128,6 @@ public class AdvancedGraphics extends JFrame {
 				JComboBox<?> cb = (JComboBox<?>)e.getSource();
 				String s = cb.getSelectedItem().toString();
 				NES.setInternalPalette(s);
-				NesSettings.selectedPalette=s;
 				panel_2.repaint();	
 			}
 		});
@@ -141,7 +140,6 @@ public class AdvancedGraphics extends JFrame {
 				int[] custom = NES.getInternalPaletteRGB("custom");
 				Color newColor = JColorChooser.showDialog(null, "Choose a color", new Color(palette[y*16+x]));
 				if(newColor!=null){
-					NesSettings.selectedPalette="custom";
 					custom=Arrays.copyOf(palette, palette.length);
 					custom[y*16+x] = newColor.getRGB();
 					NES.setCustomPalette(custom);

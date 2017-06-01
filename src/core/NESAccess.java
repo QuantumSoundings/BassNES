@@ -2,6 +2,7 @@ package core;
 
 import java.io.File;
 import java.io.IOException;
+
 /**
  * Interface of guaranteed functions provided by a NES object.
  * @author Jordan Howe
@@ -87,8 +88,6 @@ public interface NESAccess {
 	 */
 	public void setSampleRate(int rate);
 	
-	
-	
 	/*
 	 * Palette manipulation.
 	 */
@@ -120,7 +119,7 @@ public interface NESAccess {
 	public void loadSave() throws IOException;
 	
 	/*
-	 * Debug and nes state functions.
+	 * Debug and NES state functions.
 	 */
 	public Object[][] getAudioChannelInfo();
 	/**

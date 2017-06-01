@@ -3,7 +3,6 @@ package ui;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-import core.NesSettings;
 
 public class KeyChecker implements KeyListener, java.io.Serializable {
 
@@ -30,40 +29,40 @@ public class KeyChecker implements KeyListener, java.io.Serializable {
 	@Override
 	public void keyPressed(KeyEvent event){
 		int key = event.getKeyCode();
-		if(key ==NesSettings.c1up)
+		if(key ==UISettings.c1up)
 			up = true;
-		else if(key == NesSettings.c1down)
+		else if(key == UISettings.c1down)
 			down = true;
-		else if(key == NesSettings.c1left)
+		else if(key == UISettings.c1left)
 			left = true;
-		else if(key == NesSettings.c1right)
+		else if(key == UISettings.c1right)
 			right = true;
-		else if(key == NesSettings.c1a)
+		else if(key == UISettings.c1a)
 			a = true;
-		else if(key == NesSettings.c1b)
+		else if(key == UISettings.c1b)
 			b = true;
-		else if(key == NesSettings.c1start)
+		else if(key == UISettings.c1start)
 			start = true;
-		else if(key == NesSettings.c1select)
+		else if(key == UISettings.c1select)
 			select = true;
 		
 		
 		
-		if(key ==NesSettings.c2up)
+		if(key ==UISettings.c2up)
 			up2 = true;
-		else if(key == NesSettings.c2down)
+		else if(key == UISettings.c2down)
 			down2 = true;
-		else if(key == NesSettings.c2left)
+		else if(key == UISettings.c2left)
 			left2 = true;
-		else if(key == NesSettings.c2right)
+		else if(key == UISettings.c2right)
 			right2 = true;
-		else if(key == NesSettings.c2a)
+		else if(key == UISettings.c2a)
 			a2 = true;
-		else if(key == NesSettings.c2b)
+		else if(key == UISettings.c2b)
 			b2 = true;
-		else if(key == NesSettings.c2start)
+		else if(key == UISettings.c2start)
 			start2 = true;
-		else if(key == NesSettings.c2select)
+		else if(key == UISettings.c2select)
 			select2 = true;
 		
 		
@@ -73,39 +72,39 @@ public class KeyChecker implements KeyListener, java.io.Serializable {
 	@Override
 	public void keyReleased(KeyEvent event){
 		int key = event.getKeyCode();
-		if(key ==NesSettings.c1up)
+		if(key ==UISettings.c1up)
 			up = false;
-		else if(key == NesSettings.c1down)
+		else if(key == UISettings.c1down)
 			down = false;
-		else if(key == NesSettings.c1left)
+		else if(key == UISettings.c1left)
 			left = false;
-		else if(key == NesSettings.c1right)
+		else if(key == UISettings.c1right)
 			right = false;
-		else if(key == NesSettings.c1a)
+		else if(key == UISettings.c1a)
 			a = false;
-		else if(key == NesSettings.c1b)
+		else if(key == UISettings.c1b)
 			b = false;
-		else if(key == NesSettings.c1start)
+		else if(key == UISettings.c1start)
 			start = false;
-		else if(key == NesSettings.c1select)
+		else if(key == UISettings.c1select)
 			select = false;
 		
 		
-		if(key ==NesSettings.c2up)
+		if(key ==UISettings.c2up)
 			up2 = false;
-		else if(key == NesSettings.c2down)
+		else if(key == UISettings.c2down)
 			down2 = false;
-		else if(key == NesSettings.c2left)
+		else if(key == UISettings.c2left)
 			left2 = false;
-		else if(key == NesSettings.c2right)
+		else if(key == UISettings.c2right)
 			right2 = false;
-		else if(key == NesSettings.c2a)
+		else if(key == UISettings.c2a)
 			a2 = false;
-		else if(key == NesSettings.c2b)
+		else if(key == UISettings.c2b)
 			b2 = false;
-		else if(key == NesSettings.c2start)
+		else if(key == UISettings.c2start)
 			start2 = false;
-		else if(key == NesSettings.c2select)
+		else if(key == UISettings.c2select)
 			select2 = false;
 		//else if(key == debugkey)
 		//	debug = !debug;

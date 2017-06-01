@@ -76,7 +76,7 @@ public class AudioSettingsUI extends JFrame {
 		
 		JCheckBox chckbxLockFrameRate = new JCheckBox("Lock Frame Rate to Audio");
 		chckbxLockFrameRate.setBounds(241, 30, 171, 23);
-		chckbxLockFrameRate.setSelected(NesSettings.lockVideoToAudio);
+		chckbxLockFrameRate.setSelected(UISettings.lockVideoToAudio);
 		panel_1.add(chckbxLockFrameRate);
 		
 		JLabel lbloverridesOtherFps = new JLabel("(overrides other FPS settings)");

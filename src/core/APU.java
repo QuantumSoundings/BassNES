@@ -224,10 +224,10 @@ public class APU implements java.io.Serializable{
 		//System.out.println(d);
 		return d;
 	}
-	public void resetAudioBuffer(){
-		samples = new int[NesSettings.sampleRate/60+10];
-		sampleptr = 0;
-	}
+	//public void resetAudioBuffer(){
+	//	samples = new int[NesSettings.sampleRate/60+10];
+	//	sampleptr = 0;
+	//}
 	public void sendOutput(){
 		double p1 = getAverageSample(pulse1,NesSettings.pulse1MixLevel);
 		double p2 = getAverageSample(pulse2,NesSettings.pulse2MixLevel);

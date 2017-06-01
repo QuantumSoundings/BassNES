@@ -35,7 +35,9 @@ public class NES implements Runnable,NESAccess {
 	private int framecount=0;
 	
 	
-	public NES(){}
+	public NES(NESCallback sys){
+		system = sys;
+	}
 	public void setCallback(NESCallback system){
 		this.system=system;
 	}
@@ -251,6 +253,7 @@ public class NES implements Runnable,NESAccess {
 	}
 	public final void setSampleRate(int rate){
 		map.apu.setSampleRate(rate);
+		NesSettings.logSampleRate(rate);
 	}
 	public final void runCPUCycle() {
 		map.runCPUCycle();	
@@ -262,6 +265,7 @@ public class NES implements Runnable,NESAccess {
 	}
 	public static final void setInternalPalette(String palette){
 		NesColors.updatePalette(palette);
+		NesSettings.logInternalPalette(palette);
 	}
 	public static final int[] getInternalPaletteRGB(String palette){
 		return NesColors.getpalette(palette);

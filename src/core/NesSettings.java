@@ -1,6 +1,5 @@
 package core;
 
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -9,21 +8,32 @@ import java.util.Properties;
 
 import core.video.NesColors;
 /**
- * Contains settings vital to the functioning of an NES object.
+ * Contains settings vital to the functioning of an NES object. All changes are reflected immediately in
+ * all running NES objects unless otherwise noted.
  * @author Jordan Howe
  *
  */
 public class NesSettings {
 	static Properties prop;
 	//Emulation Settings
+	/**
+	 * Determines whether a threaded NES instance will sleep between frames.
+	 */
 	public static boolean politeFrameTiming = true;
+	/**
+	 * Determines whether a threaded NES instance will limit its framerate.
+	 */
 	public static boolean frameLimit = true;
-	public static boolean autoLoad = true;
-	public static boolean lockVideoToAudio=false;
 	
 	
 	//Graphics Settings
+	/**
+	 * Determines whether a NES instance will output background graphics.
+	 */
 	public static boolean RenderBackground=true;
+	/**
+	 * Determines whether a NES instance will output sprite graphics.
+	 */
 	public static boolean RenderSprites=true;
 	/**
 	 * Internal rendering method. This variable determines the type of information present in the 
@@ -33,69 +43,75 @@ public class NesSettings {
 	 * 3: Raw nes values.
 	 */
 	public static int RenderMethod=2;
-	public static boolean ShowFPS=true;
 	/**
-	 * The core comes with several internal palettes.
+	 * The core comes with several internal palettes. This variable holds the name of the 
+	 * currently selected palette. READ ONLY.
 	 */
 	public static String selectedPalette= "defaultPalette";
 	/**
-	 * Array of internal palette names to be used when settings the internal palette.
+	 * Array of internal palette names to be used when setting the internal palette.
 	 */
 	public final static String[] palettes = {"defaultPalette","Custom","NTSCHardwareFBX","nesClassicFBX","compositeDirectFBX","sonypvmFBX"};
-	
+	public static enum AudioChannels{Pulse1,Pulse2,Triangle,Noise,DMC,VRC6,VRC6_Pulse1,VRC6_Pulse2,VRC6_Saw,Namco,MMC5,MMC5_Pulse1,MMC5_Pulse2,MMC5_PCM};
 	//Audio Settings
-	public static boolean AudioEnabled=true;
+	/**
+	 * PreMix master level. 
+	 */
 	public static int masterMixLevel=100;
+	/**
+	 * PreMix level of APU pulse channel 1.
+	 */
 	public static int pulse1MixLevel=100;
+	/**
+	 * PreMix level of APU pulse channel 2.
+	 */
 	public static int pulse2MixLevel=100;
+	/**
+	 * PreMix level of APU triangle channel.
+	 */
 	public static int triangleMixLevel=100;
+	/**
+	 * PreMix level of APU noise channel.
+	 */
 	public static int noiseMixLevel=100;
+	/**
+	 * PreMix level of APU DMC channel.
+	 */
 	public static int dmcMixLevel=100;
+	/**
+	 * PreMix level of VRC6 expansion audio chip.
+	 */
 	public static int vrc6MixLevel=100;
+	/**
+	 * PreMix level of Namco expansion audio chip.
+	 */
 	public static int namcoMixLevel=100;
+	/**
+	 * PreMix level of MMC5 expansion audio chip.
+	 */
 	public static int mmc5MixLevel=100;
-	public static int sampleRate = 48000;
+	/**
+	 * Internal sampling rate of a NES instance. READ ONLY. Changes to this value will not
+	 * effect a NES instance. Changes should be made using NES.setSampleRate(int rate).
+	 */
+	public static int sampleRate = 44100;
+	/**
+	 * Cut off time for a track in the NSF Player. Integer value in frames. 60 * (# of seconds)
+	 */
 	public static int nsfPlayerSongLength = 7200;
 	
-	//Controller Bindings
-	public static int c1a;
-	public static int c1b;
-	public static int c1up;
-	public static int c1down;
-	public static int c1left;
-	public static int c1right;
-	public static int c1start;
-	public static int c1select;
-	public static int c2a;
-	public static int c2b;
-	public static int c2up;
-	public static int c2down;
-	public static int c2left;
-	public static int c2right;
-	public static int c2start;
-	public static int c2select;
 	
 
-	public NesSettings(){
-		try {
-			loadSettings();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+	public NesSettings(){}
 	
-	
-	public void setSetting(String key,String value){
-		prop.setProperty(key, value);
-	}
-	public String getSetting(String key){
-		return prop.getProperty(key);
-	}
-	public static void saveSettings(){
+	/**
+	 * Saves NES settings to a configuration file.
+	 * @param config - File to which settings will be saved.
+	 */
+	public static void saveSettings(File config){
 		FileOutputStream output;
 		try {
-			output = new FileOutputStream("config.properties");
-			saveKeys();
+			output = new FileOutputStream(config);
 			saveAudio();
 			saveGraphics();
 			saveEmulation();
@@ -105,56 +121,23 @@ public class NesSettings {
 		}
 	}
 	/**
-	 * Loads nes settings from saved config file. Or loads default values.
+	 * Loads NES settings from a saved configuration file. Or loads default values.
+	 * @param config - File to load settings from.
 	 * @throws IOException
 	 */
-	public static void loadSettings() throws IOException{
+	public static void loadSettings(File config) throws IOException{
 		prop = new Properties();
-		File t = new File("config.properties");
-		if(!t.exists()){//default config
-			loadKeys();
+		if(!config.exists()){
 		}
 		else{
-			FileInputStream input = new FileInputStream("config.properties");
+			FileInputStream input = new FileInputStream(config);
 			prop.load(input);
-			loadKeys();
 			loadAudio();
 			loadGraphics();
-			loadEmulation();
-			
+			loadEmulation();		
 		}
-	}
-
-	private static void loadKeys(){
-		c1a = Integer.parseInt(prop.getProperty("c1a", KeyEvent.VK_A+""));
-		c1b = Integer.parseInt(prop.getProperty("c1b", KeyEvent.VK_S+""));
-		c1up = Integer.parseInt(prop.getProperty("c1up",KeyEvent.VK_UP+""));
-		c1down = Integer.parseInt(prop.getProperty("c1down", KeyEvent.VK_DOWN+""));
-		c1left = Integer.parseInt(prop.getProperty("c1left", KeyEvent.VK_LEFT+""));
-		c1right = Integer.parseInt(prop.getProperty("c1right", KeyEvent.VK_RIGHT+""));
-		c1start = Integer.parseInt(prop.getProperty("c1start", KeyEvent.VK_Q+""));
-		c1select = Integer.parseInt(prop.getProperty("c1select", KeyEvent.VK_W+""));
-		c2a = Integer.parseInt(prop.getProperty("c2a", KeyEvent.VK_A+""));
-		c2b = Integer.parseInt(prop.getProperty("c2b", KeyEvent.VK_S+""));
-		c2up = Integer.parseInt(prop.getProperty("c2up",KeyEvent.VK_UP+""));
-		c2down = Integer.parseInt(prop.getProperty("c2down", KeyEvent.VK_DOWN+""));
-		c2left = Integer.parseInt(prop.getProperty("c2left", KeyEvent.VK_LEFT+""));
-		c2right = Integer.parseInt(prop.getProperty("c2right", KeyEvent.VK_RIGHT+""));
-		c2start = Integer.parseInt(prop.getProperty("c2start", KeyEvent.VK_Q+""));
-		c2select = Integer.parseInt(prop.getProperty("c2select", KeyEvent.VK_W+""));		
-	}
-	private static void saveKeys(){
-		prop.setProperty("c1a", c1a+"");prop.setProperty("c2a", c2a+"");
-		prop.setProperty("c1b", c1b+"");prop.setProperty("c2b", c2b+"");
-		prop.setProperty("c1up", c1up+"");prop.setProperty("c2up", c2up+"");
-		prop.setProperty("c1down", c1down+"");prop.setProperty("c2down", c2down+"");
-		prop.setProperty("c1left", c1left+"");prop.setProperty("c2left", c2left+"");
-		prop.setProperty("c1right", c1right+"");prop.setProperty("c2right", c2right+"");
-		prop.setProperty("c1start", c1start+"");prop.setProperty("c2start", c2start+"");
-		prop.setProperty("c1select", c1select+"");prop.setProperty("c2select", c2select+"");
-	}
+	}	
 	private static void loadAudio(){
-		AudioEnabled = prop.getProperty("audioenabled", "true").equals("true");
 		masterMixLevel = Integer.parseInt(prop.getProperty("mastermixlevel","100"));
 		pulse1MixLevel = Integer.parseInt(prop.getProperty("pulse1mixlevel","100"));
 		pulse2MixLevel = Integer.parseInt(prop.getProperty("pulse2mixlevel","100"));
@@ -168,7 +151,6 @@ public class NesSettings {
 		nsfPlayerSongLength = Integer.parseInt(prop.getProperty("nsfplayersonglength", "7200"));
 	}
 	private static void saveAudio(){
-		prop.setProperty("audioenabled", AudioEnabled+"");
 		prop.setProperty("mastermixlevel", masterMixLevel+"");
 		prop.setProperty("pulse1mixlevel", pulse1MixLevel+"");
 		prop.setProperty("pulse2mixlevel", pulse2MixLevel+"");
@@ -185,7 +167,6 @@ public class NesSettings {
 		RenderBackground = prop.getProperty("renderbackground", "true").equals("true");
 		RenderSprites = prop.getProperty("rendersprites", "true").equals("true");
 		RenderMethod = Integer.parseInt(prop.getProperty("rendermethod", "3"));
-		ShowFPS = prop.getProperty("showfps", "true").equals("true");
 		selectedPalette = prop.getProperty("selectedpalette","defaultPalette");
 		NesColors.setCustomPalette(prop.getProperty("custompalette",""));
 		NesColors.updatePalette(selectedPalette);
@@ -194,20 +175,22 @@ public class NesSettings {
 		prop.setProperty("renderbackground", RenderBackground+"");
 		prop.setProperty("rendersprites", RenderSprites+"");
 		prop.setProperty("rendermethod", 2+"");
-		prop.setProperty("showfps", ShowFPS+"");
 		prop.setProperty("selectedpalette", selectedPalette);
 		prop.setProperty("custompalette", NesColors.getCustomPalette());
 	}
 	private static void loadEmulation(){
 		politeFrameTiming = prop.getProperty("politeframetiming", "true").equals("true");
 		frameLimit = prop.getProperty("framelimit", "true").equals("true");
-		autoLoad = prop.getProperty("autoload", "true").equals("true");
-		lockVideoToAudio = prop.getProperty("lockvideotoaudio","false").equals("true");
 	}
 	private static void saveEmulation(){
 		prop.setProperty("politeframetiming", politeFrameTiming+"");
 		prop.setProperty("framelimit", frameLimit+"");
-		prop.setProperty("autoload", autoLoad+"");
-		prop.setProperty("lockvideotoaudio", lockVideoToAudio+"");
+	}
+	static void logSampleRate(int rate){
+		sampleRate = rate;
+	}
+
+	static void logInternalPalette(String palette) {
+		selectedPalette = palette;
 	}
 }

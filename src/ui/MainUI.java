@@ -70,7 +70,7 @@ public class MainUI extends JFrame {
 				int returnval = sys.fc.showOpenDialog(sys.mainWindow);
 				if(returnval == JFileChooser.APPROVE_OPTION){
 					sys.rom = sys.fc.getSelectedFile();
-					if(NesSettings.autoLoad){
+					if(UISettings.autoLoad){
 						if(sys.nes!=null)
 							sys.nes.exit();
 						sys.createNES(sys.rom);
@@ -82,12 +82,12 @@ public class MainUI extends JFrame {
 		};
 		Action autoLoad = new AbstractAction(){
 			public void actionPerformed(ActionEvent e) {
-				NesSettings.autoLoad = !NesSettings.autoLoad;
+				UISettings.autoLoad = !UISettings.autoLoad;
 			}
 		};
 		Action showFPS = new AbstractAction(){
 			public void actionPerformed(ActionEvent e) {
-				NesSettings.ShowFPS = !NesSettings.ShowFPS;
+				UISettings.ShowFPS = !UISettings.ShowFPS;
 			}
 		};
 		Action saveState1= new AbstractAction(){
@@ -183,12 +183,12 @@ public class MainUI extends JFrame {
 		
 		JCheckBoxMenuItem chckbxmntmAutoload = new JCheckBoxMenuItem("AutoLoad");
 		chckbxmntmAutoload.addActionListener(autoLoad);
-		chckbxmntmAutoload.setSelected(NesSettings.autoLoad);
+		chckbxmntmAutoload.setSelected(UISettings.autoLoad);
 		mnSystem.add(chckbxmntmAutoload);
 		
 		JCheckBoxMenuItem chckbxmntmShowFps = new JCheckBoxMenuItem("Show FPS");
 		chckbxmntmShowFps.addActionListener(showFPS);
-		chckbxmntmShowFps.setSelected(NesSettings.ShowFPS);
+		chckbxmntmShowFps.setSelected(UISettings.ShowFPS);
 		mnSystem.add(chckbxmntmShowFps);
 		
 		JMenu mnSaveState = new JMenu("Save State");
@@ -246,13 +246,13 @@ public class MainUI extends JFrame {
 		menuBar.add(mnNewMenu);
 		
 		JCheckBoxMenuItem chckbxmntmEnableAudio = new JCheckBoxMenuItem("Enable Audio");
-		NesSettings.AudioEnabled=true;
+		UISettings.AudioEnabled=true;
 		chckbxmntmEnableAudio.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-					NesSettings.AudioEnabled=!NesSettings.AudioEnabled;
+					UISettings.AudioEnabled=!UISettings.AudioEnabled;
 			}
 		});
-		chckbxmntmEnableAudio.setSelected(NesSettings.AudioEnabled);
+		chckbxmntmEnableAudio.setSelected(UISettings.AudioEnabled);
 		mnNewMenu.add(chckbxmntmEnableAudio);
 		
 		JMenuItem mntmAudioMixer = new JMenuItem("Audio Settings");
@@ -373,7 +373,8 @@ public class MainUI extends JFrame {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				NesSettings.saveSettings();
+				NesSettings.saveSettings(sys.configuration);
+				UISettings.saveSettings(sys.configuration);
 				System.exit(0);
 			}
 		});
