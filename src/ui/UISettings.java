@@ -1,11 +1,11 @@
 package ui;
 
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+
 
 public class UISettings {
 	static Properties prop;
@@ -17,22 +17,8 @@ public class UISettings {
 	
 	
 	//Controller Bindings
-	public static int c1a;
-	public static int c1b;
-	public static int c1up;
-	public static int c1down;
-	public static int c1left;
-	public static int c1right;
-	public static int c1start;
-	public static int c1select;
-	public static int c2a;
-	public static int c2b;
-	public static int c2up;
-	public static int c2down;
-	public static int c2left;
-	public static int c2right;
-	public static int c2start;
-	public static int c2select;
+	public static ControllerInfo[] c1controls = new ControllerInfo[8];
+	public static ControllerInfo[] c2controls = new ControllerInfo[8];
 	
 	public static void saveSettings(File config){
 		FileOutputStream output;
@@ -67,32 +53,35 @@ public class UISettings {
 		}
 	}
 	private static void loadKeys(){
-		c1a = Integer.parseInt(prop.getProperty("c1a", KeyEvent.VK_A+""));
-		c1b = Integer.parseInt(prop.getProperty("c1b", KeyEvent.VK_S+""));
-		c1up = Integer.parseInt(prop.getProperty("c1up",KeyEvent.VK_UP+""));
-		c1down = Integer.parseInt(prop.getProperty("c1down", KeyEvent.VK_DOWN+""));
-		c1left = Integer.parseInt(prop.getProperty("c1left", KeyEvent.VK_LEFT+""));
-		c1right = Integer.parseInt(prop.getProperty("c1right", KeyEvent.VK_RIGHT+""));
-		c1start = Integer.parseInt(prop.getProperty("c1start", KeyEvent.VK_Q+""));
-		c1select = Integer.parseInt(prop.getProperty("c1select", KeyEvent.VK_W+""));
-		c2a = Integer.parseInt(prop.getProperty("c2a", KeyEvent.VK_A+""));
-		c2b = Integer.parseInt(prop.getProperty("c2b", KeyEvent.VK_S+""));
-		c2up = Integer.parseInt(prop.getProperty("c2up",KeyEvent.VK_UP+""));
-		c2down = Integer.parseInt(prop.getProperty("c2down", KeyEvent.VK_DOWN+""));
-		c2left = Integer.parseInt(prop.getProperty("c2left", KeyEvent.VK_LEFT+""));
-		c2right = Integer.parseInt(prop.getProperty("c2right", KeyEvent.VK_RIGHT+""));
-		c2start = Integer.parseInt(prop.getProperty("c2start", KeyEvent.VK_Q+""));
-		c2select = Integer.parseInt(prop.getProperty("c2select", KeyEvent.VK_W+""));		
+		System.out.println("Loading keys");
+		c1controls = new ControllerInfo[8];
+		c1controls[0] = ControllerInfo.restoreInfo(prop.getProperty("c1a"),     "Standard PS/2 Keyboard;A;1.0");
+		c1controls[1] = ControllerInfo.restoreInfo(prop.getProperty("c1b"),     "Standard PS/2 Keyboard;B;1.0");
+		c1controls[2] = ControllerInfo.restoreInfo(prop.getProperty("c1select"),"Standard PS/2 Keyboard;W;1.0");
+		c1controls[3] = ControllerInfo.restoreInfo(prop.getProperty("c1start"), "Standard PS/2 Keyboard;Q;1.0");
+		c1controls[4] = ControllerInfo.restoreInfo(prop.getProperty("c1up"),    "Standard PS/2 Keyboard;Up;1.0");
+		c1controls[5] = ControllerInfo.restoreInfo(prop.getProperty("c1down"),  "Standard PS/2 Keyboard;Down;1.0");
+		c1controls[6] = ControllerInfo.restoreInfo(prop.getProperty("c1left"),  "Standard PS/2 Keyboard;Left;1.0");
+		c1controls[7] = ControllerInfo.restoreInfo(prop.getProperty("c1right"), "Standard PS/2 Keyboard;Right;1.0");
+		c2controls = new ControllerInfo[8];
+		c2controls[0] = ControllerInfo.restoreInfo(prop.getProperty("c2a"),     "Standard PS/2 Keyboard;A;1.0");
+		c2controls[1] = ControllerInfo.restoreInfo(prop.getProperty("c2b"),     "Standard PS/2 Keyboard;B;1.0");
+		c2controls[2] = ControllerInfo.restoreInfo(prop.getProperty("c2select"),"Standard PS/2 Keyboard;W;1.0");
+		c2controls[3] = ControllerInfo.restoreInfo(prop.getProperty("c2start"), "Standard PS/2 Keyboard;Q;1.0");
+		c2controls[4] = ControllerInfo.restoreInfo(prop.getProperty("c2up"),    "Standard PS/2 Keyboard;Up;1.0");
+		c2controls[5] = ControllerInfo.restoreInfo(prop.getProperty("c2down"),  "Standard PS/2 Keyboard;Down;1.0");
+		c2controls[6] = ControllerInfo.restoreInfo(prop.getProperty("c2left"),  "Standard PS/2 Keyboard;Left;1.0");
+		c2controls[7] = ControllerInfo.restoreInfo(prop.getProperty("c2right"), "Standard PS/2 Keyboard;Right;1.0");		
 	}
 	private static void saveKeys(){
-		prop.setProperty("c1a", c1a+"");prop.setProperty("c2a", c2a+"");
-		prop.setProperty("c1b", c1b+"");prop.setProperty("c2b", c2b+"");
-		prop.setProperty("c1up", c1up+"");prop.setProperty("c2up", c2up+"");
-		prop.setProperty("c1down", c1down+"");prop.setProperty("c2down", c2down+"");
-		prop.setProperty("c1left", c1left+"");prop.setProperty("c2left", c2left+"");
-		prop.setProperty("c1right", c1right+"");prop.setProperty("c2right", c2right+"");
-		prop.setProperty("c1start", c1start+"");prop.setProperty("c2start", c2start+"");
-		prop.setProperty("c1select", c1select+"");prop.setProperty("c2select", c2select+"");
+		prop.setProperty("c1a", c1controls[0].storeInfo()+"");prop.setProperty("c2a", c2controls[0].storeInfo()+"");
+		prop.setProperty("c1b", c1controls[1].storeInfo()+"");prop.setProperty("c2b", c2controls[1].storeInfo()+"");
+		prop.setProperty("c1up", c1controls[4].storeInfo()+"");prop.setProperty("c2up", c2controls[4].storeInfo()+"");
+		prop.setProperty("c1down",c1controls[5].storeInfo()+"");prop.setProperty("c2down", c2controls[5].storeInfo()+"");
+		prop.setProperty("c1left", c1controls[6].storeInfo()+"");prop.setProperty("c2left", c2controls[6].storeInfo()+"");
+		prop.setProperty("c1right", c1controls[7].storeInfo()+"");prop.setProperty("c2right", c2controls[7].storeInfo()+"");
+		prop.setProperty("c1start", c1controls[3].storeInfo()+"");prop.setProperty("c2start", c2controls[3].storeInfo()+"");
+		prop.setProperty("c1select", c1controls[2].storeInfo()+"");prop.setProperty("c2select", c2controls[2].storeInfo()+"");
 	}
 	private static void loadUI(){
 		autoLoad = prop.getProperty("autoload", "true").equals("true");

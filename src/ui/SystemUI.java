@@ -30,7 +30,7 @@ public class SystemUI implements NESCallback {
 	Debugger debugInfo;
 	File rom,configuration;
 	NesDisplay display;
-	private KeyChecker keys;
+	//private KeyChecker keys;
 	public UpdateEventListener listener;
 	private int[] pixels;
 	private int[] audiobuffer;
@@ -50,13 +50,13 @@ public class SystemUI implements NESCallback {
 		}
 		audio = new AudioInterface(this);
 		debugInfo = new Debugger(this);
-		rom = new File("one winged angel.nsf");
+		rom = new File("allstars.nes");
 		mainWindow = new MainUI(this);
 		//debugWindow = new DebugUI();
 		keyconfigWindow = new ControlUI(prop,this);
 		audiomixerWindow = new AudioSettingsUI(this);
 		advancedGraphicsWindow = new AdvancedGraphics(this);
-		keys = new KeyChecker();
+		//keys = new KeyChecker();
 		display = new NesDisplay();
 		display.setSize(256, 240);
 		display.updateScaling(2);		
@@ -120,7 +120,7 @@ public class SystemUI implements NESCallback {
 		}
 	}
 	private void setupMainWindow(){
-		mainWindow.addKeyListener(keys);
+		//mainWindow.addKeyListener(keys);
 		mainWindow.setFocusable(true);
 		mainWindow.requestFocusInWindow();
 		mainWindow.add(display);
@@ -186,7 +186,7 @@ public class SystemUI implements NESCallback {
 			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/blarggapu/11.len_reload_timing.nes"),-991011135);
 			testoutput += "\n "+pass +"/"+(pass+fail)+" Passed\n";totalpass+=pass;total+=(pass+fail);pass=0;fail=0;
 		}
-        if(false|all){
+        if(true|all){
         	testoutput+= "\n Various DMC Tests \n\n";
 			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/dmc/dma_2007_read.nes"),0);
 			testrom(2000/speed, new File(System.getProperty("user.dir")+"/tests/dmc/dma_2007_write.nes"),41608769);
@@ -376,7 +376,13 @@ public class SystemUI implements NESCallback {
 		nes.unpause();
 	}
 	public boolean[][] pollController(){
-		return keys.currentKeys();	
+		boolean[][] out = new boolean[2][8];
+        for(int i = 0;i<8;i++){
+        	out[0][i] = UISettings.c1controls[i].checkPressed();
+        	out[1][i] = UISettings.c2controls[i].checkPressed();
+        }
+
+		return out;	
 	}
 	public void videoCallback(int[] p){
 		pixels=p;

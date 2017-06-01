@@ -3,6 +3,10 @@ package ui;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import net.java.games.input.Component;
+import net.java.games.input.Controller;
+import net.java.games.input.ControllerEnvironment;
+
 
 public class KeyChecker implements KeyListener, java.io.Serializable {
 
@@ -108,6 +112,15 @@ public class KeyChecker implements KeyListener, java.io.Serializable {
 			select2 = false;
 		//else if(key == debugkey)
 		//	debug = !debug;
+	}
+	
+	public boolean[][] pollController(){
+        Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
+        boolean[][] out = new boolean[2][8];
+        for(int i = 0;i<8;i++){
+        	out[0][i] = UISettings.c1controls[i].checkPressed();
+        }
+		return out;
 	}
 	public boolean[][] currentKeys(){
 		return new boolean[][]{{a,b,select,start,up, !up && down,left, !left && right},

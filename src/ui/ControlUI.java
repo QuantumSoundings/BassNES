@@ -5,6 +5,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import net.java.games.input.Component;
+import net.java.games.input.Controller;
+import net.java.games.input.ControllerEnvironment;
+import net.java.games.input.Event;
+import net.java.games.input.EventQueue;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -12,8 +17,6 @@ import java.util.Properties;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
 public class ControlUI extends JFrame {
 
@@ -46,148 +49,107 @@ public class ControlUI extends JFrame {
 		lblAButton.setBounds(45, 24, 59, 14);
 		contentPane.add(lblAButton);
 		
-		JButton btnNewButton = new JButton("<"+KeyEvent.getKeyText(UISettings.c1a)+">");
-		btnNewButton.setBounds(114, 20, 83, 23);
-		btnNewButton.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent arg0) {
-				btnNewButton.setText("<"+KeyEvent.getKeyText(arg0.getKeyCode())+">");
-				//prop.setProperty("c1a",arg0.getKeyCode()+"");
-				UISettings.c1a = arg0.getKeyCode();
-			}
-		});
-		btnNewButton.addActionListener(new ActionListener() {
+		JButton abutton1 = new JButton("<"+UISettings.c1controls[0].id.getName()+">");
+		abutton1.setBounds(97, 20, 125, 23);
+		abutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				awaitingkey=true;
+				UISettings.c1controls[0] =getbutton();
+				abutton1.setText("<"+UISettings.c1controls[0].id.getName()+">");
 			}
 		});
-		contentPane.add(btnNewButton);
+		contentPane.add(abutton1);
 		
 		JLabel lblAButton_1 = new JLabel("A Button");
 		lblAButton_1.setBounds(232, 24, 59, 14);
 		contentPane.add(lblAButton_1);
 		
-		JButton btnNewButton_8 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2a)+">");
-		btnNewButton_8.setBounds(301, 20, 83, 23);
-		btnNewButton_8.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				btnNewButton_8.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				//prop.setProperty("c2a",e.getKeyCode()+"");
-				UISettings.c2a = e.getKeyCode();
+		JButton abutton2 = new JButton("<"+UISettings.c2controls[0].id.getName()+">");
+		abutton2.setBounds(301, 20, 83, 23);
+		abutton2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UISettings.c2controls[0] =getbutton();
+				abutton2.setText("<"+UISettings.c2controls[0].id.getName()+">");
 			}
 		});
-		contentPane.add(btnNewButton_8);
+		
+		contentPane.add(abutton2);
 		
 		JLabel lblBButton = new JLabel("B Button");
 		lblBButton.setBounds(45, 52, 59, 14);
 		contentPane.add(lblBButton);
 		
-		JButton btnNewButton_1 = new JButton("<"+KeyEvent.getKeyText(UISettings.c1b)+">");
-		btnNewButton_1.setBounds(114, 48, 83, 23);
-		btnNewButton_1.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent arg0) {
-				btnNewButton_1.setText("<"+KeyEvent.getKeyText(arg0.getKeyCode())+">");
-				//prop.setProperty("c1b",arg0.getKeyCode()+"");
-				UISettings.c1b = arg0.getKeyCode();
-			}
-		});
-		btnNewButton_1.addActionListener(new ActionListener() {
+		JButton bbutton1 = new JButton("<"+UISettings.c1controls[1].id.getName()+">");
+		bbutton1.setBounds(114, 48, 83, 23);
+		bbutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				awaitingkey=true;
+				UISettings.c1controls[1] =getbutton();
+				bbutton1.setText("<"+UISettings.c1controls[1].id.getName()+">");
 			}
 		});
-		contentPane.add(btnNewButton_1);
+		contentPane.add(bbutton1);
 		
 		JLabel lblBButton_1 = new JLabel("B Button");
 		lblBButton_1.setBounds(232, 52, 59, 14);
 		contentPane.add(lblBButton_1);
 		
-		JButton btnNewButton_9 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2b)+">");
-		btnNewButton_9.setBounds(301, 48, 83, 23);
-		btnNewButton_9.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				btnNewButton_9.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				//prop.setProperty("c2b",e.getKeyCode()+"");
-				UISettings.c2b = e.getKeyCode();
+		JButton bbutton2 = new JButton("<"+UISettings.c2controls[1].id.getName()+">");
+		bbutton2.setBounds(301, 48, 83, 23);
+		bbutton2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UISettings.c2controls[1] =getbutton();
+				bbutton2.setText("<"+UISettings.c2controls[1].id.getName()+">");
 			}
 		});
-		contentPane.add(btnNewButton_9);
+		contentPane.add(bbutton2);
 		
 		JLabel lblUpdpad = new JLabel("Up");
 		lblUpdpad.setBounds(45, 80, 42, 14);
 		contentPane.add(lblUpdpad);
 		
-		JButton btnNewButton_2 = new JButton("<"+KeyEvent.getKeyText(UISettings.c1up)+">");
-		btnNewButton_2.setBounds(114, 76, 83, 23);
-		btnNewButton_2.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				btnNewButton_2.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				//prop.setProperty("c1up",e.getKeyCode()+"");
-				UISettings.c1up = e.getKeyCode();
-			}
-		});
-		btnNewButton_2.addActionListener(new ActionListener() {
+		JButton upbutton1 = new JButton("<"+UISettings.c1controls[4].id.getName()+">");
+		upbutton1.setBounds(114, 76, 83, 23);
+		upbutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				awaitingkey=true;
+				UISettings.c1controls[4] =getbutton();
+				upbutton1.setText("<"+UISettings.c1controls[4].id.getName()+">");
 			}
 		});
-		contentPane.add(btnNewButton_2);
+		contentPane.add(upbutton1);
 		
-		JButton btnNewButton_10 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2up)+">");
-		btnNewButton_10.setBounds(301, 76, 83, 23);
-		btnNewButton_10.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				btnNewButton_10.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				//prop.setProperty("c2up",e.getKeyCode()+"");
-				UISettings.c2up = e.getKeyCode();
+		JButton upbutton2 = new JButton("<"+UISettings.c2controls[4].id.getName()+">");
+		upbutton2.setBounds(301, 76, 83, 23);
+		upbutton2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UISettings.c2controls[4] =getbutton();
+				upbutton2.setText("<"+UISettings.c2controls[4].id.getName()+">");
 			}
 		});
 		
 		JLabel lblUp = new JLabel("Up");
 		lblUp.setBounds(246, 80, 28, 14);
 		contentPane.add(lblUp);
-		contentPane.add(btnNewButton_10);
+		contentPane.add(upbutton2);
 		
 		JLabel lblDown = new JLabel("Down");
 		lblDown.setBounds(45, 108, 42, 14);
 		contentPane.add(lblDown);
 		
-		JButton btnNewButton_3 = new JButton("<"+KeyEvent.getKeyText(UISettings.c1down)+">");
-		btnNewButton_3.setBounds(114, 104, 83, 23);
-		btnNewButton_3.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				btnNewButton_3.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				//prop.setProperty("c1down",e.getKeyCode()+"");
-				UISettings.c1down = e.getKeyCode();
-
-			}
-		});
-		btnNewButton_3.addActionListener(new ActionListener() {
+		JButton downbutton1 = new JButton("<"+UISettings.c1controls[5].id.getName()+">");
+		downbutton1.setBounds(114, 104, 83, 23);
+		downbutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				awaitingkey=true;
+				UISettings.c1controls[5] =getbutton();
+				downbutton1.setText("<"+UISettings.c1controls[5].id.getName()+">");
 			}
 		});
-		contentPane.add(btnNewButton_3);
+		contentPane.add(downbutton1);
 		
-		JButton btnNewButton_4 = new JButton("<"+KeyEvent.getKeyText(UISettings.c1left)+">");
-		btnNewButton_4.setBounds(114, 132, 83, 23);
-		btnNewButton_4.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				btnNewButton_4.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				//prop.setProperty("c1left",e.getKeyCode()+"");
-				UISettings.c1left = e.getKeyCode();
-
-			}
-		});
-		btnNewButton_4.addActionListener(new ActionListener() {
+		JButton leftbutton1 = new JButton("<"+UISettings.c1controls[6].id.getName()+">");
+		leftbutton1.setBounds(114, 132, 83, 23);
+		leftbutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				UISettings.c1controls[6] =getbutton();
+				leftbutton1.setText("<"+UISettings.c1controls[6].id.getName()+">");
 				awaitingkey=true;
 			}
 		});
@@ -196,167 +158,166 @@ public class ControlUI extends JFrame {
 		lblDown_1.setBounds(239, 108, 35, 14);
 		contentPane.add(lblDown_1);
 		
-		JButton btnNewButton_11 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2down)+">");
-		btnNewButton_11.setBounds(301, 104, 83, 23);
-		btnNewButton_11.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				btnNewButton_11.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				//prop.setProperty("c2down",e.getKeyCode()+"");
-				UISettings.c2up = e.getKeyCode();
+		JButton downbutton2 = new JButton("<"+UISettings.c2controls[5].id.getName()+">");
+		downbutton2.setBounds(301, 104, 83, 23);
+		downbutton2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UISettings.c2controls[5] =getbutton();
+				downbutton2.setText("<"+UISettings.c2controls[5].id.getName()+">");
 			}
 		});
-		contentPane.add(btnNewButton_11);
+		contentPane.add(downbutton2);
 		
 		JLabel lblLeft = new JLabel("Left");
 		lblLeft.setBounds(45, 136, 42, 14);
 		contentPane.add(lblLeft);
-		contentPane.add(btnNewButton_4);
+		contentPane.add(leftbutton1);
 		
-		JButton btnNewButton_12 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2left)+">");
-		btnNewButton_12.setBounds(301, 132, 83, 23);
-		btnNewButton_12.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				btnNewButton_12.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				//prop.setProperty("c2left",e.getKeyCode()+"");
-				UISettings.c2left = e.getKeyCode();
+		JButton leftbutton2 = new JButton("<"+UISettings.c2controls[6].id.getName()+">");
+		leftbutton2.setBounds(301, 132, 83, 23);
+		leftbutton2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UISettings.c2controls[6] =getbutton();
+				leftbutton2.setText("<"+UISettings.c2controls[6].id.getName()+">");
 			}
 		});
 		
 		JLabel lblLeft_1 = new JLabel("Left");
 		lblLeft_1.setBounds(243, 136, 31, 14);
 		contentPane.add(lblLeft_1);
-		contentPane.add(btnNewButton_12);
+		contentPane.add(leftbutton2);
 		
 		JLabel lblRight = new JLabel("Right");
 		lblRight.setBounds(45, 164, 42, 14);
 		contentPane.add(lblRight);
 		
-		JButton btnNewButton_5 = new JButton("<"+KeyEvent.getKeyText(UISettings.c1right)+">");
-		btnNewButton_5.setBounds(114, 160, 83, 23);
-		btnNewButton_5.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				btnNewButton_5.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				//prop.setProperty("c1right",e.getKeyCode()+"");
-				UISettings.c1right = e.getKeyCode();
-
-			}
-		});
-		btnNewButton_5.addActionListener(new ActionListener() {
+		JButton rightbutton1 = new JButton("<"+UISettings.c1controls[7].id.getName()+">");
+		rightbutton1.setBounds(114, 160, 83, 23);
+		rightbutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				awaitingkey=true;
+				UISettings.c1controls[7] =getbutton();
+				rightbutton1.setText("<"+UISettings.c1controls[7].id.getName()+">");
 			}
 		});
-		contentPane.add(btnNewButton_5);
+		contentPane.add(rightbutton1);
 		
 		JLabel lblRight_1 = new JLabel("Right");
 		lblRight_1.setBounds(240, 164, 34, 14);
 		contentPane.add(lblRight_1);
 		
-		JButton btnNewButton_13 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2right)+">");
-		btnNewButton_13.setBounds(301, 160, 83, 23);
-		btnNewButton_13.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				btnNewButton_13.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				//prop.setProperty("c2right",e.getKeyCode()+"");
-				UISettings.c2right = e.getKeyCode();
-
+		JButton rightbutton2 = new JButton("<"+UISettings.c2controls[7].id.getName()+">");
+		rightbutton2.setBounds(301, 160, 83, 23);
+		rightbutton2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UISettings.c2controls[7] =getbutton();
+				rightbutton2.setText("<"+UISettings.c2controls[7].id.getName()+">");
 			}
 		});
-		contentPane.add(btnNewButton_13);
+		contentPane.add(rightbutton2);
 		
 		JLabel lblStart = new JLabel("Start");
 		lblStart.setBounds(45, 192, 42, 14);
 		contentPane.add(lblStart);
 		
-		JButton btnNewButton_6 = new JButton("<"+KeyEvent.getKeyText(UISettings.c1start)+">");
-		btnNewButton_6.setBounds(114, 188, 83, 23);
-		btnNewButton_6.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				btnNewButton_6.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				//prop.setProperty("c1start",e.getKeyCode()+"");
-				UISettings.c1start = e.getKeyCode();
-
-			}
-		});
-		btnNewButton_6.addActionListener(new ActionListener() {
+		JButton startbutton1 = new JButton("<"+UISettings.c1controls[3].id.getName()+">");
+		startbutton1.setBounds(114, 188, 83, 23);
+		startbutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				awaitingkey=true;
+				UISettings.c1controls[3] =getbutton();
+				startbutton1.setText("<"+UISettings.c1controls[3].id.getName()+">");
 			}
 		});
-		contentPane.add(btnNewButton_6);
+		contentPane.add(startbutton1);
 		
-		JButton btnNewButton_14 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2start)+">");
-		btnNewButton_14.setBounds(301, 188, 83, 23);
-		btnNewButton_14.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				btnNewButton_14.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				//prop.setProperty("c2start",e.getKeyCode()+"");
-				UISettings.c2start = e.getKeyCode();
-
+		JButton startbutton2 = new JButton("<"+UISettings.c2controls[3].id.getName()+">");
+		startbutton2.setBounds(301, 188, 83, 23);
+		startbutton2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UISettings.c2controls[3] =getbutton();
+				startbutton2.setText("<"+UISettings.c2controls[3].id.getName()+">");
 			}
 		});
 		
 		JLabel lblStart_1 = new JLabel("Start");
 		lblStart_1.setBounds(241, 192, 35, 14);
 		contentPane.add(lblStart_1);
-		contentPane.add(btnNewButton_14);
+		contentPane.add(startbutton2);
 		
 		JLabel lblSelect = new JLabel("Select");
 		lblSelect.setBounds(45, 220, 42, 14);
 		contentPane.add(lblSelect);
 		
-		JButton btnNewButton_7 = new JButton("<"+KeyEvent.getKeyText(UISettings.c1select)+">");
-		btnNewButton_7.setBounds(114, 216, 83, 23);
-		btnNewButton_7.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				btnNewButton_7.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				//prop.setProperty("c1select",e.getKeyCode()+"");
-				UISettings.c1select = e.getKeyCode();
-
-			}
-		});
-		btnNewButton_7.addActionListener(new ActionListener() {
+		JButton selectbutton1 = new JButton("<"+UISettings.c1controls[2].id.getName()+">");
+		selectbutton1.setBounds(114, 216, 83, 23);
+		selectbutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				awaitingkey=true;
+				UISettings.c1controls[2] =getbutton();
+				selectbutton1.setText("<"+UISettings.c1controls[2].id.getName()+">");
 			}
 		});
-		contentPane.add(btnNewButton_7);
+		contentPane.add(selectbutton1);
 		
-		JButton btnNewButton_15 = new JButton("<"+KeyEvent.getKeyText(UISettings.c2select)+">");
-		btnNewButton_15.setBounds(301, 216, 83, 23);
-		btnNewButton_15.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				btnNewButton_15.setText("<"+KeyEvent.getKeyText(e.getKeyCode())+">");
-				//prop.setProperty("c2select",e.getKeyCode()+"");
-				UISettings.c2select = e.getKeyCode();
-
+		JButton selectbutton2 = new JButton("<"+UISettings.c2controls[2].id.getName()+">");
+		selectbutton2.setBounds(301, 216, 83, 23);
+		selectbutton2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UISettings.c1controls[2] =getbutton();
+				selectbutton2.setText("<"+UISettings.c1controls[2].id.getName()+">");
 			}
 		});
 		
 		JLabel lblSelect_1 = new JLabel("Select");
 		lblSelect_1.setBounds(238, 220, 36, 14);
 		contentPane.add(lblSelect_1);
-		contentPane.add(btnNewButton_15);
-		
-		/*JButton btnNewButton_16 = new JButton("Apply");
-		btnNewButton_16.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
-		GridBagConstraints gbc_btnNewButton_16 = new GridBagConstraints();
-		gbc_btnNewButton_16.insets = new Insets(0, 0, 0, 5);
-		gbc_btnNewButton_16.gridx = 3;
-		gbc_btnNewButton_16.gridy = 9;
-		contentPane.add(btnNewButton_16, gbc_btnNewButton_16);*/
+		contentPane.add(selectbutton2);
 		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		
+	}
+	private ControllerInfo getbutton(){
+        Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
+        for(int i=0;i<controllers.length;i++) {
+        	controllers[i].poll();
+        	EventQueue queue = controllers[i].getEventQueue();
+            Event event = new Event();
+            queue.getNextEvent(event);
+            while(queue.getNextEvent(event));
+        }
+		 while(true) {
+	         if(controllers.length==0) {
+	            System.out.println("Found no controllers.");
+	            System.exit(0);
+	         }
+	         
+	         for(int i=0;i<controllers.length;i++) {
+	            controllers[i].poll();
+	            EventQueue queue = controllers[i].getEventQueue();
+	            Event event = new Event();
+	            //queue.getNextEvent(event);
+	            //controllers[i].poll();
+	            while(queue.getNextEvent(event)&&!controllers[i].getType().equals(Controller.Type.MOUSE)) {
+	                StringBuffer buffer = new StringBuffer(controllers[i].getName());
+	                buffer.append(" at ");
+	                buffer.append(event.getNanos()).append(", ");
+	                Component comp = event.getComponent();
+	                buffer.append(comp.getName()).append(" changed to ");
+	                float value = event.getValue(); 
+	                if(comp.isAnalog()) {
+	                   buffer.append(value);
+	                } else {
+	                	System.out.println(controllers[i].getName());
+	                   return new ControllerInfo(controllers[i].getName(),comp.getIdentifier(),value);
+	                }
+	                System.out.println(buffer.toString());
+	             }
+	          }
+	          
+	          try {
+	             Thread.sleep(20);
+	          } catch (InterruptedException e) {
+	             // TODO Auto-generated catch block
+	             e.printStackTrace();
+	          }
+	          }
 	}
 
 	
