@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.awt.Font;
 @SuppressWarnings("serial")
 public class MainUI extends JFrame {
@@ -67,9 +68,11 @@ public class MainUI extends JFrame {
 		};
 		Action loadRom = new AbstractAction(){
 			public void actionPerformed(ActionEvent e) {
+				sys.fc.setCurrentDirectory(new File(UISettings.lastLoadedDir));
 				int returnval = sys.fc.showOpenDialog(sys.mainWindow);
 				if(returnval == JFileChooser.APPROVE_OPTION){
 					sys.rom = sys.fc.getSelectedFile();
+					UISettings.lastLoadedDir = sys.fc.getCurrentDirectory().getAbsolutePath();
 					if(UISettings.autoLoad){
 						if(sys.nes!=null)
 							sys.nes.exit();

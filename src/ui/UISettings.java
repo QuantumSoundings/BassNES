@@ -14,6 +14,7 @@ public class UISettings {
 	public static boolean ShowFPS=true;
 	public static boolean lockVideoToAudio=false;
 	public static boolean AudioEnabled=true;
+	public static String lastLoadedDir = System.getProperty("user.dir");
 	
 	
 	//Controller Bindings
@@ -88,12 +89,15 @@ public class UISettings {
 		ShowFPS = prop.getProperty("showfps", "true").equals("true");
 		lockVideoToAudio = prop.getProperty("lockvideotoaudio", "true").equals("true");
 		AudioEnabled = prop.getProperty("audioenabled", "true").equals("true");
+		lockVideoToAudio = prop.getProperty("lockvideotoaudio", "true").equals("true");
+		lastLoadedDir = prop.getProperty("lastloadeddir", System.getProperty("user.dir"));
 	}
 	private static void saveUI(){
 		prop.setProperty("autoload", autoLoad+"");
 		prop.setProperty("showfps", ShowFPS+"");
 		prop.setProperty("lockvideotoaudio", lockVideoToAudio+"");
 		prop.setProperty("audioenabled", AudioEnabled+"");
+		prop.setProperty("lastloadeddir", lastLoadedDir+"");
 	}
 		
 }
