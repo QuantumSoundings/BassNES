@@ -25,8 +25,6 @@ Unimplemented (Planned) Features:
 
 - Significantly tested PAL support (has experimental support)
 
-- Use of controllers as input devices
-
 - Screen Filters (including NTSC, scanlines, etc.)
 
 - Debugging tools such as a memory, name table and pattern table viewers
