@@ -65,7 +65,7 @@ public class Triangle extends Channel {
 	@Override
 	public final void clockTimer(){
 		if(tcount==0){
-			if(linearcount==0||lengthcount==0){}
+			if(linearcount==0||lengthcount==0||timer<8){}
 			else
 				sequenceNum=(sequenceNum+1)%32;
 			tcount=timer;
