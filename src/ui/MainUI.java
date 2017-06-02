@@ -17,6 +17,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import core.NesSettings;
+import ui.UISettings.VideoFilter;
 
 import java.awt.event.ActionListener;
 import java.awt.Dimension;
@@ -26,6 +27,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.awt.Font;
+import javax.swing.JSeparator;
 @SuppressWarnings("serial")
 public class MainUI extends JFrame {
 
@@ -289,8 +291,8 @@ public class MainUI extends JFrame {
 				sys.mainWindow.pack();
 			}
 		});
-		ButtonGroup group = new ButtonGroup();
-		group.add(rdbtnmntmxScaling);
+		ButtonGroup videoSizeGroup = new ButtonGroup();
+		videoSizeGroup.add(rdbtnmntmxScaling);
 		mnScaling.add(rdbtnmntmxScaling);
 		
 		JRadioButtonMenuItem rdbtnmntmxScaling_1 = new JRadioButtonMenuItem("2x Scaling");
@@ -303,7 +305,7 @@ public class MainUI extends JFrame {
 			}
 		});
 		mnScaling.add(rdbtnmntmxScaling_1);
-		group.add(rdbtnmntmxScaling_1);
+		videoSizeGroup.add(rdbtnmntmxScaling_1);
 		JRadioButtonMenuItem rdbtnmntmxScaling_2 = new JRadioButtonMenuItem("3x Scaling");
 		rdbtnmntmxScaling_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -313,7 +315,7 @@ public class MainUI extends JFrame {
 			}
 		});
 		mnScaling.add(rdbtnmntmxScaling_2);
-		group.add(rdbtnmntmxScaling_2);
+		videoSizeGroup.add(rdbtnmntmxScaling_2);
 		JRadioButtonMenuItem rdbtnmntmxScaling_3 = new JRadioButtonMenuItem("4x Scaling");
 		rdbtnmntmxScaling_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -323,7 +325,7 @@ public class MainUI extends JFrame {
 			}
 		});
 		mnScaling.add(rdbtnmntmxScaling_3);
-		group.add(rdbtnmntmxScaling_3);
+		videoSizeGroup.add(rdbtnmntmxScaling_3);
 		
 		JMenuItem mntmMoreSettings = new JMenuItem("More Settings");
 		mntmMoreSettings.addActionListener(new ActionListener() {
@@ -332,7 +334,51 @@ public class MainUI extends JFrame {
 			}
 		});
 		
+		JMenu mnVideoFilter = new JMenu("Video Filter");
+		mnGraphics.add(mnVideoFilter);
+		ButtonGroup videoFilterGroup = new ButtonGroup();
+		JCheckBoxMenuItem chckbxmntmNone = new JCheckBoxMenuItem("None");
+		chckbxmntmNone.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				resetImage();
+				UISettings.currentFilter = VideoFilter.None;
+				
+			}
+		});
+		chckbxmntmNone.setSelected(true);
+		mnVideoFilter.add(chckbxmntmNone);
+		videoFilterGroup.add(chckbxmntmNone);
+		
+		JCheckBoxMenuItem chckbxmntmNtsc = new JCheckBoxMenuItem("NTSC");
+		chckbxmntmNtsc.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetImage();
+				sys.display.updateImage(602, 240);
+				NesSettings.RenderMethod = 3;
+				UISettings.currentFilter = VideoFilter.NTSC;
+			}
+		});
+		mnVideoFilter.add(chckbxmntmNtsc);
 		mnGraphics.add(mntmMoreSettings);
+		videoFilterGroup.add(chckbxmntmNtsc);
+		switch(UISettings.currentFilter){
+		case NTSC:
+			chckbxmntmNtsc.setSelected(true);break;
+		default: 
+			chckbxmntmNone.setSelected(true);break;
+		}
+		JCheckBoxMenuItem chckbxmntmScanlines = new JCheckBoxMenuItem("Scanlines");
+		chckbxmntmScanlines.setSelected(UISettings.scanlinesEnabled);
+		chckbxmntmScanlines.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UISettings.scanlinesEnabled = !UISettings.scanlinesEnabled;
+			}
+		});
+		
+		JSeparator separator = new JSeparator();
+		mnVideoFilter.add(separator);
+		mnVideoFilter.add(chckbxmntmScanlines);
+		//videoFilterGroup.add(chckbxmntmScanlines);
 		JMenu mnControl = new JMenu("Control");
 		mnControl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		menuBar.add(mnControl);
@@ -381,6 +427,10 @@ public class MainUI extends JFrame {
 				System.exit(0);
 			}
 		});
+	}
+	private void resetImage(){
+		sys.display.updateImage(256, 240);
+		NesSettings.RenderMethod = 2;
 	}
 
 }

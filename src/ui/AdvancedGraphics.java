@@ -10,6 +10,7 @@ import javax.swing.border.EmptyBorder;
 
 import core.NES;
 import core.NesSettings;
+import ui.filter.NesNtsc;
 
 import javax.swing.JTabbedPane;
 import javax.swing.JCheckBox;
@@ -128,6 +129,7 @@ public class AdvancedGraphics extends JFrame {
 				JComboBox<?> cb = (JComboBox<?>)e.getSource();
 				String s = cb.getSelectedItem().toString();
 				NES.setInternalPalette(s);
+				NesNtsc.restartNTSC();
 				panel_2.repaint();	
 			}
 		});
@@ -146,6 +148,7 @@ public class AdvancedGraphics extends JFrame {
 					NES.setInternalPalette("custom");
 					comboBox_1.setSelectedIndex(1);
 					panel_2.repaint();
+					NesNtsc.restartNTSC();
 				}
 			}
 		});

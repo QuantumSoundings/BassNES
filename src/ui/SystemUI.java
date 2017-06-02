@@ -50,7 +50,7 @@ public class SystemUI implements NESCallback {
 		}
 		audio = new AudioInterface(this);
 		debugInfo = new Debugger(this);
-		rom = new File("one winged angel.nsf");
+		rom = new File("/tests/copper.nes");
 		mainWindow = new MainUI(this);
 		//debugWindow = new DebugUI();
 		keyconfigWindow = new ControlUI(prop,this);
@@ -377,11 +377,12 @@ public class SystemUI implements NESCallback {
 	}
 	public boolean[][] pollController(){
 		boolean[][] out = new boolean[2][8];
-        for(int i = 0;i<8;i++){
-        	out[0][i] = UISettings.c1controls[i].checkPressed();
-        	out[1][i] = UISettings.c2controls[i].checkPressed();
-        }
-
+		if(mainWindow.hasFocus()){
+	        for(int i = 0;i<8;i++){
+	        	out[0][i] = UISettings.c1controls[i].checkPressed();
+	        	out[1][i] = UISettings.c2controls[i].checkPressed();
+	        }
+		}
 		return out;	
 	}
 	public void videoCallback(int[] p){

@@ -17,6 +17,13 @@ public class UISettings {
 	public static String lastLoadedDir = System.getProperty("user.dir");
 	
 	
+	//Video Filter Settings
+	public static enum VideoFilter{None,NTSC};
+	public static VideoFilter currentFilter = VideoFilter.None;
+	public static boolean scanlinesEnabled = false;
+	public static double scanlineThickness=0.5;
+	
+	
 	//Controller Bindings
 	public static ControllerInfo[] c1controls = new ControllerInfo[8];
 	public static ControllerInfo[] c2controls = new ControllerInfo[8];
@@ -31,6 +38,7 @@ public class UISettings {
 			output = new FileOutputStream(config);
 			saveKeys();
 			saveUI();
+			saveVideo();
 			prop.store(output, null);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -51,6 +59,7 @@ public class UISettings {
 			prop.load(input);
 			loadKeys();	
 			loadUI();
+			loadVideo();
 		}
 	}
 	private static void loadKeys(){
@@ -98,6 +107,16 @@ public class UISettings {
 		prop.setProperty("lockvideotoaudio", lockVideoToAudio+"");
 		prop.setProperty("audioenabled", AudioEnabled+"");
 		prop.setProperty("lastloadeddir", lastLoadedDir+"");
+	}
+	private static void loadVideo(){
+		currentFilter = VideoFilter.valueOf(prop.getProperty("currentfilter", "None"));
+		scanlineThickness = Double.parseDouble(prop.getProperty("scanlinethickness", "0.5"));
+		scanlinesEnabled = prop.getProperty("scanlinesenabled", "false").equals("true");
+	}
+	private static void saveVideo(){
+		prop.setProperty("currentfilter", currentFilter+"");
+		prop.setProperty("scanlinethickness", scanlineThickness+"");
+		prop.setProperty("scanlinesenabled", scanlinesEnabled+"");
 	}
 		
 }

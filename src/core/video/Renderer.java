@@ -23,7 +23,7 @@ public class Renderer implements java.io.Serializable {
 	
 	void buildImageRawNes(int[] pixels){
 		for(int i = 0;i<61440;i++)
-			colorized[i] = pixels[i];
+			colorized[i] = ((pixels[i]&0b11100000000)>>2)|((pixels[i]&0b100000000000)!=0?pixels[i]&0x30:pixels[i]&0xff);
 	}
 	void buildImageRGBnoEmp(int[] pixels){
 		for(int i=0;i<61440;i++)
