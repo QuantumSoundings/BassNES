@@ -5,6 +5,7 @@ import java.awt.image.DataBufferInt;
 
 import core.NesSettings;
 import core.video.NesColors;
+import ui.UISettings;
 
 // Port of nes_ntsc 0.2.2 by Blargg (Shay Green). 
 // http://www.slack.net/~ant/libs/ntsc.html#nes_ntsc
@@ -877,7 +878,11 @@ public final class NesNtsc{
     burstPhase ^= 1;
   }
   public static void restartNTSC(){
-	NesNtsc.nes_ntsc_init(NesNtsc.nes_ntsc_t, new NesNtsc.nes_ntsc_setup_t(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, true, null,null, null, preppalette(NesColors.getpalette(NesSettings.selectedPalette))));
+	NesNtsc.nes_ntsc_init(NesNtsc.nes_ntsc_t, new NesNtsc.nes_ntsc_setup_t(UISettings.ntsc_hue,
+			UISettings.ntsc_saturation, UISettings.ntsc_contrast, UISettings.ntsc_brightness,
+			UISettings.ntsc_sharpness, UISettings.ntsc_gamma, UISettings.ntsc_resolution,
+			UISettings.ntsc_artifacts, UISettings.ntsc_fringing, UISettings.ntsc_bleed,
+			UISettings.ntsc_merge, null,null, null, preppalette(NesColors.getpalette(NesSettings.selectedPalette))));
   }
   private static int[] preppalette(int[] pal){
   	int[] out = new int[pal.length*3];

@@ -22,6 +22,18 @@ public class UISettings {
 	public static VideoFilter currentFilter = VideoFilter.None;
 	public static boolean scanlinesEnabled = false;
 	public static double scanlineThickness=0.5;
+	//NTSC settings
+	public static double ntsc_hue = 0; //-1 to 1
+	public static double ntsc_saturation = 0; //-1 to 1
+	public static double ntsc_contrast = 0; //-1 to 1
+	public static double ntsc_brightness = 0; //-1 to 1
+	public static double ntsc_sharpness = 0;
+	public static double ntsc_gamma = 0;
+	public static double ntsc_resolution = 0;
+	public static double ntsc_artifacts = 0;
+	public static double ntsc_fringing = 0;
+	public static double ntsc_bleed = 0;
+	public static boolean ntsc_merge = true;
 	
 	
 	//Controller Bindings
@@ -39,6 +51,7 @@ public class UISettings {
 			saveKeys();
 			saveUI();
 			saveVideo();
+			saveNtsc();
 			prop.store(output, null);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -60,6 +73,7 @@ public class UISettings {
 			loadKeys();	
 			loadUI();
 			loadVideo();
+			loadNtsc();
 		}
 	}
 	private static void loadKeys(){
@@ -117,6 +131,32 @@ public class UISettings {
 		prop.setProperty("currentfilter", currentFilter+"");
 		prop.setProperty("scanlinethickness", scanlineThickness+"");
 		prop.setProperty("scanlinesenabled", scanlinesEnabled+"");
+	}
+	private static void loadNtsc(){
+		ntsc_hue = Double.parseDouble(prop.getProperty("ntsc_hue", "0"));
+		ntsc_saturation = Double.parseDouble(prop.getProperty("ntsc_saturation", "0"));
+		ntsc_contrast = Double.parseDouble(prop.getProperty("ntsc_contrast", "0"));
+		ntsc_brightness = Double.parseDouble(prop.getProperty("ntsc_brightness", "0"));
+		ntsc_sharpness = Double.parseDouble(prop.getProperty("ntsc_sharpness", "0"));
+		ntsc_gamma = Double.parseDouble(prop.getProperty("ntsc_gamma", "0"));
+		ntsc_resolution = Double.parseDouble(prop.getProperty("ntsc_resolution", "0"));
+		ntsc_artifacts = Double.parseDouble(prop.getProperty("ntsc_artifacts", "0"));
+		ntsc_fringing = Double.parseDouble(prop.getProperty("ntsc_fringing", "0"));
+		ntsc_bleed = Double.parseDouble(prop.getProperty("ntsc_bleed", "0"));
+		ntsc_merge = prop.getProperty("ntsc_merge", "true").equals("true");
+	}
+	private static void saveNtsc(){
+		prop.setProperty("ntsc_hue", ntsc_hue+"");
+		prop.setProperty("ntsc_saturation", ntsc_saturation+"");
+		prop.setProperty("ntsc_contrast", ntsc_contrast+"");
+		prop.setProperty("ntsc_brightness", ntsc_brightness+"");
+		prop.setProperty("ntsc_sharpness", ntsc_sharpness+"");
+		prop.setProperty("ntsc_gamma", ntsc_gamma+"");
+		prop.setProperty("ntsc_resolution", ntsc_resolution+"");
+		prop.setProperty("ntsc_artifacts", ntsc_artifacts+"");
+		prop.setProperty("ntsc_fringing", ntsc_fringing+"");
+		prop.setProperty("ntsc_bleed", ntsc_bleed+"");
+		prop.setProperty("ntsc_merge", ntsc_merge+"");
 	}
 		
 }

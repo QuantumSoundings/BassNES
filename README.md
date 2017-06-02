@@ -25,8 +25,6 @@ Unimplemented (Planned) Features:
 
 - Significantly tested PAL support (has experimental support)
 
-- Screen Filters (including NTSC, scanlines, etc.)
-
 - Debugging tools such as a memory, name table and pattern table viewers
 
 - Continued optimization to reach goal of 0.86 GHZ as the minimum cpu speed.
