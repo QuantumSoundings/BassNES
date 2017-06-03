@@ -126,7 +126,7 @@ public class NSFPlayer extends Mapper{
 		if(!doingBanking){		
 			int cBank = (loadaddr/0x1000) -8;
 			int offset = 0x1000-(loadaddr%0x1000);
-			System.out.println(Integer.toHexString(loadaddr)+" "+cBank+" "+Integer.toHexString(offset));
+			//System.out.println(Integer.toHexString(loadaddr)+" "+cBank+" "+Integer.toHexString(offset));
 			System.arraycopy(data, 0, PRG_ROM[cBank], loadaddr%0x1000, offset);
 			cBank++;
 			while(offset+0x1000<data.length){
@@ -141,10 +141,10 @@ public class NSFPlayer extends Mapper{
 		}
 		else{
 			int padding = 0xfff&loadaddr;
-			System.out.println(padding);
+			//System.out.println(padding);
 			byte[] databanks = new byte[padding+data.length];
 			System.arraycopy(data, 0, databanks, padding, data.length);
-			System.out.println(databanks.length/0x1000+" "+databanks.length%0x1000);
+			//System.out.println(databanks.length/0x1000+" "+databanks.length%0x1000);
 			PRGbanks = new byte[databanks.length/0x1000+10][0x1000];
 			for(int i=0;(i*0x1000)<databanks.length;i++){
 				PRGbanks[i]=Arrays.copyOfRange(databanks, i*0x1000, (i*0x1000)+0x1000);

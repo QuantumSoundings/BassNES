@@ -41,7 +41,7 @@ public class UISettings {
 	public static Color[] pianoColors = {Color.BLUE,Color.CYAN,Color.GREEN,Color.ORANGE,Color.RED,Color.YELLOW,Color.DARK_GRAY,Color.LIGHT_GRAY,Color.magenta,Color.magenta,Color.magenta,
 			Color.magenta,Color.magenta,Color.MAGENTA,Color.MAGENTA,Color.magenta};
 	public static final Color[] pianoColorsColorBlind = {new Color(0x6600),new Color(0x99ff33),new Color(0x3399ff),new Color(0xff),new Color(0x9900cc),new Color(0xff66ff),new Color(0xcc0000)
-			,new Color(0xcecece),new Color(0x8c8c8c)};
+			,new Color(0xcecece),new Color(0x8c8c8c),new Color(0x8c8c8c),new Color(0x8c8c8c),new Color(0x8c8c8c),new Color(0x8c8c8c),new Color(0x8c8c8c),new Color(0x8c8c8c),new Color(0x8c8c8c)};
 	public static boolean colorBlindMode = false;
 	public static boolean allGreen = false;
 	
