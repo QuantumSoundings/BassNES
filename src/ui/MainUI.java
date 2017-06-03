@@ -39,7 +39,7 @@ public class MainUI extends JFrame {
 	SystemUI sys;
 	public MainUI(SystemUI s) {
 		
-		setTitle("Nes Emulator");
+		setTitle("BassNES");
 		sys = s;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 256, 240);
