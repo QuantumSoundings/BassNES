@@ -124,9 +124,11 @@ public class AdvancedGraphics extends JFrame {
 		panel_2.setBounds(21, 11, 259, 105);
 		panel_1.add(panel_2);
 		String[] pal = NesSettings.palettes;
+		Arrays.sort(pal);
 		@SuppressWarnings("rawtypes")
 		JComboBox<String> comboBox_1 = new JComboBox(pal);
-		comboBox_1.setSelectedIndex(Arrays.asList(NesSettings.palettes).indexOf(NesSettings.selectedPalette));
+		comboBox_1.setModel(new DefaultComboBoxModel<String>(pal));
+		comboBox_1.setSelectedIndex(Arrays.asList(pal).indexOf(NesSettings.selectedPalette));
 		comboBox_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				JComboBox<?> cb = (JComboBox<?>)e.getSource();

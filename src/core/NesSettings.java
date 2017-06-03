@@ -51,7 +51,7 @@ public class NesSettings {
 	/**
 	 * Array of internal palette names to be used when setting the internal palette.
 	 */
-	public final static String[] palettes = {"defaultPalette","Custom","NTSCHardwareFBX","nesClassicFBX","compositeDirectFBX","sonypvmFBX"};
+	public final static String[] palettes = {"defaultPalette","Custom","ntscHardwareFBX","nesClassicFBX","compositeDirectFBX","sonypvmFBX","vc_3ds","asq_reality_c","av_famicom","bmf_final_3","consumer","dougeff","drag3","fceux","fceux_15","gameboy","grayscale","kizul","nesticle","nestopia_rgb","nestopia_yuv","nintendulator_ntsc","rinao","rockman_9","rp2c04_0001","rp2c04_0002","rp2c04_0003","rp2c04_0004","terratec_cinergy","trebor","vc_wii"};
 	public static enum AudioChannels{Pulse1,Pulse2,Triangle,Noise,DMC,VRC6,VRC6_Pulse1,VRC6_Pulse2,VRC6_Saw,Namco,MMC5,MMC5_Pulse1,MMC5_Pulse2,MMC5_PCM};
 	//Audio Settings
 	/**
