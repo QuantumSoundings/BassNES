@@ -107,10 +107,10 @@ public class SystemUI implements NESCallback {
 			else{
 				if(UISettings.ShowFPS){
 					if(nes!=null)
-						mainWindow.setTitle("Nes Emulator     FPS: "+String.format("%.2f", nes.getFPS()));
+						mainWindow.setTitle("BassNES - FPS: "+String.format("%.2f", nes.getFPS()));
 				}
 				else
-					mainWindow.setTitle("Nes Emulator");
+					mainWindow.setTitle("BassNES");
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {

@@ -42,7 +42,7 @@ public class NesSettings {
 	 * 2: Color emphasis. RGB.
 	 * 3: Raw nes values.
 	 */
-	public static int RenderMethod=3;
+	public static int RenderMethod=2;
 	/**
 	 * The core comes with several internal palettes. This variable holds the name of the 
 	 * currently selected palette. READ ONLY.
@@ -166,7 +166,7 @@ public class NesSettings {
 	private static void loadGraphics(){
 		RenderBackground = prop.getProperty("renderbackground", "true").equals("true");
 		RenderSprites = prop.getProperty("rendersprites", "true").equals("true");
-		RenderMethod = Integer.parseInt(prop.getProperty("rendermethod", "3"));
+		RenderMethod = Integer.parseInt(prop.getProperty("rendermethod", "2"));
 		selectedPalette = prop.getProperty("selectedpalette","defaultPalette");
 		NesColors.setCustomPalette(prop.getProperty("custompalette",""));
 		NesColors.updatePalette(selectedPalette);
