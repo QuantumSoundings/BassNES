@@ -52,3 +52,11 @@ Unimplemented (Planned) Features:
 - Debugging tools such as a memory, name table and pattern table viewers
 
 - Continued optimization to reach goal of 0.86 GHZ as the minimum dual core cpu speed.
+
+
+
+# License
+
+BassNES is licensed under AGPL 3. The full text can be found here: https://www.gnu.org/licenses/agpl.html
+
+Copyright (C) 2017 Jordan Howe
