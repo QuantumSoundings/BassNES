@@ -16,8 +16,11 @@ public class VRC6Pulse extends Channel {
 	boolean[] duty6 = new boolean[]{true,true,true,true,true,true,true,false,false,false,false,false,false,false,false,false};
 	boolean[] duty7 = new boolean[]{true,true,true,true,true,true,true,true,false,false,false,false,false,false,false,false};
 	private boolean dutymode;
-	public VRC6Pulse(){
+	private boolean chanone = false;
+	public VRC6Pulse(boolean channelone){
 		super();
+		chanone = channelone;
+		name = "VRC6 Pulse "+ (chanone?"1":"2");
 	}
 	@Override
 	public int getUserMixLevel(){
@@ -81,7 +84,7 @@ public class VRC6Pulse extends Channel {
 			return 0;
 		return 1789773 / (16.0 * (timer + 1));
 	}
-	private final String name = "VRC6 Pulse";
+	private final String name;;
 	@Override
 	public Object[] getInfo(){
 		return new Object[]{name,getFrequency()};

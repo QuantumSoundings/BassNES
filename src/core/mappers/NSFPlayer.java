@@ -55,6 +55,7 @@ public class NSFPlayer extends Mapper{
 	//private int trackcutoff = NesSettings.nsfPlayerSongLength;
 	private int tracktimer= 0;
 	//private String tracktimestring = timeformat(trackcutoff);
+	private String expansionInfo;
 	private boolean doingBanking;
 	private Font largefont;
 	private Font smallfont;
@@ -144,27 +145,30 @@ public class NSFPlayer extends Mapper{
 			byte[] databanks = new byte[padding+data.length];
 			System.arraycopy(data, 0, databanks, padding, data.length);
 			System.out.println(databanks.length/0x1000+" "+databanks.length%0x1000);
-			PRGbanks = new byte[databanks.length/0x1000+2][0x1000];
+			PRGbanks = new byte[databanks.length/0x1000+10][0x1000];
 			for(int i=0;(i*0x1000)<databanks.length;i++){
 				PRGbanks[i]=Arrays.copyOfRange(databanks, i*0x1000, (i*0x1000)+0x1000);
 			}
-			PRG_ROM[0] = PRGbanks[banks[0]];PRG_ROM[1] = PRGbanks[banks[1]];
-			PRG_ROM[2] = PRGbanks[banks[2]];PRG_ROM[3] = PRGbanks[banks[3]];
-			PRG_ROM[4] = PRGbanks[banks[4]];PRG_ROM[5] = PRGbanks[banks[5]];
-			PRG_ROM[6] = PRGbanks[banks[6]];PRG_ROM[7] = PRGbanks[banks[7]];
+			PRG_ROM[0] = PRGbanks[banks[0]&0xff];PRG_ROM[1] = PRGbanks[banks[1]&0xff];
+			PRG_ROM[2] = PRGbanks[banks[2]&0xff];PRG_ROM[3] = PRGbanks[banks[3]&0xff];
+			PRG_ROM[4] = PRGbanks[banks[4]&0xff];PRG_ROM[5] = PRGbanks[banks[5]&0xff];
+			PRG_ROM[6] = PRGbanks[banks[6]&0xff];PRG_ROM[7] = PRGbanks[banks[7]&0xff];
 		}
 	}
 	byte soundchip;
 	@Override
 	public void addExtraAudio(byte b){
 		soundchip=b;
+		if(b!=0)
+			expansionInfo = "Extra Audio: ";
 		if((b&1)==1){//vrc6
-			vrc6pulse1 = new VRC6Pulse();
-			vrc6pulse2 = new VRC6Pulse();
+			vrc6pulse1 = new VRC6Pulse(true);
+			vrc6pulse2 = new VRC6Pulse(false);
 			vrc6saw = new VRC6Saw();
 			apu.addExpansionChannel(vrc6pulse1);
 			apu.addExpansionChannel(vrc6pulse2);
 			apu.addExpansionChannel(vrc6saw);
+			expansionInfo += "VRC6 ";
 		}
 		if((b&2)==2){}//vrc7
 		if((b&4)==4){}//fds
@@ -172,11 +176,13 @@ public class NSFPlayer extends Mapper{
 			mmc5 = new MMC5Audio(this);
 			mmc5exram = new byte[0x400];
 			apu.addExpansionChannel(mmc5);
+			expansionInfo +="MMC5 ";
 		}
 		if((b&16)==16){//namco
 			namcomemory = new byte[0x80];
 			namco = new NamcoSound(namcomemory);
 			apu.addExpansionChannel(namco);
+			expansionInfo += "Namco ";
 		}
 	}
 	@Override
@@ -410,6 +416,7 @@ public class NSFPlayer extends Mapper{
 		g.setFont(largefont);
 		g.drawString("Key Bindings", 0, 20);
 		g.drawString("NSF Player Status:", 0, 100);
+		g.drawString(expansionInfo, 0, 160);
 		g.drawString("Title: "+title, 0, 180);
 		g.drawString("Artist: "+artist, 0, 210);
 		g.drawString("Track "+(currentsong+1)+"/"+totalsongs+"         "+timeformat(tracktimer)+"/"+timeformat(NesSettings.nsfPlayerSongLength)

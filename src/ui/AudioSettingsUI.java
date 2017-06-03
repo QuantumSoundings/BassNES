@@ -17,8 +17,13 @@ import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class AudioSettingsUI extends JFrame {
 	private static final long serialVersionUID = 8732673441553439113L;
@@ -59,9 +64,9 @@ public class AudioSettingsUI extends JFrame {
 				case 0: NesSettings.sampleRate = 44100;
 					sys.nes.setSampleRate(44100);break;
 				case 1: NesSettings.sampleRate = 48000;
-					sys.nes.setSampleRate(44100);break;
+					sys.nes.setSampleRate(48000);break;
 				case 2: NesSettings.sampleRate = 96000;
-					sys.nes.setSampleRate(44100);break;
+					sys.nes.setSampleRate(96000);break;
 				}
 				sys.resetaudio();	
 			}
@@ -266,6 +271,296 @@ public class AudioSettingsUI extends JFrame {
 		lblMmc.setHorizontalAlignment(SwingConstants.CENTER);
 		lblMmc.setBounds(154, 208, 46, 14);
 		panel.add(lblMmc);
+		
+		JPanel panel_2 = new JPanel();
+		tabbedPane.addTab("Visualizer", null, panel_2, null);
+		panel_2.setLayout(null);
+		
+		JLabel lblPianoColors = new JLabel("Piano Colors");
+		lblPianoColors.setBounds(31, 4, 67, 14);
+		panel_2.add(lblPianoColors);
+		
+		JLabel lblPulse_2 = new JLabel("VRC6 Pulse 1");
+		lblPulse_2.setBounds(10, 85, 67, 14);
+		panel_2.add(lblPulse_2);
+		
+		JLabel lblPulse_3 = new JLabel("Pulse 2");
+		lblPulse_3.setBounds(12, 38, 46, 14);
+		panel_2.add(lblPulse_3);
+		
+		JLabel lblTriangle_1 = new JLabel("Triangle");
+		lblTriangle_1.setBounds(10, 58, 46, 14);
+		panel_2.add(lblTriangle_1);
+		
+		JLabel label_2 = new JLabel("Pulse 1");
+		label_2.setBounds(11, 17, 46, 14);
+		panel_2.add(label_2);
+		
+		JLabel lblVrcPulse = new JLabel("VRC6 Pulse 2");
+		lblVrcPulse.setBounds(10, 109, 63, 14);
+		panel_2.add(lblVrcPulse);
+		
+		JLabel lblVrcSaw = new JLabel("VRC6 Saw");
+		lblVrcSaw.setBounds(13, 134, 49, 14);
+		panel_2.add(lblVrcSaw);
+		
+		JPanel pulse1color = new JPanel();
+		pulse1color.setBackground(UISettings.pianoColors[Arrays.asList(UISettings.channelNames).indexOf("Pulse 1")]);
+		pulse1color.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				Color update = setColor("Pulse 1");
+				pulse1color.setBackground(update);
+				pulse1color.repaint();
+			}
+		});
+		pulse1color.setBounds(95, 11, 20, 20);
+		panel_2.add(pulse1color);
+		
+		JPanel pulse2color = new JPanel();
+		pulse2color.setBackground(UISettings.pianoColors[Arrays.asList(UISettings.channelNames).indexOf("Pulse 2")]);
+
+		pulse2color.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				Color update = setColor("Pulse 2");
+				pulse2color.setBackground(update);
+				pulse2color.repaint();
+			}
+		});
+		pulse2color.setBounds(95, 36, 20, 20);
+		panel_2.add(pulse2color);
+		
+		JPanel trianglecolor = new JPanel();
+		trianglecolor.setBackground(UISettings.pianoColors[Arrays.asList(UISettings.channelNames).indexOf("Triangle")]);
+		trianglecolor.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				Color update = setColor("Triangle");
+				trianglecolor.setBackground(update);
+				trianglecolor.repaint();
+			}
+		});
+		trianglecolor.setBounds(95, 61, 20, 20);
+		panel_2.add(trianglecolor);
+		
+		JPanel vrc6pulse1color = new JPanel();
+		vrc6pulse1color.setBackground(UISettings.pianoColors[Arrays.asList(UISettings.channelNames).indexOf("VRC6 Pulse 1")]);
+
+		vrc6pulse1color.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				Color update = setColor("VRC6 Pulse 1");
+				vrc6pulse1color.setBackground(update);
+				vrc6pulse1color.repaint();
+			}
+		});
+		vrc6pulse1color.setBounds(95, 86, 20, 20);
+		panel_2.add(vrc6pulse1color);
+		
+		JPanel vrc6pulse2color = new JPanel();
+		vrc6pulse2color.setBackground(UISettings.pianoColors[Arrays.asList(UISettings.channelNames).indexOf("VRC6 Pulse 2")]);
+
+		vrc6pulse2color.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				Color update = setColor("VRC6 Pulse 2");
+				vrc6pulse2color.setBackground(update);
+				vrc6pulse2color.repaint();
+			}
+		});
+		vrc6pulse2color.setBounds(95, 109, 20, 20);
+		panel_2.add(vrc6pulse2color);
+		
+		JPanel vrc6sawcolor = new JPanel();
+		vrc6sawcolor.setBackground(UISettings.pianoColors[Arrays.asList(UISettings.channelNames).indexOf("VRC6 Saw")]);
+
+		vrc6sawcolor.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				Color update = setColor("VRC6 Saw");
+				vrc6sawcolor.setBackground(update);
+				vrc6sawcolor.repaint();
+			}
+		});
+		vrc6sawcolor.setBounds(95, 134, 20, 20);
+		panel_2.add(vrc6sawcolor);
+		
+		JPanel namcocolor = new JPanel();
+		namcocolor.setBackground(UISettings.pianoColors[Arrays.asList(UISettings.channelNames).indexOf("N_Channel 0")]);
+		namcocolor.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				Color update = setColor("Namco");
+				namcocolor.setBackground(update);
+				namcocolor.repaint();
+			}
+		});
+		namcocolor.setBounds(95, 158, 20, 20);
+		panel_2.add(namcocolor);
+		
+		JLabel lblNewLabel = new JLabel("Namco");
+		lblNewLabel.setBounds(15, 158, 46, 14);
+		panel_2.add(lblNewLabel);
+		
+		
+		
+		JCheckBox chckbxAllGreen = new JCheckBox("All Green");
+		chckbxAllGreen.setSelected(UISettings.allGreen);
+		chckbxAllGreen.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UISettings.allGreen=!UISettings.allGreen;
+			}
+		});
+		chckbxAllGreen.setBounds(157, 57, 77, 23);
+		panel_2.add(chckbxAllGreen);
+		
+		JPanel mmc5pulse1color = new JPanel();
+		mmc5pulse1color.setBackground(UISettings.pianoColors[Arrays.asList(UISettings.channelNames).indexOf("MMC5 Pulse 1")]);
+		mmc5pulse1color.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				Color update = setColor("MMC5 Pulse 1");
+				mmc5pulse1color.setBackground(update);
+				mmc5pulse1color.repaint();
+			}
+		});
+		mmc5pulse1color.setBackground((Color) null);
+		mmc5pulse1color.setBounds(95, 184, 20, 20);
+		panel_2.add(mmc5pulse1color);
+		
+		JPanel mmc5pulse2color = new JPanel();
+		mmc5pulse2color.setBackground(UISettings.pianoColors[Arrays.asList(UISettings.channelNames).indexOf("MMC5 Pulse 2")]);
+		mmc5pulse2color.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				Color update = setColor("MMC5 Pulse 2");
+				mmc5pulse2color.setBackground(update);
+				mmc5pulse2color.repaint();
+			}
+		});
+		mmc5pulse2color.setBackground((Color) null);
+		mmc5pulse2color.setBounds(96, 208, 20, 20);
+		panel_2.add(mmc5pulse2color);
+		
+		JLabel lblMmcPulse = new JLabel("MMC5 Pulse 1");
+		lblMmcPulse.setBounds(10, 183, 66, 14);
+		panel_2.add(lblMmcPulse);
+		
+		JLabel lblMmcPulse_1 = new JLabel("MMC5 Pulse 2");
+		lblMmcPulse_1.setBounds(10, 208, 66, 14);
+		panel_2.add(lblMmcPulse_1);
+		
+		JCheckBox chckbxColorBlindMode = new JCheckBox("Color Blind Mode");
+		chckbxColorBlindMode.setSelected(UISettings.colorBlindMode);
+		chckbxColorBlindMode.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UISettings.colorBlindMode = !UISettings.colorBlindMode;
+				if(UISettings.colorBlindMode){
+					pulse1color.setBackground(UISettings.pianoColorsColorBlind[0]);
+					pulse1color.repaint();
+					pulse2color.setBackground(UISettings.pianoColorsColorBlind[1]);
+					pulse2color.repaint();
+					trianglecolor.setBackground(UISettings.pianoColorsColorBlind[2]);
+					trianglecolor.repaint();
+					vrc6pulse1color.setBackground(UISettings.pianoColorsColorBlind[3]);
+					vrc6pulse1color.repaint();
+					vrc6pulse2color.setBackground(UISettings.pianoColorsColorBlind[4]);
+					vrc6pulse2color.repaint();
+					vrc6sawcolor.setBackground(UISettings.pianoColorsColorBlind[5]);
+					vrc6sawcolor.repaint();
+					mmc5pulse1color.setBackground(UISettings.pianoColorsColorBlind[6]);
+					mmc5pulse1color.repaint();
+					mmc5pulse2color.setBackground(UISettings.pianoColorsColorBlind[7]);
+					mmc5pulse2color.repaint();
+					namcocolor.setBackground(UISettings.pianoColorsColorBlind[8]);
+					namcocolor.repaint();
+				}
+				else{
+					pulse1color.setBackground(UISettings.pianoColors[0]);
+					pulse1color.repaint();
+					pulse2color.setBackground(UISettings.pianoColors[1]);
+					pulse2color.repaint();
+					trianglecolor.setBackground(UISettings.pianoColors[2]);
+					trianglecolor.repaint();
+					vrc6pulse1color.setBackground(UISettings.pianoColors[3]);
+					vrc6pulse1color.repaint();
+					vrc6pulse2color.setBackground(UISettings.pianoColors[4]);
+					vrc6pulse2color.repaint();
+					vrc6sawcolor.setBackground(UISettings.pianoColors[5]);
+					vrc6sawcolor.repaint();
+					mmc5pulse1color.setBackground(UISettings.pianoColors[6]);
+					mmc5pulse1color.repaint();
+					mmc5pulse2color.setBackground(UISettings.pianoColors[7]);
+					mmc5pulse2color.repaint();
+					namcocolor.setBackground(UISettings.pianoColors[8]);
+					namcocolor.repaint();
+				}
+			}
+		});
+		chckbxColorBlindMode.setBounds(157, 34, 122, 23);
+		panel_2.add(chckbxColorBlindMode);
+		if(UISettings.colorBlindMode){
+			pulse1color.setBackground(UISettings.pianoColorsColorBlind[0]);
+			pulse1color.repaint();
+			pulse2color.setBackground(UISettings.pianoColorsColorBlind[1]);
+			pulse2color.repaint();
+			trianglecolor.setBackground(UISettings.pianoColorsColorBlind[2]);
+			trianglecolor.repaint();
+			vrc6pulse1color.setBackground(UISettings.pianoColorsColorBlind[3]);
+			vrc6pulse1color.repaint();
+			vrc6pulse2color.setBackground(UISettings.pianoColorsColorBlind[4]);
+			vrc6pulse2color.repaint();
+			vrc6sawcolor.setBackground(UISettings.pianoColorsColorBlind[5]);
+			vrc6sawcolor.repaint();
+			mmc5pulse1color.setBackground(UISettings.pianoColorsColorBlind[6]);
+			mmc5pulse1color.repaint();
+			mmc5pulse2color.setBackground(UISettings.pianoColorsColorBlind[7]);
+			mmc5pulse2color.repaint();
+			namcocolor.setBackground(UISettings.pianoColorsColorBlind[8]);
+			namcocolor.repaint();
+		}
+		else{
+			pulse1color.setBackground(UISettings.pianoColors[0]);
+			pulse1color.repaint();
+			pulse2color.setBackground(UISettings.pianoColors[1]);
+			pulse2color.repaint();
+			trianglecolor.setBackground(UISettings.pianoColors[2]);
+			trianglecolor.repaint();
+			vrc6pulse1color.setBackground(UISettings.pianoColors[3]);
+			vrc6pulse1color.repaint();
+			vrc6pulse2color.setBackground(UISettings.pianoColors[4]);
+			vrc6pulse2color.repaint();
+			vrc6sawcolor.setBackground(UISettings.pianoColors[5]);
+			vrc6sawcolor.repaint();
+			mmc5pulse1color.setBackground(UISettings.pianoColors[6]);
+			mmc5pulse1color.repaint();
+			mmc5pulse2color.setBackground(UISettings.pianoColors[7]);
+			mmc5pulse2color.repaint();
+			namcocolor.setBackground(UISettings.pianoColors[8]);
+			namcocolor.repaint();
+		}
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
+	}
+	private Color setColor(String channel){
+		if(channel.equals("Namco"))
+			return setNamco();
+		int pianoindex = Arrays.asList(UISettings.channelNames).indexOf(channel);
+		Color newColor = JColorChooser.showDialog(null, "Choose a color", UISettings.pianoColors[pianoindex]);
+		if(newColor!=null){
+			UISettings.pianoColors[pianoindex] = newColor;
+			return newColor;
+		}
+		return UISettings.pianoColors[pianoindex];
+	}
+	private Color setNamco(){
+		int pianoindex = Arrays.asList(UISettings.channelNames).indexOf("N_Channel 0");
+		Color newColor = JColorChooser.showDialog(null, "Choose a color", UISettings.pianoColors[pianoindex]);
+		if(newColor!=null){
+			for(int i = pianoindex;i<pianoindex+8;i++)
+				UISettings.pianoColors[i] = newColor;
+			return newColor;
+		}
+		return UISettings.pianoColors[pianoindex];
 	}
 }

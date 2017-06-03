@@ -1,5 +1,6 @@
 package ui;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -34,6 +35,15 @@ public class UISettings {
 	public static double ntsc_fringing = 0;
 	public static double ntsc_bleed = 0;
 	public static boolean ntsc_merge = true;
+	//Visualizer Settings
+	public static final String[] channelNames = {"Pulse 1","Pulse 2","Triangle","VRC6 Pulse 1","VRC6 Pulse 2","VRC6 Saw","MMC5 Pulse 1","MMC5 Pulse 2","N_Channel 0","N_Channel 1","N_Channel 2"
+			,"N_Channel 3","N_Channel 4","N_Channel 5","N_Channel 6","N_Channel 7"};
+	public static Color[] pianoColors = {Color.BLUE,Color.CYAN,Color.GREEN,Color.ORANGE,Color.RED,Color.YELLOW,Color.DARK_GRAY,Color.LIGHT_GRAY,Color.magenta,Color.magenta,Color.magenta,
+			Color.magenta,Color.magenta,Color.MAGENTA,Color.MAGENTA,Color.magenta};
+	public static final Color[] pianoColorsColorBlind = {new Color(0x6600),new Color(0x99ff33),new Color(0x3399ff),new Color(0xff),new Color(0x9900cc),new Color(0xff66ff),new Color(0xcc0000)
+			,new Color(0xcecece),new Color(0x8c8c8c)};
+	public static boolean colorBlindMode = false;
+	public static boolean allGreen = false;
 	
 	
 	//Controller Bindings
@@ -52,6 +62,7 @@ public class UISettings {
 			saveUI();
 			saveVideo();
 			saveNtsc();
+			saveVisualizer();
 			prop.store(output, null);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -74,13 +85,14 @@ public class UISettings {
 			loadUI();
 			loadVideo();
 			loadNtsc();
+			loadVisualizer();
 		}
 	}
 	private static void loadKeys(){
 		System.out.println("Loading keys");
 		c1controls = new ControllerInfo[8];
 		c1controls[0] = ControllerInfo.restoreInfo(prop.getProperty("c1a"),     "Standard PS/2 Keyboard;A;1.0");
-		c1controls[1] = ControllerInfo.restoreInfo(prop.getProperty("c1b"),     "Standard PS/2 Keyboard;B;1.0");
+		c1controls[1] = ControllerInfo.restoreInfo(prop.getProperty("c1b"),     "Standard PS/2 Keyboard;S;1.0");
 		c1controls[2] = ControllerInfo.restoreInfo(prop.getProperty("c1select"),"Standard PS/2 Keyboard;W;1.0");
 		c1controls[3] = ControllerInfo.restoreInfo(prop.getProperty("c1start"), "Standard PS/2 Keyboard;Q;1.0");
 		c1controls[4] = ControllerInfo.restoreInfo(prop.getProperty("c1up"),    "Standard PS/2 Keyboard;Up;1.0");
@@ -89,7 +101,7 @@ public class UISettings {
 		c1controls[7] = ControllerInfo.restoreInfo(prop.getProperty("c1right"), "Standard PS/2 Keyboard;Right;1.0");
 		c2controls = new ControllerInfo[8];
 		c2controls[0] = ControllerInfo.restoreInfo(prop.getProperty("c2a"),     "Standard PS/2 Keyboard;A;1.0");
-		c2controls[1] = ControllerInfo.restoreInfo(prop.getProperty("c2b"),     "Standard PS/2 Keyboard;B;1.0");
+		c2controls[1] = ControllerInfo.restoreInfo(prop.getProperty("c2b"),     "Standard PS/2 Keyboard;S;1.0");
 		c2controls[2] = ControllerInfo.restoreInfo(prop.getProperty("c2select"),"Standard PS/2 Keyboard;W;1.0");
 		c2controls[3] = ControllerInfo.restoreInfo(prop.getProperty("c2start"), "Standard PS/2 Keyboard;Q;1.0");
 		c2controls[4] = ControllerInfo.restoreInfo(prop.getProperty("c2up"),    "Standard PS/2 Keyboard;Up;1.0");
@@ -157,6 +169,26 @@ public class UISettings {
 		prop.setProperty("ntsc_fringing", ntsc_fringing+"");
 		prop.setProperty("ntsc_bleed", ntsc_bleed+"");
 		prop.setProperty("ntsc_merge", ntsc_merge+"");
+	}
+	private static void loadVisualizer(){
+		String in = prop.getProperty("pianocolors", "");
+		if(in.length()>1){
+			String[] colors = in.split(" ");
+			for(int i = 0; i<colors.length;i++)
+				pianoColors[i] = new Color(Integer.parseInt(colors[i]));
+		}
+		colorBlindMode = prop.getProperty("colorblindmode", "false").equals("true");
+		allGreen = prop.getProperty("allgreen", "false").equals("true");
+
+	}
+	private static void saveVisualizer(){
+		String out = "";
+		for(Color c : pianoColors){
+			out += c.getRGB()+" ";
+		}
+		prop.setProperty("pianocolors", out);
+		prop.setProperty("colorblindmode", colorBlindMode+"");
+		prop.setProperty("allgreen", allGreen+"");
 	}
 		
 }

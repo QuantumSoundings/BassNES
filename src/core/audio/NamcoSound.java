@@ -138,7 +138,7 @@ public class NamcoSound extends Channel {
 		Object[] out = new Object[2*enabledChannels];
 		int x = 0;
 		for(int i = 8-enabledChannels;i<8;i++){
-			out[x++] = "Channel "+i;
+			out[x++] = "N_Channel "+i;
 			out[x++] = getFrequency(i);
 		}
 		return out;

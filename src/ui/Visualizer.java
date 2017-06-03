@@ -53,6 +53,10 @@ public class Visualizer extends JFrame {
 			"D4"," D#4","E4","F4"," F#4","G4"," G#4","A4"," A#4","B4","C5"," C#5","D5"," D#5","E5","F5"," F#5","G5"," G#5","A5"," A#5","B5","C6"," C#6",
 			"D6"," D#6","E6","F6"," F#6","G6"," G#6","A6"," A#6","B6","C7"," C#7","D7"," D#7","E7","F7"," F#7","G7"," G#7","A7"," A#7","B7","C8"," C#8",
 			"D8"," D#8 ","E8","F8"," F#8","G8"," G#8","A8"," A#8","B8"};
+	final String[] channelNames = {"Pulse 1","Pulse 2","Triangle","VRC6 Pulse 1","VRC6 Pulse 2","VRC6 Saw","MMC5 Pulse 1","MMC5 Pulse 2","N_Channel 0","N_Channel 1","N_Channel 2"
+			,"N_Channel 3","N_Channel 4","N_Channel 5","N_Channel 6","N_Channel 7"};
+	final Color[] channelColors = {Color.BLUE,Color.CYAN,Color.GREEN,Color.ORANGE,Color.RED,Color.YELLOW,Color.DARK_GRAY,Color.LIGHT_GRAY,Color.magenta,Color.magenta,Color.magenta,
+			Color.magenta,Color.magenta,Color.MAGENTA,Color.MAGENTA,Color.magenta};
 	public void setFreq(Object[][] frequencies){
 		freq = frequencies;
 	}
@@ -86,113 +90,118 @@ public class Visualizer extends JFrame {
         }
         return lastValue;
     }
-	public void colorKey(String note){
-		Graphics g = pianoKeyboard.getGraphics();
-		g.setXORMode(Color.green);
-		char pitch = note.charAt(0);
-		
+	public void colorKey(Graphics g,String note){
+		//Graphics g = pianoKeyboard.getGraphics();
+		//g.setXORMode(Color.green);
 		if(note.contains("#")){
-			pitch = note.charAt(1);
-			char octave = note.charAt(3);
-			g.setColor(Color.black);
-			int xoffset = (Integer.parseInt(octave+""))*113;
-			int xoffset2 = 0;
-			switch(pitch){
-			case 'C':
-				xoffset+=14;
-				xoffset2 = 23-14;break;
-			case 'D':
-				xoffset+=28;
-				xoffset2=37-28;break;
-			case 'F':
-				xoffset+=61;
-				xoffset2= 71-61;break;
-			case 'G':
-				xoffset+= 76;
-				xoffset2 = 86-76;break;
-			case 'A':
-				xoffset+=92;
-				xoffset2=102-92;break;
-			}
-			switch(octave){
-			case'0':case'1':case'2':case'3':
-				//g.fillRect(xoffset, 61, xoffset2, 41);
-				//break;
-			case'4':case'5':case'6':case'7':
-				g.fillRect(xoffset, 0, xoffset2, 41);
-				break;
-			}
+			colorBlack(g,note);
 		}
 		else{
-			char octave = note.charAt(1);
-			g.setColor(Color.white);
-			int xoffset = (Integer.parseInt(octave+""))*113;
-			int startingy=0;
-			switch(octave){
-			case '0':case '1':case '2':case '3':	
-				//startingy = 61;
-				//break;
-			case '4':case'5':case'6':case'7':
-				startingy = 0;
-				break;
-			}
-			switch(pitch){
-			case 'C':
-				g.fillRect(xoffset+2, startingy, 10, 43);
-				g.fillRect(xoffset+2, startingy+43, 15, 16);
-				break;
-			case 'D':
-				g.fillRect(xoffset+24, startingy, 3, 43);
-				g.fillRect(xoffset+19, startingy+43, 14, 16);
-				break;
-			case 'E':
-				g.fillRect(xoffset+39, startingy, 9, 43);
-				g.fillRect(xoffset+35, startingy+43, 13, 16);
-				break;
-			case 'F':
-				g.fillRect(xoffset+50, startingy, 10,43);
-				g.fillRect(xoffset+50, startingy+43, 15, 16);
-				break;
-			case 'G':
-				g.fillRect(xoffset+72, startingy, 3, 43);
-				g.fillRect(xoffset+67, startingy+43, 14, 16);
-				break;
-			case 'A':
-				g.fillRect(xoffset+88, startingy, 3, 43);
-				g.fillRect(xoffset+83, startingy+43, 14, 16);
-				break;
-			case 'B':
-				g.fillRect(xoffset+103, startingy, 10, 43);
-				g.fillRect(xoffset+99, startingy+43, 14, 16);
-				break;
-			}
-			
+			colorWhite(g,note);	
+		}		
+	}
+	private void colorBlack(Graphics g,String note){
+		char pitch = note.charAt(1);
+		char octave = note.charAt(3);
+		int xoffset = (Integer.parseInt(octave+""))*113;
+		int xoffset2 = 0;
+		switch(pitch){
+		case 'C':
+			xoffset+=14;
+			xoffset2 = 23-14;break;
+		case 'D':
+			xoffset+=28;
+			xoffset2=37-28;break;
+		case 'F':
+			xoffset+=61;
+			xoffset2= 71-61;break;
+		case 'G':
+			xoffset+= 76;
+			xoffset2 = 86-76;break;
+		case 'A':
+			xoffset+=92;
+			xoffset2=102-92;break;
 		}
-		g.dispose();
-		
+		g.fillRect(xoffset, 0, xoffset2, 41);
+	}
+	private void colorWhite(Graphics g,String note){
+		char octave = note.charAt(1);
+		char pitch = note.charAt(0);
+		int xoffset = (Integer.parseInt(octave+""))*113;
+		int startingy=0;
+		switch(octave){
+		case '0':case '1':case '2':case '3':	
+			//startingy = 61;
+			//break;
+		case '4':case'5':case'6':case'7':
+			startingy = 0;
+			break;
+		}
+		switch(pitch){
+		case 'C':
+			g.fillRect(xoffset+2, startingy, 10, 43);
+			g.fillRect(xoffset+2, startingy+43, 15, 16);
+			break;
+		case 'D':
+			g.fillRect(xoffset+24, startingy, 3, 43);
+			g.fillRect(xoffset+19, startingy+43, 14, 16);
+			break;
+		case 'E':
+			g.fillRect(xoffset+39, startingy, 9, 43);
+			g.fillRect(xoffset+35, startingy+43, 13, 16);
+			break;
+		case 'F':
+			g.fillRect(xoffset+50, startingy, 10,43);
+			g.fillRect(xoffset+50, startingy+43, 15, 16);
+			break;
+		case 'G':
+			g.fillRect(xoffset+72, startingy, 3, 43);
+			g.fillRect(xoffset+67, startingy+43, 14, 16);
+			break;
+		case 'A':
+			g.fillRect(xoffset+88, startingy, 3, 43);
+			g.fillRect(xoffset+83, startingy+43, 14, 16);
+			break;
+		case 'B':
+			g.fillRect(xoffset+103, startingy, 10, 43);
+			g.fillRect(xoffset+99, startingy+43, 14, 16);
+			break;
+		}
 	}
 	BufferedImage image;
 	StringBuffer freqs = new StringBuffer();
 	public void paintscope(){
 		Graphics g = contentPane.getGraphics();
 		Graphics g2 = image.getGraphics();
+		Graphics g3 = pianoKeyboard.getGraphics();
 		g2.setColor(Color.BLACK);
 		g2.fillRect(0, 0, image.getWidth(), image.getHeight());
 		int y = 30;
-		g2.setColor(Color.blue);
+		g2.setColor(Color.green);
 		freqs.delete(0, freqs.length());
 		for(Object[] chan: freq){
 			for(int i = 0; i<chan.length;i+=2){
 				double r = search((double)chan[i+1]);
 				int index = Arrays.binarySearch(notefreq, r);
+				if(!UISettings.allGreen){
+					if(UISettings.colorBlindMode)
+						g2.setColor(UISettings.pianoColorsColorBlind[Arrays.asList(UISettings.channelNames).indexOf((String)chan[i])]);
+					else
+						g2.setColor(UISettings.pianoColors[Arrays.asList(UISettings.channelNames).indexOf((String)chan[i])]);
+				}
 				if(notename[index].length()>0&&freqs.indexOf(notename[index])==-1){
-					colorKey(notename[index]);
+					g3.setColor(g2.getColor());
+					if(notename[index].contains("#"))
+						colorBlack(g3,notename[index]);
+					else
+						colorWhite(g3,notename[index]);
 					freqs.append(notename[index]);
 				}
 				g2.drawString((String)chan[i]+": "+notename[index], 0, y);
 				y+=10;
 			}
 		}
+		g2.setColor(Color.BLUE);
 		g2.drawImage(pianoKeyboard, 0, 270, null);
 		pianoKeyboard.setRGB(0, 0, pianoKeyboard.getWidth(), pianoKeyboard.getHeight(), pianodata, 0, pianoKeyboard.getWidth());
 		g2.setColor(Color.GREEN);
