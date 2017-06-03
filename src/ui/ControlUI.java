@@ -50,7 +50,7 @@ public class ControlUI extends JFrame {
 		contentPane.add(lblAButton);
 		
 		JButton abutton1 = new JButton("<"+UISettings.c1controls[0].id.getName()+">");
-		abutton1.setBounds(97, 20, 125, 23);
+		abutton1.setBounds(114, 20, 83, 23);
 		abutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				UISettings.c1controls[0] =getbutton();

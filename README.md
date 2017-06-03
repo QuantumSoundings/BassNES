@@ -1,9 +1,9 @@
-# NES
-An NES emulator written in Java. The emulator itself is pretty darn accurate. Boasting cycle accuracy and well timed components. It passes most tests I throw at it. It is also one of the fastest java emulators I have used.
+# BassNES
+An NES emulator written in Java. The emulator itself is pretty darn accurate. Boasting cycle accuracy and well timed components. It passes most tests I throw at it. It is also one of the fastest java emulators I know of.
 
-Current Test Rom Results as of 0.2.2
+Current Test Rom Results as of 0.4.0
 
-https://pastebin.com/jP7mCCKi
+https://pastebin.com/j7JRm3fJ
 
 
 
@@ -14,12 +14,34 @@ Currently supported mappers:
 These mappers give a good mix of compatibility covering most games for the NES.
 
 
+
+Extra Features:
+
+- NSF Player (.nsf only)
+
+- Controller input via Jinput
+
+- Fully Customizable NTSC filter.
+
+- Volume control on a per-channel basis.
+
+- Audio Visualizer with an oscilloscope and piano keyboard
+
+- A library version of the BassNES core is provided for inclusion in other projects. It includes
+everything and provides an interface for video and audio callback in the style of liberto. Documentation included.
+
+
+
 System Requirements:
 
-- Minimum 1.0 GHZ dual core for full speed.
+- Minimum 1.2 GHZ dual core for full speed.
+
+
 
 
 Unimplemented (Planned) Features: 
+
+- More Mappers!
 
 - FDS support
 
@@ -27,4 +49,4 @@ Unimplemented (Planned) Features:
 
 - Debugging tools such as a memory, name table and pattern table viewers
 
-- Continued optimization to reach goal of 0.86 GHZ as the minimum cpu speed.
+- Continued optimization to reach goal of 0.86 GHZ as the minimum dual core cpu speed.

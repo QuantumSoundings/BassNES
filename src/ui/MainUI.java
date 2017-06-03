@@ -20,12 +20,17 @@ import core.NesSettings;
 import ui.UISettings.VideoFilter;
 
 import java.awt.event.ActionListener;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.awt.Font;
 import javax.swing.JSeparator;
 @SuppressWarnings("serial")
@@ -412,6 +417,36 @@ public class MainUI extends JFrame {
 			}
 		});
 		mnDebug.add(mntmDebugInfo);
+		
+		JMenu mnHelp = new JMenu("Help");
+		menuBar.add(mnHelp);
+		
+		JMenuItem mntmReportABug = new JMenuItem("Report a Bug");
+		mntmReportABug.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+					try {
+						openWebpage(new URL("https://github.com/QuantumSoundings/BassNES/issues/new"));
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+					}
+				
+			}
+		});
+		mnHelp.add(mntmReportABug);
+		
+		JSeparator separator_1 = new JSeparator();
+		mnHelp.add(separator_1);
+		
+		JMenuItem mntmAbout = new JMenuItem("About");
+		mntmAbout.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(sys.aboutWindow==null)
+					sys.aboutWindow= new About();
+				sys.aboutWindow.setVisible(!sys.aboutWindow.isVisible());
+			}
+		});
+		mnHelp.add(mntmAbout);
 		this.addWindowListener(new WindowAdapter(){
 			@Override
 			public void windowClosing(WindowEvent evt){
@@ -431,6 +466,24 @@ public class MainUI extends JFrame {
 	private void resetImage(){
 		sys.display.updateImage(256, 240);
 		NesSettings.RenderMethod = 2;
+	}
+	private void openWebpage(URI uri) {
+	    Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+	    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+	        try {
+	            desktop.browse(uri);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
+
+	private void openWebpage(URL url) {
+	    try {
+	        openWebpage(url.toURI());
+	    } catch (URISyntaxException e) {
+	        e.printStackTrace();
+	    }
 	}
 
 }

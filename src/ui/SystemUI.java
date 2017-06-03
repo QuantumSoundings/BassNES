@@ -26,7 +26,7 @@ interface UpdateEventListener extends EventListener{
 public class SystemUI implements NESCallback {
 	public NES nes;
 	final JFileChooser fc = new JFileChooser();
-	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow;
+	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow,aboutWindow;
 	Debugger debugInfo;
 	File rom,configuration;
 	NesDisplay display;
@@ -135,7 +135,7 @@ public class SystemUI implements NESCallback {
 		Thread.sleep(500);
 		NesSettings.frameLimit=false;
 		testoutput="";
-		boolean all = false;
+		boolean all = true;
 		int speed = 2;
         if(false|all){
 			testoutput = " Blargg PPU Tests \n\n";
