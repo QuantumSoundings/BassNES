@@ -27,6 +27,8 @@ Extra Features:
 
 - Audio Visualizer with an oscilloscope and piano keyboard
 
+- Save States! (hotkeys are CTRL+(number key) to save and SHIFT+(number key) to load)
+
 - A library version of the BassNES core is provided for inclusion in other projects. It includes
 everything and provides an interface for video and audio callback in the style of liberto. Documentation included.
 
