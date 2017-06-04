@@ -57,8 +57,14 @@ public class FME_7 extends Mapper {
 	}
 	@Override
 	final byte cartridgeRead(int index){
-		if(index>=0x6000&&index<=0x7fff)
-			return PRG_RAM[index%0x2000];
+		if(index>=0x6000&&index<=0x7fff){
+			if(rominramspot)
+				return PRG_RAM[index%0x2000];
+			else if(prgramenable)
+				return PRG_RAM[index%0x2000];
+			else
+				return openbus;
+		}
 		else if(index>=0x8000&&index<=0x9fff)
 			return PRG_ROM[0][index%0x2000];
 		else if(index>=0xa000&&index<=0xbfff)
@@ -76,8 +82,9 @@ public class FME_7 extends Mapper {
 	
 	@Override
 	public final void cartridgeWrite(int index, byte b){
+		openbus = b;
 		if(index>=0x6000&&index<=0x7fff){
-			if(!rominramspot)
+			if(!rominramspot&&prgramenable)
 				PRG_RAM[index%0x2000] = b;
 		}
 		else if(index>=0x8000&&index<=0x9fff)
@@ -99,13 +106,12 @@ public class FME_7 extends Mapper {
 			CHR_ROM[command] = CHRbanks[param&(CHRbanks.length-1)];break;
 		case 8:
 			prgramenable = (param&0x80)!=0;
-			if((param&0x40)==0){
+			rominramspot = (param&0x40)==0;
+			if(rominramspot){
 				PRG_RAM = PRGbanks[(param&0x3f)&(PRGbanks.length-1)];
-				rominramspot = true;
 			}
 			else{
 				PRG_RAM = PRG_RAMbanks[(param&0x3f)&(PRGbanks.length-1)];
-				rominramspot = false;
 			}
 			break;
 		case 9:
@@ -133,24 +139,53 @@ public class FME_7 extends Mapper {
 			irqCounter|=(param<<8);break;
 		}
 	}
-	//private void doAudioCommand(int param){
-	//	audio.registerWrite(audiocommand, param);
-	//}
+	
 	@Override
 	public byte ppureadPT(int index){
 		return CHR_ROM[index/0x400][index%0x400];
+	}
+	/*@Override
+	public void ppuwrite(int index,byte b){
+		if(index<0x2000&&CHR_ram){
+			CHR_ROM[index/0x400][index%0x400] = b;
+		}
+		else if(index>=0x2000&&index<=0x3eff){
+			index&=0xfff;
+			nametables[index/0x400][index%0x400] = b;
+		}
+		else{
+			int i = (index&0x1f);//%0x20;
+			if(i%4==0)
+				i+= i>=0x10?-0x10:0;
+			ppu_palette[i]=b;
+		}
+	}*/
+	@Override
+	public byte ppuread(int index){
+		if(index<0x2000)
+			return CHR_ROM[index/0x400][index%0x400];
+		else if(index>=0x2000&&index<=0x3eff){
+			index&=0xfff;
+			return nametables[index/0x400][index%0x400];
+		}
+		else{
+			index = index&0x1f;
+			index-= (index>=0x10&&(index&3)==0)?0x10:0;
+			return ppu_palette[index];
+		}
 	}
 	boolean irqEnabled;
 	boolean irqCounterEnabled;
 	int irqCounter;
 	private void clockirq(){
-		if(irqEnabled){
-			if(irqCounterEnabled)
-				irqCounter--;
-			if(irqCounter==-1){
-				irqCounter=0xffff;
-				cpu.setIRQ(IRQSource.External);
+		if(irqCounterEnabled){
+			if(irqCounter==0){
+				irqCounter = 0xffff;
+				if(irqEnabled)
+					cpu.setIRQ(IRQSource.External);
 			}
+			else
+				irqCounter--;
 		}
 	}
 	@Override
