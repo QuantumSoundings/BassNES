@@ -13,6 +13,7 @@ import core.CPU_6502.IRQSource;
 import core.NesSettings;
 import core.audio.MMC5Audio;
 import core.audio.NamcoSound;
+import core.audio.Sunsoft5B;
 import core.audio.VRC6Pulse;
 import core.audio.VRC6Saw;
 
@@ -34,6 +35,8 @@ public class NSFPlayer extends Mapper{
 	private int multlow;
 	private int multhigh;
 	private int multproduct;
+	private Sunsoft5B sunsoft;
+	private int audiocommand;
 	
 	//NSF Header Information
 	private byte[] initialbanks;
@@ -183,6 +186,11 @@ public class NSFPlayer extends Mapper{
 			namco = new NamcoSound(namcomemory);
 			apu.addExpansionChannel(namco);
 			expansionInfo += "Namco ";
+		}
+		if((b&32)==32){
+			sunsoft = new Sunsoft5B();
+			apu.addExpansionChannel(sunsoft);
+			expansionInfo += "Sunsoft5B ";
 		}
 	}
 	@Override
@@ -368,6 +376,8 @@ public class NSFPlayer extends Mapper{
 				soundAddress = (b&0x7f);
 				addrAutoInc = (b&0x80)!=0;
 				break;	
+			case 0xc000: audiocommand = 0xf&b;break;
+			case 0xe000: sunsoft.registerWrite(audiocommand, b);break;
 			}
 		}
 	}
