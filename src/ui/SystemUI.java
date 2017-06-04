@@ -50,7 +50,7 @@ public class SystemUI implements NESCallback {
 		}
 		audio = new AudioInterface(this);
 		debugInfo = new Debugger(this);
-		rom = new File("one winged angel.nsf");
+		rom = new File("gimmickj.nes");
 		mainWindow = new MainUI(this);
 		//debugWindow = new DebugUI();
 		keyconfigWindow = new ControlUI(prop,this);

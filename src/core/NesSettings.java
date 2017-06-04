@@ -91,6 +91,10 @@ public class NesSettings {
 	 */
 	public static int mmc5MixLevel=100;
 	/**
+	 * PreMix level of Sunsoft5B expansion audio.
+	 */
+	public static int sunsoft5BMixLevel=100;
+	/**
 	 * Internal sampling rate of a NES instance. READ ONLY. Changes to this value will not
 	 * effect a NES instance. Changes should be made using NES.setSampleRate(int rate).
 	 */

@@ -28,7 +28,6 @@ public class Noise extends Channel{
 			mode = (b & 0x80) != 0;
 			int noiseperiod= b&0xf;
 			timer = noiselookup[noiseperiod];
-			//shiftreg=1;
 			break;
 		case 3: 
 			if(enable)
@@ -44,6 +43,7 @@ public class Noise extends Channel{
 						lengthcount = lengthlookup[lengthcount];
 					}
 			decay = volume;
+			estart = true;
 			break;
 		default: break;
 		}		

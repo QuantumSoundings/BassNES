@@ -272,6 +272,25 @@ public class AudioSettingsUI extends JFrame {
 		lblMmc.setBounds(154, 208, 46, 14);
 		panel.add(lblMmc);
 		
+		JSlider slider_9 = new JSlider();
+		slider_9.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				JSlider source = (JSlider) arg0.getSource();
+				NesSettings.sunsoft5BMixLevel=source.getValue();
+			}
+		});
+		slider_9.setValue(100);
+		slider_9.setPaintTicks(true);
+		slider_9.setPaintLabels(true);
+		slider_9.setOrientation(SwingConstants.VERTICAL);
+		slider_9.setMajorTickSpacing(20);
+		slider_9.setBounds(228, 109, 50, 99);
+		panel.add(slider_9);
+		
+		JLabel lblSunsoftb = new JLabel("SunSoft5B");
+		lblSunsoftb.setBounds(228, 208, 50, 14);
+		panel.add(lblSunsoftb);
+		
 		JPanel panel_2 = new JPanel();
 		tabbedPane.addTab("Visualizer", null, panel_2, null);
 		panel_2.setLayout(null);
