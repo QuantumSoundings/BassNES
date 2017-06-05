@@ -3,6 +3,9 @@ package core;
 import java.io.File;
 import java.io.IOException;
 
+import core.exceptions.UnSupportedFileException;
+import core.exceptions.UnSupportedMapperException;
+
 /**
  * Interface of guaranteed functions provided by a NES object.
  * @author Jordan Howe
@@ -22,8 +25,10 @@ public interface NESAccess {
 	 * Loads the rom and initializes the nes machine.
 	 * @param rom - File for the machine to execute.
 	 * @throws IOException
+	 * @throws UnSupportedMapperException - Triggered if a given rom is unsupported.
+	 * @throws UnSupportedFileException - Triggered if a given file is not supported.
 	 */
-	public void loadRom(File rom) throws IOException;
+	public void loadRom(File rom) throws IOException, UnSupportedMapperException, UnSupportedFileException;
 	
 	
 	

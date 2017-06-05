@@ -41,6 +41,7 @@ public class MMC3 extends Mapper {
 			CHR_ROM[7]=CHRbanks[7];
 		}
 		else{
+			CHRbanks = new byte[8][0x400];
 			CHR_ram = true;
 		}
 	}

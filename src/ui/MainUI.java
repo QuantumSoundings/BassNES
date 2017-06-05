@@ -10,7 +10,6 @@ import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
@@ -75,11 +74,20 @@ public class MainUI extends JFrame {
 		};
 		Action loadRom = new AbstractAction(){
 			public void actionPerformed(ActionEvent e) {
-				sys.fc.setCurrentDirectory(new File(UISettings.lastLoadedDir));
-				int returnval = sys.fc.showOpenDialog(sys.mainWindow);
-				if(returnval == JFileChooser.APPROVE_OPTION){
-					sys.rom = sys.fc.getSelectedFile();
-					UISettings.lastLoadedDir = sys.fc.getCurrentDirectory().getAbsolutePath();
+				sys.fc.setDirectory(UISettings.lastLoadedDir);
+				//String f = sys.fc.getFile();
+				sys.fc.setVisible(true);
+				while(sys.fc.isVisible()){
+					try {
+						Thread.sleep(20);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+					sys.rom = new File(sys.fc.getDirectory()+"/"+sys.fc.getFile());
+					
+					UISettings.lastLoadedDir = sys.fc.getDirectory();
 					if(UISettings.autoLoad){
 						if(sys.nes!=null)
 							sys.nes.exit();
@@ -87,7 +95,7 @@ public class MainUI extends JFrame {
 						sys.current = new Thread(sys.nes);
 						sys.current.start();
 					}
-				}
+				
 			}
 		};
 		Action autoLoad = new AbstractAction(){

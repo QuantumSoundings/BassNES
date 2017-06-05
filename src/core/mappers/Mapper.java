@@ -7,6 +7,7 @@ import core.Controller;
 import core.NES;
 import core.NESCallback;
 import core.ppu2C02;
+import core.exceptions.UnSupportedMapperException;
 //import ui.SystemUI;
 public class Mapper implements java.io.Serializable {//There will be class that inherit this class. Better to have all reads and writes go through this
 	private static final long serialVersionUID = 6655950169350506050L;
@@ -354,7 +355,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	public void scanlinecounter(){}
 	public void addExtraAudio(byte b){};
 	public void setNSFVariables(int playaddr,int initaddr,int playspeed, int startsong, int tuneregion, int tuneregion2, String songname, String artistname){}
-	public static Mapper getmapper(int i){
+	public static Mapper getmapper(int i) throws UnSupportedMapperException{
 		switch(i){
 		case 0:
 			return new NROM();
@@ -397,9 +398,8 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		case 1001:
 			return new NSFPlayer();
 		default:
-			System.err.println("Unsupported Mapper id: "+i);
+			throw new UnSupportedMapperException(i);
 		}
-		return null;
 	}
 	public void runFrame() {
 		while(!ppu.doneFrame){

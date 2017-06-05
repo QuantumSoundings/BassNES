@@ -2,6 +2,7 @@ package ui;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.FileDialog;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -11,12 +12,13 @@ import java.util.Arrays;
 import java.util.EventListener;
 import java.util.Properties;
 
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
 import core.NES;
 import core.NESCallback;
 import core.NesSettings;
+import core.exceptions.UnSupportedFileException;
+import core.exceptions.UnSupportedMapperException;
 import ui.debugger.BreakPoint;
 import ui.debugger.Debugger;
 interface UpdateEventListener extends EventListener{
@@ -25,7 +27,7 @@ interface UpdateEventListener extends EventListener{
 }
 public class SystemUI implements NESCallback {
 	public NES nes;
-	final JFileChooser fc = new JFileChooser();
+	final FileDialog fc = new FileDialog((java.awt.Frame)null);
 	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow,aboutWindow;
 	Debugger debugInfo;
 	File rom,configuration;
@@ -48,6 +50,7 @@ public class SystemUI implements NESCallback {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+		fc.setVisible(false);
 		audio = new AudioInterface(this);
 		debugInfo = new Debugger(this);
 		rom = new File("gimmickj.nes");
@@ -69,6 +72,7 @@ public class SystemUI implements NESCallback {
             }
        };
        setupMainWindow();
+       testRomSet();
 		/*try {
 			runTests();
 		} catch (InterruptedException e) {
@@ -351,10 +355,68 @@ public class SystemUI implements NESCallback {
 	public void createNES(File rom){
 		nes = new NES(this);
 		nes.setCallback(this);
-		try {
-			nes.loadRom(rom);
-		} catch (IOException e) {
-			e.printStackTrace();
+			try {
+				nes.loadRom(rom);
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (UnSupportedFileException e) {
+				e.printStackTrace();
+			} catch (UnSupportedMapperException e) {
+				e.printStackTrace();
+			}
+		resetaudio();
+	}
+	
+	public void testRomSet(){
+		//fc.setDirectory("C\\:\\Users\\Jordan\\Downloads\\NESrompack\\NESroms\\USA\\");
+		fc.setDirectory(UISettings.lastLoadedDir);
+		File folder = new File(fc.getDirectory());
+		File[] files =folder.listFiles();
+		for(File f:files){
+			if(f.isDirectory()){
+				countRomsInDir(f);
+			}
+		}
+		System.out.println(output);
+		System.out.println("Other Errors: "+othererrors);
+		for(int i = 0;i<256;i++){
+			if(totalmappernumber[i]>0)
+				System.out.println("Found Mapper "+i+": "+totalmappernumber[i]+" roms");
+		}
+		
+	}
+	String output ="";
+	int othererrors = 0;
+	int[] totalmappernumber = new int[256];
+	public void countRomsInDir(File dir){
+		File[] listofFiles = dir.listFiles();
+		int total = 0,unsupported=0;
+		int[] mappernumber = new int[256];
+		for(File rom: listofFiles){
+			total++;
+			try {
+				nes = new NES(this);
+				nes.loadRom(rom);
+			} catch (UnSupportedMapperException e) {
+				//e.printStackTrace();
+				unsupported++;
+				mappernumber[e.mapperid]++;
+				totalmappernumber[e.mapperid]++;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnSupportedFileException e) {
+				e.printStackTrace();
+			} catch (Exception e){
+				othererrors++;
+				e.printStackTrace();
+			}
+		}
+		output+="Dir: "+dir.getAbsolutePath()+" =======================================================================\n"+"\n";
+		output+="Total roms: "+total+" Unsupported roms: "+unsupported+"\n";
+		for(int i = 0;i<256;i++){
+			if(mappernumber[i]>0)
+				output+="Found Mapper "+i+": "+mappernumber[i]+" roms"+"\n";
 		}
 	}
 	public void saveState(int slot){
@@ -412,7 +474,7 @@ public class SystemUI implements NESCallback {
 	public void resetaudio(){
 		while(audio.inaudio);
 		audio.lock=true;
-		nes.setSampleRate(NesSettings.sampleRate);
+		//nes.setSampleRate(NesSettings.sampleRate);
 		audio.restartSDL();
 		audio.lock=false;	
 	}
