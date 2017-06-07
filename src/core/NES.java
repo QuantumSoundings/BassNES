@@ -7,7 +7,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
-import core.exceptions.UnSupportedFileException;
 import core.exceptions.UnSupportedMapperException;
 import core.mappers.Mapper;
 import core.video.NesColors;
@@ -43,7 +42,7 @@ public class NES implements Runnable,NESAccess {
 	public void setCallback(NESCallback system){
 		this.system=system;
 	}
-	public final void loadRom(File rom) throws IOException, UnSupportedMapperException, UnSupportedFileException{
+	public final void loadRom(File rom) throws IOException, UnSupportedMapperException{
 		//rom = new File(System.getProperty("user.dir")+"/cv3j.nsf");
 		romName = rom.getName().substring(0,rom.getName().length()-4);
 		String ext = rom.getName().toLowerCase().substring(rom.getName().lastIndexOf(".")+1);
@@ -51,7 +50,6 @@ public class NES implements Runnable,NESAccess {
 		case "nes": loadiNES(rom);break;
 		case "nsf": loadNSF(rom);break;
 		default:
-			throw new UnSupportedFileException(ext);
 		}
 		map.setNes(this);
 		map.setSystem(system);
@@ -82,7 +80,6 @@ public class NES implements Runnable,NESAccess {
 				pal = true;
 				System.out.println("Pal Game");
 			}
-			System.out.println(Integer.toBinaryString(Byte.toUnsignedInt(header[9])));
 			map.ppu.setpal(pal);
 			
 			if(batteryExists)

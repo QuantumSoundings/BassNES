@@ -3,7 +3,6 @@ package core;
 import java.io.File;
 import java.io.IOException;
 
-import core.exceptions.UnSupportedFileException;
 import core.exceptions.UnSupportedMapperException;
 
 /**
@@ -28,7 +27,7 @@ public interface NESAccess {
 	 * @throws UnSupportedMapperException - Triggered if a given rom is unsupported.
 	 * @throws UnSupportedFileException - Triggered if a given file is not supported.
 	 */
-	public void loadRom(File rom) throws IOException, UnSupportedMapperException, UnSupportedFileException;
+	public void loadRom(File rom) throws IOException, UnSupportedMapperException;
 	
 	
 	
