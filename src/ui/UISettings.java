@@ -10,7 +10,7 @@ import java.util.Properties;
 
 public class UISettings {
 	static Properties prop;
-	public static final String version = "0.4.0";
+	public static final String version = "0.4.1";
 	//UI Settings
 	public static boolean autoLoad = true;
 	public static boolean ShowFPS=true;

@@ -16,12 +16,12 @@ public class ControllerInfo {
 	
 	public boolean checkPressed(){
 		Controller[] cont = ControllerEnvironment.getDefaultEnvironment().getControllers();
-		System.out.println(controllername+ " "+id.getName());
+		//System.out.println(controllername+ " "+id.getName());
 		for(Controller c: cont){
 			if(c.getName().equals(controllername)){
-				System.out.println("Found the controller");
+				//System.out.println("Found the controller");
 				c.poll();
-				System.out.println(c.getComponent(id).getPollData());
+				//System.out.println(c.getComponent(id).getPollData());
 				if(c.getComponent(id).getPollData()==val)
 					return true;
 				
