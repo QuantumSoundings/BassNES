@@ -17,6 +17,9 @@ import core.NES;
 import core.NESCallback;
 import core.NesSettings;
 import core.exceptions.UnSupportedMapperException;
+import net.java.games.input.Controller;
+import net.java.games.input.ControllerEnvironment;
+import net.java.games.input.Keyboard;
 import ui.debugger.BreakPoint;
 import ui.debugger.Debugger;
 interface UpdateEventListener extends EventListener{
@@ -39,6 +42,7 @@ public class SystemUI implements NESCallback {
 	Properties prop;
 	String testoutput;
 	private AudioInterface audio;
+	Keyboard key;
 	
 	public SystemUI(){
 		configuration = new File("config.properties");
@@ -77,10 +81,10 @@ public class SystemUI implements NESCallback {
             	audio.setAudioFrame(audiobuffer);
             }
        };
-       setupMainWindow();
-       Tester test = new Tester(this);
+       setupMainWindow();    
+       //Tester test = new Tester(this);
        //test.runTests();
-       test.testRomSet();
+       //test.testRomSet();
 		start();
 	}
 	boolean debugMode = false;

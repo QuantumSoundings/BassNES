@@ -16,10 +16,15 @@ public class ControllerInfo {
 	
 	public boolean checkPressed(){
 		Controller[] cont = ControllerEnvironment.getDefaultEnvironment().getControllers();
+		System.out.println(controllername+ " "+id.getName());
 		for(Controller c: cont){
 			if(c.getName().equals(controllername)){
+				System.out.println("Found the controller");
 				c.poll();
-				return c.getComponent(id).getPollData() == val;
+				System.out.println(c.getComponent(id).getPollData());
+				if(c.getComponent(id).getPollData()==val)
+					return true;
+				
 			}
 		}
 		return false;
@@ -35,11 +40,24 @@ public class ControllerInfo {
 			String[] info = s.split(";");
 			float var = Float.parseFloat(info[2]);
 			Controller[] cont = ControllerEnvironment.getDefaultEnvironment().getControllers();
-			for(Controller c: cont){
-				if(c.getName().equals(info[0]))
-				for(Component comp:c.getComponents())
-					if(comp.getIdentifier().getName().equals(info[1])){
-						return new ControllerInfo(info[0],comp.getIdentifier(),var);
+			if(d.equals("null")){
+				for(Controller c: cont){
+					if(c.getType()==Controller.Type.KEYBOARD){
+						System.out.println(c.getName());
+						for(Component comp:c.getComponents())
+							if(comp.getIdentifier().getName().equals(info[1])){
+								return new ControllerInfo(c.getName(),comp.getIdentifier(),var);
+							}
+					}
+				}
+			}
+			else{
+				for(Controller c: cont){
+					if(c.getName().equals(info[0]))
+						for(Component comp:c.getComponents())
+							if(comp.getIdentifier().getName().equals(info[1])){
+								return new ControllerInfo(info[0],comp.getIdentifier(),var);
+							}
 					}
 			}
 		}
