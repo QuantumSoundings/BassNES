@@ -53,7 +53,13 @@ Unimplemented (Planned) Features:
 
 - Continued optimization to reach goal of 0.86 GHZ as the minimum dual core cpu speed.
 
+# Screenshots
 
+![Alt text](http://i.imgur.com/2TX2RUM.png)
+![Alt text](http://i.imgur.com/9sybQD8.png)
+![Alt text](http://i.imgur.com/hseyDSk.png)
+![Alt text](http://i.imgur.com/jQdaI9A.png)
+![Alt text](http://i.imgur.com/YJtTDGV.png)
 
 # License
 
