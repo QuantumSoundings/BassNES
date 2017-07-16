@@ -5,27 +5,29 @@ import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
 public class ControllerInfo {
-	String controllername;
+	Controller control;
 	Component.Identifier id;
 	float val;
-	public ControllerInfo(String name,Component.Identifier i,float v){
+	public ControllerInfo(Controller c,Component.Identifier i,float v){
 		val = v;
 		id = i;
-		controllername = name;
+		control = c;
 	}
 	
 	public boolean checkPressed(){
-		Controller[] cont = ControllerEnvironment.getDefaultEnvironment().getControllers();
-		//System.out.println(controllername+ " "+id.getName());
-		for(Controller c: cont){
-			if(c.getName().equals(controllername)){
-				//System.out.println("Found the controller");
-				c.poll();
-				//System.out.println(c.getComponent(id).getPollData());
-				if(c.getComponent(id).getPollData()==val)
-					return true;
-				
+		if(control.getType()==Controller.Type.KEYBOARD){
+			Controller[] cont = ControllerEnvironment.getDefaultEnvironment().getControllers();
+			for(Controller c: cont){
+				if(c.getName().equals(control.getName())){
+					c.poll();
+					if(c.getComponent(id).getPollData()==val)
+						return true;
+				}
 			}
+		}
+		else{
+			control.poll();
+			return control.getComponent(id).getPollData()==val;
 		}
 		return false;
 	}
@@ -33,32 +35,36 @@ public class ControllerInfo {
 		return id.toString();
 	}
 	public String storeInfo(){
-		return controllername+";"+id.getName()+";"+val;
+		return control.getName()+":"+control.getPortNumber()+";"+id.getName()+";"+val;
 	}
 	public static ControllerInfo restoreInfo(String s,String d){
 		if(s!=null){
 			String[] info = s.split(";");
+			String name = info[0].split(":")[0];
+			String port = info[0].split(":")[1];
 			float var = Float.parseFloat(info[2]);
 			Controller[] cont = ControllerEnvironment.getDefaultEnvironment().getControllers();
-			if(d.equals("null")){
+			if(!d.equals("null")){
 				for(Controller c: cont){
-					if(c.getType()==Controller.Type.KEYBOARD){
-						System.out.println(c.getName());
-						for(Component comp:c.getComponents())
+					if(c.getName().equals(name)&&c.getPortNumber()==Integer.parseInt(port)){
+						for(Component comp: c.getComponents()){
 							if(comp.getIdentifier().getName().equals(info[1])){
-								return new ControllerInfo(c.getName(),comp.getIdentifier(),var);
+								return new ControllerInfo(c,comp.getIdentifier(),var);
 							}
+						}
 					}
 				}
 			}
 			else{
 				for(Controller c: cont){
-					if(c.getName().equals(info[0]))
+					if(c.getType()==Controller.Type.KEYBOARD){
+						System.out.println(c.getName());
 						for(Component comp:c.getComponents())
 							if(comp.getIdentifier().getName().equals(info[1])){
-								return new ControllerInfo(info[0],comp.getIdentifier(),var);
+								return new ControllerInfo(c,comp.getIdentifier(),var);
 							}
 					}
+				}
 			}
 		}
 		System.out.println("Not found :( Loading default...");

@@ -17,8 +17,6 @@ import core.NES;
 import core.NESCallback;
 import core.NesSettings;
 import core.exceptions.UnSupportedMapperException;
-import net.java.games.input.Controller;
-import net.java.games.input.ControllerEnvironment;
 import net.java.games.input.Keyboard;
 import ui.debugger.BreakPoint;
 import ui.debugger.Debugger;
@@ -30,6 +28,7 @@ public class SystemUI implements NESCallback {
 	public NES nes;
 	final JFileChooser fc;
 	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow,aboutWindow;
+	public InputManager input;
 	Debugger debugInfo;
 	File rom,configuration;
 	NesDisplay display;
@@ -46,6 +45,7 @@ public class SystemUI implements NESCallback {
 	
 	public SystemUI(){
 		configuration = new File("config.properties");
+		input = new InputManager(this);
 		try {
 			NesSettings.loadSettings(configuration);
 			UISettings.loadSettings(configuration);
@@ -188,11 +188,8 @@ public class SystemUI implements NESCallback {
 	}
 	public boolean[][] pollController(){
 		boolean[][] out = new boolean[2][8];
-		if(mainWindow.hasFocus()){
-	        for(int i = 0;i<8;i++){
-	        	out[0][i] = UISettings.c1controls[i].checkPressed();
-	        	out[1][i] = UISettings.c2controls[i].checkPressed();
-	        }
+		if(mainWindow.hasFocus()||UISettings.controlwhilenotfocused){
+	        return InputManager.currentFrameInputs;
 		}
 		return out;	
 	}
@@ -202,6 +199,7 @@ public class SystemUI implements NESCallback {
 			@Override
 	        public void run(){
 				listener.doVideoFrame();
+				input.updateInputs();
 	        }
 	    });
 	}

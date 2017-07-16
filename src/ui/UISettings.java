@@ -47,9 +47,9 @@ public class UISettings {
 	public static boolean allGreen = false;
 	
 	
-	//Controller Bindings
-	public static ControllerInfo[] c1controls = new ControllerInfo[8];
-	public static ControllerInfo[] c2controls = new ControllerInfo[8];
+	//Control Settings
+	public static boolean controlwhilenotfocused=false;
+	
 	
 	public static void saveSettings(File config){
 		FileOutputStream output;
@@ -91,34 +91,43 @@ public class UISettings {
 	}
 	private static void loadKeys(){
 		System.out.println("Loading keys");
-		c1controls = new ControllerInfo[8];
-		c1controls[0] = ControllerInfo.restoreInfo(prop.getProperty("c1a"),     "Standard PS/2 Keyboard;A;1.0");
-		c1controls[1] = ControllerInfo.restoreInfo(prop.getProperty("c1b"),     "Standard PS/2 Keyboard;S;1.0");
-		c1controls[2] = ControllerInfo.restoreInfo(prop.getProperty("c1select"),"Standard PS/2 Keyboard;W;1.0");
-		c1controls[3] = ControllerInfo.restoreInfo(prop.getProperty("c1start"), "Standard PS/2 Keyboard;Q;1.0");
-		c1controls[4] = ControllerInfo.restoreInfo(prop.getProperty("c1up"),    "Standard PS/2 Keyboard;Up;1.0");
-		c1controls[5] = ControllerInfo.restoreInfo(prop.getProperty("c1down"),  "Standard PS/2 Keyboard;Down;1.0");
-		c1controls[6] = ControllerInfo.restoreInfo(prop.getProperty("c1left"),  "Standard PS/2 Keyboard;Left;1.0");
-		c1controls[7] = ControllerInfo.restoreInfo(prop.getProperty("c1right"), "Standard PS/2 Keyboard;Right;1.0");
-		c2controls = new ControllerInfo[8];
-		c2controls[0] = ControllerInfo.restoreInfo(prop.getProperty("c2a"),     "Standard PS/2 Keyboard;A;1.0");
-		c2controls[1] = ControllerInfo.restoreInfo(prop.getProperty("c2b"),     "Standard PS/2 Keyboard;S;1.0");
-		c2controls[2] = ControllerInfo.restoreInfo(prop.getProperty("c2select"),"Standard PS/2 Keyboard;W;1.0");
-		c2controls[3] = ControllerInfo.restoreInfo(prop.getProperty("c2start"), "Standard PS/2 Keyboard;Q;1.0");
-		c2controls[4] = ControllerInfo.restoreInfo(prop.getProperty("c2up"),    "Standard PS/2 Keyboard;Up;1.0");
-		c2controls[5] = ControllerInfo.restoreInfo(prop.getProperty("c2down"),  "Standard PS/2 Keyboard;Down;1.0");
-		c2controls[6] = ControllerInfo.restoreInfo(prop.getProperty("c2left"),  "Standard PS/2 Keyboard;Left;1.0");
-		c2controls[7] = ControllerInfo.restoreInfo(prop.getProperty("c2right"), "Standard PS/2 Keyboard;Right;1.0");		
+		InputManager.c1controls = new ControllerInfo[8];
+		InputManager.c1controls[0] = ControllerInfo.restoreInfo(prop.getProperty("c1a"),     "Standard PS/2 Keyboard:0;A;1.0");
+		InputManager.c1controls[1] = ControllerInfo.restoreInfo(prop.getProperty("c1b"),     "Standard PS/2 Keyboard:0;S;1.0");
+		InputManager.c1controls[2] = ControllerInfo.restoreInfo(prop.getProperty("c1select"),"Standard PS/2 Keyboard:0;W;1.0");
+		InputManager.c1controls[3] = ControllerInfo.restoreInfo(prop.getProperty("c1start"), "Standard PS/2 Keyboard:0;Q;1.0");
+		InputManager.c1controls[4] = ControllerInfo.restoreInfo(prop.getProperty("c1up"),    "Standard PS/2 Keyboard:0;Up;1.0");
+		InputManager.c1controls[5] = ControllerInfo.restoreInfo(prop.getProperty("c1down"),  "Standard PS/2 Keyboard:0:0;Down;1.0");
+		InputManager.c1controls[6] = ControllerInfo.restoreInfo(prop.getProperty("c1left"),  "Standard PS/2 Keyboard:0;Left;1.0");
+		InputManager.c1controls[7] = ControllerInfo.restoreInfo(prop.getProperty("c1right"), "Standard PS/2 Keyboard:0;Right;1.0");
+		InputManager.c2controls = new ControllerInfo[8];
+		InputManager.c2controls[0] = ControllerInfo.restoreInfo(prop.getProperty("c2a"),     "Standard PS/2 Keyboard:0;A;1.0");
+		InputManager.c2controls[1] = ControllerInfo.restoreInfo(prop.getProperty("c2b"),     "Standard PS/2 Keyboard:0;S;1.0");
+		InputManager.c2controls[2] = ControllerInfo.restoreInfo(prop.getProperty("c2select"),"Standard PS/2 Keyboard:0;W;1.0");
+		InputManager.c2controls[3] = ControllerInfo.restoreInfo(prop.getProperty("c2start"), "Standard PS/2 Keyboard:0;Q;1.0");
+		InputManager.c2controls[4] = ControllerInfo.restoreInfo(prop.getProperty("c2up"),    "Standard PS/2 Keyboard:0;Up;1.0");
+		InputManager.c2controls[5] = ControllerInfo.restoreInfo(prop.getProperty("c2down"),  "Standard PS/2 Keyboard:0;Down;1.0");
+		InputManager.c2controls[6] = ControllerInfo.restoreInfo(prop.getProperty("c2left"),  "Standard PS/2 Keyboard:0;Left;1.0");
+		InputManager.c2controls[7] = ControllerInfo.restoreInfo(prop.getProperty("c2right"), "Standard PS/2 Keyboard:0;Right;1.0");
+		
+		InputManager.hotkeys[0] = ControllerInfo.restoreInfo(prop.getProperty("quicksave"),  "Standard PS/2 Keyboard:0;Z;1.0");
+		InputManager.hotkeys[1] = ControllerInfo.restoreInfo(prop.getProperty("quickload"),  "Standard PS/2 Keyboard:0;X;1.0");
+		
+		controlwhilenotfocused = prop.getProperty("controlwhilenotfocused", "true").equals("true");
+				
 	}
 	private static void saveKeys(){
-		prop.setProperty("c1a", c1controls[0].storeInfo()+"");prop.setProperty("c2a", c2controls[0].storeInfo()+"");
-		prop.setProperty("c1b", c1controls[1].storeInfo()+"");prop.setProperty("c2b", c2controls[1].storeInfo()+"");
-		prop.setProperty("c1up", c1controls[4].storeInfo()+"");prop.setProperty("c2up", c2controls[4].storeInfo()+"");
-		prop.setProperty("c1down",c1controls[5].storeInfo()+"");prop.setProperty("c2down", c2controls[5].storeInfo()+"");
-		prop.setProperty("c1left", c1controls[6].storeInfo()+"");prop.setProperty("c2left", c2controls[6].storeInfo()+"");
-		prop.setProperty("c1right", c1controls[7].storeInfo()+"");prop.setProperty("c2right", c2controls[7].storeInfo()+"");
-		prop.setProperty("c1start", c1controls[3].storeInfo()+"");prop.setProperty("c2start", c2controls[3].storeInfo()+"");
-		prop.setProperty("c1select", c1controls[2].storeInfo()+"");prop.setProperty("c2select", c2controls[2].storeInfo()+"");
+		prop.setProperty("c1a", InputManager.c1controls[0].storeInfo()+"");prop.setProperty("c2a", InputManager.c2controls[0].storeInfo()+"");
+		prop.setProperty("c1b", InputManager.c1controls[1].storeInfo()+"");prop.setProperty("c2b", InputManager.c2controls[1].storeInfo()+"");
+		prop.setProperty("c1up", InputManager.c1controls[4].storeInfo()+"");prop.setProperty("c2up", InputManager.c2controls[4].storeInfo()+"");
+		prop.setProperty("c1down",InputManager.c1controls[5].storeInfo()+"");prop.setProperty("c2down", InputManager.c2controls[5].storeInfo()+"");
+		prop.setProperty("c1left", InputManager.c1controls[6].storeInfo()+"");prop.setProperty("c2left", InputManager.c2controls[6].storeInfo()+"");
+		prop.setProperty("c1right", InputManager.c1controls[7].storeInfo()+"");prop.setProperty("c2right", InputManager.c2controls[7].storeInfo()+"");
+		prop.setProperty("c1start", InputManager.c1controls[3].storeInfo()+"");prop.setProperty("c2start", InputManager.c2controls[3].storeInfo()+"");
+		prop.setProperty("c1select", InputManager.c1controls[2].storeInfo()+"");prop.setProperty("c2select", InputManager.c2controls[2].storeInfo()+"");
+		prop.setProperty("quicksave", InputManager.hotkeys[0].storeInfo()+"");prop.setProperty("quickload", InputManager.hotkeys[1].storeInfo()+"");
+		
+		prop.setProperty("controlwhilenotfocused", controlwhilenotfocused+"");
 	}
 	private static void loadUI(){
 		autoLoad = prop.getProperty("autoload", "true").equals("true");
