@@ -29,6 +29,7 @@ public class ControlUI extends JFrame {
 	SystemUI sys;
 
 	public ControlUI(Properties p, SystemUI s) {
+		setTitle("Control Settings");
 		sys = s;
 		prop = p;
         //noinspection MagicConstant
@@ -246,6 +247,34 @@ public class ControlUI extends JFrame {
 		JButton btnNewButton_1 = new JButton("<"+InputManager.hotkeys[1].id.getName()+">");
 		btnNewButton_1.setBounds(188, 66, 83, 23);
 		panel_2.add(btnNewButton_1);
+		
+		JLabel lblNewLabel = new JLabel("Input Recording");
+		lblNewLabel.setBounds(100, 95, 83, 14);
+		panel_2.add(lblNewLabel);
+		
+		JLabel lblNewLabel_1 = new JLabel("Input Playback");
+		lblNewLabel_1.setBounds(100, 120, 83, 14);
+		panel_2.add(lblNewLabel_1);
+		
+		JButton btnNewButton_2 = new JButton("<"+InputManager.hotkeys[2].id.getName()+">");
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				InputManager.hotkeys[2] = getbutton();
+				btnNewButton_2.setText("<"+InputManager.hotkeys[2].id.getName()+">");
+			}
+		});
+		btnNewButton_2.setBounds(188, 91, 83, 23);
+		panel_2.add(btnNewButton_2);
+		
+		JButton btnNewButton_3 = new JButton("<"+InputManager.hotkeys[3].id.getName()+">");
+		btnNewButton_3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				InputManager.hotkeys[3] = getbutton();
+				btnNewButton_3.setText("<"+InputManager.hotkeys[3].id.getName()+">");
+			}
+		});
+		btnNewButton_3.setBounds(188, 116, 83, 23);
+		panel_2.add(btnNewButton_3);
 		
 		JPanel panel_3 = new JPanel();
 		tabbedPane.addTab("Settings", null, panel_3, null);
