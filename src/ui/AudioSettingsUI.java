@@ -519,6 +519,28 @@ public class AudioSettingsUI extends JFrame {
 		});
 		chckbxColorBlindMode.setBounds(157, 34, 122, 23);
 		panel_2.add(chckbxColorBlindMode);
+		
+		JPanel panel_3 = new JPanel();
+		tabbedPane.addTab("NSF Player", null, panel_3, null);
+		panel_3.setLayout(null);
+		String[] defaultTimes = new String[] {"0:30", "1:00", "1:30", "2:00", "2:30", "3:00", "3:30", "4:00", "4:30", "5:00"};
+		int[] defaultTimesInt = {1800,3600,5400,7200,9000,10800,12600,14400,16200,18000};
+		JComboBox<String> comboBox_1 = new JComboBox<String>();
+		comboBox_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JComboBox<?> cb = (JComboBox<?>)e.getSource();
+				String s = cb.getSelectedItem().toString();
+				NesSettings.nsfPlayerSongLength = defaultTimesInt[Arrays.asList(defaultTimes).indexOf(s)];
+			}
+		});
+		comboBox_1.setModel(new DefaultComboBoxModel<String>(defaultTimes));
+		comboBox_1.setSelectedIndex(NesSettings.nsfPlayerSongLength/1800-1);
+		comboBox_1.setBounds(117, 35, 59, 20);
+		panel_3.add(comboBox_1);
+		
+		JLabel lblNewLabel_1 = new JLabel("Default Song Length");
+		lblNewLabel_1.setBounds(10, 38, 108, 14);
+		panel_3.add(lblNewLabel_1);
 		if(UISettings.colorBlindMode){
 			pulse1color.setBackground(UISettings.pianoColorsColorBlind[0]);
 			pulse1color.repaint();
