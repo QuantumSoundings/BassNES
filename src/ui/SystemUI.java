@@ -42,8 +42,20 @@ public class SystemUI implements NESCallback {
 	String testoutput;
 	private AudioInterface audio;
 	Keyboard key;
-	
+	static{
+		try {
+			System.loadLibrary("jinput-linux64");
+		}catch (UnsatisfiedLinkError e){
+			
+		}
+		try {
+			System.loadLibrary("jinput-linux");
+		}catch (UnsatisfiedLinkError e){
+			
+		}
+	}
 	public SystemUI(){
+		
 		configuration = new File("config.properties");
 		input = new InputManager(this);
 		try {

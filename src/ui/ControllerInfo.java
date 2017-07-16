@@ -46,6 +46,7 @@ public class ControllerInfo {
 			Controller[] cont = ControllerEnvironment.getDefaultEnvironment().getControllers();
 			if(!d.equals("null")){
 				for(Controller c: cont){
+					System.out.println(c.getName()+" "+c.getType().toString());
 					if(c.getName().equals(name)&&c.getPortNumber()==Integer.parseInt(port)){
 						for(Component comp: c.getComponents()){
 							if(comp.getIdentifier().getName().equals(info[1])){
@@ -57,6 +58,7 @@ public class ControllerInfo {
 			}
 			else{
 				for(Controller c: cont){
+					System.out.println(c.getName()+" "+c.getType().toString());
 					if(c.getType()==Controller.Type.KEYBOARD){
 						System.out.println(c.getName());
 						for(Component comp:c.getComponents())
@@ -65,9 +67,15 @@ public class ControllerInfo {
 							}
 					}
 				}
+				for(Controller c:cont){
+					for(Component comp:c.getComponents())
+						return new ControllerInfo(c,comp.getIdentifier(),(float) 1.0);
+				}
 			}
 		}
 		System.out.println("Not found :( Loading default...");
-		return restoreInfo(d,"null");
+		if(!d.equals("null"))
+			return restoreInfo(d,"null");
+		return new ControllerInfo(null,null,(float) 1.0);
 	}
 }
