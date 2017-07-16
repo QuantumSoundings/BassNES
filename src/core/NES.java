@@ -27,6 +27,7 @@ public class NES implements Runnable,NESAccess {
 	private volatile boolean flag = true;
 	private volatile boolean pause = false;
 	private volatile boolean pauseConfirmed = false;
+	private boolean nsfplayer = false;
 	
 	//Frame rate/timing variables
 	private long frameStartTime;
@@ -117,7 +118,8 @@ public class NES implements Runnable,NESAccess {
 			map.addExtraAudio(extrasoundchips);
 			map.setNSFVariables(dataplayaddr, datainitaddr, playspeed,startsong,totalsongs,tuneregion,songname,artistname);
 			map.setCHR(new byte[0]);
-			map.setSystem(system);			
+			map.setSystem(system);
+			nsfplayer = true;
 		}
 		sx.close();
 	}
@@ -176,6 +178,7 @@ public class NES implements Runnable,NESAccess {
 		return currentFPS;
 	}
 	public final void saveState(String slot) throws IOException{
+		if(!nsfplayer){
 		FileOutputStream fout = new FileOutputStream(slot);
 		ObjectOutputStream out = new ObjectOutputStream(fout);
 		try {
@@ -188,8 +191,10 @@ public class NES implements Runnable,NESAccess {
 		out.writeObject(map.cpu);
 		out.writeObject(map.ppu);
 		out.close();
+		}
 	}
 	public final void restoreState(String slot) throws IOException, ClassNotFoundException{
+		if(!nsfplayer){
 		FileInputStream fin = new FileInputStream(slot);
 		ObjectInputStream in = new ObjectInputStream(fin);
 		pause = true;
@@ -205,6 +210,7 @@ public class NES implements Runnable,NESAccess {
 		map.setSystem(system);
 		in.close();
 		pause = false;
+		}
 	}
 	public final void pause(){
 		pause = true;
