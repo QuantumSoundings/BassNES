@@ -38,44 +38,44 @@ public class ControllerInfo {
 		return control.getName()+":"+control.getPortNumber()+";"+id.getName()+";"+val;
 	}
 	public static ControllerInfo restoreInfo(String s,String d){
-		if(s!=null){
-			String[] info = s.split(";");
-			String name = info[0].split(":")[0];
-			String port = info[0].split(":")[1];
-			float var = Float.parseFloat(info[2]);
-			Controller[] cont = ControllerEnvironment.getDefaultEnvironment().getControllers();
-			if(!d.equals("null")){
-				for(Controller c: cont){
-					System.out.println(c.getName()+" "+c.getType().toString());
-					if(c.getName().equals(name)&&c.getPortNumber()==Integer.parseInt(port)){
-						for(Component comp: c.getComponents()){
-							if(comp.getIdentifier().getName().equals(info[1])){
-								return new ControllerInfo(c,comp.getIdentifier(),var);
-							}
-						}
+		String[] info;
+		//Check if we get null from our config file
+		if(s==null)
+			info = d.split(";");
+		else
+			info = s.split(";");
+		String name = info[0].split(":")[0];
+		String port = info[0].split(":")[1];
+		float var = Float.parseFloat(info[2]);
+		//First check if S will work
+		Controller[] cont = ControllerEnvironment.getDefaultEnvironment().getControllers();
+		for(Controller c: cont){
+			if(c.getName().equals(name)&&c.getPortNumber()==Integer.parseInt(port)){
+				for(Component comp: c.getComponents()){
+					if(comp.getIdentifier().getName().equals(info[1])){
+						return new ControllerInfo(c,comp.getIdentifier(),var);
 					}
-				}
-			}
-			else{
-				for(Controller c: cont){
-					System.out.println(c.getName()+" "+c.getType().toString());
-					if(c.getType()==Controller.Type.KEYBOARD){
-						System.out.println(c.getName());
-						for(Component comp:c.getComponents())
-							if(comp.getIdentifier().getName().equals(info[1])){
-								return new ControllerInfo(c,comp.getIdentifier(),var);
-							}
-					}
-				}
-				for(Controller c:cont){
-					for(Component comp:c.getComponents())
-						return new ControllerInfo(c,comp.getIdentifier(),(float) 1.0);
 				}
 			}
 		}
-		System.out.println("Not found :( Loading default...");
-		if(!d.equals("null"))
-			return restoreInfo(d,"null");
+		//Next check if default Keyboard will work
+		info = d.split(";");
+		for(Controller c: cont){
+			System.out.println(c.getName()+" "+c.getType().toString());
+			if(c.getType()==Controller.Type.KEYBOARD){
+				System.out.println(c.getName());
+				for(Component comp:c.getComponents())
+					if(comp.getIdentifier().getName().equals(info[1])){
+						return new ControllerInfo(c,comp.getIdentifier(),var);
+					}
+			}
+		}
+		//If that didn't work grab anything.
+		for(Controller c:cont){
+			for(Component comp:c.getComponents())
+				return new ControllerInfo(c,comp.getIdentifier(),(float) 1.0);
+		}
+		//Return a null thing if nothing worked.
 		return new ControllerInfo(null,null,(float) 1.0);
 	}
 }
