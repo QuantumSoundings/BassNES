@@ -7,9 +7,15 @@ import net.java.games.input.ControllerEnvironment;
 public class ControllerInfo {
 	Controller control;
 	Component.Identifier id;
+	String idname;
 	float val;
 	public ControllerInfo(Controller c,Component.Identifier i,float v){
 		val = v;
+		if(i==null){
+			idname = "N/A";
+		}
+		else
+			idname = i.getName();
 		id = i;
 		control = c;
 	}

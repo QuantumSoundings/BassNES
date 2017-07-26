@@ -55,7 +55,7 @@ public class ControlUI extends JFrame {
 		lblAButton.setBounds(360, 91, 59, 14);
 		panel.add(lblAButton);
 		
-		JButton abutton1 = new JButton("<"+InputManager.c1controls[0].id.getName()+">");
+		JButton abutton1 = new JButton("<"+InputManager.c1controls[0].idname+">");
 		abutton1.setBounds(336, 111, 83, 23);
 		panel.add(abutton1);
 		
@@ -63,7 +63,7 @@ public class ControlUI extends JFrame {
 		lblBButton.setBounds(267, 91, 59, 14);
 		panel.add(lblBButton);
 		
-		JButton bbutton1 = new JButton("<"+InputManager.c1controls[1].id.getName()+">");
+		JButton bbutton1 = new JButton("<"+InputManager.c1controls[1].idname+">");
 		bbutton1.setBounds(243, 111, 83, 23);
 		panel.add(bbutton1);
 		
@@ -71,7 +71,7 @@ public class ControlUI extends JFrame {
 		lblUpdpad.setBounds(77, 64, 42, 14);
 		panel.add(lblUpdpad);
 		
-		JButton upbutton1 = new JButton("<"+InputManager.c1controls[4].id.getName()+">");
+		JButton upbutton1 = new JButton("<"+InputManager.c1controls[4].idname+">");
 		upbutton1.setBounds(47, 83, 83, 23);
 		panel.add(upbutton1);
 		
@@ -79,7 +79,7 @@ public class ControlUI extends JFrame {
 		lblDown.setBounds(78, 166, 42, 14);
 		panel.add(lblDown);
 		
-		JButton downbutton1 = new JButton("<"+InputManager.c1controls[5].id.getName()+">");
+		JButton downbutton1 = new JButton("<"+InputManager.c1controls[5].idname+">");
 		downbutton1.setBounds(52, 180, 83, 23);
 		panel.add(downbutton1);
 		
@@ -87,7 +87,7 @@ public class ControlUI extends JFrame {
 		lblLeft.setBounds(24, 115, 42, 14);
 		panel.add(lblLeft);
 		
-		JButton leftbutton1 = new JButton("<"+InputManager.c1controls[6].id.getName()+">");
+		JButton leftbutton1 = new JButton("<"+InputManager.c1controls[6].idname+">");
 		leftbutton1.setBounds(0, 132, 83, 23);
 		panel.add(leftbutton1);
 		
@@ -95,7 +95,7 @@ public class ControlUI extends JFrame {
 		lblRight.setBounds(130, 115, 42, 14);
 		panel.add(lblRight);
 		
-		JButton rightbutton1 = new JButton("<"+InputManager.c1controls[7].id.getName()+">");
+		JButton rightbutton1 = new JButton("<"+InputManager.c1controls[7].idname+">");
 		rightbutton1.setBounds(101, 132, 83, 23);
 		panel.add(rightbutton1);
 		
@@ -103,7 +103,7 @@ public class ControlUI extends JFrame {
 		lblStart.setBounds(336, 179, 42, 14);
 		panel.add(lblStart);
 		
-		JButton startbutton1 = new JButton("<"+InputManager.c1controls[3].id.getName()+">");
+		JButton startbutton1 = new JButton("<"+InputManager.c1controls[3].idname+">");
 		startbutton1.setBounds(309, 199, 83, 23);
 		panel.add(startbutton1);
 		
@@ -111,7 +111,7 @@ public class ControlUI extends JFrame {
 		lblSelect.setBounds(208, 180, 42, 14);
 		panel.add(lblSelect);
 		
-		JButton selectbutton1 = new JButton("<"+InputManager.c1controls[2].id.getName()+">");
+		JButton selectbutton1 = new JButton("<"+InputManager.c1controls[2].idname+">");
 		selectbutton1.setBounds(185, 199, 83, 23);
 		panel.add(selectbutton1);
 		
@@ -127,7 +127,7 @@ public class ControlUI extends JFrame {
 		lblAButton_1.setBounds(360, 91, 59, 14);
 		panel_1.add(lblAButton_1);
 		
-		JButton abutton2 = new JButton("<"+InputManager.c2controls[0].id.getName()+">");
+		JButton abutton2 = new JButton("<"+InputManager.c2controls[0].idname+">");
 		abutton2.setBounds(336, 111, 83, 23);
 		panel_1.add(abutton2);
 		
@@ -135,17 +135,17 @@ public class ControlUI extends JFrame {
 		lblBButton_1.setBounds(267, 91, 59, 14);
 		panel_1.add(lblBButton_1);
 		
-		JButton bbutton2 = new JButton("<"+InputManager.c2controls[1].id.getName()+">");
+		JButton bbutton2 = new JButton("<"+InputManager.c2controls[1].idname+">");
 		bbutton2.setBounds(243, 111, 83, 23);
 		panel_1.add(bbutton2);
 		
-		JButton upbutton2 = new JButton("<"+InputManager.c2controls[4].id.getName()+">");
+		JButton upbutton2 = new JButton("<"+InputManager.c2controls[4].idname+">");
 		upbutton2.setBounds(47, 83, 83, 23);
 		panel_1.add(upbutton2);
 		upbutton2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c2controls[4] =getbutton();
-				upbutton2.setText("<"+InputManager.c2controls[4].id.getName()+">");
+				upbutton2.setText("<"+InputManager.c2controls[4].idname+">");
 			}
 		});
 		
@@ -157,11 +157,11 @@ public class ControlUI extends JFrame {
 		label.setBounds(78, 166, 35, 14);
 		panel_1.add(label);
 		
-		JButton downbutton2 = new JButton("<"+InputManager.c2controls[5].id.getName()+">");
+		JButton downbutton2 = new JButton("<"+InputManager.c2controls[5].idname+">");
 		downbutton2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c2controls[5] =getbutton();
-				downbutton2.setText("<"+InputManager.c2controls[5].id.getName()+">");
+				downbutton2.setText("<"+InputManager.c2controls[5].idname+">");
 			}
 		});
 		downbutton2.setBounds(52, 180, 83, 23);
@@ -171,11 +171,11 @@ public class ControlUI extends JFrame {
 		label_1.setBounds(24, 115, 31, 14);
 		panel_1.add(label_1);
 		
-		JButton leftbutton2 = new JButton("<"+InputManager.c2controls[6].id.getName()+">");
+		JButton leftbutton2 = new JButton("<"+InputManager.c2controls[6].idname+">");
 		leftbutton2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c2controls[6] =getbutton();
-				leftbutton2.setText("<"+InputManager.c2controls[6].id.getName()+">");
+				leftbutton2.setText("<"+InputManager.c2controls[6].idname+">");
 				awaitingkey=true;
 			}
 		});
@@ -186,11 +186,11 @@ public class ControlUI extends JFrame {
 		label_2.setBounds(130, 115, 34, 14);
 		panel_1.add(label_2);
 		
-		JButton rightbutton2 = new JButton("<"+InputManager.c2controls[7].id.getName()+">");
+		JButton rightbutton2 = new JButton("<"+InputManager.c2controls[7].idname+">");
 		rightbutton2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c2controls[7] =getbutton();
-				rightbutton2.setText("<"+InputManager.c2controls[7].id.getName()+">");
+				rightbutton2.setText("<"+InputManager.c2controls[7].idname+">");
 			}
 		});
 		rightbutton2.setBounds(101, 132, 83, 23);
@@ -200,11 +200,11 @@ public class ControlUI extends JFrame {
 		label_3.setBounds(336, 179, 35, 14);
 		panel_1.add(label_3);
 		
-		JButton startbutton2 = new JButton("<"+InputManager.c2controls[3].id.getName()+">");
+		JButton startbutton2 = new JButton("<"+InputManager.c2controls[3].idname+">");
 		startbutton2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c2controls[3] =getbutton();
-				startbutton2.setText("<"+InputManager.c2controls[3].id.getName()+">");
+				startbutton2.setText("<"+InputManager.c2controls[3].idname+">");
 			}
 		});
 		startbutton2.setBounds(309, 199, 83, 23);
@@ -214,11 +214,11 @@ public class ControlUI extends JFrame {
 		label_4.setBounds(208, 180, 36, 14);
 		panel_1.add(label_4);
 		
-		JButton selectbutton2 = new JButton("<"+InputManager.c2controls[2].id.getName()+">");
+		JButton selectbutton2 = new JButton("<"+InputManager.c2controls[2].idname+">");
 		selectbutton2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c2controls[2] =getbutton();
-				selectbutton2.setText("<"+InputManager.c2controls[2].id.getName()+">");
+				selectbutton2.setText("<"+InputManager.c2controls[2].idname+">");
 			}
 		});
 		selectbutton2.setBounds(185, 199, 83, 23);
@@ -240,11 +240,11 @@ public class ControlUI extends JFrame {
 		lblQuickLoad.setBounds(100, 70, 63, 14);
 		panel_2.add(lblQuickLoad);
 		
-		JButton btnNewButton = new JButton("<"+InputManager.hotkeys[0].id.getName()+">");
+		JButton btnNewButton = new JButton("<"+InputManager.hotkeys[0].idname+">");
 		btnNewButton.setBounds(188, 41, 83, 23);
 		panel_2.add(btnNewButton);
 		
-		JButton btnNewButton_1 = new JButton("<"+InputManager.hotkeys[1].id.getName()+">");
+		JButton btnNewButton_1 = new JButton("<"+InputManager.hotkeys[1].idname+">");
 		btnNewButton_1.setBounds(188, 66, 83, 23);
 		panel_2.add(btnNewButton_1);
 		
@@ -256,21 +256,21 @@ public class ControlUI extends JFrame {
 		lblNewLabel_1.setBounds(100, 120, 83, 14);
 		panel_2.add(lblNewLabel_1);
 		
-		JButton btnNewButton_2 = new JButton("<"+InputManager.hotkeys[2].id.getName()+">");
+		JButton btnNewButton_2 = new JButton("<"+InputManager.hotkeys[2].idname+">");
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				InputManager.hotkeys[2] = getbutton();
-				btnNewButton_2.setText("<"+InputManager.hotkeys[2].id.getName()+">");
+				btnNewButton_2.setText("<"+InputManager.hotkeys[2].idname+">");
 			}
 		});
 		btnNewButton_2.setBounds(188, 91, 83, 23);
 		panel_2.add(btnNewButton_2);
 		
-		JButton btnNewButton_3 = new JButton("<"+InputManager.hotkeys[3].id.getName()+">");
+		JButton btnNewButton_3 = new JButton("<"+InputManager.hotkeys[3].idname+">");
 		btnNewButton_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				InputManager.hotkeys[3] = getbutton();
-				btnNewButton_3.setText("<"+InputManager.hotkeys[3].id.getName()+">");
+				btnNewButton_3.setText("<"+InputManager.hotkeys[3].idname+">");
 			}
 		});
 		btnNewButton_3.setBounds(188, 116, 83, 23);
@@ -296,74 +296,74 @@ public class ControlUI extends JFrame {
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.hotkeys[1] = getbutton();
-				btnNewButton.setText("<"+InputManager.hotkeys[1].id.getName()+">");
+				btnNewButton.setText("<"+InputManager.hotkeys[1].idname+">");
 			}
 		});
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				InputManager.hotkeys[0] = getbutton();
-				btnNewButton.setText("<"+InputManager.hotkeys[0].id.getName()+">");
+				btnNewButton.setText("<"+InputManager.hotkeys[0].idname+">");
 			}
 		});
 		bbutton2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c2controls[1] =getbutton();
-				bbutton2.setText("<"+InputManager.c2controls[1].id.getName()+">");
+				bbutton2.setText("<"+InputManager.c2controls[1].idname+">");
 			}
 		});
 		abutton2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c2controls[0] =getbutton();
-				abutton2.setText("<"+InputManager.c2controls[0].id.getName()+">");
+				abutton2.setText("<"+InputManager.c2controls[0].idname+">");
 			}
 		});
 		selectbutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c1controls[2] =getbutton();
-				selectbutton1.setText("<"+InputManager.c1controls[2].id.getName()+">");
+				selectbutton1.setText("<"+InputManager.c1controls[2].idname+">");
 			}
 		});
 		startbutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c1controls[3] =getbutton();
-				startbutton1.setText("<"+InputManager.c1controls[3].id.getName()+">");
+				startbutton1.setText("<"+InputManager.c1controls[3].idname+">");
 			}
 		});
 		rightbutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c1controls[7] =getbutton();
-				rightbutton1.setText("<"+InputManager.c1controls[7].id.getName()+">");
+				rightbutton1.setText("<"+InputManager.c1controls[7].idname+">");
 			}
 		});
 		leftbutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c1controls[6] =getbutton();
-				leftbutton1.setText("<"+InputManager.c1controls[6].id.getName()+">");
+				leftbutton1.setText("<"+InputManager.c1controls[6].idname+">");
 				awaitingkey=true;
 			}
 		});
 		downbutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c1controls[5] =getbutton();
-				downbutton1.setText("<"+InputManager.c1controls[5].id.getName()+">");
+				downbutton1.setText("<"+InputManager.c1controls[5].idname+">");
 			}
 		});
 		upbutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c1controls[4] =getbutton();
-				upbutton1.setText("<"+InputManager.c1controls[4].id.getName()+">");
+				upbutton1.setText("<"+InputManager.c1controls[4].idname+">");
 			}
 		});
 		bbutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c1controls[1] =getbutton();
-				bbutton1.setText("<"+InputManager.c1controls[1].id.getName()+">");
+				bbutton1.setText("<"+InputManager.c1controls[1].idname+">");
 			}
 		});
 		abutton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputManager.c1controls[0] =getbutton();
-				abutton1.setText("<"+InputManager.c1controls[0].id.getName()+">");
+				abutton1.setText("<"+InputManager.c1controls[0].idname+">");
 			}
 		});
 		
