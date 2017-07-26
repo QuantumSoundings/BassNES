@@ -73,8 +73,7 @@ public class NesDisplay extends JPanel {
 	}
 	private int[] ntsc(int[] pixels){
 		ntsc.filter(pixels, 0, 240);
-		int[] out = ntsc.getImageData();
-		return out;
+		return ntsc.getImageData();
 	}
 	private int[] scanline(int[] pixels){
 		for(int i = 0; i<height;i++){
