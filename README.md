@@ -17,7 +17,7 @@ These mappers give a good mix of compatibility covering most games for the NES.
 
 Extra Features:
 
-- NSF Player (.nsf only)
+- NSF Player (.nsf and .nsfe)
 
 - Controller input via Jinput
 
