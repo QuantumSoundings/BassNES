@@ -433,7 +433,7 @@ public class MMC5 extends Mapper {
 	}
 	@Override
 	public final byte ppureadNT(int index){
-		if(ppu.pcycle==339)
+		if(ppu.pcycle==1&&ppu.scanline>1)
 			clockirq();
 		index%=0x1000;
 		return nametables[index/0x400][index%0x400];
