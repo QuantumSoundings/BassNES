@@ -72,7 +72,7 @@ public class SystemUI implements NESCallback {
 			e.printStackTrace();
 		}
 		fc = new JFileChooser();
-		fc.setFileFilter(new FileNameExtensionFilter("Nes Files","nes","nsf","NES","NSF"));
+		fc.setFileFilter(new FileNameExtensionFilter("Nes Files","nes","nsf","nsfe","NSFE","NSFe","NES","NSF"));
 		audio = new AudioInterface(this);
 		debugInfo = new Debugger(this);
 		rom = new File("gimmickj.nes");

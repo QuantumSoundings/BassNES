@@ -42,11 +42,16 @@ public class NSFPlayer extends Mapper{
 	private byte[] initialbanks;
 	private int initaddr;
 	private int playaddr;
+	private int loadaddr;
 	private int playspeed;
 	private int currentsong;
 	private int totalsongs;
 	private String title;
 	private String artist;
+	
+	//NSFe Header Information
+	private int[] tracktimes;
+	private String[] tracknames;
 	
 	//Player Variables
 	private byte irqstatus;
@@ -62,6 +67,8 @@ public class NSFPlayer extends Mapper{
 	private boolean doingBanking;
 	private Font largefont;
 	private Font smallfont;
+	private boolean nsfemode;
+	
 	
 	//Player Control Variables
 	boolean pause = false;
@@ -100,8 +107,9 @@ public class NSFPlayer extends Mapper{
 		0x8D,0x13,0x3E,0x4C,0x17,0x3F,0x6C,0x00,0x3E,0x6C,0x02,0x3E,0x03,0x3F,0x1A,0x3F
 	};
 	
-	public NSFPlayer(){
+	public NSFPlayer(int i){
 		super();
+		
 		System.out.println("Making an NSF Player!");
 		Map<TextAttribute, Object> attributes = new HashMap<>();
 
@@ -113,10 +121,11 @@ public class NSFPlayer extends Mapper{
 		attributes.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_SEMIBOLD);
 		attributes.put(TextAttribute.SIZE, 10);
 		smallfont = Font.getFont(attributes);
+		nsfemode = i==1;
 	}
 	
-	@Override
-	public void loadData(byte[] data, byte[] banks,int loadaddr){
+	
+	public void setupData(){//byte[] data, byte[] banks,int loadaddr){
 		initialbanks = banks;
 		PRG_ROM = new byte[8][0x1000];
 		doingBanking=false;
@@ -158,6 +167,14 @@ public class NSFPlayer extends Mapper{
 			PRG_ROM[6] = PRGbanks[banks[6]&0xff];PRG_ROM[7] = PRGbanks[banks[7]&0xff];
 		}
 	}
+	byte[] data;
+	public void loadData(byte[] d){
+		data = d;
+	}
+	byte[] banks;
+	public void setBanking(byte[] b){
+		banks=b;
+	}
 	byte soundchip;
 	@Override
 	public void addExtraAudio(byte b){
@@ -194,19 +211,35 @@ public class NSFPlayer extends Mapper{
 		}
 	}
 	@Override
-	public void setNSFVariables(int play,int init,int speed,int startsong,int total, int tuneregion,String name, String artist){
+	public void setNSFVariables(int play,int init,int load,int speed,int startsong,int total, int tuneregion,String name, String artist){
 		initaddr = init;
 		playaddr = play;
+		loadaddr = load;
 		playspeed = speed;
 		playspeed = (int) (playspeed*(1789773.0/1000000.0));
-		currentsong = startsong-1;
+		playspeed = 29828;
+		//System.out.println(playspeed);
+		currentsong = 0;
 		totalsongs = total;
 		title = name;
 		this.artist = artist;
 	}
 	@Override
+	public void setTrackNames(String[] tracks) {
+		tracknames = tracks;
+	}
+	@Override
+	public void setTrackTimes(int[] times){
+		tracktimes = times;
+	}
+	@Override
+	public void setAuthInfo(String[] info){
+		title = info[0];
+		artist = info[1];
+	}
+	@Override
 	public void setCHR(byte[] chr){
-		init();
+		//init();
 		doingIRQ=true;
 		cpu.setIRQ(IRQSource.External);
 	}
@@ -389,7 +422,8 @@ public class NSFPlayer extends Mapper{
 		}
 	}
 	private void init(){
-		cpu.program_counter=0x3f03;	
+		cpu.program_counter=0x3f03;
+		setupData();
 	}
 	private void nextTrack(){
 		if(currentsong+1!=totalsongs){
@@ -428,9 +462,18 @@ public class NSFPlayer extends Mapper{
 		g.drawString("NSF Player Status:", 0, 100);
 		g.drawString(expansionInfo, 0, 160);
 		g.drawString("Title: "+title, 0, 180);
+		if(nsfemode&&tracknames!=null){
+			g.drawString("Song: "+tracknames[currentsong], 0, 195);
+		}
 		g.drawString("Artist: "+artist, 0, 210);
-		g.drawString("Track "+(currentsong+1)+"/"+totalsongs+"         "+timeformat(tracktimer)+"/"+timeformat(NesSettings.nsfPlayerSongLength)
+		if(nsfemode&&tracktimes!=null){
+			g.drawString("Track "+(currentsong+1)+"/"+totalsongs+"         "+timeformat(tracktimer)+"/"+timeformat(tracktimes[currentsong])
+			, 0, 230);
+		}
+		else
+			g.drawString("Track "+(currentsong+1)+"/"+totalsongs+"         "+timeformat(tracktimer)+"/"+timeformat(NesSettings.nsfPlayerSongLength)
 				, 0, 230);
+		
 		g.setFont(smallfont);
 		g.drawString("Next Track: Right", 0, 35);
 		g.drawString("Prev Track: Left", 0, 45);
@@ -497,8 +540,20 @@ public class NSFPlayer extends Mapper{
 		nextirq=2;
 		cpu.run_cycle();cpu.run_cycle();cpu.run_cycle();cpu.run_cycle();cpu.run_cycle();
 		apu.doCycle();apu.doCycle();apu.doCycle();apu.doCycle();apu.doCycle();
-		if(!pause)
-			if(++tracktimer>=NesSettings.nsfPlayerSongLength&&!playingforever){
+		if(!pause){
+			if(nsfemode){
+				if(tracktimes!=null){
+					if(++tracktimer>=tracktimes[currentsong]&&!playingforever){
+						if(looping){
+							nextirq = 0;
+							tracktimer = 0;
+						}
+						else
+							nextTrack();
+					}
+				}
+			}
+			else if(++tracktimer>=NesSettings.nsfPlayerSongLength&&!playingforever){
 				if(looping){
 					nextirq=0;
 					tracktimer=0;
@@ -506,6 +561,7 @@ public class NSFPlayer extends Mapper{
 				else
 					nextTrack();
 			}
+		}
 		drawscreen();
 	}
 }

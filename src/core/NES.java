@@ -50,6 +50,7 @@ public class NES implements Runnable,NESAccess {
 		switch(ext){
 		case "nes": loadiNES(rom);break;
 		case "nsf": loadNSF(rom);break;
+		case "nsfe": loadNSFe(rom);break;
 		default:
 		}
 		map.setNes(this);
@@ -114,9 +115,125 @@ public class NES implements Runnable,NESAccess {
 			
 			map = Mapper.getmapper(1001);
 			sx.read(data);
-			map.loadData(data, bankswitch, dataloadaddr);
+			map.loadData(data);//, bankswitch, dataloadaddr);
+			map.setBanking(bankswitch);
 			map.addExtraAudio(extrasoundchips);
-			map.setNSFVariables(dataplayaddr, datainitaddr, playspeed,startsong,totalsongs,tuneregion,songname,artistname);
+			map.setNSFVariables(dataplayaddr, datainitaddr, dataloadaddr, playspeed,startsong,totalsongs,tuneregion,songname,artistname);
+			map.setCHR(new byte[0]);
+			map.setSystem(system);
+			nsfplayer = true;
+		}
+		sx.close();
+	}
+	private void loadNSFe(File rom) throws IOException, UnSupportedMapperException{
+		FileInputStream sx = new FileInputStream(rom); 
+		byte[] header = new byte[4];
+		sx.read(header);
+		if(header[0]==0x4e&&header[1]==0x53&&header[2]==0x46&&header[3]==0x45){
+			map = Mapper.getmapper(1002);
+			byte[] data;
+			int songnum=0;
+			String ncname="";
+			while(!ncname.equals("NEND")){
+				byte[] ncheader = new byte[8];
+				sx.read(ncheader);
+				int nclength = ((ncheader[3]&0xff)<<24)|((ncheader[2]&0xff)<<16)|((ncheader[1]&0xff)<<8)|(ncheader[0]&0xff);
+				ncname = ((char) Byte.toUnsignedInt(ncheader[4])+"")+((char) Byte.toUnsignedInt(ncheader[5])+"")+((char) Byte.toUnsignedInt(ncheader[6])+"")+((char) Byte.toUnsignedInt(ncheader[7])+"");
+				switch(ncname){
+				case "INFO":
+					System.out.println("Reading INFO Chunk");
+					data = new byte[nclength];
+					sx.read(data);
+					int dataloadaddr = ((data[1]&0xff)<<8)|(data[0]&0xff);
+					int datainitaddr = ((data[3]&0xff)<<8)|(data[2]&0xff);
+					int dataplayaddr = ((data[5]&0xff)<<8)|(data[4]&0xff);
+					byte extrasoundchips = data[7];
+					int totalsongs = Byte.toUnsignedInt(data[8]);
+					songnum=totalsongs;
+					int startsong = Byte.toUnsignedInt(data[9]);
+					map.setNSFVariables(dataplayaddr, datainitaddr,dataloadaddr, 0, startsong, totalsongs, 0, "null", "null");
+					map.addExtraAudio(extrasoundchips);
+					break;
+				case "DATA":
+					System.out.println("Reading DATA Chunk");
+					data = new byte[nclength];
+					sx.read(data);
+					map.loadData(data);
+					break;
+				case "BANK":
+					System.out.println("Reading BANK Chunk");
+					byte[] out = new byte[8];
+					data = new byte[nclength];
+					sx.read(data);
+					if(nclength<8){
+						int i = 0;
+						for(byte b:data)
+							out[i] = b;
+					}
+					else if(nclength>8){
+						for(int i = 0; i<8;i++)
+							out[i] = data[i];
+					}
+					else
+						out = data;
+					map.setBanking(out);
+					break;
+				case "tlbl":
+					System.out.println("Reading tlbl Chunk");
+					String[] tracknames= new String[songnum];
+					data = new byte[nclength];
+					sx.read(data);
+					int i = 0;
+					String name="";
+					for(byte b:data){
+						if(b==0){
+							tracknames[i++] = name;
+							name="";
+						}
+						else{
+							name+=(char)Byte.toUnsignedInt(b);
+						}
+					}
+					map.setTrackNames(tracknames);
+					break;
+				case "time":
+					System.out.println("Reading time Chunk");
+					int[] tracktimes= new int[songnum];
+					data = new byte[nclength];
+					sx.read(data);
+					for(int x = 0;x<songnum;x++){
+						int length = ((data[x*4+3]&0xff)<<24)|((data[x*4+2]&0xff)<<16)|((data[x*4+1]&0xff)<<8)|(data[x*4+0]&0xff);
+						tracktimes[x] = (int)(length/16.6666);
+					}
+					map.setTrackTimes(tracktimes);
+					break;
+				case "auth":
+					System.out.println("Reading auth Chunk");
+					String[] info = new String[4];
+					data = new byte[nclength];
+					sx.read(data);
+					int z = 0;
+					String nameinfo="";
+					for(byte b:data){
+						if(b==0){
+							info[z++] = nameinfo;
+							nameinfo="";
+						}
+						else{
+							nameinfo+=(char)Byte.toUnsignedInt(b);
+						}
+					}
+					map.setAuthInfo(info);
+					break;
+				case "NEND":
+					break;
+				default: 
+					System.out.println("Unsupported Chunk type: "+ncname );
+					data = new byte[nclength]; 
+					sx.read(data);
+					break;
+				}
+			}
 			map.setCHR(new byte[0]);
 			map.setSystem(system);
 			nsfplayer = true;

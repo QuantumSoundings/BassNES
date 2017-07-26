@@ -351,10 +351,15 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		else
 			dodebug=true;
 	}*/
-	public void loadData(byte[] data, byte[] banks,int loadaddr){}
+	public void loadData(byte[] data){}
+	public void setBanking(byte[] b){}
 	public void scanlinecounter(){}
 	public void addExtraAudio(byte b){};
-	public void setNSFVariables(int playaddr,int initaddr,int playspeed, int startsong, int tuneregion, int tuneregion2, String songname, String artistname){}
+	public void setNSFVariables(int playaddr,int initaddr, int loadaddr ,int playspeed, int startsong, int tuneregion, int tuneregion2, String songname, String artistname){}
+	public void setTrackNames(String[] tracknames) {}
+	public void setTrackTimes(int[] tracktimes) {}
+	public void setAuthInfo(String[] info) {}
+
 	public static Mapper getmapper(int i) throws UnSupportedMapperException{
 		switch(i){
 		case 0:
@@ -396,7 +401,9 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		case 210:
 			return new Namco(175);
 		case 1001:
-			return new NSFPlayer();
+			return new NSFPlayer(0);
+		case 1002:
+			return new NSFPlayer(1);
 		default:
 			throw new UnSupportedMapperException(i);
 		}
