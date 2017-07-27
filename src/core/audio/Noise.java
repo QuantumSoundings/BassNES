@@ -54,17 +54,20 @@ public class Noise extends Channel{
 			int feedback;
 			tcount =timer;
 			if(mode)
-				feedback = ((shiftreg&0b1000000)>>6)^(shiftreg&1);
+				feedback = ((shiftreg>>6)&1)^(shiftreg&1);
 			else
-				feedback = ((shiftreg&2)>>1)^(shiftreg&1);
+				feedback = ((shiftreg>>1)&1)^(shiftreg&1);
 			shiftreg>>=1;
 			shiftreg|= (feedback<<14);
 		}
 		else
 			tcount--;
-		if(lengthcount==0||(shiftreg&1)==0)
+		if(lengthcount==0||(shiftreg&1)==1)
 			return;
-		total += 2*decay;
+		if(constantvolume)
+			total+=volume;
+		else
+			total += decay;
 		return;
 	}
 	@Override

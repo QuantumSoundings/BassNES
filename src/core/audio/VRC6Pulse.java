@@ -95,7 +95,7 @@ public class VRC6Pulse extends Channel {
 	}
 	@Override
 	public double getOutput(){
-		return total * 0.00376;
+		return total * 0.00776;
 		
 	}
 }

@@ -34,7 +34,8 @@ public class Triangle extends Channel {
 			
 			timer&=0b11111111;
 			timer |= (b&0b111)<<8;
-			linearhalt = true;
+			linearreloadflag = true;
+			break;
 		}
 	}
 	int[] lengthlookup= new int[]{
@@ -43,8 +44,7 @@ public class Triangle extends Channel {
 	public int[] sequencer = new int[]{
 			15, 14, 13, 12, 11, 10,  9,  8,  7,  6,  5,  4,  3,  2,  1,  0,
 			 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15};
-	public int sequenceNum;
-	int length;
+	public int sequenceNum=0;
 	@Override
 	public void lengthClock(){
 		if(enable&&!block){
@@ -61,33 +61,22 @@ public class Triangle extends Channel {
 		}
 		block=false;
 	}
-	boolean odd;
 	@Override
 	public final void clockTimer(){
 		if(tcount==0){
-			if(linearcount==0||lengthcount==0||timer<8){}
-			else
+			if(linearcount!=0&&lengthcount!=0)
 				sequenceNum=(sequenceNum+1)%32;
 			tcount=timer;
 		}
 		else
 			tcount--;
-		//odd=!odd;
-		//if(odd){	
-			
-			//sequenceNum = 8;
-			//return;
-			//}	
-			total+= sequencer[sequenceNum];
-		//}
+
+		total += sequencer[sequenceNum];
 		
 	}
 	@Override
 	public double getOutput(){
-		if(linearcount==0||lengthcount==0)
-			return 0;
-		else
-			return sequencer[sequenceNum];
+		return sequencer[sequenceNum];
 	}
 	private final String name = "Triangle";
 	@Override

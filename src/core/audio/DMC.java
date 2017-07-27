@@ -6,7 +6,7 @@ public class DMC extends Channel{
 	private static final long serialVersionUID = -5904036727532211365L;
 
 	final Mapper map;
-	
+
 	boolean irqEnable= false;
 	public boolean irqflag = false;
 	public boolean silence=true;
@@ -21,8 +21,8 @@ public class DMC extends Channel{
 	int temprate = 0x36;
 	int bitsremaining=8;
 	int shiftreg = 0;
-	
-	
+
+
 	final int[] rateindex = new int[]{428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106,  84,  72,  54};
 	public DMC(Mapper m) {
 		super();
@@ -30,45 +30,45 @@ public class DMC extends Channel{
 		bitsremaining=8;
 		loop = false;
 	}
-	
+
 	public void registerWrite(int index,byte b){
 		switch(index%4){
-		case 0: 
-			irqEnable = (b & 0x80) == 0x80;
-			if(!irqEnable)
-				map.cpu.removeIRQ(IRQSource.DMC);
-			loop = (b & 0x40) == 0x40;
-			rate = rateindex[b&0xf];
-			//System.out.println("Write to $4010: "+Integer.toBinaryString(Byte.toUnsignedInt(b))+" rate: "+rate);
-			break;
-		case 1: 
-			outputlevel = b&0b1111111;
-			//System.out.println("Writing to dmc Direct load: "+outputlevel);
-			break;			
-		case 2: 
-			addressStart=(Byte.toUnsignedInt(b)<<6) + 0xc000;
-			//System.out.println("Writing to dmc sample address: "+Integer.toHexString(sampleaddress));
-			break;
-		case 3: 
-			samplelength= (Byte.toUnsignedInt(b)<<4)+1;
-			//System.out.println("Writing to dmc sample length: "+samplelength);
-			break;
-		}		
+			case 0:
+				irqEnable = (b & 0x80) == 0x80;
+				if(!irqEnable)
+					map.cpu.removeIRQ(IRQSource.DMC);
+				loop = (b & 0x40) == 0x40;
+				rate = rateindex[b&0xf];
+				//System.out.println("Write to $4010: "+Integer.toBinaryString(Byte.toUnsignedInt(b))+" rate: "+rate);
+				break;
+			case 1:
+				outputlevel = b&0b1111111;
+				//System.out.println("Writing to dmc Direct load: "+outputlevel);
+				break;
+			case 2:
+				addressStart=(Byte.toUnsignedInt(b)<<6) + 0xc000;
+				//System.out.println("Writing to dmc sample address: "+Integer.toHexString(sampleaddress));
+				break;
+			case 3:
+				samplelength= (Byte.toUnsignedInt(b)<<4)+1;
+				//System.out.println("Writing to dmc sample length: "+samplelength);
+				break;
+		}
 	}
 	public void clearFlag(){
 		map.cpu.removeIRQ(IRQSource.DMC);
 	}
 	@Override
 	public final void clockTimer(){
-		
+
 		if(bufferempty && sampleremaining >0)
-			memoryreader();	
+			memoryreader();
 		temprate--;
 		if(temprate ==0){
 			if(!silence){
 				outputlevel+=(shiftreg&1)==1?2:-2;
 				if(outputlevel>127) outputlevel-=2;
-				else if(outputlevel<0) outputlevel +=2;	
+				else if(outputlevel<0) outputlevel +=2;
 				shiftreg>>=1;
 				--bitsremaining;
 			}
@@ -82,10 +82,10 @@ public class DMC extends Channel{
 					bufferempty = true;
 				}
 			}
-			
+
 			temprate = rate;
 		}
-		total+=outputlevel;
+		total+=(outputlevel/2.0);
 		/*if(temprate==0){
 			//outputUnit();
 			temprate=rate;
@@ -114,7 +114,7 @@ public class DMC extends Channel{
 				}*/
 				map.cpu.stall(2);//tallcpu(2);//stallcpu=2;
 			}
-				
+
 			else{
 				//System.out.println("Non DMA stall");
 				/*if(map.lastcpuwrite)
@@ -123,10 +123,10 @@ public class DMC extends Channel{
 					else
 						map.cpu.stall(3);
 				else*/
-					map.cpu.stall(4);
+				map.cpu.stall(4);
 			}
 			//	map.cpu.stall(4);//stallcpu(4);//stallcpu=4;
-			
+
 			if(sampleaddress>0xffff)
 				sampleaddress = 0x8000;
 			--sampleremaining;
@@ -140,7 +140,7 @@ public class DMC extends Channel{
 		}
 		else
 			silence = true;
-			
+
 	}
 	public void restart(){
 		sampleaddress = addressStart;
@@ -149,7 +149,7 @@ public class DMC extends Channel{
 	}
 	void outputUnit(){
 		//System.out.println("In the outputunit");
-		
+
 		if(bitsremaining<=0){
 			bitsremaining = 8;
 			if(bufferempty){
@@ -158,30 +158,30 @@ public class DMC extends Channel{
 			else{
 				silence=false;
 				shiftreg=samplebuffer;
-				samplebuffer=0;	
+				samplebuffer=0;
 				bufferempty = true;
-				
+
 			}
 			//memoryreader();
 		}
 		if(!silence){
 			outputlevel+=(shiftreg&1)==1?2:-2;
 			if(outputlevel>127) outputlevel=126;
-			else if(outputlevel<0) outputlevel =1;	
+			else if(outputlevel<0) outputlevel =1;
 			shiftreg>>>=1;
 			bitsremaining--;
 		}
-		
-		
+
+
 	}
 	@Override
 	public double getOutput(){
-		return outputlevel;	
+		return outputlevel;
 	}
 	@Override
 	public void buildOutput(){
 		total+=outputlevel;
 	}
-	
+
 
 }

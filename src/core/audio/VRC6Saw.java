@@ -7,8 +7,8 @@ public class VRC6Saw extends Channel {
 	
 	
 	private static final long serialVersionUID = 6678747718079279169L;
-	int accumRate;
-	int accumulator;
+	private int accumRate;
+	private int accumulator;
 	public VRC6Saw(){
 		super();
 	}
@@ -38,8 +38,8 @@ public class VRC6Saw extends Channel {
 		}
 		
 	}
-	boolean oddclock;
-	int sawclock;
+	private boolean oddclock;
+	private int sawclock;
 	@Override
 	public final void clockTimer(){
 		
@@ -90,7 +90,7 @@ public class VRC6Saw extends Channel {
 	}
 	@Override
 	public double getOutput(){
-		return total * 0.00376;
+		return total * 0.00776;
 		
 	}
 }

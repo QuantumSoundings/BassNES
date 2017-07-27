@@ -11,7 +11,7 @@ public class APU implements java.io.Serializable{
 	
 	private final Mapper map;
 	//Default Audio Channels
-	private final Triangle triangle = new Triangle();
+	public final Triangle triangle = new Triangle();
 	private final Pulse pulse1 = new Pulse(true);
 	private final Pulse pulse2 = new Pulse(false);
 	private final Noise noise = new Noise();
@@ -234,8 +234,8 @@ public class APU implements java.io.Serializable{
 		double t = getAverageSample(triangle,NesSettings.triangleMixLevel);
 		double n = getAverageSample(noise,NesSettings.noiseMixLevel);
 		double d = getAverageSample(dmc,NesSettings.dmcMixLevel);
-		double pulse_out = 0.00752 * (p1+p2);
-		double tnd_out = 0.00851*t + 0.00494*n + 0.00335*d;
+		double pulse_out = (95.88/(8128.0/(p1+p2)+100));//0.00752 * (p1+p2);
+		double tnd_out = (163.67/(24329.0/(3*t+2*n+d)+100));//0.00851*t + 0.00494*n + 0.00335*d;
 		double sample = pulse_out + tnd_out;
 		double expansion = 0;
 		for(Channel chan: expansionAudio)

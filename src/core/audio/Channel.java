@@ -28,6 +28,7 @@ public class Channel implements java.io.Serializable {
 	
 	//Linear Variables
 	boolean linearhalt;
+	boolean linearreloadflag;
 	boolean linearcontrol;
 	int linearReload;
 	public int linearcount;
@@ -132,21 +133,14 @@ public class Channel implements java.io.Serializable {
 	}*/
 	public void linearClock(){
 		if(enable){
-			if(linearhalt){
+			if(linearreloadflag){
 				linearcount = linearReload;
-				output=true;
 			}
-			else{
-				if(linearcount!=0){
-					linearcount--;
-				}
-				else{
-					output = false;
-				}
-			}
+			else if(linearcount>0)
+				linearcount--;
 			if(!linearcontrol)
-				linearhalt=false;
-			}
+				linearreloadflag=false;
+		}
 	}
 	public int getOutputSettings(){
 		return 0;
