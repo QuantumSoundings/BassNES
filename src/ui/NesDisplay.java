@@ -35,7 +35,7 @@ public class NesDisplay extends JPanel {
     
 	@Override
 	public void paintComponent(Graphics g) {
-		g.drawImage(frame.getScaledInstance(256*scaling, 240*scaling,0), 0, 0,256*scaling,240*scaling, this);
+		g.drawImage(frame/*.getScaledInstance(256*scaling, 240*scaling,0)*/, 0, 0,256*scaling,240*scaling, this);
 		g.dispose();
 	}
 	public void updateScaling(int i){

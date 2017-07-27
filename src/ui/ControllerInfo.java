@@ -5,6 +5,7 @@ import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
 public class ControllerInfo {
+	Controller[] controllers;
 	Controller control;
 	Component.Identifier id;
 	String idname;
@@ -18,12 +19,12 @@ public class ControllerInfo {
 			idname = i.getName();
 		id = i;
 		control = c;
+		controllers =ControllerEnvironment.getDefaultEnvironment().getControllers();
 	}
 	
 	public boolean checkPressed(){
 		if(control.getType()==Controller.Type.KEYBOARD){
-			Controller[] cont = ControllerEnvironment.getDefaultEnvironment().getControllers();
-			for(Controller c: cont){
+			for(Controller c: controllers){
 				if(c.getName().equals(control.getName())){
 					c.poll();
 					if(c.getComponent(id).getPollData()==val)

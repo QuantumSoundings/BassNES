@@ -19,14 +19,15 @@ public class AudioInterface implements java.io.Serializable {
 	Visualizer scope;
 	public AudioInterface(SystemUI s){
 		sys = s;
-		scope = new Visualizer();
+		//scope = new Visualizer();
 		restartSDL();
 	}
 	public void restartSDL(){
 		AudioFormat form = new AudioFormat(NesSettings.sampleRate,16,2,true,false);
 		bufptr=0;
 		audioints = new int[NesSettings.sampleRate/60];
-		scope.setAudio(audioints);
+		if(scope!=null)
+			scope.setAudio(audioints);
 		audiobuffer = new byte[audioints.length*4];
 		try {
 			if(sdl!=null)
@@ -66,7 +67,7 @@ public class AudioInterface implements java.io.Serializable {
 		}
 		if((sdl.available()>=audiobuffer.length&&UISettings.AudioEnabled)||UISettings.lockVideoToAudio){
 				sdl.write(audiobuffer,0,audiobuffer.length);
-				if(scope.isVisible()){
+				if(scope!=null&&scope.isVisible()){
 					if(scopefrequency==scopecount++){
 						scope.setAudio(audioints);
 						scope.setFreq(sys.AudioChannelInfoCallback());
@@ -81,7 +82,12 @@ public class AudioInterface implements java.io.Serializable {
 	int scopefrequency = 1;
 	int scopecount = 0;
 	public void showscope(){
-		scope.setVisible(true);
+		if(scope!=null)
+			scope.setVisible(true);
+		else {
+			scope = new Visualizer();
+			scope.setVisible(true);
+		}
 	}
 	int smoothing = 1;
 	private void lowpass(){

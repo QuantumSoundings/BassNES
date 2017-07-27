@@ -452,8 +452,9 @@ public class NSFPlayer extends Mapper{
 		out += seconds<10?"0"+seconds:seconds;
 		return out;
 	}
+	Graphics g=image.getGraphics();
 	private void drawscreen(){
-		Graphics g = image.getGraphics();
+		//Graphics g = image.getGraphics();
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, 256, 240);
 		g.setColor(Color.BLUE);
@@ -483,7 +484,7 @@ public class NSFPlayer extends Mapper{
 		g.drawString((!pause?"Playing":"Paused"), 0, 115);
 		g.drawString((playingforever?"Playing Current Song Forever":""), 0, 125);
 		g.drawString((looping?"Looping Current Song":""), 0, 135);
-		g.dispose();
+		//g.dispose();
 		image.getRGB(0, 0, 256, 240, ppu.renderer.colorized, 0, 256);	
 	}
 	private void pollPlayerControls(){
