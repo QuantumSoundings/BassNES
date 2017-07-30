@@ -1,13 +1,15 @@
 package core.audio;
 
 
+import core.NesSettings;
+
 public class Noise extends Channel{
 	private static final long serialVersionUID = 7294397072264670989L;
-	public Noise(){
-		super();		
+	public Noise(int location){
+		super(location);
 	}
 	//int noiseperiod;
-	boolean mode;
+	boolean mode=false;
 	int shiftreg=1;
 	int[] noiselookup= new int[]{
 			4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068};
@@ -27,19 +29,20 @@ public class Noise extends Channel{
 		case 2: 
 			mode = (b & 0x80) != 0;
 			int noiseperiod= b&0xf;
-			timer = noiselookup[noiseperiod];
+			timer = noiselookup[noiseperiod]-1;
+			//System.out.println("Current Timer: "+timer+" New Timer: "+noiselookup[noiseperiod]);
 			break;
 		case 3: 
 			if(enable)
 					if(clock==14915){
 						if(lengthcount==0){
-							lengthcount = (b&0b11111000)>>>3;
+							lengthcount = (b&0xff)>>>3;
 							lengthcount = lengthlookup[lengthcount];
 							block=true;
 						}
 					}
 					else{
-						lengthcount = (b&0b11111000)>>>3;
+						lengthcount = (b&0xff)>>>3;
 						lengthcount = lengthlookup[lengthcount];
 					}
 			decay = volume;
@@ -64,20 +67,20 @@ public class Noise extends Channel{
 			tcount--;
 		if(lengthcount==0||(shiftreg&1)==1)
 			return;
-		if(constantvolume)
-			total+=volume;
-		else
-			total += decay;
+		//if(constantvolume)
+		//	AudioMixer.audioLevels[outputLocation]+=volume;
+		//else
+			AudioMixer.audioLevels[outputLocation]+= decay;
 		return;
 	}
 	@Override
 	public double getOutput(){
-		if(lengthcount==0||(shiftreg&1)==0)
+		if(lengthcount==0||(shiftreg&1)==1)
 			return 0;
 		if(constantvolume)
-			return volume;
+			return volume*(NesSettings.noiseMixLevel/100.0);
 		else
-			return decay;
+			return decay*(NesSettings.noiseMixLevel/100.0);
 	}
 	
 	@Override

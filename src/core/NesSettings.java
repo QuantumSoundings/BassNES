@@ -100,6 +100,22 @@ public class NesSettings {
 	 */
 	public static int sampleRate = 44100;
 	/**
+	 * Size of the internal audio buffer in milliseconds.
+	 */
+	public static int audioBufferSize = 20;
+
+	public static int pulse1Panning=0;
+	public static int pulse2Panning=0;
+	public static int trianglePanning=0;
+	public static int noisePanning=0;
+	public static int dmcPanning=0;
+	public static int vrc6Panning=0;
+	public static int namcoPanning=0;
+	public static int mmc5Panning=0;
+	public static int sunsoft5BPanning=0;
+
+	public static boolean highQualitySampling = true;
+	/**
 	 * Cut off time for a track in the NSF Player. Integer value in frames. 60 * (# of seconds)
 	 */
 	public static int nsfPlayerSongLength = 7200;
@@ -152,6 +168,7 @@ public class NesSettings {
 		namcoMixLevel = Integer.parseInt(prop.getProperty("namcomixlevel", "100"));
 		mmc5MixLevel = Integer.parseInt(prop.getProperty("mmc5mixlevel", "100"));
 		sampleRate = Integer.parseInt(prop.getProperty("samplerate", "44100"));
+		highQualitySampling = prop.getProperty("highqualitysampling", "true").equals("true");
 		nsfPlayerSongLength = Integer.parseInt(prop.getProperty("nsfplayersonglength", "7200"));
 	}
 	private static void saveAudio(){
@@ -165,6 +182,7 @@ public class NesSettings {
 		prop.setProperty("namcomixlevel", namcoMixLevel+"");
 		prop.setProperty("mmc5mixlevel", mmc5MixLevel+"");
 		prop.setProperty("samplerate", sampleRate+"");
+		prop.setProperty("highqualitysampling",highQualitySampling+"");
 		prop.setProperty("nsfplayersonglength", nsfPlayerSongLength+"");
 	}
 	private static void loadGraphics(){

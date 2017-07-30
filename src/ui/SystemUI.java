@@ -216,13 +216,15 @@ public class SystemUI implements NESCallback {
 	    });
 	}
 	public void audioFrameCallback(int[] audioInts){
-		audiobuffer = audioInts;
-		EventQueue.invokeLater(new Runnable() {
+		//audiobuffer = audioInts;
+		audio.setAudioFrame(audioInts);
+		/*EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run(){
 				listener.doAudioFrame();
 			}
 		});
+		*/
 	}
 	public void audioSampleCallback(int audiosample){
 		audio.outputSample(audiosample);

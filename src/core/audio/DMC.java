@@ -1,5 +1,6 @@
 package core.audio;
 import core.CPU_6502.IRQSource;
+import core.NesSettings;
 import core.mappers.Mapper;
 
 public class DMC extends Channel{
@@ -24,8 +25,8 @@ public class DMC extends Channel{
 
 
 	final int[] rateindex = new int[]{428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106,  84,  72,  54};
-	public DMC(Mapper m) {
-		super();
+	public DMC(Mapper m,int location) {
+		super(location);
 		map = m;
 		bitsremaining=8;
 		loop = false;
@@ -63,8 +64,8 @@ public class DMC extends Channel{
 
 		if(bufferempty && sampleremaining >0)
 			memoryreader();
-		temprate--;
-		if(temprate ==0){
+		temprate-=2;
+		if(temprate <=0){
 			if(!silence){
 				outputlevel+=(shiftreg&1)==1?2:-2;
 				if(outputlevel>127) outputlevel-=2;
@@ -82,20 +83,9 @@ public class DMC extends Channel{
 					bufferempty = true;
 				}
 			}
-
 			temprate = rate;
 		}
-		total+=(outputlevel/2.0);
-		/*if(temprate==0){
-			//outputUnit();
-			temprate=rate;
-		}
-		else
-			temprate--;
-		if(temprate==0)
-			outputUnit();
-		total+=2*outputlevel;
-		return;*/
+		AudioMixer.audioLevels[outputLocation]+=(outputlevel);
 	}
 	public void memoryreader(){
 		if(sampleremaining>0){
@@ -176,7 +166,7 @@ public class DMC extends Channel{
 	}
 	@Override
 	public double getOutput(){
-		return outputlevel;
+		return (outputlevel/2.0)*(NesSettings.dmcMixLevel/100.0);
 	}
 	@Override
 	public void buildOutput(){

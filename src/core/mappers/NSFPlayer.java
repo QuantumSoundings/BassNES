@@ -182,9 +182,9 @@ public class NSFPlayer extends Mapper{
 		if(b!=0)
 			expansionInfo = "Extra Audio: ";
 		if((b&1)==1){//vrc6
-			vrc6pulse1 = new VRC6Pulse(true);
-			vrc6pulse2 = new VRC6Pulse(false);
-			vrc6saw = new VRC6Saw();
+			vrc6pulse1 = new VRC6Pulse(true,apu.requestNewOutputLocation());
+			vrc6pulse2 = new VRC6Pulse(false,apu.requestNewOutputLocation());
+			vrc6saw = new VRC6Saw(apu.requestNewOutputLocation());
 			apu.addExpansionChannel(vrc6pulse1);
 			apu.addExpansionChannel(vrc6pulse2);
 			apu.addExpansionChannel(vrc6saw);
@@ -219,7 +219,7 @@ public class NSFPlayer extends Mapper{
 		playspeed = (int) (playspeed*(1789773.0/1000000.0));
 		playspeed = 29828;
 		//System.out.println(playspeed);
-		currentsong = 0;
+		currentsong = 27;
 		totalsongs = total;
 		title = name;
 		this.artist = artist;

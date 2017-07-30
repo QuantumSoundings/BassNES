@@ -17,8 +17,8 @@ public class VRC6Pulse extends Channel {
 	boolean[] duty7 = new boolean[]{true,true,true,true,true,true,true,true,false,false,false,false,false,false,false,false};
 	private boolean dutymode;
 	private boolean chanone = false;
-	public VRC6Pulse(boolean channelone){
-		super();
+	public VRC6Pulse(boolean channelone,int location){
+		super(location);
 		chanone = channelone;
 		name = "VRC6 Pulse "+ (chanone?"1":"2");
 	}
@@ -71,12 +71,16 @@ public class VRC6Pulse extends Channel {
 		if(!dutymode)
 			if(!enable||!output)
 				return;
-		total+=volume;
+		AudioMixer.audioLevels[outputLocation]+=volume;
 		//System.out.println("Clocking pulse");
 	}
 	@Override
 	public int getOutputSettings(){
 		return NesSettings.vrc6MixLevel;
+	}
+	@Override
+	public int getUserPanning(){
+		return NesSettings.vrc6Panning;
 	}
 	@Override
 	public double getFrequency(){
@@ -95,7 +99,7 @@ public class VRC6Pulse extends Channel {
 	}
 	@Override
 	public double getOutput(){
-		return total * 0.00776;
+		return 0.00776;
 		
 	}
 }

@@ -19,6 +19,9 @@ public class Sunsoft5B extends Channel {
 	int envelopePeriod;
 	int enVolume = 0;
 	boolean eContinue,eAttack,eAlternate,eHold;
+	public Sunsoft5B(){
+		super(0);
+	}
 	public void registerWrite(int index,byte b){
 		switch(index){
 		case 0:

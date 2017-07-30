@@ -10,12 +10,15 @@ public class VRC6 extends Mapper {
 	private static final long serialVersionUID = 478999998259356806L;
 	private int[] Rvals = new int[8];
 	private int ppubankmode;
-	VRC6Pulse pulse1 = new VRC6Pulse(true);
-	VRC6Pulse pulse2 = new VRC6Pulse(false);
-	VRC6Saw saw = new VRC6Saw();
+	VRC6Pulse pulse1;// = new VRC6Pulse(true);
+	VRC6Pulse pulse2;// = new VRC6Pulse(false);
+	VRC6Saw saw;// = new VRC6Saw();
 	private final boolean maptype;
 	public VRC6(int type){
 		super();
+		pulse1 = new VRC6Pulse(true,apu.requestNewOutputLocation());
+		pulse2 = new VRC6Pulse(false,apu.requestNewOutputLocation());
+		saw = new VRC6Saw(apu.requestNewOutputLocation());
 		apu.addExpansionChannel(pulse1);
 		apu.addExpansionChannel(pulse2);
 		apu.addExpansionChannel(saw);

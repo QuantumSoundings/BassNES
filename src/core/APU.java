@@ -11,11 +11,11 @@ public class APU implements java.io.Serializable{
 	
 	private final Mapper map;
 	//Default Audio Channels
-	public final Triangle triangle = new Triangle();
-	private final Pulse pulse1 = new Pulse(true);
-	private final Pulse pulse2 = new Pulse(false);
-	private final Noise noise = new Noise();
-	private final DMC dmc;
+	private Triangle triangle;
+	private Pulse pulse1;
+	private Pulse pulse2;
+	private Noise noise;
+	private DMC dmc;
 	//Expansion Audio Channels
 	private ArrayList<Channel> expansionAudio;
 	//private Channel[] expansionAudioArray;
@@ -27,7 +27,7 @@ public class APU implements java.io.Serializable{
 	private int samplenum;
 	public int[] samples;
 	int sampleptr;
-	//public final AudioMixer mix;
+	public final AudioMixer mix;
 	
 	
 	
@@ -45,12 +45,15 @@ public class APU implements java.io.Serializable{
 	private int cpucounter;
 	public long cyclenum;
 	private boolean expansion;
-	
+
 	
 	public APU(Mapper m){
-		
+		pulse1 = new Pulse(true,0);
+		pulse2 = new Pulse(false,1);
+		triangle = new Triangle(2);
+		noise = new Noise(3);
 		map = m;
-		dmc =new DMC(map);
+		dmc =new DMC(map,4);
 		expansionAudio = new ArrayList<Channel>();
 		//expansionAudioArray = new Channel[0];
 		cyclespersample = 1789773.0/NesSettings.sampleRate;
@@ -60,16 +63,23 @@ public class APU implements java.io.Serializable{
 		writeRegister(0x4015,(byte)0);
 		freq = new Object[3][2];
 		samples = new int[1000];
+		mix = new AudioMixer(pulse1,pulse2,triangle,noise,dmc,expansionAudio,m);
 	}
+
 	public void addExpansionChannel(Channel chan){
 		expansionAudio.add(chan);
-		//expansionAudioArray = (Channel[]) expansionAudio.toArray();
 		expansion = true;
 		freq = new Object[3+expansionAudio.size()][];
 	}
+	public int requestNewOutputLocation(){
+		return mix.requestNewOutputLocation();
+	}
+
 	public void setSampleRate(int rate){
 		cyclespersample = 1789773.0/rate;
 		intcyclespersample = (int)cyclespersample;
+		mix.updateSampleRate();
+		//resampler=new Decimator(map,rate);
 	}
 	public void writeRegister(int index,byte b){
 		//System.out.println("Writing to apu register");
@@ -219,7 +229,7 @@ public class APU implements java.io.Serializable{
 		return d;	
 	}
 	final double getAverageExpansion(Channel chan,int UserMix){
-		double d =((chan.getOutput()/cyclespersample)*(UserMix/100.0));
+		double d =((chan.getOutput()/(NesSettings.highQualitySampling?1:cyclespersample))*(UserMix/100.0));
 		chan.total = 0;
 		//System.out.println(d);
 		return d;
@@ -228,28 +238,46 @@ public class APU implements java.io.Serializable{
 	//	samples = new int[NesSettings.sampleRate/60+10];
 	//	sampleptr = 0;
 	//}
-	public void sendOutput(){
-		double p1 = getAverageSample(pulse1,NesSettings.pulse1MixLevel);
-		double p2 = getAverageSample(pulse2,NesSettings.pulse2MixLevel);
-		double t = getAverageSample(triangle,NesSettings.triangleMixLevel);
-		double n = getAverageSample(noise,NesSettings.noiseMixLevel);
-		double d = getAverageSample(dmc,NesSettings.dmcMixLevel);
-		double pulse_out = (95.88/(8128.0/(p1+p2)+100));//0.00752 * (p1+p2);
-		double tnd_out = (163.67/(24329.0/(3*t+2*n+d)+100));//0.00851*t + 0.00494*n + 0.00335*d;
-		double sample = pulse_out + tnd_out;
-		double expansion = 0;
-		for(Channel chan: expansionAudio)
-			expansion+= getAverageExpansion(chan,chan.getUserMixLevel());
-		sample+=expansion;
-		sample = ((sample*30000)*(NesSettings.masterMixLevel/100.0));
+	/*public void sendOutput(){
+		if(NesSettings.highQualitySampling){
+			double pulse_out = (95.88/(8128.0/(pulse1.getOutput()+pulse2.getOutput())+100));//0.00752 * (p1+p2);
+			double tnd_out = (163.67/(24329.0/(3*triangle.getOutput()+2*noise.getOutput()+dmc.getOutput())+100));//0.00851*t + 0.00494*n + 0.00335*d;
+			double sample = pulse_out + tnd_out;
+			double expansion = 0;
+			for(Channel chan: expansionAudio)
+				expansion+= getAverageExpansion(chan,chan.getUserMixLevel());
+			sample+=expansion;
+			resampler.addInputSample((sample * 30000) * (NesSettings.masterMixLevel / 100.0));
+		}
+		else {
+			double p1 = getAverageSample(pulse1, NesSettings.pulse1MixLevel);
+			double p2 = getAverageSample(pulse2, NesSettings.pulse2MixLevel);
+			double t = getAverageSample(triangle, NesSettings.triangleMixLevel);
+			double n = getAverageSample(noise, NesSettings.noiseMixLevel);
+			double d = getAverageSample(dmc, NesSettings.dmcMixLevel);
+			double pulse_out = (95.88/(8128.0/(p1+p2)+100));//0.00752 * (p1+p2);
+			double tnd_out = (163.67/(24329.0/(3*t+2*n+d)+100));//0.00851*t + 0.00494*n + 0.00335*d;
+			double sample = pulse_out + tnd_out;
+			double expansion = 0;
+			for(Channel chan: expansionAudio)
+				expansion+= getAverageExpansion(chan,chan.getUserMixLevel());
+			sample+=expansion;
+
+			sample = ((sample*30000)*(NesSettings.masterMixLevel/100.0));
+			map.system.audioSampleCallback((int)sample);
+		}
+
+
+
+		//sample = ((sample*30000)*(NesSettings.masterMixLevel/100.0));
 		//try{
 		//samples[sampleptr++] = (int) sample;
 		//}catch(Exception e){
 		//	System.out.println(sampleptr +" "+ (UserSettings.sampleRate/60.0));
 		//}
-		map.system.audioSampleCallback((int)sample);
+		//map.system.audioSampleCallback((int)sample);
 		//System.out.println(sample);
-	}
+	}*/
 	/*private void sendOutputUnMixed(){
 		int[] output = new int[5+expansionAudioArray.length];
 		output[0] = (int) getAverageSample(pulse1,UserSettings.pulse1MixLevel);
@@ -270,12 +298,15 @@ public class APU implements java.io.Serializable{
 			cpucounter=0;
 			delay =-1;
 		}
+
 		triangle.clockTimer();
-		dmc.clockTimer();
+		noise.clockTimer();
 		if(evenclock){
+
 			pulse1.clockTimer();
 			pulse2.clockTimer();
-			noise.clockTimer();	
+
+			dmc.clockTimer();
 			cyclenum++;
 		}
 		evenclock=!evenclock;
@@ -315,8 +346,12 @@ public class APU implements java.io.Serializable{
 		}
 		cpucounter++;
 		samplenum++;
-		if((samplenum%intcyclespersample)==0)
-			sendOutput();
+		if(NesSettings.highQualitySampling)
+			mix.sendOutput();
+		else if(samplenum%intcyclespersample==0){
+			mix.sendOutput();
+			//samplenum-=cyclespersample;
+		}
 	}
 
 }

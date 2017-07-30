@@ -20,9 +20,10 @@ public class MMC5Audio extends Channel{
 	int pcmdata;
 	
 	public MMC5Audio(Mapper m){
+		super(0);
 		map = m;
-		pulse1 = new Pulse(true);
-		pulse2 = new Pulse(true);
+		pulse1 = new Pulse(true,0);
+		pulse2 = new Pulse(true,0);
 	}
 	
 	public void registerWrite(int index,byte b,int clock){

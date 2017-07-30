@@ -22,6 +22,7 @@ public class NamcoSound extends Channel {
 	private int outputlevel;
 	private int enabledChannels;
 	public NamcoSound(byte[] sound){
+		super(0);
 		phase = new int[8];
 		wavelength = new int[8];
 		waveout = new int[8];

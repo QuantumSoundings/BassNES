@@ -4,7 +4,7 @@ package core.audio;
 public class Channel implements java.io.Serializable {
 
 	private static final long serialVersionUID = 1054848637029892308L;
-	
+	int outputLocation;
 	public boolean enable;
 	boolean output;
 	public int tcount;
@@ -45,7 +45,8 @@ public class Channel implements java.io.Serializable {
 	//Output Variables
 	int collectedsamples;
 	public int total;
-	public Channel(){
+	public Channel(int location) {
+		outputLocation = location;
 	}
 	public void write(int i){
 		
@@ -53,6 +54,7 @@ public class Channel implements java.io.Serializable {
 	public int getUserMixLevel(){
 		return 0;
 	}
+	public int getUserPanning() {return 0;}
 	public void clockTimer(){
 		if(tcount==0)
 			tcount=timer;

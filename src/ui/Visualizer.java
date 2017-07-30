@@ -208,7 +208,7 @@ public class Visualizer extends JFrame {
 		g2.setColor(Color.GREEN);
 		int prevscal = contentPane.getHeight()/2;
 		int curscal = 0;
-		for(int i = 0; i<audiobuffer.length;i++){
+		for(int i = 0; i<audiobuffer.length;i+=2){
 			curscal = scaleint(audiobuffer[i]);
 			g2.drawLine(i, prevscal+100, i+1, curscal+100 );
 			prevscal = curscal;	

@@ -1,6 +1,8 @@
 package ui;
 
 
+import java.awt.*;
+import javax.sound.sampled.SourceDataLine;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -24,6 +26,7 @@ import javax.swing.JColorChooser;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JLayeredPane;
 
 public class AudioSettingsUI extends JFrame {
 	private static final long serialVersionUID = 8732673441553439113L;
@@ -36,7 +39,7 @@ public class AudioSettingsUI extends JFrame {
 	 * Create the frame.
 	 */
 	public AudioSettingsUI(SystemUI s) {
-		setTitle("Audio Settings");
+        setTitle("Audio Settings");
 		sys =s;
 		//noinspection MagicConstant
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -83,11 +86,22 @@ public class AudioSettingsUI extends JFrame {
 		chckbxLockFrameRate.setBounds(241, 30, 171, 23);
 		chckbxLockFrameRate.setSelected(UISettings.lockVideoToAudio);
 		panel_1.add(chckbxLockFrameRate);
+
+
 		
 		JLabel lbloverridesOtherFps = new JLabel("(overrides other FPS settings)");
 		lbloverridesOtherFps.setBounds(241, 56, 144, 14);
 		panel_1.add(lbloverridesOtherFps);
-		
+
+		JCheckBox highQualitySamplingBox = new JCheckBox("Enable High Quality Audio Sampling");
+		highQualitySamplingBox.setBounds(241,90,171,23);
+		highQualitySamplingBox.setSelected(NesSettings.highQualitySampling);
+		panel_1.add(highQualitySamplingBox);
+		highQualitySamplingBox.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0){
+				NesSettings.highQualitySampling=highQualitySamplingBox.isSelected();
+			}
+		});
 		JPanel panel = new JPanel();
 		tabbedPane.addTab("Mixer", null, panel, null);
 		panel.setLayout(null);
@@ -290,6 +304,123 @@ public class AudioSettingsUI extends JFrame {
 		JLabel lblSunsoftb = new JLabel("SunSoft5B");
 		lblSunsoftb.setBounds(228, 208, 50, 14);
 		panel.add(lblSunsoftb);
+		
+		JPanel panel_4 = new JPanel();
+		tabbedPane.addTab("Panning", null, panel_4, null);
+		panel_4.setLayout(null);
+		
+		JSlider slider_10 = new JSlider();
+		slider_10.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				JSlider source = (JSlider) arg0.getSource();
+				NesSettings.pulse1Panning=source.getValue();
+			}
+		});
+		slider_10.setValue(0);
+		slider_10.setMajorTickSpacing(20);
+		slider_10.setPaintTicks(true);
+		slider_10.setMinimum(-100);
+		slider_10.setBounds(10, 27, 146, 26);
+		panel_4.add(slider_10);
+		
+		JSlider slider_11 = new JSlider();
+		slider_11.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				NesSettings.pulse2Panning=source.getValue();
+			}
+		});
+		slider_11.setValue(0);
+		slider_11.setPaintTicks(true);
+		slider_11.setMinimum(-100);
+		slider_11.setMajorTickSpacing(20);
+		slider_11.setBounds(10, 64, 146, 26);
+		panel_4.add(slider_11);
+		
+		JSlider slider_12 = new JSlider();
+		slider_12.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				NesSettings.trianglePanning=source.getValue();
+			}
+		});
+		slider_12.setValue(0);
+		slider_12.setPaintTicks(true);
+		slider_12.setMinimum(-100);
+		slider_12.setMajorTickSpacing(20);
+		slider_12.setBounds(10, 101, 146, 26);
+		panel_4.add(slider_12);
+		
+		JSlider slider_13 = new JSlider();
+		slider_13.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				NesSettings.noisePanning=source.getValue();
+			}
+		});
+		slider_13.setValue(0);
+		slider_13.setPaintTicks(true);
+		slider_13.setMinimum(-100);
+		slider_13.setMajorTickSpacing(20);
+		slider_13.setBounds(10, 138, 146, 26);
+		panel_4.add(slider_13);
+		
+		JSlider slider_14 = new JSlider();
+		slider_14.setSnapToTicks(true);
+		slider_14.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				NesSettings.dmcPanning=source.getValue();
+			}
+		});
+		slider_14.setValue(0);
+		slider_14.setPaintTicks(true);
+		slider_14.setMinimum(-100);
+		slider_14.setMajorTickSpacing(20);
+		slider_14.setBounds(10, 175, 146, 26);
+		panel_4.add(slider_14);
+		
+		JLabel lblPulse_4 = new JLabel("Pulse1");
+		lblPulse_4.setBounds(60, 11, 46, 14);
+		panel_4.add(lblPulse_4);
+		
+		JLabel lblPulse_5 = new JLabel("Pulse 2");
+		lblPulse_5.setBounds(60, 53, 46, 14);
+		panel_4.add(lblPulse_5);
+		
+		JLabel lblTriangle_2 = new JLabel("Triangle");
+		lblTriangle_2.setBounds(60, 90, 46, 14);
+		panel_4.add(lblTriangle_2);
+		
+		JLabel lblNoise_1 = new JLabel("Noise");
+		lblNoise_1.setBounds(60, 127, 46, 14);
+		panel_4.add(lblNoise_1);
+		
+		JLabel lblDmc_1 = new JLabel("DMC");
+		lblDmc_1.setBounds(60, 164, 46, 14);
+		panel_4.add(lblDmc_1);
+		
+		JSlider slider_15 = new JSlider();
+		slider_15.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				NesSettings.vrc6Panning=source.getValue();
+			}
+		});
+		slider_15.setValue(0);
+		slider_15.setPaintTicks(true);
+		slider_15.setMinimum(-100);
+		slider_15.setMajorTickSpacing(20);
+		slider_15.setBounds(243, 27, 146, 26);
+		panel_4.add(slider_15);
+		
+		JSlider slider_16 = new JSlider();
+		slider_16.setValue(0);
+		slider_16.setPaintTicks(true);
+		slider_16.setMinimum(-100);
+		slider_16.setMajorTickSpacing(20);
+		slider_16.setBounds(243, 64, 146, 26);
+		panel_4.add(slider_16);
 		
 		JPanel panel_2 = new JPanel();
 		tabbedPane.addTab("Visualizer", null, panel_2, null);

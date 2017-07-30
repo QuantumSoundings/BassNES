@@ -1,6 +1,8 @@
 package core.audio;
 
 
+import core.NesSettings;
+
 public class Pulse extends Channel {
 
 	private static final long serialVersionUID = -3321343541094080447L;
@@ -13,8 +15,8 @@ public class Pulse extends Channel {
 	private boolean[] duty2 = new boolean[]{false,true,true,true,true,false,false,false};
 	private boolean[] duty3 = new boolean[]{true,false,false,true,true,true,true,true};
 	public boolean output;
-	public Pulse(boolean number){
-		super();
+	public Pulse(boolean number,int location){
+		super(location);
 		p1=number;
 		duty = 0;
 		name = getName();
@@ -30,7 +32,7 @@ public class Pulse extends Channel {
 			tcount--;
 		if(lengthcount==0||!output||decay==0||timer<8)
 			return;
-		total+=decay;
+		AudioMixer.audioLevels[outputLocation] += decay;
 	}
 	
 	public void registerWrite(int index,byte b,int clock){
@@ -116,9 +118,9 @@ public class Pulse extends Channel {
 	}
 	@Override
 	public double getOutput(){
-		if(lengthcount==0||decay==0||timer<8)
+		if(lengthcount==0||!output||decay==0||timer<8)
 			return 0;
-		return decay;
+		return decay*((p1? NesSettings.pulse1MixLevel:NesSettings.pulse2MixLevel)/100.0);
 	}
 	@Override
 	public double getFrequency(){

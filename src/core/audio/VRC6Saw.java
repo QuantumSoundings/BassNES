@@ -9,8 +9,8 @@ public class VRC6Saw extends Channel {
 	private static final long serialVersionUID = 6678747718079279169L;
 	private int accumRate;
 	private int accumulator;
-	public VRC6Saw(){
-		super();
+	public VRC6Saw(int location){
+		super(location);
 	}
 	@Override
 	public int getUserMixLevel(){
@@ -66,12 +66,16 @@ public class VRC6Saw extends Channel {
 		if(!enable){
 			return;
 		}
-		total+=accumulator>>3;
+		AudioMixer.audioLevels[outputLocation]+=accumulator>>3;
 		//System.out.println("Clocking pulse");
 	}
 	@Override
 	public int getOutputSettings(){
 		return NesSettings.vrc6MixLevel;
+	}
+	@Override
+	public int getUserPanning(){
+		return NesSettings.vrc6Panning;
 	}
 	@Override
 	public double getFrequency(){
@@ -90,7 +94,7 @@ public class VRC6Saw extends Channel {
 	}
 	@Override
 	public double getOutput(){
-		return total * 0.00776;
+		return 0.00776;
 		
 	}
 }

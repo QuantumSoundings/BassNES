@@ -25,10 +25,10 @@ public class AudioInterface implements java.io.Serializable {
 	public void restartSDL(){
 		AudioFormat form = new AudioFormat(NesSettings.sampleRate,16,2,true,false);
 		bufptr=0;
-		audioints = new int[NesSettings.sampleRate/60];
+		audioints = new int[(int)((NesSettings.sampleRate/1000.0)*NesSettings.audioBufferSize)*2];
 		if(scope!=null)
 			scope.setAudio(audioints);
-		audiobuffer = new byte[audioints.length*4];
+		audiobuffer = new byte[audioints.length*2];
 		try {
 			if(sdl!=null)
 				sdl.close();
@@ -53,17 +53,23 @@ public class AudioInterface implements java.io.Serializable {
 	}
 	public void setAudioFrame(int[] audiobuf){
 		audioints = audiobuf;
-		audiobuffer = new byte[audioints.length*4];
+		audiobuffer = new byte[audioints.length*2];
 		sendsample();
 	}
 	public void sendsample(){
-		lowpass();	
-		for(int i: audioints){
+		//lowpass();
+		/*for(int i: audioints){
 			audiobuffer[bufptr] = (byte) (i&0xff);
 			audiobuffer[bufptr+1] = (byte) ((i>>8)&0xff);
 			audiobuffer[bufptr+2] = (byte) (i&0xff);
 			audiobuffer[bufptr+3] = (byte) ((i>>8)&0xff);
 			bufptr+=4;
+		}*/
+		bufptr=0;
+		for(int i:audioints){
+			audiobuffer[bufptr]=(byte)(i&0xff);
+			audiobuffer[bufptr+1] = (byte) ((i>>8)&0xff);
+			bufptr+=2;
 		}
 		if((sdl.available()>=audiobuffer.length&&UISettings.AudioEnabled)||UISettings.lockVideoToAudio){
 				sdl.write(audiobuffer,0,audiobuffer.length);
