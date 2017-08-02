@@ -15,6 +15,15 @@ public class Pulse extends Channel {
 	private boolean[] duty2 = new boolean[]{false,true,true,true,true,false,false,false};
 	private boolean[] duty3 = new boolean[]{true,false,false,true,true,true,true,true};
 	public boolean output;
+	//Sweep Variables
+	private boolean doSweep;
+	private int targetPeriod;
+	private int sDivider;
+	private int dividerPeriod;
+	private boolean sweepReload =false;
+	private int shift;
+	private boolean negate;
+
 	public Pulse(boolean number,int location){
 		super(location);
 		p1=number;
@@ -23,14 +32,14 @@ public class Pulse extends Channel {
 	}
 	@Override
 	public final void clockTimer(){
-		if(tcount==0){
-			tcount=timer;
+		if(tCount ==0){
+			tCount =timer;
 			dutynumber++;
 			output = current_duty[dutynumber%8];
 		}
 		else
-			tcount--;
-		if(lengthcount==0||!output||decay==0||timer<8)
+			tCount--;
+		if(lengthCount ==0||!output||decay==0||timer<8)
 			return;
 		AudioMixer.audioLevels[outputLocation] += decay;
 	}
@@ -46,79 +55,79 @@ public class Pulse extends Channel {
 			case 3: current_duty = duty3;break;	
 			}
 			if(clock==14915){
-				delayedchange=(b&0b10000)!=0?2:1;
+				delayedChange =(b&0b10000)!=0?2:1;
 			}
 			else
 				loop= (b & 0b100000) != 0;
-			constantvolume= (b & 0b10000) != 0;
+			constantVolume = (b & 0b10000) != 0;
 			volume=b&0xf;
-			estart = true;
+			eStart = true;
 			break;
 		case 1: 
-			dosweep = (b & 0x80) != 0;
-			if(!dosweep)
-				targetperiod = timer;
-			dividerperiod = (b&0b1110000)>>4;
-			sdivider = dividerperiod+1;
+			doSweep = (b & 0x80) != 0;
+			if(!doSweep)
+				targetPeriod = timer;
+			dividerPeriod = (b&0b1110000)>>4;
+			sDivider = dividerPeriod +1;
 			negate = (b & 0b1000) != 0;
 			shift= (b&0b111);
-			sweepreload = true;
+			sweepReload = true;
 			break;			
 		case 2: 
 			timer &=0xff00;
 			timer |=(b&0xff);
-			targetperiod = timer;
+			targetPeriod = timer;
 			break;
 		case 3: 
 			int x = Byte.toUnsignedInt(b)>>3;
 			if(enable)
 				if(clock==14915){
-					if(lengthcount==0){
-						lengthcount = lengthlookup[x];
+					if(lengthCount ==0){
+						lengthCount = lengthLookupTable[x];
 						block=true;
 					}
 				}
 				else 
-					lengthcount = lengthlookup[x];
+					lengthCount = lengthLookupTable[x];
 			dutynumber=0;
 			timer&=0b11111111;
 			timer |= (b&0b111)<<8;
-			targetperiod = timer;
-			estart=true;
+			targetPeriod = timer;
+			eStart =true;
 		}
 		
 	}
 	public void sweepClock(){
 		if(enable){
-			if(dosweep){
-				if(sweepreload){
-					sdivider = dividerperiod+1;
-					if(sdivider ==0)
-						targetperiod=timer;
-					sweepreload=false;
+			if(doSweep){
+				if(sweepReload){
+					sDivider = dividerPeriod +1;
+					if(sDivider ==0)
+						targetPeriod =timer;
+					sweepReload =false;
 				}
-				else if(sdivider !=0){
-					sdivider--;
+				else if(sDivider !=0){
+					sDivider--;
 				}
 				else {
-					sdivider = dividerperiod+1;
-					int change = targetperiod>>shift;
+					sDivider = dividerPeriod +1;
+					int change = targetPeriod >>shift;
 					if(negate){
 						if(p1)
-							targetperiod =  targetperiod - change -1;
+							targetPeriod =  targetPeriod - change -1;
 						else
-							targetperiod = targetperiod - change;
+							targetPeriod = targetPeriod - change;
 					}
 					else
-						targetperiod = targetperiod + change;
+						targetPeriod = targetPeriod + change;
 				}
-				timer = targetperiod&0b111111111111;
+				timer = targetPeriod &0b111111111111;
 			}
 		}
 	}
-	@Override
+	//@Override
 	public double getOutput(){
-		if(lengthcount==0||!output||decay==0||timer<8)
+		if(lengthCount ==0||!output||decay==0||timer<8)
 			return 0;
 		return decay*((p1? NesSettings.pulse1MixLevel:NesSettings.pulse2MixLevel)/100.0);
 	}
@@ -137,10 +146,7 @@ public class Pulse extends Channel {
 	public String getName(){
 		return "Pulse "+(p1?"1":"2");
 	}
-	@Override
-	public void buildOutput(){
-		if(lengthcount==0||!output||decay==0||timer<8)
-			return;
-		total+=decay;
-	}
+	public int getUserPanning(){ return p1?NesSettings.pulse1Panning:NesSettings.pulse2Panning;}
+	public int getUserMixLevel(){return p1?NesSettings.pulse1MixLevel:NesSettings.pulse2MixLevel;}
+	public double getChannelMixingRatio() {return .00752;}
 }

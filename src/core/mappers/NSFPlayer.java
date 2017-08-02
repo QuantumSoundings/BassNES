@@ -200,12 +200,12 @@ public class NSFPlayer extends Mapper{
 		}
 		if((b&16)==16){//namco
 			namcomemory = new byte[0x80];
-			namco = new NamcoSound(namcomemory);
+			namco = new NamcoSound(namcomemory,apu.mixer.requestNewOutputLocation());
 			apu.addExpansionChannel(namco);
 			expansionInfo += "Namco ";
 		}
 		if((b&32)==32){
-			sunsoft = new Sunsoft5B();
+			sunsoft = new Sunsoft5B(apu.mixer.requestNewOutputLocation());
 			apu.addExpansionChannel(sunsoft);
 			expansionInfo += "Sunsoft5B ";
 		}
@@ -219,7 +219,7 @@ public class NSFPlayer extends Mapper{
 		playspeed = (int) (playspeed*(1789773.0/1000000.0));
 		playspeed = 29828;
 		//System.out.println(playspeed);
-		currentsong = 27;
+		currentsong = 0;
 		totalsongs = total;
 		title = name;
 		this.artist = artist;
@@ -371,7 +371,7 @@ public class NSFPlayer extends Mapper{
 			soundwrite(b);
 		else if(index>=0x5000&&index<=0x5015){//MMC5 Audio Registers
 			//System.out.println("WRite to mmc5");
-			mmc5.registerWrite(index, b, 0);
+			mmc5.registerWrite(index, b);
 		}
 		else if(index==0x5205||index==0x5206){//MMC5 multiply
 			if(index==0x5205){
@@ -396,15 +396,15 @@ public class NSFPlayer extends Mapper{
 			PRG_RAM[index%0x2000] = b;
 		else{                                  //Various registers
 			switch(index){
-			case 0x9000:vrc6pulse1.registerWrite(0, b, 0);break;
-			case 0x9001:vrc6pulse1.registerWrite(1, b, 0);break;
-			case 0x9002:vrc6pulse1.registerWrite(2, b, 0);break;
-			case 0xa000:vrc6pulse2.registerWrite(0, b, 0);break;
-			case 0xa001:vrc6pulse2.registerWrite(1, b, 0);break;
-			case 0xa002:vrc6pulse2.registerWrite(2, b, 0);break;
-			case 0xb000:vrc6saw.registerWrite(0, b, 0);break;
-			case 0xb001:vrc6saw.registerWrite(1, b, 0);break;
-			case 0xb002:vrc6saw.registerWrite(2, b, 0);break;
+			case 0x9000:vrc6pulse1.registerWrite(0, b);break;
+			case 0x9001:vrc6pulse1.registerWrite(1, b);break;
+			case 0x9002:vrc6pulse1.registerWrite(2, b);break;
+			case 0xa000:vrc6pulse2.registerWrite(0, b);break;
+			case 0xa001:vrc6pulse2.registerWrite(1, b);break;
+			case 0xa002:vrc6pulse2.registerWrite(2, b);break;
+			case 0xb000:vrc6saw.registerWrite(0, b);break;
+			case 0xb001:vrc6saw.registerWrite(1, b);break;
+			case 0xb002:vrc6saw.registerWrite(2, b);break;
 			case 0xf800:
 				soundAddress = (b&0x7f);
 				addrAutoInc = (b&0x80)!=0;

@@ -17,16 +17,21 @@ public class MMC5Audio extends Channel{
 	boolean irqEnable;
 	boolean pcmMode;
 	boolean doingIRQ;
-	int pcmdata;
+	private int pcmdata;
+
+	private final double mixRatio = 0.00376;
+	private final double pcmRatio = 0.00216;
+	private final double pcmAddRatio = pcmRatio/mixRatio;
 	
 	public MMC5Audio(Mapper m){
 		super(0);
 		map = m;
-		pulse1 = new Pulse(true,0);
-		pulse2 = new Pulse(true,0);
+		outputLocation = m.apu.mixer.requestNewOutputLocation();
+		pulse1 = new Pulse(true,outputLocation);
+		pulse2 = new Pulse(true,outputLocation);
 	}
 	
-	public void registerWrite(int index,byte b,int clock){
+	public void registerWrite(int index, byte b){
 		//System.out.println("Write to MMC5Audio index: 0x50"+Integer.toHexString(index));
 		switch(index){
 		case 0x5000: 
@@ -59,10 +64,6 @@ public class MMC5Audio extends Channel{
 			//System.out.println("Writing pcm data: "+Integer.toBinaryString(Byte.toUnsignedInt(b)));
 			if(b==0&&irqEnable){
 				map.cpu.setIRQ(IRQSource.External);
-				//if(!doingIRQ){
-				//	System.out.println("Triggering IRQ");
-				//	map.cpu.doIRQ++;
-				//}
 				doingIRQ=true;
 			}
 			else
@@ -90,21 +91,21 @@ public class MMC5Audio extends Channel{
 			return out;
 		}
 		if(index==0x5015){
-			byte out = (byte) (pulse1.lengthcount>0?1:0);
-			out|=pulse2.lengthcount>0?2:0;
+			byte out = (byte) (pulse1.lengthCount >0?1:0);
+			out|=pulse2.lengthCount >0?2:0;
 			return out;
 		}
 		return 0;
 	}
-	int frameclockcounter;
-	int frameclock = 7457;
+	private int frameClockCounter;
+	private int frameClock = 7457;
 	boolean odd = false;
 	@Override
 	public final void clockTimer(){
-		frameclockcounter++;
+		frameClockCounter++;
 		//System.out.println("Clocking mmc5audio");
-		if(frameclockcounter==frameclock){
-			frameclockcounter = 0;
+		if(frameClockCounter == frameClock){
+			frameClockCounter = 0;
 			pulse1.envelopeClock();pulse1.lengthClock();
 			pulse2.envelopeClock();pulse2.lengthClock();
 		}
@@ -113,26 +114,12 @@ public class MMC5Audio extends Channel{
 			pulse2.clockTimer();
 		}
 		odd=!odd;
-		total+=pcmdata+pulse1.getOutput()+pulse2.getOutput();
+		AudioMixer.audioLevels[outputLocation]+=pcmdata*(pcmAddRatio);
 		//System.out.println(total);
-	}
-	@Override
-	public double getOutput(){
-		//System.out.println("total: "+total +" p1: "+pulse1.total+" p2: "+pulse2.total);
-		double out = total*0.00216;
-		total = 0;
-		out += pulse1.total*0.00376;
-		pulse1.total=0;
-		out += pulse2.total*0.00376;
-		pulse2.total=0;
-		return out;	
-	}
-	@Override
-	public int getOutputSettings(){
-		return NesSettings.mmc5MixLevel;
 	}
 	private final String name1 = "MMC5 Pulse 1";
 	private final String name2 = "MMC5 Pulse 2";
+
 	@Override
 	public Object[] getInfo(){
 		return new Object[]{name1,pulse1.getFrequency(),name2,pulse2.getFrequency()};
@@ -141,8 +128,8 @@ public class MMC5Audio extends Channel{
 	public String getName(){
 		return "MMC5 Audio";
 	}
-	@Override
-	public int getUserMixLevel(){
-		return NesSettings.mmc5MixLevel;
-	}
+
+	public int getUserMixLevel(){ return NesSettings.mmc5MixLevel; }
+	public int getUserPanning() {return NesSettings.mmc5Panning;}
+	public double getChannelMixingRatio() {return mixRatio;}
 }

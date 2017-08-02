@@ -164,14 +164,13 @@ public class DMC extends Channel{
 
 
 	}
-	@Override
+	//@Override
 	public double getOutput(){
 		return (outputlevel/2.0)*(NesSettings.dmcMixLevel/100.0);
 	}
-	@Override
-	public void buildOutput(){
-		total+=outputlevel;
-	}
+	public int getUserPanning(){ return NesSettings.dmcPanning;}
+	public int getUserMixLevel(){return NesSettings.dmcMixLevel;}
+	public double getChannelMixingRatio() {return .00335;}
 
 
 }

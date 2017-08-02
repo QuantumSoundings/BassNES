@@ -21,7 +21,7 @@ public class NamcoSound extends Channel {
 	private int currentchannel;
 	private int outputlevel;
 	private int enabledChannels;
-	public NamcoSound(byte[] sound){
+	public NamcoSound(byte[] sound,int location){
 		super(0);
 		phase = new int[8];
 		wavelength = new int[8];
@@ -32,6 +32,7 @@ public class NamcoSound extends Channel {
 		timers = new int[8];
 		currentchannel = 0;
 		soundmemory = sound;
+		outputLocation=location;
 	}
 	int cpucounter;
 	@Override
@@ -49,7 +50,7 @@ public class NamcoSound extends Channel {
 			clockChannel(currentchannel);
 			//outputlevel = waveout[currentchannel];
 		}
-		total+=outputlevel;
+		AudioMixer.audioLevels[outputLocation]+=outputlevel;
 		cpucounter++;
 	}
 	public void registerWrite(int index,byte b,int chan){
@@ -131,10 +132,6 @@ public class NamcoSound extends Channel {
 		enable = true;
 	}
 	@Override
-	public int getUserMixLevel(){
-		return NesSettings.namcoMixLevel;
-	}
-	@Override
 	public Object[] getInfo(){
 		Object[] out = new Object[2*enabledChannels];
 		int x = 0;
@@ -147,11 +144,8 @@ public class NamcoSound extends Channel {
 	public double getFrequency(int channel){
 		return (1789773.0 * timers[channel])/(15 * 65536 * wavelength[channel]);// * enabledChannels);
 	}
-	@Override
-	public double getOutput(){
-		//System.out.println(total);
-		double out = total *.00047;
-		total = 0;
-		return out;
-	}
+
+	public double getChannelMixingRatio() {return .00047;}
+	public int getUserPanning(){ return NesSettings.namcoPanning;}
+	public int getUserMixLevel(){return NesSettings.namcoMixLevel;}
 }

@@ -19,8 +19,9 @@ public class Sunsoft5B extends Channel {
 	int envelopePeriod;
 	int enVolume = 0;
 	boolean eContinue,eAttack,eAlternate,eHold;
-	public Sunsoft5B(){
+	public Sunsoft5B(int location){
 		super(0);
+		outputLocation=location;
 	}
 	public void registerWrite(int index,byte b){
 		switch(index){
@@ -100,24 +101,12 @@ public class Sunsoft5B extends Channel {
 		}
 		divider = (++divider%4);
 			
-		total += cAOut&&toneA?(channelAEnableE?enVolume:volumes[channelAVolume]):0;
-		total += cBOut&&toneB?(channelBEnableE?enVolume:volumes[channelBVolume]):0;
-		total += cCOut&&toneC?(channelCEnableE?enVolume:volumes[channelCVolume]):0;
+		AudioMixer.audioLevels[outputLocation] += cAOut&&toneA?(channelAEnableE?enVolume:volumes[channelAVolume]):0;
+		AudioMixer.audioLevels[outputLocation] += cBOut&&toneB?(channelBEnableE?enVolume:volumes[channelBVolume]):0;
+		AudioMixer.audioLevels[outputLocation] += cCOut&&toneC?(channelCEnableE?enVolume:volumes[channelCVolume]):0;
 	}
-	@Override
-	public int getOutputSettings(){
-		return NesSettings.sunsoft5BMixLevel;
-	}
-	@Override
-	public int getUserMixLevel(){
-		return NesSettings.sunsoft5BMixLevel;
-	}
-	@Override
-	public double getOutput(){
-		double out = total*.00276;
-		//System.out.println(total);
-		total = 0;
-		return out;
-		
-	}
+
+	public double getChannelMixingRatio() {return .00276;}
+	public int getUserPanning(){ return NesSettings.sunsoft5BPanning;}
+	public int getUserMixLevel(){return NesSettings.sunsoft5BMixLevel;}
 }

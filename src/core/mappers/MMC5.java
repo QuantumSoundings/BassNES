@@ -62,11 +62,11 @@ public class MMC5 extends Mapper {
 	@Override
 	void cartridgeWrite(int index,byte b){
 		if(index>=0x5000&&index<=0x5007){
-			channel.registerWrite(index, b, 0);
+			channel.registerWrite(index, b);
 		}
 		else if(index==0x5010||index==0x5011||index==0x5015){
 			//System.out.println("Writing PCM index: "+Integer.toHexString(index) +" data: "+Integer.toBinaryString(Byte.toUnsignedInt(b)));
-			channel.registerWrite(index, b, 0);
+			channel.registerWrite(index, b);
 		}
 		if(index>=0x5100&&index<=0x5107)
 			configuration(index,b);

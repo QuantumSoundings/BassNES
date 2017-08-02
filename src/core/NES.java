@@ -376,8 +376,8 @@ public class NES implements Runnable,NESAccess {
 		return map.apu.channelInfo();
 	}
 	public final void setSampleRate(int rate){
-		map.apu.setSampleRate(rate);
 		NesSettings.logSampleRate(rate);
+		map.apu.setSampleRate(rate);
 	}
 	public final void runCPUCycle() {
 		map.runCPUCycle();	

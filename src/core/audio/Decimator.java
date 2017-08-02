@@ -1,9 +1,7 @@
 package core.audio;
 
-import core.NESCallback;
 import core.mappers.Mapper;
 import ui.AudioInterface;
-import ui.SystemUI;
 
 import java.io.*;
 
@@ -267,8 +265,8 @@ public class Decimator implements Serializable {
           (float)ys[(index - 2) & 3],
           (float)ys[(index - 1) & 3],
           (float)ys[index]);      
-      map.apu.mix.addSample(sample);
-      map.apu.mix.addSample(sample);
+      map.apu.mixer.addSample(sample);
+      map.apu.mixer.addSample(sample);
 
       time -= outputSamplingPeriod;
       

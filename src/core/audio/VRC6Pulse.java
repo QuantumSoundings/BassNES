@@ -22,11 +22,7 @@ public class VRC6Pulse extends Channel {
 		chanone = channelone;
 		name = "VRC6 Pulse "+ (chanone?"1":"2");
 	}
-	@Override
-	public int getUserMixLevel(){
-		return NesSettings.vrc6MixLevel;
-	}
-	public void registerWrite(int index,byte b,int clock){
+	public void registerWrite(int index, byte b){
 		//System.out.println("Write to pulse");
 		switch(index%4){
 		case 0: 
@@ -61,27 +57,20 @@ public class VRC6Pulse extends Channel {
 	@Override
 	public final void clockTimer(){
 		
-		if(tcount==0){
-			tcount=timer;
+		if(tCount ==0){
+			tCount =timer;
 			dutynumber++;
 			output = current_duty[dutynumber%16];
 		}
 		else
-			tcount--;
+			tCount--;
 		if(!dutymode)
 			if(!enable||!output)
 				return;
 		AudioMixer.audioLevels[outputLocation]+=volume;
 		//System.out.println("Clocking pulse");
 	}
-	@Override
-	public int getOutputSettings(){
-		return NesSettings.vrc6MixLevel;
-	}
-	@Override
-	public int getUserPanning(){
-		return NesSettings.vrc6Panning;
-	}
+
 	@Override
 	public double getFrequency(){
 		if(!enable)
@@ -97,9 +86,12 @@ public class VRC6Pulse extends Channel {
 	public String getName(){
 		return "VRC6 Pulse";
 	}
-	@Override
-	public double getOutput(){
-		return 0.00776;
-		
+
+	public double getChannelMixingRatio() {return .00776;}
+	public int getUserPanning(){
+		return NesSettings.vrc6Panning;
+	}
+	public int getUserMixLevel(){
+		return NesSettings.vrc6MixLevel;
 	}
 }

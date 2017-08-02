@@ -27,6 +27,7 @@ import javax.swing.JColorChooser;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JLayeredPane;
+import javax.swing.JSpinner;
 
 public class AudioSettingsUI extends JFrame {
 	private static final long serialVersionUID = 8732673441553439113L;
@@ -56,27 +57,26 @@ public class AudioSettingsUI extends JFrame {
 		JPanel panel_1 = new JPanel();
 		tabbedPane.addTab("Settings", null, panel_1, null);
 		panel_1.setLayout(null);
-		String[] samplingrates =new String[] {"44,100 Hz", "48,000 Hz", "96,000 Hz"};
+		String[] samplingrates =new String[] {"8,000 Hz","11,025 Hz","22,050 Hz","44,100 Hz", "48,000 Hz", "96,000 Hz","192,000 Hz"};
+		int[] sampleratesints = new int[]{8000,11025,22050,44100,48000,96000,192000};
 		JComboBox<String> comboBox = new JComboBox<String>();
+		comboBox.setModel(new DefaultComboBoxModel<String>(samplingrates));
 		comboBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				JComboBox<?> cb = (JComboBox<?>)arg0.getSource();
-				String s = cb.getSelectedItem().toString();
-				int index =Arrays.asList(samplingrates).indexOf(s);
-				switch(index){
-				case 0: NesSettings.sampleRate = 44100;
-					sys.nes.setSampleRate(44100);break;
-				case 1: NesSettings.sampleRate = 48000;
-					sys.nes.setSampleRate(48000);break;
-				case 2: NesSettings.sampleRate = 96000;
-					sys.nes.setSampleRate(96000);break;
-				}
+				JComboBox<String> cb = (JComboBox<String>)arg0.getSource();
+				NesSettings.sampleRate=sampleratesints[cb.getSelectedIndex()];
+				if(sys.nes!=null)
+					sys.nes.setSampleRate(NesSettings.sampleRate);
 				sys.resetaudio();	
 			}
 		});
-		comboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"44,100 Hz", "48,000 Hz", "96,000 Hz"}));
 		comboBox.setBounds(10, 53, 84, 20);
 		panel_1.add(comboBox);
+		for(int i = 0;i<sampleratesints.length;i++){
+			if(sampleratesints[i]==NesSettings.sampleRate)
+				comboBox.setSelectedIndex(i);
+		}
+
 		
 		JLabel lblSamplingRate = new JLabel("Sampling Rate");
 		lblSamplingRate.setBounds(10, 34, 84, 14);
@@ -97,6 +97,30 @@ public class AudioSettingsUI extends JFrame {
 		highQualitySamplingBox.setBounds(241,90,171,23);
 		highQualitySamplingBox.setSelected(NesSettings.highQualitySampling);
 		panel_1.add(highQualitySamplingBox);
+		
+		JLabel lblAudioLatency = new JLabel("Audio Latency");
+		lblAudioLatency.setBounds(10, 94, 77, 14);
+		panel_1.add(lblAudioLatency);
+		
+		JSpinner spinner = new JSpinner();
+		spinner.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				JSpinner spin = (JSpinner)e.getSource();
+				int value =(int) spin.getValue();
+				NesSettings.audioBufferSize = value;
+				sys.resetaudio();
+				if(sys.nes!=null)
+					sys.nes.setSampleRate(NesSettings.sampleRate);
+			}
+		});
+		spinner.setValue(NesSettings.audioBufferSize);
+		spinner.setBounds(84, 91, 43, 20);
+		panel_1.add(spinner);
+		
+		JLabel lblMs = new JLabel("ms");
+		lblMs.setBounds(132, 94, 46, 14);
+		panel_1.add(lblMs);
+		
 		highQualitySamplingBox.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0){
 				NesSettings.highQualitySampling=highQualitySamplingBox.isSelected();
@@ -334,7 +358,7 @@ public class AudioSettingsUI extends JFrame {
 		slider_11.setPaintTicks(true);
 		slider_11.setMinimum(-100);
 		slider_11.setMajorTickSpacing(20);
-		slider_11.setBounds(10, 64, 146, 26);
+		slider_11.setBounds(10, 70, 146, 26);
 		panel_4.add(slider_11);
 		
 		JSlider slider_12 = new JSlider();
@@ -348,7 +372,7 @@ public class AudioSettingsUI extends JFrame {
 		slider_12.setPaintTicks(true);
 		slider_12.setMinimum(-100);
 		slider_12.setMajorTickSpacing(20);
-		slider_12.setBounds(10, 101, 146, 26);
+		slider_12.setBounds(10, 110, 146, 26);
 		panel_4.add(slider_12);
 		
 		JSlider slider_13 = new JSlider();
@@ -362,7 +386,7 @@ public class AudioSettingsUI extends JFrame {
 		slider_13.setPaintTicks(true);
 		slider_13.setMinimum(-100);
 		slider_13.setMajorTickSpacing(20);
-		slider_13.setBounds(10, 138, 146, 26);
+		slider_13.setBounds(10, 150, 146, 26);
 		panel_4.add(slider_13);
 		
 		JSlider slider_14 = new JSlider();
@@ -377,27 +401,32 @@ public class AudioSettingsUI extends JFrame {
 		slider_14.setPaintTicks(true);
 		slider_14.setMinimum(-100);
 		slider_14.setMajorTickSpacing(20);
-		slider_14.setBounds(10, 175, 146, 26);
+		slider_14.setBounds(10, 190, 146, 26);
 		panel_4.add(slider_14);
 		
 		JLabel lblPulse_4 = new JLabel("Pulse1");
+		lblPulse_4.setHorizontalAlignment(SwingConstants.CENTER);
 		lblPulse_4.setBounds(60, 11, 46, 14);
 		panel_4.add(lblPulse_4);
 		
 		JLabel lblPulse_5 = new JLabel("Pulse 2");
+		lblPulse_5.setHorizontalAlignment(SwingConstants.CENTER);
 		lblPulse_5.setBounds(60, 53, 46, 14);
 		panel_4.add(lblPulse_5);
 		
 		JLabel lblTriangle_2 = new JLabel("Triangle");
-		lblTriangle_2.setBounds(60, 90, 46, 14);
+		lblTriangle_2.setHorizontalAlignment(SwingConstants.CENTER);
+		lblTriangle_2.setBounds(60, 95, 46, 14);
 		panel_4.add(lblTriangle_2);
 		
 		JLabel lblNoise_1 = new JLabel("Noise");
-		lblNoise_1.setBounds(60, 127, 46, 14);
+		lblNoise_1.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNoise_1.setBounds(60, 135, 46, 14);
 		panel_4.add(lblNoise_1);
 		
 		JLabel lblDmc_1 = new JLabel("DMC");
-		lblDmc_1.setBounds(60, 164, 46, 14);
+		lblDmc_1.setHorizontalAlignment(SwingConstants.CENTER);
+		lblDmc_1.setBounds(60, 175, 46, 14);
 		panel_4.add(lblDmc_1);
 		
 		JSlider slider_15 = new JSlider();
@@ -415,12 +444,66 @@ public class AudioSettingsUI extends JFrame {
 		panel_4.add(slider_15);
 		
 		JSlider slider_16 = new JSlider();
+		slider_16.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				JSlider source = (JSlider) arg0.getSource();
+				NesSettings.namcoPanning=source.getValue();
+			}
+		});
 		slider_16.setValue(0);
 		slider_16.setPaintTicks(true);
 		slider_16.setMinimum(-100);
 		slider_16.setMajorTickSpacing(20);
-		slider_16.setBounds(243, 64, 146, 26);
+		slider_16.setBounds(243, 70, 146, 26);
 		panel_4.add(slider_16);
+		
+		JLabel lblNewLabel_2 = new JLabel("VRC6");
+		lblNewLabel_2.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_2.setBounds(292, 11, 46, 14);
+		panel_4.add(lblNewLabel_2);
+		
+		JLabel lblNewLabel_3 = new JLabel("Namco");
+		lblNewLabel_3.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_3.setBounds(292, 53, 46, 14);
+		panel_4.add(lblNewLabel_3);
+		
+		JSlider slider_17 = new JSlider();
+		slider_17.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				NesSettings.mmc5Panning=source.getValue();
+			}
+		});
+		slider_17.setValue(0);
+		slider_17.setPaintTicks(true);
+		slider_17.setMinimum(-100);
+		slider_17.setMajorTickSpacing(20);
+		slider_17.setBounds(243, 110, 146, 26);
+		panel_4.add(slider_17);
+		
+		JSlider slider_18 = new JSlider();
+		slider_18.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				NesSettings.sunsoft5BPanning=source.getValue();
+			}
+		});
+		slider_18.setValue(0);
+		slider_18.setPaintTicks(true);
+		slider_18.setMinimum(-100);
+		slider_18.setMajorTickSpacing(20);
+		slider_18.setBounds(243, 150, 146, 26);
+		panel_4.add(slider_18);
+		
+		JLabel lblNewLabel_4 = new JLabel("MMC5");
+		lblNewLabel_4.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_4.setBounds(292, 95, 46, 14);
+		panel_4.add(lblNewLabel_4);
+		
+		JLabel lblNewLabel_5 = new JLabel("SunSoft5B");
+		lblNewLabel_5.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_5.setBounds(290, 135, 60, 14);
+		panel_4.add(lblNewLabel_5);
 		
 		JPanel panel_2 = new JPanel();
 		tabbedPane.addTab("Visualizer", null, panel_2, null);

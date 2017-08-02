@@ -17,7 +17,7 @@ public class FME_7 extends Mapper {
 	public FME_7(){
 		super();
 		hasaudio = true;
-		audio = new Sunsoft5B();
+		audio = new Sunsoft5B(apu.mixer.requestNewOutputLocation());
 		apu.addExpansionChannel(audio);
 	}
 	@Override

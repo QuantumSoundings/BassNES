@@ -31,7 +31,7 @@ public class Namco extends Mapper{
 		System.out.println("Made a Namco "+mappertype+"!");
 		if(type==163||type==129){
 			hasirq=true;
-			soundChannel = new NamcoSound(soundMemory);
+			soundChannel = new NamcoSound(soundMemory,apu.mixer.requestNewOutputLocation());
 			apu.addExpansionChannel(soundChannel);
 		}
 	}

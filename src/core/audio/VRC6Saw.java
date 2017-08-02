@@ -7,20 +7,16 @@ public class VRC6Saw extends Channel {
 	
 	
 	private static final long serialVersionUID = 6678747718079279169L;
-	private int accumRate;
+	private int accumulatorRate;
 	private int accumulator;
 	public VRC6Saw(int location){
 		super(location);
 	}
-	@Override
-	public int getUserMixLevel(){
-		return NesSettings.vrc6MixLevel;
-	}
-	public void registerWrite(int index,byte b,int clock){
-		//System.out.println("Write to pulse");
+
+	public void registerWrite(int index, byte b){
 		switch(index%4){
 		case 0: 
-			accumRate = b&0b111111;
+			accumulatorRate = b&0b111111;
 			break;
 		case 1: 
 			timer &=0xff00;
@@ -38,48 +34,40 @@ public class VRC6Saw extends Channel {
 		}
 		
 	}
-	private boolean oddclock;
-	private int sawclock;
+	private boolean oddClock;
+	private int sawClock;
 	@Override
 	public final void clockTimer(){
 		
-		if(tcount==0){
-			tcount=timer;
-			if(oddclock){
+		if(tCount ==0){
+			tCount =timer;
+			if(oddClock){
 				if(enable){
-					sawclock++;
-					if(sawclock>6){
+					sawClock++;
+					if(sawClock >6){
 						accumulator=0;
-						sawclock = 0;
+						sawClock = 0;
 					}
 					else
-						accumulator +=accumRate;
+						accumulator += accumulatorRate;
 					
 				}
 				else
 					accumulator = 0;
 			}
-			oddclock=!oddclock;
+			oddClock =!oddClock;
 		}
 		else
-			tcount--;
+			tCount--;
 		if(!enable){
 			return;
 		}
 		AudioMixer.audioLevels[outputLocation]+=accumulator>>3;
-		//System.out.println("Clocking pulse");
 	}
-	@Override
-	public int getOutputSettings(){
-		return NesSettings.vrc6MixLevel;
-	}
-	@Override
-	public int getUserPanning(){
-		return NesSettings.vrc6Panning;
-	}
+
 	@Override
 	public double getFrequency(){
-		if(!enable||accumRate==0)
+		if(!enable|| accumulatorRate ==0)
 			return 0;
 		return 1789773 / (14.0 * (timer + 1));
 	}
@@ -92,9 +80,10 @@ public class VRC6Saw extends Channel {
 	public String getName(){
 		return "VRC6 Saw";
 	}
-	@Override
-	public double getOutput(){
-		return 0.00776;
-		
+
+	public double getChannelMixingRatio() {return .00776;}
+	public int getUserMixLevel(){ return NesSettings.vrc6MixLevel; }
+	public int getUserPanning(){
+		return NesSettings.vrc6Panning;
 	}
 }

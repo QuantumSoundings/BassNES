@@ -2,6 +2,7 @@ package core.audio;
 
 import java.util.ArrayList;
 
+import core.APU;
 import core.NesSettings;
 import core.mappers.Mapper;
 
@@ -47,65 +48,69 @@ public class AudioMixer implements java.io.Serializable {
 		dmc = d;
 		expansionAudio=exp;
 		audioLevels=new double[5];
-		updateSampleRate();
+		updateAudioSettings();
 	}
 	public int requestNewOutputLocation(){
 		audioLevels = new double[audioLevels.length+1];
 		return audioLevels.length-1;
 	}
-	public void updateSampleRate(){
+	public void updateAudioSettings(){
 		cyclespersample = 1789773.0/NesSettings.sampleRate;
 		intcyclespersample = (int)cyclespersample;
 		resampler = new Decimator(map,NesSettings.sampleRate);
 		audioBuffer = new int[(int)((NesSettings.sampleRate/1000.0)*NesSettings.audioBufferSize)*2];
 		bufferPointer=0;
 	}
+	public final void mixHighQualitySample(){
+		double pulse_out = (95.88/(8128.0/(pulse1.getOutput()+pulse2.getOutput())+100));//0.00752 * (p1+p2);
+		double tnd_out = (163.67/(24329.0/(3*triangle.getOutput()+2*noise.getOutput()+dmc.getOutput())+100));//0.00851*t + 0.00494*n + 0.00335*d;
+		double sample = pulse_out + tnd_out;
+		double expansion = 0;
+		for(Channel chan: expansionAudio) {
+			expansion +=audioLevels[chan.outputLocation]*(chan.getUserMixLevel()/100.0)*chan.getChannelMixingRatio();
+			audioLevels[chan.outputLocation] = 0;
+		}
+		sample+=expansion;
+		resampler.addInputSample((sample * 30000) * (NesSettings.masterMixLevel / 100.0));
+	}
+	public final void mixSample(){
+		//Normalize Audio Levels
+		for(int i = 0; i<audioLevels.length;i++)
+			audioLevels[i]/= APU.samplecounter;
 
-	public final void sendOutput(){
-		if(NesSettings.highQualitySampling){
-			double pulse_out = (95.88/(8128.0/(pulse1.getOutput()+pulse2.getOutput())+100));//0.00752 * (p1+p2);
-			double tnd_out = (163.67/(24329.0/(3*triangle.getOutput()+2*noise.getOutput()+dmc.getOutput())+100));//0.00851*t + 0.00494*n + 0.00335*d;
-			double sample = pulse_out + tnd_out;
-			double expansion = 0;
-			for(Channel chan: expansionAudio)
-				expansion+= getAverageExpansion(chan,chan.getUserMixLevel());
-			sample+=expansion;
-			resampler.addInputSample((sample * 30000) * (NesSettings.masterMixLevel / 100.0));
+		//Get base audio levels for APU channels
+		double p1 = audioLevels[0] * 2*(NesSettings.pulse1MixLevel/100.0);
+		double p2 = audioLevels[1] * 2*(NesSettings.pulse2MixLevel/100.0);
+		double t  = audioLevels[2] * (NesSettings.triangleMixLevel/100.0);
+		double n  = audioLevels[3] * (NesSettings.noiseMixLevel/100.0);
+		double d  = audioLevels[4] * (NesSettings.dmcMixLevel/100.0);
+
+		//Get left and right expansion audio levels
+		double expansionLeft=0;
+		double expansionRight=0;
+		for(Channel chan: expansionAudio){
+			expansionLeft +=audioLevels[chan.outputLocation]*(chan.getUserMixLevel()/100.0)*chan.getChannelMixingRatio()*(chan.getUserPanning()>0?(100-chan.getUserPanning())/100.0:1);
+			expansionRight+=audioLevels[chan.outputLocation]*(chan.getUserMixLevel()/100.0)*chan.getChannelMixingRatio() * (chan.getUserPanning() < 0 ? (chan.getUserPanning() + 100) / 100.0 : 1);
 		}
-		else {
-			for(int i = 0; i<audioLevels.length;i++)
-				audioLevels[i]/=intcyclespersample;
-			double p1 = audioLevels[0] * (NesSettings.pulse1MixLevel/100.0);
-			double p2 = audioLevels[1] * (NesSettings.pulse2MixLevel/100.0);
-			double t  = audioLevels[2] * (NesSettings.triangleMixLevel/100.0);
-			double n  = audioLevels[3] * (NesSettings.noiseMixLevel/100.0);
-			double d  = audioLevels[4] * (NesSettings.dmcMixLevel/100.0);
-			//Get Left Channel
-			double pulse_out = (95.88 / (8128.0 / (p1*(NesSettings.pulse1Panning>0?(100-NesSettings.pulse1Panning)/100.0:1) + p2*(NesSettings.pulse2Panning>0?(100-NesSettings.pulse2Panning)/100.0:1)) + 100));//0.00752 * (p1+p2);
-			double tnd_out = (163.67 / (24329.0 / (3 * t*(NesSettings.trianglePanning>0?(100-NesSettings.trianglePanning)/100.0:1) + 2 * n*(NesSettings.noisePanning>0?(100-NesSettings.noisePanning)/100.0:1) + d*(NesSettings.dmcPanning>0?(100-NesSettings.dmcPanning)/100.0:1)) + 100));//0.00851*t + 0.00494*n + 0.00335*d;
-			double sample = pulse_out + tnd_out ;
-			double expansion = 0;
-			for (Channel chan : expansionAudio)
-				expansion += audioLevels[chan.outputLocation]*(chan.getUserMixLevel()/100.0)*chan.getOutput()*(chan.getUserPanning()>0?(100-chan.getUserPanning())/100.0:1);
-			sample += expansion;
-			sample = ((sample * 30000) * (NesSettings.masterMixLevel / 100.0));
-			addSample((int)sample);
-			//System.out.println("Left channel audio: "+sample);
-			//Get Right Channel
-			pulse_out = (95.88 / (8128.0 / (p1*(NesSettings.pulse1Panning<0?(NesSettings.pulse1Panning+100)/100.0:1) + p2*(NesSettings.pulse2Panning<0?(NesSettings.pulse2Panning+100)/100.0:1)) + 100));//0.00752 * (p1+p2);
-			tnd_out = (163.67 / (24329.0 / (3 * t*(NesSettings.trianglePanning<0?(NesSettings.trianglePanning+100)/100.0:1) + 2 * n*(NesSettings.noisePanning<0?(NesSettings.noisePanning+100)/100.0:1) + d*(NesSettings.dmcPanning<0?(NesSettings.dmcPanning+100)/100.0:1)) + 100));//0.00851*t + 0.00494*n + 0.00335*d;
-			sample = pulse_out + tnd_out;
-			expansion = 0;
-			for (Channel chan : expansionAudio) {
-				expansion += audioLevels[chan.outputLocation]*(chan.getUserMixLevel()/100.0)*chan.getOutput() * (chan.getUserPanning() < 0 ? (chan.getUserPanning() + 100) / 100.0 : 1);
-			}
-			sample += expansion;
-			sample = ((sample * 30000) * (NesSettings.masterMixLevel / 100.0));
-			//System.out.println("Right channel audio: "+sample);
-			addSample((int)sample);
-			for(int i =0;i<audioLevels.length;i++)
-				audioLevels[i] = 0;
-		}
+
+		//Get Left Channel
+		double pulse_out = (95.88 / (8128.0 / (p1*(NesSettings.pulse1Panning>0?(100-NesSettings.pulse1Panning)/100.0:1) + p2*(NesSettings.pulse2Panning>0?(100-NesSettings.pulse2Panning)/100.0:1)) + 100));//0.00752 * (p1+p2);
+		double tnd_out = (163.67 / (24329.0 / (3 * t*(NesSettings.trianglePanning>0?(100-NesSettings.trianglePanning)/100.0:1) + 2 * n*(NesSettings.noisePanning>0?(100-NesSettings.noisePanning)/100.0:1) + d*(NesSettings.dmcPanning>0?(100-NesSettings.dmcPanning)/100.0:1)) + 100));//0.00851*t + 0.00494*n + 0.00335*d;
+		double sample = pulse_out + tnd_out +expansionLeft ;
+		sample = ((sample * 30000) * (NesSettings.masterMixLevel / 100.0));
+		addSample((int)sample);
+
+		//Get Right Channel
+		pulse_out = (95.88 / (8128.0 / (p1*(NesSettings.pulse1Panning<0?(NesSettings.pulse1Panning+100)/100.0:1) + p2*(NesSettings.pulse2Panning<0?(NesSettings.pulse2Panning+100)/100.0:1)) + 100));//0.00752 * (p1+p2);
+		tnd_out = (163.67 / (24329.0 / (3 * t*(NesSettings.trianglePanning<0?(NesSettings.trianglePanning+100)/100.0:1) + 2 * n*(NesSettings.noisePanning<0?(NesSettings.noisePanning+100)/100.0:1) + d*(NesSettings.dmcPanning<0?(NesSettings.dmcPanning+100)/100.0:1)) + 100));//0.00851*t + 0.00494*n + 0.00335*d;
+		sample = pulse_out + tnd_out + expansionRight;
+		sample = ((sample * 30000) * (NesSettings.masterMixLevel / 100.0));
+		addSample((int)sample);
+
+		//Clear audio levels
+		for(int i =0;i<audioLevels.length;i++)
+			audioLevels[i] = 0;
+
 	}
 	public final void addSample(int sample){
 		audioBuffer[bufferPointer]=lowpass_filter(highpass_filter(sample));
@@ -119,27 +124,16 @@ public class AudioMixer implements java.io.Serializable {
 	}
 	int dckiller=0;
 	int lpaccum=0;
-	private int highpass_filter(int sample) {
+	private int highpass_filter(int sample){
 		//for killing the dc in the signal
 		sample += dckiller;
 		dckiller -= sample >> 8;//the actual high pass part
 		dckiller += (sample > 0 ? -1 : 1);//guarantees the signal decays to exactly zero
 		return sample;
 	}
-
 	private int lowpass_filter(int sample) {
 		sample += lpaccum;
 		lpaccum -= sample * 0.9;
 		return lpaccum;
-	}
-	private double getAverageSample(Channel chan,int UserMix){
-		double d =((audioLevels[chan.outputLocation]/intcyclespersample)*(UserMix/100.0));
-		return d;
-	}
-	final double getAverageExpansion(Channel chan,int UserMix){
-		double d =audioLevels[chan.outputLocation]*(UserMix/100.0)*chan.getOutput();
-		audioLevels[chan.outputLocation] = 0;
-		//System.out.println(d);
-		return d;
 	}
 }

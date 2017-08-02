@@ -17,10 +17,10 @@ public class Noise extends Channel{
 		switch(index%4){
 		case 0: 
 			if(clock ==14195)
-				delayedchange=(b&16)!=0?2:1;
+				delayedChange =(b&16)!=0?2:1;
 			else
 				loop = (b & 32) != 0;
-			constantvolume = (b & 16) != 0;
+			constantVolume = (b & 16) != 0;
 			volume = b&0xf;
 			break;
 		case 1: 
@@ -35,27 +35,27 @@ public class Noise extends Channel{
 		case 3: 
 			if(enable)
 					if(clock==14915){
-						if(lengthcount==0){
-							lengthcount = (b&0xff)>>>3;
-							lengthcount = lengthlookup[lengthcount];
+						if(lengthCount ==0){
+							lengthCount = (b&0xff)>>>3;
+							lengthCount = lengthLookupTable[lengthCount];
 							block=true;
 						}
 					}
 					else{
-						lengthcount = (b&0xff)>>>3;
-						lengthcount = lengthlookup[lengthcount];
+						lengthCount = (b&0xff)>>>3;
+						lengthCount = lengthLookupTable[lengthCount];
 					}
 			decay = volume;
-			estart = true;
+			eStart = true;
 			break;
 		default: break;
 		}		
 	}
 	@Override
 	public final void clockTimer(){
-		if(tcount==0){
+		if(tCount ==0){
 			int feedback;
-			tcount =timer;
+			tCount =timer;
 			if(mode)
 				feedback = ((shiftreg>>6)&1)^(shiftreg&1);
 			else
@@ -64,30 +64,27 @@ public class Noise extends Channel{
 			shiftreg|= (feedback<<14);
 		}
 		else
-			tcount--;
-		if(lengthcount==0||(shiftreg&1)==1)
+			tCount--;
+		if(lengthCount ==0||(shiftreg&1)==1)
 			return;
-		//if(constantvolume)
+		//if(constantVolume)
 		//	AudioMixer.audioLevels[outputLocation]+=volume;
 		//else
 			AudioMixer.audioLevels[outputLocation]+= decay;
 		return;
 	}
-	@Override
+	//@Override
 	public double getOutput(){
-		if(lengthcount==0||(shiftreg&1)==1)
+		if(lengthCount ==0||(shiftreg&1)==1)
 			return 0;
-		if(constantvolume)
+		if(constantVolume)
 			return volume*(NesSettings.noiseMixLevel/100.0);
 		else
 			return decay*(NesSettings.noiseMixLevel/100.0);
 	}
-	
-	@Override
-	public void buildOutput(){
-		if(lengthcount==0||(shiftreg&1)==0)
-			return;
-		total += decay;
-	}
+
+	public int getUserPanning(){ return NesSettings.noisePanning;}
+	public int getUserMixLevel(){return NesSettings.noiseMixLevel;}
+	public double getChannelMixingRatio() {return .00494;}
 
 }

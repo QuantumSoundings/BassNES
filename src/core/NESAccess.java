@@ -25,7 +25,6 @@ public interface NESAccess {
 	 * @param rom - File for the machine to execute.
 	 * @throws IOException
 	 * @throws UnSupportedMapperException - Triggered if a given rom is unsupported.
-	 * @throws UnSupportedFileException - Triggered if a given file is not supported.
 	 */
 	public void loadRom(File rom) throws IOException, UnSupportedMapperException;
 	

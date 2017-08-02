@@ -76,15 +76,15 @@ public class VRC6 extends Mapper {
 				PRG_ROM[0] = PRGbanks[bank&(PRGbanks.length-1)];
 				PRG_ROM[1] = PRGbanks[(bank&(PRGbanks.length-1))+1];
 				break;
-			case 0x9000:pulse1.registerWrite(0, b, 0);break;
-			case 0x9001:pulse1.registerWrite(1, b, 0);break;
-			case 0x9002:pulse1.registerWrite(2, b, 0);break;
-			case 0xa000:pulse2.registerWrite(0, b, 0);break;
-			case 0xa001:pulse2.registerWrite(1, b, 0);break;
-			case 0xa002:pulse2.registerWrite(2, b, 0);break;
-			case 0xb000:saw.registerWrite(0, b, 0);break;
-			case 0xb001:saw.registerWrite(1, b, 0);break;
-			case 0xb002:saw.registerWrite(2, b, 0);break;
+			case 0x9000:pulse1.registerWrite(0, b);break;
+			case 0x9001:pulse1.registerWrite(1, b);break;
+			case 0x9002:pulse1.registerWrite(2, b);break;
+			case 0xa000:pulse2.registerWrite(0, b);break;
+			case 0xa001:pulse2.registerWrite(1, b);break;
+			case 0xa002:pulse2.registerWrite(2, b);break;
+			case 0xb000:saw.registerWrite(0, b);break;
+			case 0xb001:saw.registerWrite(1, b);break;
+			case 0xb002:saw.registerWrite(2, b);break;
 			case 0xb003:
 				ppubankmode = b&3;
 				setCHR();

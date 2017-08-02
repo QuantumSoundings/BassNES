@@ -27,8 +27,8 @@ public interface NESCallback {
 	public void audioSampleCallback(int audiosample);
 	/**
 	 * Called once per invocation of runFrame().
-	 * @param audioInts- An int[] of all audio samples generated during the execution
-	 * of one invocation of runFrame().
+	 * @param audioInts- An int[] with a size determined by the audioBufferSize and sampleRate settings.
+	 * The array alternates left and right channels. Ex. [L,R,L,R...]
 	 */
 	public void audioFrameCallback(int[] audioInts);
 	/**

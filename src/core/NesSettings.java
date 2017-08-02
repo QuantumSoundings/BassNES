@@ -114,7 +114,7 @@ public class NesSettings {
 	public static int mmc5Panning=0;
 	public static int sunsoft5BPanning=0;
 
-	public static boolean highQualitySampling = true;
+	public static boolean highQualitySampling = false;
 	/**
 	 * Cut off time for a track in the NSF Player. Integer value in frames. 60 * (# of seconds)
 	 */
