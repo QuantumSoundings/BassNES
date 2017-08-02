@@ -17,7 +17,8 @@ public class UISettings {
 	public static boolean lockVideoToAudio=false;
 	public static boolean AudioEnabled=true;
 	public static String lastLoadedDir = System.getProperty("user.dir");
-	
+
+
 	
 	//Video Filter Settings
 	public static enum VideoFilter{None,NTSC};

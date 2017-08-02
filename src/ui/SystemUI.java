@@ -232,6 +232,7 @@ public class SystemUI implements NESCallback {
 	public void unmixedAudioSampleCallback(int[] audiosample){
 		
 	}
+
 	public void resetaudio(){
 		while(audio.inaudio);
 		audio.lock=true;

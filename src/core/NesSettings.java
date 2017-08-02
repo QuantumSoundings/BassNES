@@ -167,6 +167,19 @@ public class NesSettings {
 		vrc6MixLevel = Integer.parseInt(prop.getProperty("vrc6mixlevel", "100"));
 		namcoMixLevel = Integer.parseInt(prop.getProperty("namcomixlevel", "100"));
 		mmc5MixLevel = Integer.parseInt(prop.getProperty("mmc5mixlevel", "100"));
+		sunsoft5BMixLevel = Integer.parseInt(prop.getProperty("sunsoft5bmixlevel", "100"));
+
+		pulse1Panning = Integer.parseInt(prop.getProperty("pulse1panning", "0"));
+		pulse2Panning = Integer.parseInt(prop.getProperty("pulse2panning", "0"));
+		trianglePanning = Integer.parseInt(prop.getProperty("trianglepanning", "0"));
+		noisePanning = Integer.parseInt(prop.getProperty("noisepanning", "0"));
+		dmcPanning = Integer.parseInt(prop.getProperty("dmcpanning", "0"));
+		vrc6Panning = Integer.parseInt(prop.getProperty("vrc6panning", "1"));
+		mmc5Panning = Integer.parseInt(prop.getProperty("mmc5panning", "0"));
+		namcoPanning = Integer.parseInt(prop.getProperty("namcopanning", "0"));
+		sunsoft5BPanning = Integer.parseInt(prop.getProperty("sunsoft5bpanning", "0"));
+
+
 		sampleRate = Integer.parseInt(prop.getProperty("samplerate", "44100"));
 		highQualitySampling = prop.getProperty("highqualitysampling", "true").equals("true");
 		nsfPlayerSongLength = Integer.parseInt(prop.getProperty("nsfplayersonglength", "7200"));
@@ -181,6 +194,18 @@ public class NesSettings {
 		prop.setProperty("vrc6mixlevel", vrc6MixLevel+"");
 		prop.setProperty("namcomixlevel", namcoMixLevel+"");
 		prop.setProperty("mmc5mixlevel", mmc5MixLevel+"");
+		prop.setProperty("sunsoft5bmixlevel", sunsoft5BMixLevel+"");
+
+		prop.setProperty("pulse1panning", pulse1Panning+"");
+		prop.setProperty("pulse2panning", pulse2Panning+"");
+		prop.setProperty("trianglepanning", trianglePanning+"");
+		prop.setProperty("noisepanning", noisePanning+"");
+		prop.setProperty("dmcpanning", dmcPanning+"");
+		prop.setProperty("vrc6panning", vrc6Panning+"");
+		prop.setProperty("mmc5panning", mmc5Panning+"");
+		prop.setProperty("namcopanning", namcoPanning+"");
+		prop.setProperty("sunsoft5bpanning", sunsoft5BPanning+"");
+
 		prop.setProperty("samplerate", sampleRate+"");
 		prop.setProperty("highqualitysampling",highQualitySampling+"");
 		prop.setProperty("nsfplayersonglength", nsfPlayerSongLength+"");

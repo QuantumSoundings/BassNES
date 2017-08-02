@@ -81,7 +81,7 @@ public class VRC6Saw extends Channel {
 		return "VRC6 Saw";
 	}
 
-	public double getChannelMixingRatio() {return .00776;}
+	public double getChannelMixingRatio() {return .01200;}
 	public int getUserMixLevel(){ return NesSettings.vrc6MixLevel; }
 	public int getUserPanning(){
 		return NesSettings.vrc6Panning;

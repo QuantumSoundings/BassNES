@@ -87,7 +87,7 @@ public class VRC6Pulse extends Channel {
 		return "VRC6 Pulse";
 	}
 
-	public double getChannelMixingRatio() {return .00776;}
+	public double getChannelMixingRatio() {return .01200;}
 	public int getUserPanning(){
 		return NesSettings.vrc6Panning;
 	}

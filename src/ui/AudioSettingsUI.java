@@ -121,6 +121,8 @@ public class AudioSettingsUI extends JFrame {
 		lblMs.setBounds(132, 94, 46, 14);
 		panel_1.add(lblMs);
 		
+
+		
 		highQualitySamplingBox.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0){
 				NesSettings.highQualitySampling=highQualitySamplingBox.isSelected();
@@ -259,7 +261,7 @@ public class AudioSettingsUI extends JFrame {
 				NesSettings.vrc6MixLevel=source.getValue();
 			}
 		});
-		slider_6.setValue(100);
+		slider_6.setValue(NesSettings.vrc6MixLevel);
 		slider_6.setPaintTicks(true);
 		slider_6.setPaintLabels(true);
 		slider_6.setOrientation(SwingConstants.VERTICAL);
@@ -277,7 +279,7 @@ public class AudioSettingsUI extends JFrame {
 				NesSettings.namcoMixLevel=source.getValue();
 			}
 		});
-		slider_7.setValue(100);
+		slider_7.setValue(NesSettings.namcoMixLevel);
 		slider_7.setPaintTicks(true);
 		slider_7.setPaintLabels(true);
 		slider_7.setOrientation(SwingConstants.VERTICAL);
@@ -297,7 +299,7 @@ public class AudioSettingsUI extends JFrame {
 				NesSettings.mmc5MixLevel=source.getValue();
 			}
 		});
-		slider_8.setValue(100);
+		slider_8.setValue(NesSettings.mmc5MixLevel);
 		slider_8.setPaintTicks(true);
 		slider_8.setPaintLabels(true);
 		slider_8.setOrientation(SwingConstants.VERTICAL);
@@ -317,7 +319,7 @@ public class AudioSettingsUI extends JFrame {
 				NesSettings.sunsoft5BMixLevel=source.getValue();
 			}
 		});
-		slider_9.setValue(100);
+		slider_9.setValue(NesSettings.sunsoft5BMixLevel);
 		slider_9.setPaintTicks(true);
 		slider_9.setPaintLabels(true);
 		slider_9.setOrientation(SwingConstants.VERTICAL);
@@ -334,72 +336,82 @@ public class AudioSettingsUI extends JFrame {
 		panel_4.setLayout(null);
 		
 		JSlider slider_10 = new JSlider();
+		slider_10.setMinimum(-100);
 		slider_10.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				JSlider source = (JSlider) arg0.getSource();
 				NesSettings.pulse1Panning=source.getValue();
 			}
 		});
-		slider_10.setValue(0);
+
+		slider_10.setValue(NesSettings.pulse1Panning);
 		slider_10.setMajorTickSpacing(20);
 		slider_10.setPaintTicks(true);
-		slider_10.setMinimum(-100);
+
 		slider_10.setBounds(10, 27, 146, 26);
 		panel_4.add(slider_10);
 		
 		JSlider slider_11 = new JSlider();
+		slider_11.setMinimum(-100);
 		slider_11.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
 				NesSettings.pulse2Panning=source.getValue();
 			}
 		});
-		slider_11.setValue(0);
+
+		slider_11.setValue(NesSettings.pulse2Panning);
 		slider_11.setPaintTicks(true);
-		slider_11.setMinimum(-100);
+
 		slider_11.setMajorTickSpacing(20);
 		slider_11.setBounds(10, 70, 146, 26);
 		panel_4.add(slider_11);
 		
 		JSlider slider_12 = new JSlider();
+		slider_12.setMinimum(-100);
 		slider_12.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
 				NesSettings.trianglePanning=source.getValue();
 			}
 		});
-		slider_12.setValue(0);
+
+		slider_12.setValue(NesSettings.trianglePanning);
 		slider_12.setPaintTicks(true);
-		slider_12.setMinimum(-100);
+
 		slider_12.setMajorTickSpacing(20);
 		slider_12.setBounds(10, 110, 146, 26);
 		panel_4.add(slider_12);
 		
 		JSlider slider_13 = new JSlider();
+		slider_13.setMinimum(-100);
 		slider_13.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
 				NesSettings.noisePanning=source.getValue();
 			}
 		});
-		slider_13.setValue(0);
+
+		slider_13.setValue(NesSettings.noisePanning);
 		slider_13.setPaintTicks(true);
-		slider_13.setMinimum(-100);
+
 		slider_13.setMajorTickSpacing(20);
 		slider_13.setBounds(10, 150, 146, 26);
 		panel_4.add(slider_13);
 		
 		JSlider slider_14 = new JSlider();
 		slider_14.setSnapToTicks(true);
+		slider_14.setMinimum(-100);
 		slider_14.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
 				NesSettings.dmcPanning=source.getValue();
 			}
 		});
-		slider_14.setValue(0);
+
+		slider_14.setValue(NesSettings.dmcPanning);
 		slider_14.setPaintTicks(true);
-		slider_14.setMinimum(-100);
+
 		slider_14.setMajorTickSpacing(20);
 		slider_14.setBounds(10, 190, 146, 26);
 		panel_4.add(slider_14);
@@ -430,29 +442,33 @@ public class AudioSettingsUI extends JFrame {
 		panel_4.add(lblDmc_1);
 		
 		JSlider slider_15 = new JSlider();
+		slider_15.setMinimum(-100);
 		slider_15.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
 				NesSettings.vrc6Panning=source.getValue();
 			}
 		});
-		slider_15.setValue(0);
+
+		slider_15.setValue(NesSettings.vrc6Panning);
 		slider_15.setPaintTicks(true);
-		slider_15.setMinimum(-100);
+
 		slider_15.setMajorTickSpacing(20);
 		slider_15.setBounds(243, 27, 146, 26);
 		panel_4.add(slider_15);
 		
 		JSlider slider_16 = new JSlider();
+		slider_16.setMinimum(-100);
 		slider_16.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				JSlider source = (JSlider) arg0.getSource();
 				NesSettings.namcoPanning=source.getValue();
 			}
 		});
-		slider_16.setValue(0);
+
+		slider_16.setValue(NesSettings.namcoPanning);
 		slider_16.setPaintTicks(true);
-		slider_16.setMinimum(-100);
+
 		slider_16.setMajorTickSpacing(20);
 		slider_16.setBounds(243, 70, 146, 26);
 		panel_4.add(slider_16);
@@ -468,29 +484,33 @@ public class AudioSettingsUI extends JFrame {
 		panel_4.add(lblNewLabel_3);
 		
 		JSlider slider_17 = new JSlider();
+		slider_17.setMinimum(-100);
 		slider_17.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
 				NesSettings.mmc5Panning=source.getValue();
 			}
 		});
-		slider_17.setValue(0);
+
+		slider_17.setValue(NesSettings.mmc5Panning);
 		slider_17.setPaintTicks(true);
-		slider_17.setMinimum(-100);
+
 		slider_17.setMajorTickSpacing(20);
 		slider_17.setBounds(243, 110, 146, 26);
 		panel_4.add(slider_17);
 		
 		JSlider slider_18 = new JSlider();
+		slider_18.setMinimum(-100);
 		slider_18.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
 				NesSettings.sunsoft5BPanning=source.getValue();
 			}
 		});
-		slider_18.setValue(0);
+
+		slider_18.setValue(NesSettings.sunsoft5BPanning);
 		slider_18.setPaintTicks(true);
-		slider_18.setMinimum(-100);
+
 		slider_18.setMajorTickSpacing(20);
 		slider_18.setBounds(243, 150, 146, 26);
 		panel_4.add(slider_18);

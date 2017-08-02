@@ -24,6 +24,7 @@ public class AudioInterface implements java.io.Serializable {
 	}
 	public void restartSDL(){
 		AudioFormat form = new AudioFormat(NesSettings.sampleRate,16,2,true,false);
+
 		bufptr=0;
 		audioints = new int[(int)((NesSettings.sampleRate/1000.0)*NesSettings.audioBufferSize)*2];
 		if(scope!=null)
