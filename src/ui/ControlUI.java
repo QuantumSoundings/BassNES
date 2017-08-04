@@ -10,6 +10,7 @@ import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 import net.java.games.input.Event;
 import net.java.games.input.EventQueue;
+import ui.ui.input.InputManager;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -55,7 +56,7 @@ public class ControlUI extends JFrame {
 		lblAButton.setBounds(360, 91, 59, 14);
 		panel.add(lblAButton);
 		
-		JButton abutton1 = new JButton("<"+InputManager.c1controls[0].idname+">");
+		JButton abutton1 = new JButton("<"+ InputManager.c1controls[0].idname+">");
 		abutton1.setBounds(336, 111, 83, 23);
 		panel.add(abutton1);
 		

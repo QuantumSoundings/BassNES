@@ -29,11 +29,11 @@ public class ppu2C02 implements java.io.Serializable{
 	byte[] oambuffer = new byte[32];//secondary oam for current line sprites
 	int oamBCounter = 0;
 	//sprite stuff
-	int[] spritebm = new int[8];//bitmaps
-	int[] spriteco = new int[8];//xpos counter
-	boolean[] spritepriority = new boolean[8];
-	boolean[] spritehorizontal=new boolean[8];
-	int[] spritepalette = new int[8];
+	int[] spritebm = new int[64];//bitmaps
+	int[] spriteco = new int[64];//xpos counter
+	boolean[] spritepriority = new boolean[64];
+	boolean[] spritehorizontal=new boolean[64];
+	int[] spritepalette = new int[64];
 	
 	public int scanline;
 	public int pcycle;
@@ -501,6 +501,7 @@ public class ppu2C02 implements java.io.Serializable{
 	boolean oldspritezero;
 	boolean spritezero;
 	int numsprites;
+	int extraSpriteStart;
 	void stage2(){
 		if(n==63){
 			n=0;
@@ -514,6 +515,8 @@ public class ppu2C02 implements java.io.Serializable{
 		else if(oamBCounter==8){
 			m = 0;
 			stage = 6;
+			if(NesSettings.disableSpriteLimit)
+				extraSpriteStart=n;
 		}
 		return;
 	}
@@ -665,7 +668,54 @@ public class ppu2C02 implements java.io.Serializable{
 				numsprites++;
 			spritec++;
 			oamBCounter++;
+			if(numsprites==8&&NesSettings.disableSpriteLimit)
+				loadExtraSprites();
 			return;
 		//}
+	}
+	void loadExtraSprites(){
+		for(int i = extraSpriteStart;i<63;i++){
+			int y = Byte.toUnsignedInt(map.ppu_oam[i*4]);//ppureadoam(4*n));
+			if(PPUCTRL_ss?inrange(y)<16:inrange(y)<8){
+				spriteco[spritec] = map.ppu_oam[i*4+3];
+				byte attributes = map.ppu_oam[4*i+2];
+				spritepalette[spritec] = attributes&3;
+				spritepriority[spritec] = (attributes & 32) <= 0;
+				y = inrange(y);
+				int tileindex;
+				if(PPUCTRL_ss){//get index number for different sprite sizes
+					int temp = Byte.toUnsignedInt(map.ppu_oam[i*4+1]);
+					tileindex = (temp&1)*0x1000+(temp&0xfe)*16;
+					if(y>=8)//correct it for 8x16 sprites
+						tileindex+=0x10;
+				}
+				else{
+					tileindex=Byte.toUnsignedInt(map.ppu_oam[i*4+1])<<4;
+					tileindex+= PPUCTRL_spta?0x1000:0;
+				}
+				if((attributes&0x80)!=0){//handle vertically flipped sprites
+					if(PPUCTRL_ss){//case for large sprites
+						if(y<8)
+							tileindex+=0x10;
+						else
+							tileindex-=0x10;
+						y=y%8;
+					}
+					tileindex+=((7)-y);
+				}
+				else{
+					y%=8;
+					tileindex+=y;
+				}
+				spritefetch= true;
+				if((attributes&0x40)!=0)
+					spritebm[spritec] = (BitReverseTable256[Byte.toUnsignedInt(map.ppureadPT(tileindex))]<<8)|(BitReverseTable256[Byte.toUnsignedInt(map.ppureadPT(tileindex+8))]);
+				else
+					spritebm[spritec] = (Byte.toUnsignedInt((map.ppureadPT(tileindex)))<<8)|Byte.toUnsignedInt((map.ppureadPT(tileindex+8)));
+				if(scanline>=0&&Byte.toUnsignedInt(map.ppu_oam[4*i])!=0xff)
+					numsprites++;
+				spritec++;
+			}
+		}
 	}
 }

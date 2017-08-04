@@ -20,6 +20,8 @@ import core.exceptions.UnSupportedMapperException;
 import net.java.games.input.Keyboard;
 import ui.debugger.BreakPoint;
 import ui.debugger.Debugger;
+import ui.ui.input.InputManager;
+
 interface UpdateEventListener extends EventListener{
 	public void doVideoFrame();
 	public void doAudioFrame();

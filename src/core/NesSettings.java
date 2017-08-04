@@ -36,6 +36,10 @@ public class NesSettings {
 	 */
 	public static boolean RenderSprites=true;
 	/**
+	 * Allows for more than 8 sprites at a time.
+	 */
+	public static boolean disableSpriteLimit=false;
+	/**
 	 * Internal rendering method. This variable determines the type of information present in the 
 	 * video callback. 
 	 * 1: No color emphasis. RGB.
@@ -179,7 +183,7 @@ public class NesSettings {
 		namcoPanning = Integer.parseInt(prop.getProperty("namcopanning", "0"));
 		sunsoft5BPanning = Integer.parseInt(prop.getProperty("sunsoft5bpanning", "0"));
 
-
+		audioBufferSize = Integer.parseInt(prop.getProperty("audiobuffersize", "20"));
 		sampleRate = Integer.parseInt(prop.getProperty("samplerate", "44100"));
 		highQualitySampling = prop.getProperty("highqualitysampling", "true").equals("true");
 		nsfPlayerSongLength = Integer.parseInt(prop.getProperty("nsfplayersonglength", "7200"));
@@ -206,6 +210,7 @@ public class NesSettings {
 		prop.setProperty("namcopanning", namcoPanning+"");
 		prop.setProperty("sunsoft5bpanning", sunsoft5BPanning+"");
 
+		prop.setProperty("audiobuffersize", audioBufferSize+"");
 		prop.setProperty("samplerate", sampleRate+"");
 		prop.setProperty("highqualitysampling",highQualitySampling+"");
 		prop.setProperty("nsfplayersonglength", nsfPlayerSongLength+"");

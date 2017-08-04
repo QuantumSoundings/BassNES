@@ -1,5 +1,7 @@
 package ui;
 
+import ui.ui.input.InputManager;
+
 import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,7 +12,7 @@ import java.util.Properties;
 
 public class UISettings {
 	static Properties prop;
-	public static final String version = "0.4.2";
+	public static final String version = "0.4.3";
 	//UI Settings
 	public static boolean autoLoad = true;
 	public static boolean ShowFPS=true;

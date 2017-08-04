@@ -103,6 +103,15 @@ public class AdvancedGraphics extends JFrame {
 		lblRenderMethod.setBounds(260, 5, 101, 14);
 		panel.add(lblRenderMethod);
 		
+		JCheckBox chckbxEnableExtraSprites = new JCheckBox("Enable Extra Sprites");
+		chckbxEnableExtraSprites.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				NesSettings.disableSpriteLimit=chckbxEnableExtraSprites.isSelected();
+			}
+		});
+		chckbxEnableExtraSprites.setBounds(260, 70, 138, 23);
+		panel.add(chckbxEnableExtraSprites);
+		
 		JPanel panel_1 = new JPanel();
 		tabbedPane.addTab("Palette", null, panel_1, null);
 		panel_1.setLayout(null);

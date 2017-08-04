@@ -1,11 +1,11 @@
 package ui;
-import java.awt.Dimension;
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 import ui.UISettings.VideoFilter;
 import ui.filter.NesNtsc;
+import ui.ui.input.InputManager;
 
 public class NesDisplay extends JPanel {
 	int scaling=1;
@@ -48,6 +48,7 @@ public class NesDisplay extends JPanel {
 		if(UISettings.scanlinesEnabled)
 			pixels = scanline(pixels);
 		frame.setRGB(0, 0, width, height, pixels, 0, width);
+		addUiIcons();
 		this.repaint();
 	}
 	@Override
@@ -65,6 +66,22 @@ public class NesDisplay extends JPanel {
 		default:
 			return pixels;
 		}
+	}
+	private void addUiIcons(){
+		Graphics g = frame.getGraphics();
+		if(InputManager.recording){
+			g.setColor(Color.black);
+			g.fillOval(219,19,12,12);
+			g.setColor(Color.red);
+			g.fillOval(220,20,10,10);
+		}
+		if(InputManager.playingback){
+			g.setColor(Color.black);
+			g.fillOval(219,19,12,12);
+			g.setColor(Color.green);
+			g.fillOval(220,20,10,10);
+		}
+		g.dispose();
 	}
 	public void updateImage(int width,int height){
 		this.width = width;
