@@ -64,7 +64,7 @@ public class DMC extends Channel{
 
 		if(bufferempty && sampleremaining >0)
 			memoryreader();
-		temprate-=2;
+		temprate--;
 		if(temprate <=0){
 			if(!silence){
 				outputlevel+=(shiftreg&1)==1?2:-2;

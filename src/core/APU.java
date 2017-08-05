@@ -299,12 +299,10 @@ public class APU implements java.io.Serializable{
 
 		triangle.clockTimer();
 		noise.clockTimer();
+		dmc.clockTimer();
 		if(evenclock){
-
 			pulse1.clockTimer();
 			pulse2.clockTimer();
-
-			dmc.clockTimer();
 			cyclenum++;
 		}
 		evenclock=!evenclock;

@@ -41,7 +41,7 @@ public class NesDisplay extends JPanel {
 	public void updateScaling(int i){
 		scaling = i;
 	}
-	
+
 	public void sendFrame(int[] pixels) {
 		if(UISettings.currentFilter!=VideoFilter.None)
 			pixels = dofilter(pixels);

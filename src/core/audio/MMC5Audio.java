@@ -20,7 +20,7 @@ public class MMC5Audio extends Channel{
 	private int pcmdata;
 
 	private final double mixRatio = 0.00376;
-	private final double pcmRatio = 0.00216;
+	private final double pcmRatio = 0.00376;
 	private final double pcmAddRatio = pcmRatio/mixRatio;
 	
 	public MMC5Audio(Mapper m){
