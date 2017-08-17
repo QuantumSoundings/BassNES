@@ -390,6 +390,8 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			return new VRC6(24);
 		case 26:
 			return new VRC6(26);
+		case 66:
+			return new Mapper_66();
 		case 69:
 			return new FME_7();
 		case 71:
