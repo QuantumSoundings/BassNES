@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import core.exceptions.UnSupportedMapperException;
 import core.mappers.Mapper;
@@ -51,6 +54,7 @@ public class NES implements Runnable,NESAccess {
 		case "nes": loadiNES(rom);break;
 		case "nsf": loadNSF(rom);break;
 		case "nsfe": loadNSFe(rom);break;
+		//case "zip": loadZip(rom);break;
 		default:
 		}
 		map.setNes(this);
@@ -60,7 +64,7 @@ public class NES implements Runnable,NESAccess {
 	}
 	
 	private void loadiNES(File rom) throws IOException, UnSupportedMapperException{
-		FileInputStream sx = new FileInputStream(rom); 
+		FileInputStream sx = new FileInputStream(rom);
 		byte[] header = new byte[16];
 		sx.read(header);
 		if(header[0]==0x4e&&header[1]==0x45&&header[2]==0x53&&header[3]==0x1a){//verified header
@@ -91,7 +95,7 @@ public class NES implements Runnable,NESAccess {
 	}
 	
 	private void loadNSF(File rom) throws IOException, UnSupportedMapperException{
-		FileInputStream sx = new FileInputStream(rom); 
+		FileInputStream sx = new FileInputStream(rom);
 		byte[] header = new byte[0x80];
 		sx.read(header);
 		if(header[0]==0x4e&&header[1]==0x45
@@ -126,7 +130,7 @@ public class NES implements Runnable,NESAccess {
 		sx.close();
 	}
 	private void loadNSFe(File rom) throws IOException, UnSupportedMapperException{
-		FileInputStream sx = new FileInputStream(rom); 
+		FileInputStream sx = new FileInputStream(rom);
 		byte[] header = new byte[4];
 		sx.read(header);
 		if(header[0]==0x4e&&header[1]==0x53&&header[2]==0x46&&header[3]==0x45){
@@ -240,6 +244,21 @@ public class NES implements Runnable,NESAccess {
 		}
 		sx.close();
 	}
+	private void loadZip(File rom) throws IOException, UnSupportedMapperException{
+		ZipFile romzip = new ZipFile(rom);
+		Enumeration<? extends ZipEntry> entries = romzip.entries();
+		while(entries.hasMoreElements()){
+			ZipEntry entry = entries.nextElement();
+			File r ;
+			String ext = entry.getName().toLowerCase().substring(entry.getName().lastIndexOf(".")+1);
+			switch(ext){
+				case "nes": loadiNES(rom);break;
+				case "nsf": loadNSF(rom);break;
+				case "nsfe": loadNSFe(rom);break;
+				default:
+			}
+		}
+	}
 	public final void run(){
 		System.out.println("NES STARTED RUNNING");
 		while(flag){
@@ -292,6 +311,8 @@ public class NES implements Runnable,NESAccess {
 					flextimer+=50000;
 				else
 					flextimer-=50000;
+			if(flextimer>16600000)
+				flextimer =16600000;
 			fpsStartTime=System.currentTimeMillis();
 		}
 		framecount++;
