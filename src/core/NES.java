@@ -266,22 +266,29 @@ public class NES implements Runnable,NESAccess {
 	public final void exit(){
 		flag = false;
 	}
+	private int flextimer=16100000;
 	private void autoRunFrame(){
 		frameStartTime = System.nanoTime();
 		map.runFrame();
 		frameStopTime = System.nanoTime() - frameStartTime;
-		if(frameStopTime<16000000&&NesSettings.frameLimit)
+		if(frameStopTime<flextimer&&NesSettings.frameLimit)
 			try {
-				while(System.nanoTime()-frameStartTime<16000000){
-					if(NesSettings.politeFrameTiming)
-						Thread.sleep(0,100000);
-				}
+				int waittime = (int) (flextimer-frameStopTime);
+				Thread.sleep(waittime/1000000,waittime%1000000 );
+				//while(System.nanoTime()-frameStartTime<16500000){
+				//	if(NesSettings.politeFrameTiming)
+				//		Thread.sleep(0,10000);
+				//}
 			} catch ( InterruptedException e){
 				e.printStackTrace();
 			}
 		if(framecount%60==0){
 			double x = 1000.0/(System.currentTimeMillis()-fpsStartTime);
 			currentFPS = x*60;
+			if(currentFPS>60.1)
+				flextimer+=50000;
+			else
+				flextimer-=50000;
 			fpsStartTime=System.currentTimeMillis();
 		}
 		framecount++;
