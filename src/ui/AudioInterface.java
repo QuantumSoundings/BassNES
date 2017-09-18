@@ -1,9 +1,22 @@
 package ui;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.TargetDataLine;
 
 import core.NesSettings;
 
@@ -84,6 +97,15 @@ public class AudioInterface implements java.io.Serializable {
 				}
 				
 		}
+		if(recording){
+			if(recordingpointer >= savedRecording.length){
+				byte[] temp = savedRecording;
+				savedRecording = new byte[savedRecording.length*2];
+				System.arraycopy(temp, 0, savedRecording, 0, temp.length);
+			}
+			System.arraycopy(audiobuffer, 0, savedRecording, recordingpointer, audiobuffer.length);
+			recordingpointer+= audiobuffer.length;
+		}
 		bufptr=0;
 	}
 	int scopefrequency = 1;
@@ -109,5 +131,42 @@ public class AudioInterface implements java.io.Serializable {
 	//public void blip_add_delta
 	public void close(){
 		sdl.close();
+	}
+	boolean recording=false;
+	
+	byte[] savedRecording;
+	int recordingpointer;
+	public void startRecording(){
+		System.out.println("Starting Audio Recording");
+		OSD.addOSDMessage("Starting Audio Recording...", 120);
+		savedRecording = new byte[audiobuffer.length];
+		recordingpointer = 0;
+		recording = true;		
+	}
+	public void stopRecording(){
+		System.out.print("Stopping Audio Recording...");
+		OSD.addOSDMessage("Stopping Audio Recording...", 120);
+		File wave = new File(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE)+".wav");
+		if(wave.exists()){
+			int i = 1;
+			while(wave.exists()){
+				wave = new File(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE)+" ("+(i++)+").wav");
+			}
+		}
+		byte[] temp = savedRecording;
+		savedRecording = new byte[recordingpointer];
+		System.arraycopy(temp, 0, savedRecording, 0, recordingpointer);
+		AudioFileFormat.Type type = AudioFileFormat.Type.WAVE;
+		AudioFormat format = new AudioFormat(NesSettings.sampleRate,16,2,true,false);
+		ByteArrayInputStream in = new ByteArrayInputStream(savedRecording);
+		AudioInputStream stream = new AudioInputStream(in,format,savedRecording.length/4);
+		try {
+			AudioSystem.write(stream, type, wave);
+			System.out.println("Saved!");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		recording = false;
 	}
 }
