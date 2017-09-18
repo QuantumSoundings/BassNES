@@ -425,9 +425,15 @@ public class NSFPlayer extends Mapper{
 		cpu.program_counter=0x3f03;
 		setupData();
 	}
+	int pauseirq= -1;
 	private void nextTrack(){
 		if(currentsong+1!=totalsongs){
 			currentsong+=1;
+		}
+		else
+			currentsong = 0;
+		if(pause){
+			pauseirq = 0;
 		}
 		nextirq=0;
 		tracktimer=0;
@@ -438,6 +444,8 @@ public class NSFPlayer extends Mapper{
 			if(currentsong<0)
 				currentsong=0;
 		}
+		if(pause)
+			pauseirq=0;
 		nextirq=0;
 		tracktimer=0;
 	}
@@ -491,6 +499,10 @@ public class NSFPlayer extends Mapper{
 		boolean[] controls =system.pollController()[0];
 		if(!prevpause&&controls[3]){
 			pause = !pause;
+			if(!pause&&pauseirq!=-1){
+				nextirq = 0;
+				pauseirq = -1;
+			}
 		}
 		prevpause = controls[3];
 		if(controls[7]){

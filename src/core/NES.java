@@ -207,7 +207,11 @@ public class NES implements Runnable,NESAccess {
 					sx.read(data);
 					for(int x = 0;x<songnum;x++){
 						int length = ((data[x*4+3]&0xff)<<24)|((data[x*4+2]&0xff)<<16)|((data[x*4+1]&0xff)<<8)|(data[x*4+0]&0xff);
-						tracktimes[x] = (int)(length/16.6666);
+						if((int)(length/16.6666) ==0){
+							tracktimes[x] = 7200;
+						}
+						else
+							tracktimes[x] = (int)(length/16.6666);
 					}
 					map.setTrackTimes(tracktimes);
 					break;
