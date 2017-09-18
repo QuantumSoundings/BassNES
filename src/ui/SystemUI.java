@@ -242,6 +242,12 @@ public class SystemUI implements NESCallback {
 		audio.restartSDL();
 		audio.lock=false;	
 	}
+	public void toggleRecording(){
+		if(audio.recording)
+			audio.stopRecording();
+		else
+			audio.startRecording();
+	}
 	public Object[][] AudioChannelInfoCallback(){
 		return nes.getAudioChannelInfo();
 	}

@@ -117,6 +117,7 @@ public class UISettings {
 		InputManager.hotkeys[1] = ControllerInfo.restoreInfo(prop.getProperty("quickload"),  "Standard PS/2 Keyboard:0;X;1.0");
 		InputManager.hotkeys[2] = ControllerInfo.restoreInfo(prop.getProperty("inputrecord"),"Standard PS/2 Keyboard:0;C;1.0");
 		InputManager.hotkeys[3] = ControllerInfo.restoreInfo(prop.getProperty("inputplay"),  "Standard PS/2 Keyboard:0;V;1.0");
+		InputManager.hotkeys[4] = ControllerInfo.restoreInfo(prop.getProperty("togglerecording"), "Standard PS/2 Keyboard:0;O;1.0");
 		controlwhilenotfocused = prop.getProperty("controlwhilenotfocused", "true").equals("true");
 				
 	}
@@ -131,6 +132,7 @@ public class UISettings {
 		prop.setProperty("c1select", InputManager.c1controls[2].storeInfo()+"");prop.setProperty("c2select", InputManager.c2controls[2].storeInfo()+"");
 		prop.setProperty("quicksave", InputManager.hotkeys[0].storeInfo()+"");prop.setProperty("quickload", InputManager.hotkeys[1].storeInfo()+"");
 		prop.setProperty("inputrecord", InputManager.hotkeys[2].storeInfo()+"");prop.setProperty("inputplay", InputManager.hotkeys[3].storeInfo()+"");
+		prop.setProperty("togglerecording", InputManager.hotkeys[4].storeInfo()+"");
 		prop.setProperty("controlwhilenotfocused", controlwhilenotfocused+"");
 	}
 	private static void loadUI(){

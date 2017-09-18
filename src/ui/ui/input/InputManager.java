@@ -1,8 +1,10 @@
 package ui.ui.input;
 
 import ui.ControllerInfo;
+import ui.OSD;
 import ui.SystemUI;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -10,9 +12,9 @@ import java.util.Scanner;
 public class InputManager {
 	public static ControllerInfo[] c1controls = new ControllerInfo[8];
 	public static ControllerInfo[] c2controls = new ControllerInfo[8];
-	public static ControllerInfo[] hotkeys = new ControllerInfo[4];
+	public static ControllerInfo[] hotkeys = new ControllerInfo[8];
 	public static boolean[][] currentFrameInputs = new boolean[2][8];
-	public static boolean[] lasthotkey = new boolean[4];
+	public static boolean[] lasthotkey = new boolean[8];
 	public static boolean playingback = false;
 	public static boolean recording = false;
 	private SystemUI sys;
@@ -27,6 +29,10 @@ public class InputManager {
 		if(lasthotkey[1]==false&&hotkeys[1].checkPressed())
 			sys.restoreState(20);
 		lasthotkey[1] = hotkeys[1].checkPressed();
+		
+		if(lasthotkey[4]==false&&hotkeys[4].checkPressed())
+			sys.toggleRecording();
+		lasthotkey[4] = hotkeys[4].checkPressed();
 		
 		if(playingback){
 			if(framenumber>=recorded.size()){
@@ -62,6 +68,10 @@ public class InputManager {
 			recordFrame();
 		
 		if(lasthotkey[2]==false&&hotkeys[2].checkPressed()){
+			if(recording)
+				OSD.addOSDMessage("Stopping input recording...", 120);
+			else
+				OSD.addColoredOSDMessage("Starting input recording...", 120,Color.YELLOW);
 			if(recorded.size()>0&&!recording)
 				recorded = new ArrayList<InputFrame>();
 			recording=!recording;
@@ -74,6 +84,9 @@ public class InputManager {
 		lasthotkey[2] = hotkeys[2].checkPressed();
 		
 		if(lasthotkey[3]==false&&hotkeys[3].checkPressed()){
+			if(!playingback){
+				OSD.addOSDMessage("Starting input playback...", 120);
+			}
 			playingback = !playingback;
 			recording = false;
 		}

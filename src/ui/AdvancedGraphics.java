@@ -18,6 +18,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.JComboBox;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -27,6 +28,7 @@ import java.util.Arrays;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.JRadioButton;
 
 public class AdvancedGraphics extends JFrame {
 
@@ -349,6 +351,57 @@ public class AdvancedGraphics extends JFrame {
 		lblBleed.setHorizontalAlignment(SwingConstants.CENTER);
 		lblBleed.setBounds(309, 71, 74, 14);
 		panel_3.add(lblBleed);
+		
+		JPanel panel_4 = new JPanel();
+		tabbedPane.addTab("On-Screen Display", null, panel_4, null);
+		panel_4.setLayout(null);
+		
+		JLabel lblOsdLocation = new JLabel("OSD Location");
+		lblOsdLocation.setBounds(167, 11, 87, 14);
+		panel_4.add(lblOsdLocation);
+		ButtonGroup OSDPosition = new ButtonGroup();
+		JRadioButton rdbtnTopLeft = new JRadioButton("Top Left");
+		rdbtnTopLeft.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				OSD.selectedposition = OSD.position.Top_left;
+			}
+		});
+		rdbtnTopLeft.setSelected(true);
+		rdbtnTopLeft.setBounds(6, 7, 109, 23);
+		panel_4.add(rdbtnTopLeft);
+		OSDPosition.add(rdbtnTopLeft);
+		
+		JRadioButton rdbtnBottomLeft = new JRadioButton("Bottom Left");
+		rdbtnBottomLeft.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				OSD.selectedposition = OSD.position.Bottom_left;
+			}
+		});
+		rdbtnBottomLeft.setBounds(6, 193, 109, 23);
+		panel_4.add(rdbtnBottomLeft);
+		OSDPosition.add(rdbtnBottomLeft);
+		
+		JRadioButton rdbtnTopRight = new JRadioButton("Top Right");
+		rdbtnTopRight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				OSD.selectedposition = OSD.position.Top_right;
+			}
+		});
+		rdbtnTopRight.setHorizontalAlignment(SwingConstants.TRAILING);
+		rdbtnTopRight.setBounds(304, 7, 109, 23);
+		panel_4.add(rdbtnTopRight);
+		OSDPosition.add(rdbtnTopRight);
+		
+		JRadioButton rdbtnBottomRight = new JRadioButton("Bottom Right");
+		rdbtnBottomRight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				OSD.selectedposition = OSD.position.Bottom_right;
+			}
+		});
+		rdbtnBottomRight.setHorizontalAlignment(SwingConstants.TRAILING);
+		rdbtnBottomRight.setBounds(304, 193, 109, 23);
+		panel_4.add(rdbtnBottomRight);
+		OSDPosition.add(rdbtnBottomRight);
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 	}
 }

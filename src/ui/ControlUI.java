@@ -277,6 +277,20 @@ public class ControlUI extends JFrame {
 		btnNewButton_3.setBounds(188, 116, 83, 23);
 		panel_2.add(btnNewButton_3);
 		
+		JLabel lblToggleRecording = new JLabel("Toggle Recording");
+		lblToggleRecording.setBounds(100, 145, 95, 14);
+		panel_2.add(lblToggleRecording);
+		
+		JButton btnNewButton_4 = new JButton("<"+InputManager.hotkeys[4].idname+">");
+		btnNewButton_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0){
+				InputManager.hotkeys[4] = getbutton();
+				btnNewButton_4.setText("<"+InputManager.hotkeys[4].idname+">");
+			}
+		});
+		btnNewButton_4.setBounds(188, 141, 83, 23);
+		panel_2.add(btnNewButton_4);
+		
 		JPanel panel_3 = new JPanel();
 		tabbedPane.addTab("Settings", null, panel_3, null);
 		panel_3.setLayout(null);
