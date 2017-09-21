@@ -137,6 +137,18 @@ public class MainUI extends JFrame {
 				sys.restoreState(4);
 			}
 		};
+		Action volumeUp = new AbstractAction(){
+			public void actionPerformed(ActionEvent e) {
+				NesSettings.masterMixLevel = Math.min(100, NesSettings.masterMixLevel+5);
+				OSD.addOSDMessage("Master volume: "+NesSettings.masterMixLevel+"%", 120);
+			}
+		};
+		Action volumeDown = new AbstractAction(){
+			public void actionPerformed(ActionEvent e) {
+				NesSettings.masterMixLevel = Math.max(0, NesSettings.masterMixLevel-5);
+				OSD.addOSDMessage("Master volume: "+NesSettings.masterMixLevel+"%", 120);
+			}
+		};
 		
 		
 		this.rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_1,
@@ -172,7 +184,10 @@ public class MainUI extends JFrame {
 				java.awt.event.InputEvent.CTRL_DOWN_MASK),
 			"startCPU");
 		this.rootPane.getActionMap().put("startCPU", startCPU);
-		
+		this.rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP,java.awt.event.InputEvent.CTRL_DOWN_MASK),"volumeUp");
+		this.rootPane.getActionMap().put("volumeUp", volumeUp);
+		this.rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,java.awt.event.InputEvent.CTRL_DOWN_MASK),"volumeDown");
+		this.rootPane.getActionMap().put("volumeDown", volumeDown);
 		
 		
 		
