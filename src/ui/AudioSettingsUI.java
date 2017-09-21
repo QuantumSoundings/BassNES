@@ -133,6 +133,7 @@ public class AudioSettingsUI extends JFrame {
 		panel.setLayout(null);
 		
 		JSlider slider = new JSlider();
+		slider.setSnapToTicks(true);
 		slider.setBounds(10, 0, 50, 99);
 		panel.add(slider);
 		slider.setPaintTicks(true);
@@ -153,6 +154,7 @@ public class AudioSettingsUI extends JFrame {
 		lblMaster.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		JSlider slider_1 = new JSlider();
+		slider_1.setSnapToTicks(true);
 		slider_1.setBounds(81, 0, 50, 99);
 		panel.add(slider_1);
 		slider_1.setPaintTicks(true);
@@ -173,6 +175,7 @@ public class AudioSettingsUI extends JFrame {
 		lblPulse.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		JSlider slider_2 = new JSlider();
+		slider_2.setSnapToTicks(true);
 		slider_2.setBounds(150, 0, 50, 99);
 		panel.add(slider_2);
 		slider_2.setMajorTickSpacing(20);
@@ -193,6 +196,7 @@ public class AudioSettingsUI extends JFrame {
 		lblPulse_1.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		JSlider slider_3 = new JSlider();
+		slider_3.setSnapToTicks(true);
 		slider_3.setBounds(228, 0, 50, 99);
 		panel.add(slider_3);
 		slider_3.setMajorTickSpacing(20);
@@ -213,6 +217,7 @@ public class AudioSettingsUI extends JFrame {
 		lblTriangle.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		JSlider slider_4 = new JSlider();
+		slider_4.setSnapToTicks(true);
 		slider_4.setBounds(298, 0, 50, 99);
 		panel.add(slider_4);
 		slider_4.setPaintTicks(true);
@@ -233,6 +238,7 @@ public class AudioSettingsUI extends JFrame {
 		lblNoise.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		JSlider slider_5 = new JSlider();
+		slider_5.setSnapToTicks(true);
 		slider_5.setBounds(359, 0, 50, 99);
 		panel.add(slider_5);
 		slider_5.setMajorTickSpacing(20);
@@ -253,6 +259,7 @@ public class AudioSettingsUI extends JFrame {
 		lblDmc.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		JSlider slider_6 = new JSlider();
+		slider_6.setSnapToTicks(true);
 		slider_6.setBounds(10, 112, 50, 99);
 		panel.add(slider_6);
 		slider_6.addChangeListener(new ChangeListener() {
@@ -273,6 +280,7 @@ public class AudioSettingsUI extends JFrame {
 		lblVrc.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		JSlider slider_7 = new JSlider();
+		slider_7.setSnapToTicks(true);
 		slider_7.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				JSlider source = (JSlider) arg0.getSource();
@@ -293,6 +301,7 @@ public class AudioSettingsUI extends JFrame {
 		panel.add(lblNamco);
 		
 		JSlider slider_8 = new JSlider();
+		slider_8.setSnapToTicks(true);
 		slider_8.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				JSlider source = (JSlider) arg0.getSource();
@@ -313,6 +322,7 @@ public class AudioSettingsUI extends JFrame {
 		panel.add(lblMmc);
 		
 		JSlider slider_9 = new JSlider();
+		slider_9.setSnapToTicks(true);
 		slider_9.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				JSlider source = (JSlider) arg0.getSource();
@@ -336,6 +346,7 @@ public class AudioSettingsUI extends JFrame {
 		panel_4.setLayout(null);
 		
 		JSlider slider_10 = new JSlider();
+		slider_10.setSnapToTicks(true);
 		slider_10.setMinimum(-100);
 		slider_10.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
@@ -352,6 +363,7 @@ public class AudioSettingsUI extends JFrame {
 		panel_4.add(slider_10);
 		
 		JSlider slider_11 = new JSlider();
+		slider_11.setSnapToTicks(true);
 		slider_11.setMinimum(-100);
 		slider_11.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
@@ -368,6 +380,7 @@ public class AudioSettingsUI extends JFrame {
 		panel_4.add(slider_11);
 		
 		JSlider slider_12 = new JSlider();
+		slider_12.setSnapToTicks(true);
 		slider_12.setMinimum(-100);
 		slider_12.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
@@ -384,6 +397,7 @@ public class AudioSettingsUI extends JFrame {
 		panel_4.add(slider_12);
 		
 		JSlider slider_13 = new JSlider();
+		slider_13.setSnapToTicks(true);
 		slider_13.setMinimum(-100);
 		slider_13.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
@@ -442,6 +456,7 @@ public class AudioSettingsUI extends JFrame {
 		panel_4.add(lblDmc_1);
 		
 		JSlider slider_15 = new JSlider();
+		slider_15.setSnapToTicks(true);
 		slider_15.setMinimum(-100);
 		slider_15.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
@@ -458,6 +473,7 @@ public class AudioSettingsUI extends JFrame {
 		panel_4.add(slider_15);
 		
 		JSlider slider_16 = new JSlider();
+		slider_16.setSnapToTicks(true);
 		slider_16.setMinimum(-100);
 		slider_16.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
@@ -484,6 +500,7 @@ public class AudioSettingsUI extends JFrame {
 		panel_4.add(lblNewLabel_3);
 		
 		JSlider slider_17 = new JSlider();
+		slider_17.setSnapToTicks(true);
 		slider_17.setMinimum(-100);
 		slider_17.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
@@ -500,6 +517,7 @@ public class AudioSettingsUI extends JFrame {
 		panel_4.add(slider_17);
 		
 		JSlider slider_18 = new JSlider();
+		slider_18.setSnapToTicks(true);
 		slider_18.setMinimum(-100);
 		slider_18.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
