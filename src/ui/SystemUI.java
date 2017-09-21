@@ -186,6 +186,7 @@ public class SystemUI implements NESCallback {
 		nes.pause();
 		try {
 			nes.saveState("savestateY.txt".replaceAll("Y", slot+""));
+			OSD.addOSDMessage("Saving state to slot "+slot, 120);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -195,6 +196,7 @@ public class SystemUI implements NESCallback {
 		nes.pause();
 		try {
 			nes.restoreState("savestateY.txt".replaceAll("Y", slot+""));
+			OSD.addOSDMessage("Loading savestate "+slot, 120);
 		} catch (ClassNotFoundException | IOException e) {
 			e.printStackTrace();
 		}
