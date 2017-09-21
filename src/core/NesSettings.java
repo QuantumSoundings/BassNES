@@ -123,6 +123,7 @@ public class NesSettings {
 	 * Cut off time for a track in the NSF Player. Integer value in frames. 60 * (# of seconds)
 	 */
 	public static int nsfPlayerSongLength = 7200;
+	public static int nsfPlayerFadeLength = 300;
 	
 	
 

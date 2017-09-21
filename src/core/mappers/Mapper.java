@@ -358,6 +358,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	public void setNSFVariables(int playaddr,int initaddr, int loadaddr ,int playspeed, int startsong, int tuneregion, int tuneregion2, String songname, String artistname){}
 	public void setTrackNames(String[] tracknames) {}
 	public void setTrackTimes(int[] tracktimes) {}
+	public void setFadeTimes(int[] fadetimes) {}//nsfe specific
 	public void setAuthInfo(String[] info) {}
 
 	public static Mapper getmapper(int i) throws UnSupportedMapperException{

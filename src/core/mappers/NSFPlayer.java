@@ -51,6 +51,7 @@ public class NSFPlayer extends Mapper{
 	
 	//NSFe Header Information
 	private int[] tracktimes;
+	private int[] fadetimes;
 	private String[] tracknames;
 	
 	//Player Variables
@@ -231,6 +232,10 @@ public class NSFPlayer extends Mapper{
 	@Override
 	public void setTrackTimes(int[] times){
 		tracktimes = times;
+	}
+	@Override
+	public void setFadeTimes(int[] fades){
+		fadetimes = fades;
 	}
 	@Override
 	public void setAuthInfo(String[] info){
@@ -564,6 +569,14 @@ public class NSFPlayer extends Mapper{
 						else
 							nextTrack();
 					}
+				}
+				if(fadetimes!=null){
+					if((tracktimes[currentsong]-(tracktimer))<fadetimes[currentsong]){
+						//System.out.println(fadetimes[currentsong]);
+						apu.mixer.gainboost = (int)(((tracktimes[currentsong]-(tracktimer))/(fadetimes[currentsong]*1.0))*30000);
+					}
+					else
+						apu.mixer.gainboost = 30000;
 				}
 			}
 			else if(++tracktimer>=NesSettings.nsfPlayerSongLength&&!playingforever){

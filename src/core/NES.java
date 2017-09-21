@@ -208,7 +208,7 @@ public class NES implements Runnable,NESAccess {
 					for(int x = 0;x<songnum;x++){
 						int length = ((data[x*4+3]&0xff)<<24)|((data[x*4+2]&0xff)<<16)|((data[x*4+1]&0xff)<<8)|(data[x*4+0]&0xff);
 						if((int)(length/16.6666) ==0){
-							tracktimes[x] = 7200;
+							tracktimes[x] = NesSettings.nsfPlayerSongLength;
 						}
 						else
 							tracktimes[x] = (int)(length/16.6666);
@@ -232,6 +232,21 @@ public class NES implements Runnable,NESAccess {
 						}
 					}
 					map.setAuthInfo(info);
+					break;
+				case "fade":
+					System.out.println("Reading fade chunk");
+					int[] fadetimes = new int[songnum];
+					data = new byte[nclength];
+					sx.read(data);
+					for(int x = 0;x<songnum;x++){
+						int length = ((data[x*4+3]&0xff)<<24)|((data[x*4+2]&0xff)<<16)|((data[x*4+1]&0xff)<<8)|(data[x*4+0]&0xff);
+						if((int)(length/16.6666) <0){
+							fadetimes[x] = NesSettings.nsfPlayerFadeLength;
+						}
+						else
+							fadetimes[x] = (int)(length/16.6666);
+					}
+					map.setFadeTimes(fadetimes);
 					break;
 				case "NEND":
 					break;

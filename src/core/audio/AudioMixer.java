@@ -23,6 +23,7 @@ public class AudioMixer implements java.io.Serializable {
 	private int bufferPointer;
 	private double cyclespersample;
 	private int intcyclespersample;
+	public int gainboost = 30000;
 
 	/*static double[] pulse_table = new double[]{0,
 			0.01160914,0.022939481,0.034000949,0.044803002,0.055354659,0.065664528,0.075740825,0.085591398,0.095223748,0.104645048,0.113862159,0.122881647,0.131709801,0.140352645,0.148815953,0.157105263,0.165225885,
@@ -71,7 +72,7 @@ public class AudioMixer implements java.io.Serializable {
 			audioLevels[chan.outputLocation] = 0;
 		}
 		sample+=expansion;
-		resampler.addInputSample((sample * 30000) * (NesSettings.masterMixLevel / 100.0));
+		resampler.addInputSample((sample * gainboost) * (NesSettings.masterMixLevel / 100.0));
 	}
 	public final void mixSample(){
 		//Normalize Audio Levels
@@ -97,14 +98,14 @@ public class AudioMixer implements java.io.Serializable {
 		double pulse_out = (95.88 / (8128.0 / (p1*(NesSettings.pulse1Panning>0?(100-NesSettings.pulse1Panning)/100.0:1) + p2*(NesSettings.pulse2Panning>0?(100-NesSettings.pulse2Panning)/100.0:1)) + 100));//0.00752 * (p1+p2);
 		double tnd_out = (163.67 / (24329.0 / (3 * t*(NesSettings.trianglePanning>0?(100-NesSettings.trianglePanning)/100.0:1) + 2 * n*(NesSettings.noisePanning>0?(100-NesSettings.noisePanning)/100.0:1) + d*(NesSettings.dmcPanning>0?(100-NesSettings.dmcPanning)/100.0:1)) + 100));//0.00851*t + 0.00494*n + 0.00335*d;
 		double sample = pulse_out + tnd_out +expansionLeft ;
-		sample = ((sample * 30000) * (NesSettings.masterMixLevel / 100.0));
+		sample = ((sample * gainboost) * (NesSettings.masterMixLevel / 100.0));
 		addSample((int)sample);
 
 		//Get Right Channel
 		pulse_out = (95.88 / (8128.0 / (p1*(NesSettings.pulse1Panning<0?(NesSettings.pulse1Panning+100)/100.0:1) + p2*(NesSettings.pulse2Panning<0?(NesSettings.pulse2Panning+100)/100.0:1)) + 100));//0.00752 * (p1+p2);
 		tnd_out = (163.67 / (24329.0 / (3 * t*(NesSettings.trianglePanning<0?(NesSettings.trianglePanning+100)/100.0:1) + 2 * n*(NesSettings.noisePanning<0?(NesSettings.noisePanning+100)/100.0:1) + d*(NesSettings.dmcPanning<0?(NesSettings.dmcPanning+100)/100.0:1)) + 100));//0.00851*t + 0.00494*n + 0.00335*d;
 		sample = pulse_out + tnd_out + expansionRight;
-		sample = ((sample * 30000) * (NesSettings.masterMixLevel / 100.0));
+		sample = ((sample * gainboost) * (NesSettings.masterMixLevel / 100.0));
 		addSample((int)sample);
 
 		//Clear audio levels
