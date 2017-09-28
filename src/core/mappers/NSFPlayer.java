@@ -571,12 +571,12 @@ public class NSFPlayer extends Mapper{
 					}
 				}
 				if(fadetimes!=null){
-					if((tracktimes[currentsong]-(tracktimer))<fadetimes[currentsong]){
+					if((tracktimes[currentsong]-(tracktimer))<fadetimes[currentsong]&&!playingforever){
 						//System.out.println(fadetimes[currentsong]);
-						apu.mixer.gainboost = (int)(((tracktimes[currentsong]-(tracktimer))/(fadetimes[currentsong]*1.0))*30000);
+						apu.mixer.gainboost = (int)(((tracktimes[currentsong]-(tracktimer))/(fadetimes[currentsong]*1.0))*32000);
 					}
 					else
-						apu.mixer.gainboost = 30000;
+						apu.mixer.gainboost = 32000;
 				}
 			}
 			else if(++tracktimer>=NesSettings.nsfPlayerSongLength&&!playingforever){
