@@ -6,6 +6,7 @@
 using namespace std;
 void Mapper::runcycle() {
     cpu->run_cycle();
+	apu->doCycle();
     ppu->doCycle();
     ppu->doCycle();
     ppu->doCycle();
@@ -18,7 +19,6 @@ void Mapper::setprg(std::vector<uint8_t> prg) {
         }
     }
     else{
-        std::cout<<"in here"<<endl;
         for(int i = 0; i<0x4000;i++) {
             PRG_ROM[0][i] = prg[i];
             PRG_ROM[1][i] = prg[i];

@@ -1,6 +1,7 @@
 #include <cstdint>
 #include "CPU_6502.h"
 #include "Mapper.h"
+#include <iostream>
 //methods
 CPU_6502::CPU_6502(Mapper* m){
     map = m;
@@ -1320,8 +1321,10 @@ void CPU_6502::dma(){
         NFlag = accumulator<0;ZFlag = accumulator==0;
     }
  void CPU_6502::and_m(){
+	 std::cout << " in and"<<std::endl;
         accumulator =  (accumulator & tempregister);
         ZFlag = accumulator==0; NFlag = accumulator<0;
+		std::cout << tempregister << " " << accumulator << "Z: " << ZFlag << " N: " << NFlag << std::endl;
     }
  void CPU_6502::ane(){}
  void CPU_6502::arr(){
