@@ -65,8 +65,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Jordan\Desktop\VStudio imports\SDL2-devel-2.0.6-VC\SDL2-2.0.6\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Jordan\Desktop\VStudio imports\SDL2-devel-2.0.6-VC\SDL2-2.0.6\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Jordan\Downloads\SDL2-devel-2.0.6-VC\SDL2-2.0.6\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Jordan\Downloads\SDL2-devel-2.0.6-VC\SDL2-2.0.6\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>

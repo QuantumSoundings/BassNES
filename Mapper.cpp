@@ -64,10 +64,6 @@ void Mapper::setchr(std::vector<uint8_t> chr) {
             CHR_ROM[1][i] = chr[0x1000+i];
         }
     }
-	nametables[0] = ppu_internal_ram[0];
-	nametables[1] = ppu_internal_ram[0];
-	nametables[2] = ppu_internal_ram[1];
-	nametables[3] = ppu_internal_ram[1];
 }
 bool Mapper::blockppu() {return (*apu).cyclenum>14700;}
 void Mapper::cpuwrite(int index, uint8_t b) {

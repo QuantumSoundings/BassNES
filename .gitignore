@@ -98,3 +98,4 @@
 /.vs/BassNES c++/v15
 /.vs
 /SDL2.dll
+/x64/Debug

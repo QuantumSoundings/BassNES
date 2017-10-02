@@ -47,7 +47,7 @@ public:
     bool PPUCTRL_ss=false;
     bool PPUCTRL_ms=false;
     bool PPUCTRL_genNmi=false;
-    int scanline=0,finalscanline=241;
+    int scanline=0,finalscanline=261;
     int pcycle=0;
     uint8_t PPUMASK=0;
     bool PPUMASK_grey;

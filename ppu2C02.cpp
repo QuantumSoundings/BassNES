@@ -9,6 +9,7 @@ using namespace std;
 ppu2C02::ppu2C02(Mapper* m){
     map = m;
 	pixelnum = 0;
+	finalscanline = 260;
 }
 
 void ppu2C02::writeRegisters(int index, uint8_t b) {
