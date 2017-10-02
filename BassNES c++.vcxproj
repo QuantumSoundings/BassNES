@@ -119,8 +119,12 @@
     <ClInclude Include="APU.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="CPU_6502.h" />
+    <ClInclude Include="DMC.h" />
     <ClInclude Include="Mapper.h" />
+    <ClInclude Include="Noise.h" />
     <ClInclude Include="ppu2C02.h" />
+    <ClInclude Include="Pulse.h" />
+    <ClInclude Include="Triangle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

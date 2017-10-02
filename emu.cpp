@@ -85,8 +85,7 @@ int main( int argc, char* args[] ){
     cout << map.ppu->render_b << endl;
     int a;
     char x,prg,chr;
-
-	vector<char> data = ReadAllBytes("nestest.nes");
+	vector<char> data = ReadAllBytes("smb.nes");
 
 	assert(data[0] == 'N');
 	assert(data[1] == 'E');
