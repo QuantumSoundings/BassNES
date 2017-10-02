@@ -44,8 +44,8 @@ int main( int argc, char* args[] ){
     using namespace std;
 	Mapper map;
     //Screen dimension constants
-    const int SCREEN_WIDTH = 256;
-    const int SCREEN_HEIGHT = 240;
+    const int SCREEN_WIDTH = 256*2;
+    const int SCREEN_HEIGHT = 240*2;
     //The window we'll be rendering to
     SDL_Window* window = NULL;
 
@@ -60,7 +60,7 @@ int main( int argc, char* args[] ){
     else
     {
         //Create window
-        window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+        window = SDL_CreateWindow( "BassNES C++ PoC", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
         if( window == NULL )
         {
             printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
@@ -69,7 +69,6 @@ int main( int argc, char* args[] ){
         {
             //Get window surface
             screenSurface = SDL_GetWindowSurface( window );
-			map.ren->colorized = screenSurface->pixels;
 			//screenSurface->format = SDL_PIXELFORMAT_ARGB4444;
             //Fill the surface white
             SDL_FillRect( screenSurface, NULL, SDL_MapRGB( screenSurface->format, 0xFF, 0xFF, 0xFF ) );
@@ -81,14 +80,13 @@ int main( int argc, char* args[] ){
            // SDL_Delay( 2000 );
         }
     }
-	map.display = window;
     cout << "Test" << endl;
     
     cout << map.ppu->render_b << endl;
     int a;
     char x,prg,chr;
 
-	vector<char> data = ReadAllBytes("smb.nes");
+	vector<char> data = ReadAllBytes("nestest.nes");
 
 	assert(data[0] == 'N');
 	assert(data[1] == 'E');
@@ -133,7 +131,42 @@ int main( int argc, char* args[] ){
     cout << map.cpu->program_counter;
 	//map.cpu->program_counter = 0xc000;
 	bool print = false;
-	while (true) {
+	bool quit = false;
+	SDL_Event e;
+	Uint32 startTime = 0;
+	SDL_Renderer* gRender = NULL;
+	gRender = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	SDL_Texture* texture = SDL_CreateTexture(gRender, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 256, 240);
+	while (!quit) {
+		const Uint64 start = SDL_GetPerformanceCounter();
+		SDL_SetRenderDrawColor(gRender, 0, 0, 0, SDL_ALPHA_OPAQUE);
+		SDL_RenderClear(gRender);
+		while (SDL_PollEvent(&e) != 0) {
+			if (e.type == SDL_QUIT) {
+				quit = true;
+			}
+			const Uint8* keystates = SDL_GetKeyboardState(NULL);
+			//make input
+			map.input[0][0] = keystates[SDL_SCANCODE_A];
+			map.input[0][1] = keystates[SDL_SCANCODE_S];
+			map.input[0][2] = keystates[SDL_SCANCODE_W];
+			map.input[0][3] = keystates[SDL_SCANCODE_Q];
+			map.input[0][4] = keystates[SDL_SCANCODE_UP];
+			map.input[0][5] = keystates[SDL_SCANCODE_DOWN];
+			map.input[0][6] = keystates[SDL_SCANCODE_LEFT];
+			map.input[0][7] = keystates[SDL_SCANCODE_RIGHT];
+
+		}
+		map.runFrame();
+		SDL_UpdateTexture(texture, NULL, map.ren->colorized, 256 * 4);
+		SDL_RenderCopy(gRender, texture, NULL, NULL);
+		SDL_RenderPresent(gRender);
+		const Uint64 end = SDL_GetPerformanceCounter();
+		const static Uint64 freq = SDL_GetPerformanceFrequency();
+		const double seconds = (end - start) / static_cast< double >(freq);
+		cout << "Frame time: " << seconds * 1000.0 << "ms" << endl;
+	}
+	/*while (true) {
 		if (print) {
 			cout << map.cpu->program_counter << " ";
 			printCPU(&map);
@@ -142,10 +175,12 @@ int main( int argc, char* args[] ){
 		//	print = true;
 		map.runcycle();
 		
-	}
+	}*/
 	
-    map.runcycle();
-    cin>>a;
+    //map.runcycle();
+    //cin>>a;
+	SDL_DestroyRenderer(gRender);
+	SDL_DestroyWindow(window);
 	SDL_Quit();
     return 0;
 }

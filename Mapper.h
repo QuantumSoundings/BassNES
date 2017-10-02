@@ -39,13 +39,15 @@ public:
     bool blockppu_b=false;
     bool CHR_ram = false;
     uint8_t openbus=0;
-
+	bool input[2][8] = {};
 
     Mapper(){
         ppu = new ppu2C02(this);
         cpu = new CPU_6502(this);
         apu = new APU(this);
 		ren = new render();
+		control = new Controller(this, 0);
+		control2 = new Controller(this, 1);
     };
     bool blockppu();
 	void setNameTable(Mirror mirroringType);
@@ -71,6 +73,7 @@ public:
     void setchr(std::vector<uint8_t> chr);
     void setprg(std::vector<uint8_t> prg);
     void runcycle();
+	void runFrame();
 
 	void updateWindow();
 

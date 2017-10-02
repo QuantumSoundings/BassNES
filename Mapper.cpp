@@ -12,12 +12,22 @@ void Mapper::runcycle() {
     ppu->doCycle();
     ppu->doCycle();
 }
+void Mapper::runFrame() {
+	while (!ppu->doneFrame) {
+		ppu->doCycle();
+		ppu->doCycle();
+		ppu->doCycle();
+		cpu->run_cycle();
+		apu->doCycle();
+	}
+	ppu->doneFrame = false;
+}
 void Mapper::updateWindow() {
-	SDL_LockSurface(SDL_GetWindowSurface(display));
+	//SDL_LockSurface(SDL_GetWindowSurface(display));
 	ren->buildImageRGBnoEmp(ppu->pixels);
 	//SDL_Delay(50);
-	SDL_UnlockSurface(SDL_GetWindowSurface(display));
-	assert(SDL_UpdateWindowSurface(display)==0);
+	//SDL_UnlockSurface(SDL_GetWindowSurface(display));
+	//assert(SDL_UpdateWindowSurface(display)==0);
 }
 void Mapper::setNameTable(Mirror mirroringType) {
 	switch (mirroringType) {
