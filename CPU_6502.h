@@ -8,24 +8,11 @@ class Mapper;
 class CPU_6502{
 private:
     bool irqs[3];
-    //flags
-    bool NFlag= false;
-    bool VFlag= false;
-    bool BFlag= false;
-    bool DFlag= false;
-    bool IFlag= false;
-    bool ZFlag= false;
-    bool CFlag= false;
-    //registers
-    uint8_t accumulator = 0;
-    uint8_t x_index_register=0;
-    uint8_t y_index_register=0;
-    uint8_t stack_pointer=0;
+    
     //other stuff
     bool doOp = false;
     bool brokenaddress = false;
-    uint8_t tempregister=0;
-    uint16_t address = 0;
+    
     uint16_t pointer = 0;
     bool branchtaken=false;
     uint8_t lowpc = 0;
@@ -153,6 +140,24 @@ private:
     void tya();
 
 public:
+	//flags
+	bool NFlag = false;
+	bool VFlag = false;
+	bool BFlag = false;
+	bool DFlag = false;
+	bool IFlag = false;
+	bool ZFlag = false;
+	bool CFlag = false;
+
+	//registers
+	uint8_t accumulator = 0;
+	uint8_t x_index_register = 0;
+	uint8_t y_index_register = 0;
+	uint8_t stack_pointer = 0;
+	uint8_t tempregister = 0;
+
+	uint16_t address = 0;
+
     bool doNMI = false;
     bool nmiInterrupt = false;
     bool irqInterrupt = false;
@@ -166,12 +171,13 @@ public:
     Mapper* map;
     int instruction_cycle = 0;
     uint8_t current_instruction=0;
-    uint16_t program_counter=0;
+    int program_counter=0;
     CPU_6502(Mapper* m);
     void run_cycle();
     void setNMI(bool donmi);
     void setIRQ(IRQSource irq);
     void removeIRQ(IRQSource irq);
+	void setNFlag(uint8_t val);
 
     int dxx = 0;
 };

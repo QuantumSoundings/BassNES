@@ -4,13 +4,13 @@
 
 #include "ppu2C02.h"
 #include "Mapper.h"
-
+#include <iostream>
+using namespace std;
 ppu2C02::ppu2C02(Mapper* m){
     map = m;
+	pixelnum = 0;
 }
-void ppu2C02::genFrame(){
 
-}
 void ppu2C02::writeRegisters(int index, uint8_t b) {
     OPEN_BUS = b;
     switch(index){
@@ -301,6 +301,13 @@ void ppu2C02::render(){
             pcycle=340;
         }
     }
+}
+void ppu2C02::genFrame(){
+	PPUSTATUS_vb = true;
+	cout << " Finished with frame!" << endl;
+	map->cpu->doNMI = PPUCTRL_genNmi;
+	map->updateWindow();
+	pixelnum = 0;
 }
 void ppu2C02::drawpixel(){
     if(render_b||(v&0x3f00)!=0x3f00){

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cassert>
 #include <string>
+#include <stdio.h>
 #include "Mapper.h"
 #include <fstream>
 #include <vector>
@@ -12,6 +13,21 @@
 #undef main
 #endif
 using namespace std;
+void printCPU(Mapper* map) {
+	cout << hex;
+	cout << "  Cycle: " << (unsigned int)map->cpu->instruction_cycle;
+	cout << "  A: " << (unsigned int)map->cpu->accumulator;
+	cout << "  X: " << (unsigned int)map->cpu->x_index_register;
+	cout << "  Y: " << (unsigned int)map->cpu->y_index_register;
+	cout << "  SP: " << (unsigned int)map->cpu->stack_pointer;
+	cout << "  T: " << (unsigned int)map->cpu->tempregister;
+	cout << "  addr: " << (unsigned int)map->cpu->address;
+	cout << "  mem[0]: " << (unsigned int)map->cpu_ram[0];
+	cout << "  mem[1]: " << (unsigned int)map->cpu_ram[1];
+	cout << "  mem[2]: " << (unsigned int)map->cpu_ram[2];
+	cout << "  mem[3]: " << (unsigned int)map->cpu_ram[3]<<endl;
+
+}
 std::vector<char> ReadAllBytes(char const* filename)
 {
 	ifstream ifs(filename, ios::binary | ios::ate);
@@ -26,9 +42,10 @@ std::vector<char> ReadAllBytes(char const* filename)
 }
 int main( int argc, char* args[] ){
     using namespace std;
+	Mapper map;
     //Screen dimension constants
-    const int SCREEN_WIDTH = 640;
-    const int SCREEN_HEIGHT = 480;
+    const int SCREEN_WIDTH = 256;
+    const int SCREEN_HEIGHT = 240;
     //The window we'll be rendering to
     SDL_Window* window = NULL;
 
@@ -52,7 +69,8 @@ int main( int argc, char* args[] ){
         {
             //Get window surface
             screenSurface = SDL_GetWindowSurface( window );
-
+			map.ren->colorized = screenSurface->pixels;
+			//screenSurface->format = SDL_PIXELFORMAT_ARGB4444;
             //Fill the surface white
             SDL_FillRect( screenSurface, NULL, SDL_MapRGB( screenSurface->format, 0xFF, 0xFF, 0xFF ) );
 
@@ -60,12 +78,12 @@ int main( int argc, char* args[] ){
             SDL_UpdateWindowSurface( window );
 
             //Wait two seconds
-            SDL_Delay( 2000 );
+           // SDL_Delay( 2000 );
         }
     }
-
+	map.display = window;
     cout << "Test" << endl;
-    Mapper map;
+    
     cout << map.ppu->render_b << endl;
     int a;
     char x,prg,chr;
@@ -107,10 +125,17 @@ int main( int argc, char* args[] ){
     map.cpu->program_counter <<= 8;
     map.cpu->program_counter |= map.cpuread(0xfffc);
     cout << map.cpu->program_counter;
-	
+	//map.cpu->program_counter = 0xc000;
+	bool print = false;
 	while (true) {
+		if (print) {
+			cout << map.cpu->program_counter << " ";
+			printCPU(&map);
+		}
+		if (map.cpu->program_counter== 0x1)
+			print = true;
 		map.runcycle();
-		cout << map.cpu->program_counter << endl;
+		
 	}
 	
     map.runcycle();

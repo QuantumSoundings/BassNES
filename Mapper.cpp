@@ -2,6 +2,7 @@
 // Created by Jordan on 9/30/2017.
 //
 #include <iostream>
+#include <cassert>
 #include "Mapper.h"
 using namespace std;
 void Mapper::runcycle() {
@@ -10,6 +11,13 @@ void Mapper::runcycle() {
     ppu->doCycle();
     ppu->doCycle();
     ppu->doCycle();
+}
+void Mapper::updateWindow() {
+	SDL_LockSurface(SDL_GetWindowSurface(display));
+	ren->buildImageRGBnoEmp(ppu->pixels);
+	//SDL_Delay(50);
+	SDL_UnlockSurface(SDL_GetWindowSurface(display));
+	assert(SDL_UpdateWindowSurface(display)==0);
 }
 void Mapper::setprg(std::vector<uint8_t> prg) {
     if(prg.size()==16384*2){
@@ -34,8 +42,12 @@ void Mapper::setchr(std::vector<uint8_t> chr) {
             CHR_ROM[1][i] = chr[0x1000+i];
         }
     }
+	nametables[0] = ppu_internal_ram[0];
+	nametables[1] = ppu_internal_ram[1];
+	nametables[2] = ppu_internal_ram[0];
+	nametables[3] = ppu_internal_ram[1];
 }
-bool Mapper::blockppu() {return apu->cyclenum>14700;}
+bool Mapper::blockppu() {return (*apu).cyclenum>14700;}
 void Mapper::cpuwrite(int index, uint8_t b) {
     if(index<0x2000)
         cpu_ram[index%0x800] = b;
@@ -44,7 +56,7 @@ void Mapper::cpuwrite(int index, uint8_t b) {
     else if(index<=0x4017){
         if(index==0x4014){
             cpu_mmr[0x14]=b;
-            cpu->dxx=((int)b)<<8;
+            cpu->dxx=b<<8;
             cpu->writeDMA = true;
         }
         else if(index==0x4016)

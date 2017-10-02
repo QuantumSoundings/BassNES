@@ -94,3 +94,7 @@
 /moon8.nes
 /salamander.nes
 /cpu_instructions.txt
+/Debug
+/.vs/BassNES c++/v15
+/.vs
+/SDL2.dll

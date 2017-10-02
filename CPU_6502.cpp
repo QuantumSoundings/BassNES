@@ -2,12 +2,16 @@
 #include "CPU_6502.h"
 #include "Mapper.h"
 #include <iostream>
+using namespace std;
 //methods
 CPU_6502::CPU_6502(Mapper* m){
     map = m;
     instruction_cycle=1;
     stack_pointer=0xfd;
     setFlags(0x34);
+}
+void CPU_6502::setNFlag(uint8_t val) {
+	NFlag = (val & 0x80) != 0;
 }
 uint8_t CPU_6502::buildFlags(){
         uint8_t temp = 0;
@@ -22,7 +26,7 @@ uint8_t CPU_6502::buildFlags(){
         return temp;
 }
 void CPU_6502::setFlags(uint8_t x){
-        NFlag = x < 0;
+		setNFlag(x);
         VFlag = (x & (1 << 6)) > 0;
         BFlag = (x & (1 << 4)) > 0;
         DFlag = (x & (1 << 3)) > 0;
@@ -764,7 +768,7 @@ void CPU_6502::dma(){
                 instruction_cycle++;
                 break;
             case 3:
-                address += x_index_register;
+                address += y_index_register;
                 instruction_cycle++;
                 pollInterrupts();
                 break;
@@ -785,7 +789,7 @@ void CPU_6502::dma(){
                 instruction_cycle++;
                 break;
             case 3:
-                address += x_index_register;
+                address += y_index_register;
                 instruction_cycle++;
                 pollInterrupts();
                 break;
@@ -972,7 +976,7 @@ void CPU_6502::dma(){
             case 3:
                 address |= (map->cpureadu(program_counter)<<8);
                 lowpc = address&0xff00;
-                address += x_index_register;
+                address += y_index_register;
                 program_counter++;
                 if(lowpc==(address&0xff00))
                     pollInterrupts();
@@ -1007,7 +1011,7 @@ void CPU_6502::dma(){
             case 3:
                 address = address | (map->cpureadu(program_counter)<<8);
                 lowpc = address&0xff00;
-                address+= x_index_register;
+                address+= y_index_register;
                 program_counter++;
                 instruction_cycle++;break;
             case 4:
@@ -1038,7 +1042,7 @@ void CPU_6502::dma(){
             case 3:
                 address = address | (map->cpureadu(program_counter)<<8);
                 lowpc=address&0xff00;
-                address += x_index_register;
+                address += y_index_register;
                 program_counter++;
                 instruction_cycle++;break;
             case 4:
@@ -1148,7 +1152,7 @@ void CPU_6502::dma(){
                 else
                     address = address | (map->cpureadu(pointer+1)<<8);
                 lowpc = address&0xff00;
-                address += x_index_register;
+                address += y_index_register;
                 if(lowpc!=(address&0xff00))
                     brokenaddress=true;
                 else
@@ -1189,7 +1193,7 @@ void CPU_6502::dma(){
                 else
                     address = address | (map->cpureadu(pointer+1)<<8);
                 lowpc = address&0xff00;
-                address += x_index_register;
+                address += y_index_register;
                 instruction_cycle++;break;
             }
             case 5: {
@@ -1231,7 +1235,7 @@ void CPU_6502::dma(){
                 else
                     address = address | (map->cpureadu(pointer+1)<<8);
                 lowpc=address&0xff00;
-                address += x_index_register;
+                address += y_index_register;
                 instruction_cycle++;break;
             case 5:
                 tempregister=map->cpuread((address&0xff)|lowpc);
@@ -1277,13 +1281,13 @@ void CPU_6502::dma(){
                     instruction_cycle=2;
                 }
                 break;*/
-                if((program_counter&0xff00)==((program_counter+tempregister)&0xff00)){
-                    program_counter+=tempregister;program_counter&=0xffff;
+                if((program_counter&0xff00)==((program_counter+(int8_t)tempregister)&0xff00)){
+                    program_counter+=(int8_t)tempregister;program_counter&=0xffff;
                     instruction_cycle=1;break;
                 }
                 else{
                     pollInterrupts();
-                    program_counter+=tempregister;program_counter&=0xffff;
+                    program_counter+=(int8_t)tempregister;program_counter&=0xffff;
                     instruction_cycle++;break;
                 }
             case 4:
@@ -1310,7 +1314,7 @@ void CPU_6502::dma(){
  void CPU_6502::aac(){
         //if(showInvalid) System.out.println("Invalid instruction AAC");
         accumulator= (accumulator &tempregister);
-        ZFlag = accumulator ==0; NFlag = accumulator<0;
+        ZFlag = accumulator ==0; setNFlag(accumulator);
         CFlag = NFlag;
     }
  void CPU_6502::adc(){
@@ -1318,13 +1322,13 @@ void CPU_6502::dma(){
         CFlag = sum > 0xff;
         VFlag = (~(accumulator ^ tempregister) & (accumulator ^ sum) & 0x80) != 0;
         accumulator= sum;
-        NFlag = accumulator<0;ZFlag = accumulator==0;
+        setNFlag(accumulator);ZFlag = accumulator==0;
     }
  void CPU_6502::and_m(){
-	 std::cout << " in and"<<std::endl;
+	 //std::cout << " in and "<<(int)(accumulator&tempregister)<<std::endl;
         accumulator =  (accumulator & tempregister);
-        ZFlag = accumulator==0; NFlag = accumulator<0;
-		std::cout << tempregister << " " << accumulator << "Z: " << ZFlag << " N: " << NFlag << std::endl;
+        ZFlag = accumulator==0; setNFlag(accumulator);
+		//std::cout << tempregister << " " << accumulator << "Z: " << ZFlag << " N: " << NFlag << std::endl;
     }
  void CPU_6502::ane(){}
  void CPU_6502::arr(){
@@ -1334,7 +1338,7 @@ void CPU_6502::dma(){
         result>>=1;
         if(CFlag) result|= 0x80;
         accumulator =  result;
-        NFlag = accumulator<0;
+        setNFlag(accumulator);
         ZFlag = result==0;
         CFlag = ((accumulator&(0b1000000))!=0);
         VFlag = CFlag ^ ((accumulator&0b100000)!=0);
@@ -1343,18 +1347,18 @@ void CPU_6502::dma(){
         int temp = tempregister;
         CFlag = (tempregister & 0x80) != 0;
         tempregister =  (temp<<1);
-        ZFlag = tempregister==0; NFlag = tempregister<0;
+        ZFlag = tempregister==0; setNFlag(tempregister);
     }
  void CPU_6502::asr(){
         accumulator =  (accumulator & tempregister);
         CFlag = (accumulator&1)!=0;
         accumulator= (accumulator>>1);
-        ZFlag = accumulator ==0; NFlag = accumulator<0;
+        ZFlag = accumulator ==0; setNFlag(accumulator);
     }
  void CPU_6502::atx(){
         //if(showInvalid)System.out.println("Invalid instruction ATX");
         x_index_register = accumulator=tempregister;
-        ZFlag = accumulator ==0; NFlag = accumulator<0;
+        ZFlag = accumulator ==0; setNFlag(accumulator);
     }
  void CPU_6502::axs(){
         //if(showInvalid)System.out.println("Invalid instruction AXS");
@@ -1363,14 +1367,14 @@ void CPU_6502::dma(){
         CFlag = result>=tempregister;
         result-= tempregister;
         x_index_register =  result;
-        NFlag = x_index_register<0; ZFlag = x_index_register==0;
+        setNFlag(x_index_register); ZFlag = x_index_register==0;
     }
  void CPU_6502::bcc(){branchtaken=!CFlag;}
  void CPU_6502::bcs(){branchtaken=CFlag;}
- void CPU_6502::beq(){branchtaken=ZFlag;}
+ void CPU_6502::beq() { branchtaken = ZFlag; }// if (branchtaken)cout << "taking branch" << endl; }
  void CPU_6502::bit(){
         ZFlag = (accumulator&tempregister)==0;
-        NFlag = (tempregister&0x80)!=0; VFlag = (tempregister&0x40)!=0;
+        setNFlag(tempregister); VFlag = (tempregister&0x40)!=0;
     }
  void CPU_6502::bmi(){branchtaken=NFlag;}
  void CPU_6502::bne(){branchtaken=!ZFlag;}
@@ -1446,44 +1450,44 @@ void CPU_6502::dma(){
  void CPU_6502::cmp(){
         CFlag = accumulator>=tempregister;
         ZFlag = accumulator==tempregister;
-        NFlag = ((accumulator-tempregister)&0x80)!=0;
+        setNFlag(accumulator-tempregister);
         //if(accumulator>=tempregister) CFlag = true;else CFlag = false;
         //if(accumulator == tempregister) ZFlag = true;else ZFlag = false;
-        //if(((accumulator-tempregister)&0x80)!=0) NFlag = true;else NFlag = false;
+        //if(((accumulator-tempregister)&0x80)!=0) setNFlag(((int8_t) true;else setNFlag(((int8_t) false;
     }
  void CPU_6502::cpx(){
         CFlag = x_index_register>=tempregister;
         ZFlag = x_index_register==tempregister;
-        NFlag = ((x_index_register-tempregister)&0x80)!=0;
+        setNFlag(x_index_register-tempregister);
         //if(x_index_register>=tempregister) CFlag = true;else CFlag = false;
         //if(x_index_register == tempregister) ZFlag = true;else ZFlag = false;
-        //if(((x_index_register-tempregister)&0x80)!=0) NFlag = true;else NFlag = false;
+        //if(((x_index_register-tempregister)&0x80)!=0) setNFlag(((int8_t) true;else setNFlag(((int8_t) false;
     }
  void CPU_6502::cpy(){
         CFlag = y_index_register>=tempregister;
         ZFlag = y_index_register==tempregister;
-        NFlag = ((y_index_register-tempregister)&0x80)!=0;
+        setNFlag(y_index_register-tempregister);
         //if(y_index_register>=tempregister) CFlag = true;else CFlag = false;
         //if(y_index_register == tempregister) ZFlag = true;else ZFlag = false;
-        //if(((y_index_register-tempregister)&0x80)!=0) NFlag = true;else NFlag = false;
+        //if(((y_index_register-tempregister)&0x80)!=0) setNFlag(((int8_t) true;else setNFlag(((int8_t) false;
     }
  void CPU_6502::dcp(){
         //if(showInvalid)System.out.println("Invalid instruction DCP");
         tempregister--;
         CFlag = accumulator >= tempregister;
         ZFlag = accumulator == tempregister;
-        NFlag = ((accumulator - tempregister) & 0x80) != 0;
+        setNFlag(accumulator - tempregister);
     }
  void CPU_6502::dec(){
         tempregister--;
-        ZFlag = tempregister==0;NFlag = tempregister<0;
+        ZFlag = tempregister==0;setNFlag(tempregister);
     }
  void CPU_6502::dex(){
         switch(instruction_cycle){
             case 1: pollInterrupts();instruction_cycle++;break;
             case 2:
                 x_index_register--;
-                ZFlag = x_index_register==0;NFlag = x_index_register<0;
+                ZFlag = x_index_register==0;setNFlag(x_index_register);
                 instruction_cycle = 1;break;
         }
     }
@@ -1492,25 +1496,25 @@ void CPU_6502::dma(){
             case 1: pollInterrupts();instruction_cycle++;break;
             case 2:
                 y_index_register--;
-                ZFlag = y_index_register==0;NFlag = y_index_register<0;
+                ZFlag = y_index_register==0;setNFlag(y_index_register);
                 instruction_cycle = 1;
         }
     }
  void CPU_6502::eor(){
         accumulator =  (accumulator ^ tempregister);
-        ZFlag = accumulator==0;NFlag = accumulator<0;
+        ZFlag = accumulator==0;setNFlag(accumulator);
     }
  void CPU_6502::hlt(){}
  void CPU_6502::inc(){
         tempregister++;
-        ZFlag = tempregister==0;NFlag = tempregister<0;
+        ZFlag = tempregister==0;setNFlag(tempregister);
     }
  void CPU_6502::inx(){
         switch(instruction_cycle){
             case 1: pollInterrupts();instruction_cycle++;break;
             case 2:
                 x_index_register++;
-                ZFlag = x_index_register==0;NFlag = x_index_register<0;
+                ZFlag = x_index_register==0;setNFlag(x_index_register);
                 instruction_cycle = 1;break;
         }
     }
@@ -1519,7 +1523,7 @@ void CPU_6502::dma(){
             case 1: pollInterrupts();instruction_cycle++;break;
             case 2:
                 y_index_register++;
-                ZFlag = y_index_register==0;NFlag = y_index_register<0;
+                ZFlag = y_index_register==0;setNFlag(y_index_register);
                 instruction_cycle = 1;break;
         }
     }
@@ -1569,7 +1573,7 @@ void CPU_6502::dma(){
         CFlag = (sum>>8 ==0);
         VFlag = (((accumulator^tempregister)&0x80)!=0)&&(((accumulator^sum)&0x80)!=0);
         accumulator= (sum&0xff);
-        NFlag = accumulator<0;ZFlag = accumulator==0;
+        setNFlag(accumulator);ZFlag = accumulator==0;
     }
  void CPU_6502::jmp(){
         switch(instruction_cycle){
@@ -1640,24 +1644,24 @@ void CPU_6502::dma(){
  void CPU_6502::lax(){
         //if(showInvalid)System.out.println("Invalid instruction LAX");
         x_index_register = accumulator = tempregister;
-        NFlag = accumulator<0;ZFlag = accumulator==0;
+        setNFlag(accumulator);ZFlag = accumulator==0;
     }
  void CPU_6502::lda(){
         accumulator = tempregister;
-        ZFlag = accumulator==0;NFlag = accumulator<0;
+        ZFlag = accumulator==0;setNFlag(accumulator);
     }
  void CPU_6502::ldx(){
         x_index_register = tempregister;
-        ZFlag = x_index_register==0;NFlag = x_index_register<0;
+        ZFlag = x_index_register==0;setNFlag(x_index_register);
     }
  void CPU_6502::ldy(){
         y_index_register = tempregister;
-        ZFlag = y_index_register==0;NFlag = y_index_register<0;
+        ZFlag = y_index_register==0;setNFlag(y_index_register);
     }
  void CPU_6502::lsr(){
         CFlag = (tempregister & 1) > 0;
         tempregister= (tempregister>>1);
-        ZFlag = tempregister==0;NFlag = tempregister<0;
+        ZFlag = tempregister==0;setNFlag(tempregister);
     }
  void CPU_6502::nmi_m(){
         switch(instruction_cycle){
@@ -1703,7 +1707,7 @@ void CPU_6502::dma(){
     }
  void CPU_6502::ora(){
         accumulator =  (accumulator | tempregister);
-        ZFlag = accumulator==0;NFlag = accumulator<0;
+        ZFlag = accumulator==0;setNFlag(accumulator);
     }
  void CPU_6502::pha(){
         switch(instruction_cycle){
@@ -1744,7 +1748,7 @@ void CPU_6502::dma(){
                 pollInterrupts();break;
             case 4:
                 accumulator = map->cpuread(stack_pointer+0x0100);
-                ZFlag = accumulator==0;NFlag = accumulator<0;
+                ZFlag = accumulator==0;setNFlag(accumulator);
                 instruction_cycle = 1;break;
         }
     }
@@ -1765,28 +1769,28 @@ void CPU_6502::dma(){
     }
  void CPU_6502::rla(){
         //if(showInvalid)System.out.println("Invalid instruction RLA");
-        int tcarry = tempregister<0?1:0;
+        int tcarry = ((int8_t)tempregister)<0?1:0;
         tempregister =  (tempregister<<1);
         tempregister =  (tempregister | (CFlag?1:0));
         CFlag = tcarry == 1;
         ZFlag = tempregister == 0;
-        NFlag = tempregister < 0;
+        setNFlag(tempregister);
         accumulator =  (accumulator & tempregister);
-        ZFlag = accumulator==0;NFlag = accumulator<0;
+        ZFlag = accumulator==0;setNFlag(accumulator);
     }
  void CPU_6502::rol(){
-        int tcarry = tempregister<0?1:0;
+        int tcarry = ((int8_t)tempregister)<0?1:0;
         tempregister =  (tempregister<<1);
         tempregister =  (tempregister | (CFlag?1:0));
         CFlag = tcarry == 1;
-        ZFlag = tempregister==0;NFlag = tempregister<0;
+        ZFlag = tempregister==0;setNFlag(tempregister);
     }
  void CPU_6502::ror(){
-        int tcarry = tempregister&0x01;
+        int tcarry = tempregister&1;
         tempregister=  (tempregister>>1);
         tempregister =  (tempregister | (CFlag?0x80:0));
         CFlag = tcarry != 0;
-        ZFlag = tempregister==0;NFlag = tempregister<0;
+        ZFlag = tempregister==0;setNFlag(tempregister);
     }
  void CPU_6502::rra(){
         //if(showInvalid)System.out.println("Invalid instruction RRA");
@@ -1802,7 +1806,7 @@ void CPU_6502::dma(){
         CFlag = sum > 0xff;
         VFlag = (~(accumulator ^ tempregister) & (accumulator ^ sum) & 0x80) != 0;
         accumulator= sum;
-        NFlag = accumulator<0;ZFlag = accumulator==0;
+        setNFlag(accumulator);ZFlag = accumulator==0;
     }
  void CPU_6502::rti(){
         switch(instruction_cycle){
@@ -1860,7 +1864,7 @@ void CPU_6502::dma(){
         CFlag = sum > 0xff;
         VFlag = (~(accumulator ^ tempregister) & (accumulator ^ sum) & 0x80) != 0;
         accumulator= sum;
-        NFlag = accumulator<0;ZFlag = accumulator==0;
+        setNFlag(accumulator);ZFlag = accumulator==0;
     }
  void CPU_6502::sec(){
         switch(instruction_cycle){
@@ -1946,7 +1950,7 @@ void CPU_6502::dma(){
         CFlag = (tempregister&0x80)!=0;
         tempregister<<=1;
         accumulator|=tempregister;
-        NFlag = accumulator<0;ZFlag = accumulator==0;
+        setNFlag(accumulator);ZFlag = accumulator==0;
     }
  void CPU_6502::sre(){
         int result = tempregister;
@@ -1954,7 +1958,7 @@ void CPU_6502::dma(){
         result>>=1;
         accumulator ^=result;
         tempregister = result;
-        NFlag = accumulator<0;ZFlag = accumulator==0;
+        setNFlag(accumulator);ZFlag = accumulator==0;
     }
  void CPU_6502::sta(){map->cpuwrite(address, accumulator);}
  void CPU_6502::stx(){map->cpuwrite(address, x_index_register);}
@@ -1964,7 +1968,7 @@ void CPU_6502::dma(){
             case 1: pollInterrupts();instruction_cycle++;break;
             case 2:
                 x_index_register= accumulator;
-                ZFlag = x_index_register==0;NFlag = x_index_register<0;
+                ZFlag = x_index_register==0;setNFlag(x_index_register);
                 instruction_cycle = 1;break;
         }
     }
@@ -1973,7 +1977,7 @@ void CPU_6502::dma(){
             case 1: pollInterrupts();instruction_cycle++;break;
             case 2:
                 y_index_register=accumulator;
-                ZFlag = y_index_register==0;NFlag = y_index_register<0;
+                ZFlag = y_index_register==0;setNFlag(y_index_register);
                 instruction_cycle = 1;break;
         }
     }
@@ -1982,7 +1986,7 @@ void CPU_6502::dma(){
             case 1: pollInterrupts();instruction_cycle++;break;
             case 2:
                 x_index_register = stack_pointer;
-                ZFlag = x_index_register==0;NFlag = x_index_register<0;
+                ZFlag = x_index_register==0;setNFlag(x_index_register);
                 instruction_cycle = 1;break;
         }
     }
@@ -1991,7 +1995,7 @@ void CPU_6502::dma(){
             case 1: pollInterrupts();instruction_cycle++;break;
             case 2:
                 accumulator = x_index_register;
-                ZFlag = accumulator==0;NFlag = accumulator<0;
+                ZFlag = accumulator==0;setNFlag(accumulator);
                 instruction_cycle = 1;break;
         }
     }
@@ -2008,7 +2012,7 @@ void CPU_6502::dma(){
             case 1: pollInterrupts();instruction_cycle++;break;
             case 2:
                 accumulator = y_index_register;
-                ZFlag = accumulator==0;NFlag = accumulator<0;
+                ZFlag = accumulator==0;setNFlag(accumulator);
                 instruction_cycle = 1;break;
         }
     }
