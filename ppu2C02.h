@@ -36,7 +36,7 @@ public:
             0x07, 0x87, 0x47, 0xC7, 0x27, 0xA7, 0x67, 0xE7, 0x17, 0x97, 0x57, 0xD7, 0x37, 0xB7, 0x77, 0xF7,
             0x0F, 0x8F, 0x4F, 0xCF, 0x2F, 0xAF, 0x6F, 0xEF, 0x1F, 0x9F, 0x5F, 0xDF, 0x3F, 0xBF, 0x7F, 0xFF
     };
-    int OAMADDR=0;
+    uint8_t OAMADDR=0;
     uint8_t OPEN_BUS=0;
     int t=0;
     uint8_t PPUCTRL=0;
@@ -49,7 +49,7 @@ public:
     bool PPUCTRL_genNmi=false;
     int scanline=0,finalscanline=241;
     int pcycle=0;
-    uint8_t PPUMASK;
+    uint8_t PPUMASK=0;
     bool PPUMASK_grey;
     bool PPUMASK_bl=0;
     int leftmask_b=0;
@@ -67,29 +67,30 @@ public:
     uint8_t PPUDATA_readbuffer=0;
     bool PPUSTATUS_so=false;
     bool PPUSTATUS_sz=false;
-    uint16_t shiftreg16a=0;
-    uint16_t shiftreg16b=0;
-    uint8_t palettelatchold,palettelatchnew;
-    int cyclepart;
-    uint8_t nametablebyte,atablebyte,ptablemap0,ptablemap1;
+    int shiftreg16a=0;
+    int shiftreg16b=0;
+    int palettelatchold=0,palettelatchnew=0;
+    int cyclepart=0;
+    int nametablebyte=0,atablebyte=0,ptablemap0=0,ptablemap1=0;
     bool oddframe=false;
     bool doneFrame=false;
-    bool oldspritezero,spritezero;
+    bool oldspritezero=false,spritezero=false;
     bool prevrender=false;
-    int oamBCounter,numsprites,spritec;
+    int oamBCounter=0,numsprites=0,spritec=0;
     bool palregion;
-    bool spritefetch;
+    bool spritefetch=false;
 
-    uint8_t spritebm[64];
-    uint8_t spriteco[64];
+	int spritebm[64] = {};
+	int spriteco[64] = {};
     bool spritepriority[64];
     bool spritehorizontal[64];
-    uint8_t oambuffer[32];
-    int pixels[256*240];
+	uint8_t oambuffer[32] = {};
+	int pixels[256 * 240] = {};
     int pixelnum=0;
     bool delayset;
-    int spritepalette[64];
-    int n,m,stage;
+	int spritepalette[64] = {};
+	int n = 0, m = 0;
+	int stage = 1;
 
     ppu2C02(Mapper* m);
     uint8_t readRegister(int index);

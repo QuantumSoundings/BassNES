@@ -88,7 +88,7 @@ int main( int argc, char* args[] ){
     int a;
     char x,prg,chr;
 
-	vector<char> data = ReadAllBytes("dkj.nes");
+	vector<char> data = ReadAllBytes("smb.nes");
 
 	assert(data[0] == 'N');
 	assert(data[1] == 'E');
@@ -97,18 +97,24 @@ int main( int argc, char* args[] ){
     
 	prg = data[4];
 	chr = data[5];
+	map.setMirror((int)(data[6] & 1));
     vector<uint8_t> prgrom(16384*prg,0);
     vector<uint8_t> chrrom(8192*chr,0);
     int count=0;
     char in;
     char* input=&in;
-	for (int i = 16; i < prgrom.size() + 16;i++) {
-		prgrom[i - 16] = data[i];
-        ++count;
+	vector<char>::iterator iter = data.begin();
+	for (int i = 0; i < 16; i++)
+		++iter;
+	for (int i = 0; i < prgrom.size();i++) {
+		prgrom[i] = (*iter);
+		++iter;
+		count++;
     }
     cout <<"PRG READ : "<<count<<endl;
-	for (int i = 16 + 0x4000; i < 16 + 0x4000 + 0x2000;i++) {
-		chrrom[i - 0x4010] = data[i];
+	for (int i = 0; i < chrrom.size();i++) {
+		chrrom[i] = (*iter);
+		++iter;
     }
     map.setchr(chrrom);
     map.setprg(prgrom);
@@ -132,8 +138,8 @@ int main( int argc, char* args[] ){
 			cout << map.cpu->program_counter << " ";
 			printCPU(&map);
 		}
-		if (map.cpu->program_counter== 0x1)
-			print = true;
+		//if (map.cpu->program_counter== 0x1)
+		//	print = true;
 		map.runcycle();
 		
 	}

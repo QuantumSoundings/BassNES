@@ -13,6 +13,7 @@
 #define BASSNES_MAPPER_H
 class Mapper{
 public:
+	enum Mirror{Horizontal,Vertical,SingleScreenLow,SingleScreenHigh};
 	SDL_Window* display;
     ppu2C02* ppu;
     CPU_6502* cpu;
@@ -47,6 +48,8 @@ public:
 		ren = new render();
     };
     bool blockppu();
+	void setNameTable(Mirror mirroringType);
+	void setMirror(int i);
     void cpuwrite(int index,uint8_t b);
     void cpuwriteoam(int i,uint8_t x);
     uint8_t cpuread(int index);

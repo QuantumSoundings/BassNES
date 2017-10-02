@@ -304,7 +304,7 @@ void ppu2C02::render(){
 }
 void ppu2C02::genFrame(){
 	PPUSTATUS_vb = true;
-	cout << " Finished with frame!" << endl;
+	//cout << " Finished with frame!" << endl;
 	map->cpu->doNMI = PPUCTRL_genNmi;
 	map->updateWindow();
 	pixelnum = 0;
@@ -329,7 +329,7 @@ void ppu2C02::drawpixel(){
                             PPUSTATUS_sz = true;
                         }
                         if((spritepriority[i]||backgroundcolor==0)){
-                            pixels[pixelnum++] = (PPUMASK_colorbits)|(0xff&map->ppu_palette[0x10+4*spritepalette[i]+bit]);
+                            pixels[pixelnum++] = (PPUMASK_colorbits)|(map->ppu_palette[0x10+4*spritepalette[i]+bit]);
                             return;
                         }
                         break;
@@ -337,7 +337,7 @@ void ppu2C02::drawpixel(){
                 }
             }
         }
-        pixels[pixelnum++] = (PPUMASK_colorbits)|(0xff&map->ppu_palette[backgroundcolor]);
+        pixels[pixelnum++] = (PPUMASK_colorbits)|(map->ppu_palette[backgroundcolor]);
     }
     else
         pixels[pixelnum++] = (PPUMASK_colorbits)|map->ppuread(v);
