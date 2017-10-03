@@ -3,7 +3,6 @@
 //
 #include <cstdint>
 #include <vector>
-#include <SDL.h>
 #include "CPU_6502.h"
 #include "ppu2C02.h"
 #include "APU.h"
@@ -14,7 +13,6 @@
 class Mapper{
 public:
 	enum Mirror{Horizontal,Vertical,SingleScreenLow,SingleScreenHigh};
-	SDL_Window* display;
     ppu2C02* ppu;
     CPU_6502* cpu;
     APU* apu;

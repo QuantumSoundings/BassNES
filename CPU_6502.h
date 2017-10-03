@@ -167,7 +167,7 @@ public:
     int stallcount = 0;
     bool writeDMA = false;
     int doIRQ = 0;
-    static enum IRQSource{External,FrameCounter,DMC};
+    enum IRQSource{External,FrameCounter,DMC};
     Mapper* map;
     int instruction_cycle = 0;
     uint8_t current_instruction=0;
