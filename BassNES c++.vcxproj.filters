@@ -13,63 +13,69 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Header Files\core">
+      <UniqueIdentifier>{4b12dc47-5e07-4781-8374-ea4ed179f72c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\core">
+      <UniqueIdentifier>{9a4522d2-c081-4ef7-82d4-ba09285e3706}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="core\APU.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="core\Controller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="core\CPU_6502.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="core\Mapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="core\ppu2C02.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClInclude Include="source\3ds_wrapper\3dswrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\sdl_wrapper\sdlwrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\core\APU.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="source\core\Controller.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="source\core\CPU_6502.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="source\core\DMC.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="source\core\Mapper.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="source\core\Noise.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="source\core\ppu2C02.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="source\core\Pulse.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="source\core\render.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="source\core\Triangle.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="3ds_wrapper\3dswrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="core\APU.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="core\Controller.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="core\CPU_6502.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="core\DMC.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="core\Mapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="core\Noise.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="core\ppu2C02.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="core\Pulse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="core\render.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="core\Triangle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sdl_wrapper\sdlwrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="source\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\core\APU.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="source\core\Controller.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="source\core\CPU_6502.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="source\core\Mapper.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="source\core\ppu2C02.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

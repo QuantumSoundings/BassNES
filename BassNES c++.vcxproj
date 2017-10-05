@@ -38,6 +38,28 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\3ds_wrapper\3dswrapper.h" />
+    <ClInclude Include="source\core\APU.h" />
+    <ClInclude Include="source\core\Controller.h" />
+    <ClInclude Include="source\core\CPU_6502.h" />
+    <ClInclude Include="source\core\DMC.h" />
+    <ClInclude Include="source\core\Mapper.h" />
+    <ClInclude Include="source\core\Noise.h" />
+    <ClInclude Include="source\core\ppu2C02.h" />
+    <ClInclude Include="source\core\Pulse.h" />
+    <ClInclude Include="source\core\render.h" />
+    <ClInclude Include="source\core\Triangle.h" />
+    <ClInclude Include="source\sdl_wrapper\sdlwrapper.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\core\APU.cpp" />
+    <ClCompile Include="source\core\Controller.cpp" />
+    <ClCompile Include="source\core\CPU_6502.cpp" />
+    <ClCompile Include="source\core\Mapper.cpp" />
+    <ClCompile Include="source\core\ppu2C02.cpp" />
+    <ClCompile Include="source\main.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{DA58265C-79BE-4DFE-9C4C-C473F66F4C02}</ProjectGuid>
@@ -151,28 +173,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="core\APU.cpp" />
-    <ClCompile Include="core\Controller.cpp" />
-    <ClCompile Include="core\CPU_6502.cpp" />
-    <ClCompile Include="core\Mapper.cpp" />
-    <ClCompile Include="core\ppu2C02.cpp" />
-    <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="3ds_wrapper\3dswrapper.h" />
-    <ClInclude Include="core\APU.h" />
-    <ClInclude Include="core\Controller.h" />
-    <ClInclude Include="core\CPU_6502.h" />
-    <ClInclude Include="core\DMC.h" />
-    <ClInclude Include="core\Mapper.h" />
-    <ClInclude Include="core\Noise.h" />
-    <ClInclude Include="core\ppu2C02.h" />
-    <ClInclude Include="core\Pulse.h" />
-    <ClInclude Include="core\render.h" />
-    <ClInclude Include="core\Triangle.h" />
-    <ClInclude Include="sdl_wrapper\sdlwrapper.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
