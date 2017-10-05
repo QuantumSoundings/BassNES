@@ -15,11 +15,6 @@ vector<char> ReadAllBytes(u8* ptr, off_t size) {
 	}
 	return out;
 }
-void fillbuffer(char* pixels, u8* buffer) {
-	for (int i = 0; i<61440; i++) {
-		buffer[i] = RGB565(pixels[i * 4 + 1], pixels[i * 4 + 2], pixels[i * 4 + 3]);
-	}
-}
 int main_3ds() {
 	gfxInitDefault();
 	gfxSetDoubleBuffering(GFX_TOP, false);
@@ -99,12 +94,22 @@ int main_3ds() {
 	while (aptMainLoop()) {
 		gspWaitForVBlank();
 		//Grab input
-		map->runFrame();
+		
 		//fillbuffer((char*)(&map->ren->colorized),fb);
 		hidScanInput();
 		u32 kDown = hidKeysDown();
-		if (kDown & KEY_START)
+		u32 okDown = hidKeysHeld();
+		if (kDown & KEY_L &&kDown &KEY_R)
 			break;
+		map->input[0][0] = okDown & KEY_A | kDown & KEY_A ;
+		map->input[0][1] = okDown & KEY_B | kDown & KEY_B;
+		map->input[0][2] = okDown & KEY_SELECT | kDown & KEY_SELECT;
+		map->input[0][3] = okDown & KEY_START| kDown & KEY_START;
+		map->input[0][4] = okDown & KEY_UP | kDown & KEY_UP;
+		map->input[0][5] = okDown & KEY_DOWN | kDown & KEY_DOWN;
+		map->input[0][6] = okDown & KEY_LEFT | kDown & KEY_LEFT;
+		map->input[0][7] = okDown & KEY_RIGHT | kDown & KEY_RIGHT;
+		map->runFrame();
 		//gfxFlushBuffers();
 		gfxSwapBuffers();
 	}

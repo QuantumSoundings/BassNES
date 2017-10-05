@@ -85,7 +85,7 @@ public:
     bool spritepriority[64];
     bool spritehorizontal[64];
 	uint8_t oambuffer[32] = {};
-	int pixels[256 * 240] = {};
+	uint8_t pixels[256 * 240] = {};
     int pixelnum=0;
     bool delayset;
 	int spritepalette[64] = {};

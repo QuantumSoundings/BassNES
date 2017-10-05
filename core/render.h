@@ -16,7 +16,7 @@ public:
 		}
 	}
 
-	void buildImageRGBnoEmp(int* pixels) {
+	void buildImageRGBnoEmp(uint8_t* pixels) {
 		for (int i = 0; i < 61440; i++)
 			//colorized[i] = col[pixels[i]];
 			colorized[i] =  defaultPalette[pixels[i]];

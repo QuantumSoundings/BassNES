@@ -15,60 +15,60 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CPU_6502.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Mapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ppu2C02.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="APU.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="render.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Controller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sdlwrapper.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\APU.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\Controller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\CPU_6502.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\Mapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\ppu2C02.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="APU.h">
+    <ClInclude Include="3ds_wrapper\3dswrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Controller.h">
+    <ClInclude Include="core\APU.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CPU_6502.h">
+    <ClInclude Include="core\Controller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Mapper.h">
+    <ClInclude Include="core\CPU_6502.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ppu2C02.h">
+    <ClInclude Include="core\DMC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Pulse.h">
+    <ClInclude Include="core\Mapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Triangle.h">
+    <ClInclude Include="core\Noise.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Noise.h">
+    <ClInclude Include="core\ppu2C02.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DMC.h">
+    <ClInclude Include="core\Pulse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="3dswrapper.h">
+    <ClInclude Include="core\render.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\Triangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdl_wrapper\sdlwrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

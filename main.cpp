@@ -7,7 +7,7 @@
 #define SDL 0
 #define PLATFORM_TARGET SDL
 #if PLATFORM_TARGET == SDL
-#include "sdlwrapper.h"
+#include "sdl_wrapper\sdlwrapper.h"
 #
 #elif PLATFORM_TARGET == DS3
 #endif

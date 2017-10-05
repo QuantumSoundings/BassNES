@@ -152,28 +152,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Controller.cpp" />
-    <ClCompile Include="CPU_6502.cpp" />
+    <ClCompile Include="core\APU.cpp" />
+    <ClCompile Include="core\Controller.cpp" />
+    <ClCompile Include="core\CPU_6502.cpp" />
+    <ClCompile Include="core\Mapper.cpp" />
+    <ClCompile Include="core\ppu2C02.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Mapper.cpp" />
-    <ClCompile Include="ppu2C02.cpp" />
-    <ClCompile Include="APU.cpp" />
-    <ClCompile Include="render.h" />
-    <ClCompile Include="sdlwrapper.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="3dswrapper.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="APU.h" />
-    <ClInclude Include="Controller.h" />
-    <ClInclude Include="CPU_6502.h" />
-    <ClInclude Include="DMC.h" />
-    <ClInclude Include="Mapper.h" />
-    <ClInclude Include="Noise.h" />
-    <ClInclude Include="ppu2C02.h" />
-    <ClInclude Include="Pulse.h" />
-    <ClInclude Include="Triangle.h" />
+    <ClInclude Include="3ds_wrapper\3dswrapper.h" />
+    <ClInclude Include="core\APU.h" />
+    <ClInclude Include="core\Controller.h" />
+    <ClInclude Include="core\CPU_6502.h" />
+    <ClInclude Include="core\DMC.h" />
+    <ClInclude Include="core\Mapper.h" />
+    <ClInclude Include="core\Noise.h" />
+    <ClInclude Include="core\ppu2C02.h" />
+    <ClInclude Include="core\Pulse.h" />
+    <ClInclude Include="core\render.h" />
+    <ClInclude Include="core\Triangle.h" />
+    <ClInclude Include="sdl_wrapper\sdlwrapper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
