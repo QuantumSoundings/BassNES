@@ -1,4 +1,4 @@
-#include "Mapper.h"
+#include "..\core\Mapper.h"
 #include <3ds.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -101,14 +101,14 @@ int main_3ds() {
 		u32 okDown = hidKeysHeld();
 		if (kDown & KEY_L &&kDown &KEY_R)
 			break;
-		map->input[0][0] = okDown & KEY_A | kDown & KEY_A ;
-		map->input[0][1] = okDown & KEY_B | kDown & KEY_B;
-		map->input[0][2] = okDown & KEY_SELECT | kDown & KEY_SELECT;
-		map->input[0][3] = okDown & KEY_START| kDown & KEY_START;
-		map->input[0][4] = okDown & KEY_UP | kDown & KEY_UP;
-		map->input[0][5] = okDown & KEY_DOWN | kDown & KEY_DOWN;
-		map->input[0][6] = okDown & KEY_LEFT | kDown & KEY_LEFT;
-		map->input[0][7] = okDown & KEY_RIGHT | kDown & KEY_RIGHT;
+		map->input[0][0] = (okDown & KEY_A) | (kDown & KEY_A) ;
+		map->input[0][1] = (okDown & KEY_B) | (kDown & KEY_B);
+		map->input[0][2] = (okDown & KEY_SELECT) | (kDown & KEY_SELECT);
+		map->input[0][3] = (okDown & KEY_START)| (kDown & KEY_START);
+		map->input[0][4] = (okDown & KEY_UP) | (kDown & KEY_UP);
+		map->input[0][5] = (okDown & KEY_DOWN) | (kDown & KEY_DOWN);
+		map->input[0][6] = (okDown & KEY_LEFT) | (kDown & KEY_LEFT);
+		map->input[0][7] = (okDown & KEY_RIGHT) | (kDown & KEY_RIGHT);
 		map->runFrame();
 		//gfxFlushBuffers();
 		gfxSwapBuffers();

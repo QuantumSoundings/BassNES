@@ -3,13 +3,15 @@
 //
 //Launch config
 // 0 - SDL, 1 - 3ds
-#define DS3 1
-#define SDL 0
-#define PLATFORM_TARGET SDL
-#if PLATFORM_TARGET == SDL
+#ifdef SDL
 #include "sdl_wrapper\sdlwrapper.h"
-#
-#elif PLATFORM_TARGET == DS3
+#else
+#include"3ds_wrapper\3dswrapper.h"
+#include"core\CPU_6502.cpp"
+#include"core\APU.cpp"
+#include"core\ppu2C02.cpp"
+#include"core\Controller.cpp"
+#include"core\Mapper.cpp"
 #endif
 
 
@@ -19,9 +21,9 @@
 using namespace std;
 
 int main( int argc, char* args[] ){
-#if PLATFORM_TARGET == SDL
+#ifdef SDL
 	main_sdl();
-#elif PLATFORM_TARGET == DS3
+#else
 	main_3ds();
 #endif
     return 0;

@@ -99,3 +99,8 @@
 /.vs
 /SDL2.dll
 /x64/Debug
+/ARM/3ds
+/build
+/BassNES.smdh
+/BassNES.elf
+/BassNES.3dsx
