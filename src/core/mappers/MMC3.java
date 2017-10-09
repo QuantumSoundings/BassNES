@@ -113,6 +113,7 @@ public class MMC3 extends Mapper {
 	private void selectBank(byte b){
 		switch(bankselect&0b111){
 		case 0://select 2kb chr bank at CHR_ROM[0-1] (4-5)
+			b &= ~1; 
 			if(CHR_mode){
 				CHR_ROM[4] = CHRbanks[(b&(CHRbanks.length-1))];
 				CHR_ROM[5] = CHRbanks[(b&(CHRbanks.length-1))+1];
@@ -123,6 +124,7 @@ public class MMC3 extends Mapper {
 			}
 			break;
 		case 1://select 2kb chr bank at CHR_ROM[2-3] (6-7)
+			b &= ~1;
 			if(CHR_mode){
 				CHR_ROM[6] = CHRbanks[(b&(CHRbanks.length-1))];
 				CHR_ROM[7] = CHRbanks[(b&(CHRbanks.length-1))+1];
