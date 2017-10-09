@@ -34,8 +34,8 @@ public class CPU_6502 implements java.io.Serializable{
 	//registers
 	public int program_counter;
 	private byte stack_pointer;
-	public byte accumulator;
-	public byte x_index_register;
+	private byte accumulator;
+	private byte x_index_register;
 	private byte y_index_register;
 	//flags
 	private boolean NFlag;

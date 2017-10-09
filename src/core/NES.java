@@ -309,19 +309,21 @@ public class NES implements Runnable,NESAccess {
 		frameStartTime = System.nanoTime();
 		map.runFrame();
 		frameStopTime = System.nanoTime() - frameStartTime;
-		if(NesSettings.frameLimit?frameStopTime<flextimer:frameStopTime<16500000&&NesSettings.frameLimit)
-			try {
-				int waittime = (int) (flextimer-frameStopTime);
-				if(NesSettings.politeFrameTiming)
-					Thread.sleep(waittime/1000000,waittime%1000000 );
-				else
-					while(System.nanoTime()-frameStartTime<16500000){
-					//if(NesSettings.politeFrameTiming)
-						//Thread.sleep(0,10000);
-					}
-			} catch ( InterruptedException e){
-				e.printStackTrace();
-			}
+		if(NesSettings.frameLimit)
+			if(frameStopTime<flextimer)
+				try {
+					
+					int waittime = (int) (flextimer-frameStopTime);
+					if(NesSettings.politeFrameTiming)
+						Thread.sleep(waittime/1000000,waittime%1000000 );
+					else
+						while(System.nanoTime()-frameStartTime<16500000){
+						//if(NesSettings.politeFrameTiming)
+							//Thread.sleep(0,10000);
+						}
+				} catch ( InterruptedException e){
+					e.printStackTrace();
+				}
 			
 		if(framecount%60==0){
 			double x = 1000.0/(System.currentTimeMillis()-fpsStartTime);
