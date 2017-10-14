@@ -12,10 +12,13 @@ class Noise;
 class DMC;
 class APU{
 private:
-	int output[5] = {};
+	double output[5] = {};
+	
 	double cyclespersample;
 	int intcyclespersample;
-	double samplenum;
+	uint8_t buffer[1024];
+	int bpointer = 0;
+	double samplenum = 0.0;
 	bool stepmode4 = true;
 	int stepcycle;
 	bool irqInhibit;
@@ -33,6 +36,7 @@ public:
 	Pulse* pulse2;
 	Noise* noise;
 	DMC* dmc;
+	uint32_t dev;
 	int samplecounter = 0;
     long cyclenum=0;
     Mapper* map;
@@ -40,6 +44,7 @@ public:
 	void setSampleRate(int rate);
 	void writeRegister(int index, uint8_t b);
 	uint8_t readRegisters(int index);
+	void mixAudio();
 	void frameClock();
 	void setIRQ();
 	void doCycle();

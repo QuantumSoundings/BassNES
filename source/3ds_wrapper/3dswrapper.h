@@ -24,7 +24,7 @@ int main_3ds() {
 	consoleInit(GFX_BOTTOM, NULL);
 	printf("Hello 3ds world\n");
 
-	FILE* file = fopen("sdmc:/3ds/smb.nes", "rb");
+	FILE* file = fopen("sdmc:/3ds/dkj.nes", "rb");
 	Mapper* map = new Mapper();
 	off_t bytesRead = 1;
 	off_t size = 3;
@@ -89,18 +89,27 @@ int main_3ds() {
 		map->ren->colorized = (int*)fb;
 	}
 
-
+	int fps = 0;
+	time_t oldTime, unixTime;
 	while (aptMainLoop()) {
 		//gspWaitForVBlank();
 		//Grab input
 
 		//fillbuffer((char*)(&map->ren->colorized),fb);
 		hidScanInput();
-		time_t unixTime = time(NULL);
+		unixTime = time(NULL);
+		if (oldTime != unixTime) {
+			oldTime = unixTime;
+			printf("Fps is %i \n", fps);
+			fps = 1;		
+		}
+		else
+			++fps;
+
 		//struct tm* timeStruct = gmtime((const time_t *)& unixTime);
 		u32 kDown = hidKeysDown();
 		u32 okDown = hidKeysHeld();
-		if (kDown & KEY_L &&kDown &KEY_R)
+		if (okDown & KEY_L &&okDown &KEY_R)
 			break;
 		if (finishedSetup) {
 			map->input[0][0] = (okDown & KEY_A) | (kDown & KEY_A);
@@ -113,7 +122,7 @@ int main_3ds() {
 			map->input[0][7] = (okDown & KEY_RIGHT) | (kDown & KEY_RIGHT);
 			map->runFrame();
 		}
-		printf("Frame time is %d  \n", unixTime);
+		//printf("Frame time is %d  \n", unixTime);
 		//gfxFlushBuffers();
 		//gfxSwapBuffers();
 	}

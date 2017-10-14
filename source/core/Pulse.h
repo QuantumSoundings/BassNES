@@ -22,14 +22,14 @@ private:
 	bool sweepReload = false;
 	int shift;
 	bool negate;
-	int* location;
+	double* location;
 	int tCount=0,timer=0,decay=0;
 	bool constantVolume,loop,eStart,block,enable;
 	int volume,delayedChange;
 public:
 	int lengthCount = 0;
 	bool output;
-	Pulse(bool number, int* loc) {
+	Pulse(bool number, double* loc) {
 		location = loc;
 		p1 = number;
 	}

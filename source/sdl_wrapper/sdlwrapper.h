@@ -32,6 +32,10 @@ inline std::vector<char> ReadAllBytes(char const* filename)
 
 	return result;
 }
+void SDLAudioCallback(void* UserData, uint8_t* AudioData, int length) {
+	memset(AudioData, 0, length);
+}
+SDL_AudioSpec AudioSettings;
 inline int main_sdl() {
 	using namespace std;
 	Mapper map;
@@ -45,7 +49,7 @@ inline int main_sdl() {
 	SDL_Surface* screenSurface = NULL;
 
 	//Initialize SDL
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) < 0)
 	{
 		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
 	}
@@ -72,7 +76,26 @@ inline int main_sdl() {
 			// SDL_Delay( 2000 );
 		}
 	}
-	cout << "Test" << endl;
+	AudioSettings = { 0 };
+	AudioSettings.freq = 44100;
+	AudioSettings.format = AUDIO_U8;
+	AudioSettings.channels = 1;
+	//AudioSettings.samples = 1024;
+	//AudioSettings.callback = &SDLAudioCallback;
+	SDL_AudioSpec audiogot = { 0 };
+	SDL_AudioDeviceID dev;
+	dev = SDL_OpenAudioDevice(NULL, 0, &AudioSettings, 0, 0);
+	//SDL_OpenAudio(&AudioSettings, &audiogot);
+	/*if (audiogot.channels != 2)
+		cout << "yo fam we didn't get 1 channel we got " <<(int) audiogot.channels << endl;
+	if (audiogot.format != AUDIO_S16)
+		cout << "yo fam we didn't get the right format we got " <<hex<< (int)audiogot.format <<dec<< endl;
+	cout << "Test" << endl;*/
+	if (dev == 0) {
+		SDL_Log("Failed to open audio: %s", SDL_GetError());
+	}
+	SDL_PauseAudioDevice(dev, 0);
+	map.apu->dev = (uint32_t)dev;
 
 	cout << map.ppu->render_b << endl;
 	char prg, chr;
@@ -126,9 +149,10 @@ inline int main_sdl() {
 	SDL_Event e;
 	Uint32 startTime = 0;
 	SDL_Renderer* gRender = NULL;
-	gRender = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
+	gRender = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	SDL_Texture* texture = SDL_CreateTexture(gRender, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 256, 240);
 	double totalframetime=0;
+
 	int framenum=0;
 	while (!quit) {
 		const Uint64 start = SDL_GetPerformanceCounter();

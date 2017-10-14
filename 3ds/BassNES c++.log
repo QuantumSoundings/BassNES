@@ -1,1 +1,9 @@
-﻿  make[1]: `/c/Users/Jordan/source/repos/BassNES/BassNES.3dsx' is up to date.
+﻿  main.cpp
+  arm-none-eabi-g++ -MMD -MP -MF /c/Users/Jordan/source/repos/BassNES/build/main.d -g -Wall -O2 -mword-relocations -fomit-frame-pointer -ffunction-sections -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft -I/c/Users/Jordan/source/repos/BassNES/include -I/c/devkitPro/libctru/include -I/c/Users/Jordan/source/repos/BassNES/build -DARM11 -D_3DS -fno-rtti -fno-exceptions -std=gnu++11 -c /c/Users/Jordan/source/repos/BassNES/source/main.cpp -o main.o 
+  In file included from c:/Users/Jordan/source/repos/BassNES/source/main.cpp:9:0:
+  c:/Users/Jordan/source/repos/BassNES/source/3ds_wrapper\3dswrapper.h: In function 'int main_3ds()':
+c:/Users/Jordan/source/repos/BassNES/source/3ds_wrapper\3dswrapper.h(101,3): warning G2DCA59C3: 'oldTime' may be used uninitialized in this function [-Wmaybe-uninitialized]
+     if (oldTime != unixTime) {
+     ^~
+  linking BassNES.elf
+  built ... BassNES.3dsx

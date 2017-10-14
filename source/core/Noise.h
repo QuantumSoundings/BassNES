@@ -5,7 +5,7 @@ private:
 	int lengthLookupTable[32] = {
 		10, 254, 20, 2, 40, 4, 80, 6, 160, 8, 60, 10, 14, 12, 26, 14,
 			12, 16, 24, 18, 48, 20, 96, 22, 192, 24, 72, 26, 16, 28, 32, 30 };
-	int* location;
+	double* location;
 	int delayedChange;
 	bool loop, constantVolume, mode, enable, eStart, block;
 	int volume = 0, timer = 0, tCount = 0, decay = 0;
@@ -14,7 +14,7 @@ private:
 
 public:
 	int lengthCount = 0;
-	Noise(int* loc) {
+	Noise(double* loc) {
 		location = loc;
 	}
 	void registerWrite(int index, uint8_t b, int clock) {
@@ -59,7 +59,7 @@ public:
 		default: break;
 		}
 	}
-	int shiftreg = 0;
+	int shiftreg = 1;
 	void clockTimer() {
 		if (tCount == 0) {
 			int feedback;

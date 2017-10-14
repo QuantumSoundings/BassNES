@@ -5,6 +5,10 @@
 #include "Noise.h"
 #include "DMC.h"
 #include "CPU_6502.h"
+#include <iostream>
+#ifdef SDL
+#include <SDL.h>
+#endif
 APU::APU(Mapper* m){
 	pulse1 = new Pulse(true, &output[0]);
 	pulse2 = new Pulse(false, &output[1]);
@@ -99,6 +103,37 @@ uint8_t APU::readRegisters(int index) {
 		return b;
 	}
 	return 0;
+}
+void APU::mixAudio() {
+	output[0] /= samplecounter;
+	output[1] /= samplecounter;
+	output[2] /= samplecounter;
+	output[3] /= samplecounter;
+	output[4] /= samplecounter;
+	double pulse_out = (95.88 / (8128.0 / (output[0] + output[1]) + 100));
+	double tnd_out = (163.67 / (24329.0 / (3 * output[2]+ 2 * output[3] + output[4]) + 100));//0.00851*t + 0.00494*n + 0.00335*d;
+	double out = pulse_out + tnd_out;
+	out *= 250;
+	int sample = (int)out;
+	buffer[bpointer] = sample;
+	bpointer++;
+	//cout <<dec<< "added sample to buffer " <<(int)sample<< endl;
+	
+	if (bpointer >= 1024) {
+#ifdef SDL
+		//cout << "queueing audio" << endl;
+		if(SDL_GetQueuedAudioSize(dev)<20000)
+			SDL_QueueAudio(dev, buffer, 1024);
+		
+#endif
+		bpointer = 0;
+	}
+	output[0] = 0;
+	output[1] = 0;
+	output[2] = 0;
+	output[3] = 0;
+	output[4] = 0;
+
 }
 void APU::frameClock() {
 	if (stepmode4) {
@@ -203,11 +238,13 @@ void APU::doCycle() {
 	cpucounter++;
 	samplenum++;
 	samplecounter++;
+	//cout << "samplenum: " <<samplenum<< " cyclesper: "<<cyclespersample<<" the math: "<<samplenum-cyclespersample<< endl;
 	//if (NesSettings.highQualitySampling)
 	//	mixer.mixHighQualitySample();
 	//else 
-	if (samplenum - cyclespersample>0) {
-		//mixer.mixSample();
+	if ((samplenum - cyclespersample)>0) {
+		//cout << "in the if" << endl;
+		mixAudio();
 		samplecounter = 0;
 		samplenum -= cyclespersample;
 	}
