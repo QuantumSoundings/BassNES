@@ -126,8 +126,10 @@ inline int main_sdl() {
 	SDL_Event e;
 	Uint32 startTime = 0;
 	SDL_Renderer* gRender = NULL;
-	gRender = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);// | SDL_RENDERER_PRESENTVSYNC);
+	gRender = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 	SDL_Texture* texture = SDL_CreateTexture(gRender, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 256, 240);
+	double totalframetime=0;
+	int framenum=0;
 	while (!quit) {
 		const Uint64 start = SDL_GetPerformanceCounter();
 		SDL_SetRenderDrawColor(gRender, 0, 0, 0, SDL_ALPHA_OPAQUE);
@@ -155,7 +157,10 @@ inline int main_sdl() {
 		const Uint64 end = SDL_GetPerformanceCounter();
 		const static Uint64 freq = SDL_GetPerformanceFrequency();
 		const double seconds = (end - start) / static_cast< double >(freq);
-		cout << "Frame time: " << seconds * 1000.0 << "ms" << endl;
+		totalframetime += seconds;
+		++framenum;
+		if((framenum%60)==0)
+			cout << "Average frame time: "<<(totalframetime/framenum)*1000<<"ms   FPS: "<<1000/((totalframetime/framenum)*1000)<<"  " << "Frame time: " << seconds * 1000.0 << "ms" << endl;
 	}
 	/*while (true) {
 	if (print) {

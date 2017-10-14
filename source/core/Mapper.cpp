@@ -1,6 +1,7 @@
 //
 // Created by Jordan on 9/30/2017.
 //
+#include <cstdint>
 #include <iostream>
 #include <cassert>
 #include "Mapper.h"
@@ -38,6 +39,9 @@ void Mapper::setNameTable(Mirror mirroringType) {
 		nametables[1] = ppu_internal_ram[1];
 		nametables[2] = ppu_internal_ram[0];
 		nametables[3] = ppu_internal_ram[1];
+		break;
+	case SingleScreenHigh:
+	case SingleScreenLow:
 		break;
 	}
 }

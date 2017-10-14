@@ -29,6 +29,9 @@ public:
 		for (int y = 0; y<240; y++)
 			for (int x = 0; x<256; x++)
 				colorized[240 * x + (240 - y)] = defaultPalette[pixels[y * 256 + x]] << 8;
+		//for (int i = 0; i < 61440; i++)
+			//colorized[i] = col[pixels[i]];
+			//colorized[i] = defaultPalette[pixels[i]]<<8;
 #endif
 	}
 	int rm(int col) {

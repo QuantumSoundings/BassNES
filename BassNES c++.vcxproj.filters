@@ -79,6 +79,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Makefile" />
+    <Text Include="Makefile" />
   </ItemGroup>
 </Project>

@@ -94,7 +94,7 @@ void ppu2C02::writeRegisters(int index, uint8_t b) {
         case 7:
             tv=v;
             map->ppuwrite((v&0x3fff), b);
-            if(!dorender()||scanline>240&&scanline<=261)
+            if(!dorender()||(scanline>240&&scanline<=261))
                 v+= PPUCTRL_vraminc?32:1;
             else if((v&0x7000)==0x7000){
                 int ys = v &0x3e0;
@@ -193,78 +193,98 @@ void ppu2C02::incy(){
         v = (v & ~0x03E0) | (y << 5);
     }
 }
-void ppu2C02::getBG(){
-    switch((pcycle-1)%8){
+inline void ppu2C02::fetchNT() {
+	shiftreg16a = (shiftreg16a << 8) | ptablemap1;
+	shiftreg16b = (shiftreg16b << 8) | ptablemap0;
+	palettelatchold = palettelatchnew;
+	palettelatchnew = (atablebyte << 2);
+	nametablebyte = map->ppureadNT(0x2000 | (v & 0x0fff)) << 4;
+	nametablebyte += (PPUCTRL_bpta ? 0x1000 : 0);
+	cyclepart = 0;
+}
+inline void ppu2C02::fetchAT() {
+	int tempx = 0x23C0 | (v & 0x0C00) | ((v >> 4) & 0x38) | ((v >> 2) & 0x07);
+	uint8_t attbyte = map->ppureadAT(tempx);
+	int sel = ((v & 2) >> 1) | ((v & 0x40) >> 5);
+	atablebyte = ((0xff & attbyte) >> (sel * 2)) & 3;
+}
+inline void ppu2C02::fetchtb1() {
+	nametablebyte = nametablebyte + ((v & 0x7000) >> 12);
+	ptablemap0 = map->ppureadPT(nametablebyte);
+}
+inline void ppu2C02::fetchtb2() {
+	ptablemap1 = map->ppureadPT(nametablebyte + 8);
+}
+inline void ppu2C02::fetchinc() {
+	if (pcycle != 256)
+		incx();
+	else
+		incy();
+}
+inline void ppu2C02::getBG(int x){
+	++cyclepart;
+	/*fetchNT();
+	fetchAT();
+	fetchtb1();
+	fetchtb2();
+	fetchinc();*/
+	//(*this.*bgGet[pcycle & 7])();
+    switch(x&7){
         case 0://name table
-            shiftreg16a = (shiftreg16a<<8)|ptablemap1;
-            shiftreg16b = (shiftreg16b<<8)|ptablemap0;
-            palettelatchold = palettelatchnew;
-            palettelatchnew = (atablebyte<<2);
-            cyclepart=0;
-            nametablebyte = map->ppureadNT(0x2000|(v&0x0fff))<<4;
-            nametablebyte+=(PPUCTRL_bpta?0x1000:0);
+			fetchNT();
             break;
-        case 1: cyclepart=1;break;
-        case 2:{//attribute table
-            int tempx =0x23C0 | (v & 0x0C00) | ((v >> 4) & 0x38) | ((v >> 2) & 0x07);
-            uint8_t attbyte = map->ppureadAT(tempx);
-            int sel = ((v & 2) >> 1) | ((v & 0x40) >> 5);
-            atablebyte = ((0xff&attbyte)>>(sel*2))&3;
-            cyclepart=2;
-            break;}
-        case 3:{//tile low
-            nametablebyte = nametablebyte+((v&0x7000)>>12);
-            ptablemap0 = map->ppureadPT(nametablebyte);
-            cyclepart=3;
-            break;}
-        case 4:cyclepart=4;break;
+        case 1: break;
+        case 2://attribute table
+			fetchAT();
+            break;
+        case 3://tile low
+			fetchtb1();
+            break;
+        case 4:break;
         case 5://tile high
-            ptablemap1 = map->ppureadPT(nametablebyte+8);
-            cyclepart=5;
+			fetchtb2();
             break;
-        case 6: cyclepart=6;break;
+        case 6: break;
         case 7:
-            if(pcycle !=256)
-                incx();
-            else
-                incy();
-            cyclepart=7;
+			fetchinc();
             break;
     }
 }
 void ppu2C02::doCycle(){
-    if(pcycle>339){
-        pcycle=0;
-        if(scanline==finalscanline){
-            scanline=-1;
-            oddframe=!oddframe;
-            doneFrame=true;
-        }
-        else
-            scanline++;
-        if(scanline==-1){
-            PPUSTATUS_so=false;
-            PPUSTATUS_sz = false;
-        }
-        else if(scanline==241)
-            genFrame();
-        oldspritezero = spritezero;
-        spritezero=false;
+    if(pcycle<=339){
+		++pcycle;
+		if (scanline < 240)
+			render();
     }
     else{
-        pcycle++;
-        if(scanline<240)
-            render();
+        
+		pcycle = 0;
+		if (scanline == finalscanline) {
+			scanline = -1;
+			oddframe = !oddframe;
+			doneFrame = true;
+		}
+		else
+			scanline++;
+		if (scanline == -1) {
+			PPUSTATUS_so = false;
+			PPUSTATUS_sz = false;
+		}
+		else if (scanline == 241)
+			genFrame();
+		oldspritezero = spritezero;
+		spritezero = false;
+
     }
     prevrender = render_b;
 }
 void ppu2C02::render(){
     int cycle = pcycle;
     if(cycle<=256){
-        if(prevrender)
-            getBG();
+		if (prevrender)//&&(cycle)%8==0)
+            getBG(cycle-1);
         if(scanline>=0){
-            drawpixel();
+			 drawpixel();
             if((pcycle&1)==0)
                 spriteEvaluationNew();
         }
@@ -293,8 +313,12 @@ void ppu2C02::render(){
         }
     }
     else if(cycle<=336){
-        if(prevrender)
-            getBG();
+		if (prevrender)// && (cycle) % 8 == 0)
+			getBG(cycle-1);
+			//getBG(cycle);
+			//getBG(cycle);
+			//getBG(cycle);
+		
     }
     else if(cycle==339||cycle==337){
         map->ppureadNT(v&0xfff);
@@ -311,6 +335,7 @@ void ppu2C02::genFrame(){
 	pixelnum = 0;
 }
 void ppu2C02::drawpixel(){
+	
     if(render_b||(v&0x3f00)!=0x3f00){
         int backgroundcolor=0;
         int cycle = pcycle;
@@ -320,13 +345,13 @@ void ppu2C02::drawpixel(){
             if(bit!=0)
                 backgroundcolor =(offset>=8?palettelatchold:palettelatchnew)|bit;
         }
-        if(PPUMASK_ss){
+        if(PPUMASK_ss&&leftmask_s<cycle){
             for(int i = 0;i < numsprites;i++){
                 int off = 7-(cycle-spriteco[i]-1);
                 if(off>=0&&off<8){
                     int bit =  (((spritebm[i]>>(off))&1)<<1)|((spritebm[i]>>((off)+8))&1);
                     if(bit!=0){
-                        if(oldspritezero&&!PPUSTATUS_sz&&i==0&&PPUMASK_sb&&backgroundcolor!=0&&leftmask_s<cycle&&cycle<256){
+                        if(oldspritezero&&!PPUSTATUS_sz&&i==0&&PPUMASK_sb&&backgroundcolor!=0&&cycle<256){
                             PPUSTATUS_sz = true;
                         }
                         if((spritepriority[i]||backgroundcolor==0)){
@@ -338,39 +363,13 @@ void ppu2C02::drawpixel(){
                 }
             }
         }
-        pixels[pixelnum++] = (PPUMASK_colorbits)|(map->ppu_palette[backgroundcolor]);
+        pixels[pixelnum++] = (map->ppu_palette[backgroundcolor]);
     }
     else
-        pixels[pixelnum++] = (PPUMASK_colorbits)|map->ppuread(v);
+        pixels[pixelnum++] = map->ppuread(v);
+	//cyclepart = (++cyclepart) % 8;
 }
-int ppu2C02::pixelColor(){
-    int backgroundcolor=0;
-    int cycle = pcycle;
-    int offset = 15-(fineX+cyclepart);
-    if(PPUMASK_sb&&leftmask_b<cycle){
-        int bit = (((shiftreg16a>>(offset-1))&2))|((shiftreg16b>>offset)&1);
-        if(bit!=0)
-            backgroundcolor =(offset>=8?palettelatchold:palettelatchnew)|bit;
-    }
-    if(numsprites>0&&PPUMASK_ss){
-        for(int i = 0;i < numsprites;i++){
-            int off = (cycle-spriteco[i]-1);
-            if(off>=0&&off<8){
-                int bit =  (((spritebm[i]>>(7-off))&1)<<1)|((spritebm[i]>>((7-off)+8))&1);
-                if(bit!=0){
-                    if(oldspritezero&&!PPUSTATUS_sz&&i==0&&PPUMASK_sb&&backgroundcolor!=0&&leftmask_s<cycle&&cycle<256){
-                        delayset=true;
-                    }
-                    if((spritepriority[i]||backgroundcolor==0)){
-                        return 0xff&map->ppu_palette[0x10+4*spritepalette[i]+bit];
-                    }
-                    break;
-                }
-            }
-        }
-    }
-    return 0xff&map->ppu_palette[backgroundcolor];
-}
+
 int ppu2C02::inrange(int y){
     int x = scanline-y;
     if(x>=0)

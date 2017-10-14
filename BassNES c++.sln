@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BassNES c++", "BassNES c++.vcxproj", "{DA58265C-79BE-4DFE-9C4C-C473F66F4C02}"
 EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		3ds|ARM = 3ds|ARM
 		3ds|x64 = 3ds|x64
@@ -22,8 +25,8 @@ Global
 		{DA58265C-79BE-4DFE-9C4C-C473F66F4C02}.3ds|ARM.Build.0 = 3ds|ARM
 		{DA58265C-79BE-4DFE-9C4C-C473F66F4C02}.3ds|x64.ActiveCfg = 3ds|x64
 		{DA58265C-79BE-4DFE-9C4C-C473F66F4C02}.3ds|x64.Build.0 = 3ds|x64
-		{DA58265C-79BE-4DFE-9C4C-C473F66F4C02}.3ds|x86.ActiveCfg = 3ds|ARM
-		{DA58265C-79BE-4DFE-9C4C-C473F66F4C02}.3ds|x86.Build.0 = 3ds|ARM
+		{DA58265C-79BE-4DFE-9C4C-C473F66F4C02}.3ds|x86.ActiveCfg = 3ds|Win32
+		{DA58265C-79BE-4DFE-9C4C-C473F66F4C02}.3ds|x86.Build.0 = 3ds|Win32
 		{DA58265C-79BE-4DFE-9C4C-C473F66F4C02}.Debug|ARM.ActiveCfg = Debug|ARM
 		{DA58265C-79BE-4DFE-9C4C-C473F66F4C02}.Debug|ARM.Build.0 = Debug|ARM
 		{DA58265C-79BE-4DFE-9C4C-C473F66F4C02}.Debug|x64.ActiveCfg = Debug|x64
@@ -41,6 +44,15 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {D22BEFDF-23D2-4824-BBFA-0FAA0AA79A34}
+		SolutionGuid = {0985BE6C-85DE-4282-8C4F-DF49AC0AD3C3}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

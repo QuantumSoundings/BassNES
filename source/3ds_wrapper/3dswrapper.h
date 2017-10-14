@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <vector>
+#include <time.h>
 #include <cassert>
 #define SAMPLERATE 44100
 #define SAMPLESPERBUF (SAMPLERATE / 30)
@@ -63,8 +64,6 @@ int main_3ds() {
 		vector<uint8_t> prgrom(16384 * prg, 0);
 		vector<uint8_t> chrrom(8192 * chr, 0);
 		int count = 0;
-		char in;
-		char* input = &in;
 		vector<char>::iterator iter = data.begin();
 		for (int i = 0; i < 16; i++)
 			++iter;
@@ -92,26 +91,31 @@ int main_3ds() {
 
 
 	while (aptMainLoop()) {
-		gspWaitForVBlank();
+		//gspWaitForVBlank();
 		//Grab input
-		
+
 		//fillbuffer((char*)(&map->ren->colorized),fb);
 		hidScanInput();
+		time_t unixTime = time(NULL);
+		//struct tm* timeStruct = gmtime((const time_t *)& unixTime);
 		u32 kDown = hidKeysDown();
 		u32 okDown = hidKeysHeld();
 		if (kDown & KEY_L &&kDown &KEY_R)
 			break;
-		map->input[0][0] = (okDown & KEY_A) | (kDown & KEY_A) ;
-		map->input[0][1] = (okDown & KEY_B) | (kDown & KEY_B);
-		map->input[0][2] = (okDown & KEY_SELECT) | (kDown & KEY_SELECT);
-		map->input[0][3] = (okDown & KEY_START)| (kDown & KEY_START);
-		map->input[0][4] = (okDown & KEY_UP) | (kDown & KEY_UP);
-		map->input[0][5] = (okDown & KEY_DOWN) | (kDown & KEY_DOWN);
-		map->input[0][6] = (okDown & KEY_LEFT) | (kDown & KEY_LEFT);
-		map->input[0][7] = (okDown & KEY_RIGHT) | (kDown & KEY_RIGHT);
-		map->runFrame();
+		if (finishedSetup) {
+			map->input[0][0] = (okDown & KEY_A) | (kDown & KEY_A);
+			map->input[0][1] = (okDown & KEY_B) | (kDown & KEY_B);
+			map->input[0][2] = (okDown & KEY_SELECT) | (kDown & KEY_SELECT);
+			map->input[0][3] = (okDown & KEY_START) | (kDown & KEY_START);
+			map->input[0][4] = (okDown & KEY_UP) | (kDown & KEY_UP);
+			map->input[0][5] = (okDown & KEY_DOWN) | (kDown & KEY_DOWN);
+			map->input[0][6] = (okDown & KEY_LEFT) | (kDown & KEY_LEFT);
+			map->input[0][7] = (okDown & KEY_RIGHT) | (kDown & KEY_RIGHT);
+			map->runFrame();
+		}
+		printf("Frame time is %d  \n", unixTime);
 		//gfxFlushBuffers();
-		gfxSwapBuffers();
+		//gfxSwapBuffers();
 	}
 
 	gfxExit();

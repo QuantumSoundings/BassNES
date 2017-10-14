@@ -30,6 +30,7 @@ include $(DEVKITARM)/3ds_rules
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
+#EXEPATH     :=  bin
 BUILD		:=	build
 SOURCES		:=	source
 SOURCES_CORE:=  source/core

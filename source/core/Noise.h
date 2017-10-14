@@ -39,7 +39,7 @@ public:
 			break;
 		}
 		case 3:{
-			if (enable)
+			if (enable) {
 				if (clock == 14915) {
 					if (lengthCount == 0) {
 						lengthCount = (b & 0xff) >> 3;
@@ -51,9 +51,10 @@ public:
 					lengthCount = (b & 0xff) >> 3;
 					lengthCount = lengthLookupTable[lengthCount];
 				}
-				decay = volume;
-				eStart = true;
-				break;
+			}
+			decay = volume;
+			eStart = true;
+			break;
 		}
 		default: break;
 		}

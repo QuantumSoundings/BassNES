@@ -96,7 +96,24 @@ public:
     uint8_t readRegister(int index);
     void writeRegisters(int index, uint8_t b);
     bool dorender();
-    void getBG();
+	void fetchNT();
+	void fetchAT();
+	void fetchtb1();
+	void fetchtb2();
+	void fetchinc();
+	void ret() {};
+	typedef void (ppu2C02::*bgfunction)();
+	bgfunction bgGet[8] = {
+		&ppu2C02::fetchinc,
+		&ppu2C02::fetchNT,
+		&ppu2C02::ret,
+		&ppu2C02::fetchAT,
+		&ppu2C02::fetchtb1,
+		&ppu2C02::ret,
+		&ppu2C02::fetchtb2,
+		&ppu2C02::ret
+	};
+    void getBG(int x);
     void doCycle();
     void render();
     void spriteEvaluationNew();

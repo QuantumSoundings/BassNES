@@ -100,6 +100,7 @@ void CPU_6502::dma(){
             program_counter++;
             map->cpuread(program_counter);
         }
+		//(*this.*cpuaddressing[current_instruction])();
         switch(current_instruction){
             case 0x00:brk();break;
             case 0x01:indx_r();break;
@@ -279,7 +280,7 @@ void CPU_6502::dma(){
             case 0xaf:abs_r();break;//lax
             case 0xb0:relative();break;//bcs
             case 0xb1:indy_r();break;//lda
-            case 0xb2:break;///////////////////////////////////////////////////////////////
+			case 0xb2:break;///////////////////////////////////////////////////////////////
             case 0xb3:indy_r();break;//lax
             case 0xb4:zerox_r();break;//ldy
             case 0xb5:zerox_r();break;//lda
@@ -311,7 +312,7 @@ void CPU_6502::dma(){
             case 0xcf:abs_rw();break;//dcp
             case 0xd0:relative();break;//bne
             case 0xd1:indy_r();break;//cmp
-            case 0xd2:break;///////////////////////////////////////////////////////////////
+			case 0xd2:break;///////////////////////////////////////////////////////////////
             case 0xd3:indy_rw();break;//dcp
             case 0xd4:zerox_r();break;//skb
             case 0xd5:zerox_r();break;//cmp
@@ -343,7 +344,7 @@ void CPU_6502::dma(){
             case 0xef:abs_rw();break;//isb
             case 0xf0:relative();break;//beq
             case 0xf1:indy_r();break;//sbc
-            case 0xf2:break;///////////////////////////////////////////////////////////////
+			case 0xf2:break;///////////////////////////////////////////////////////////////
             case 0xf3:indy_rw();break;//isb
             case 0xf4:zerox_r();break;//skb
             case 0xf5:zerox_r();break;//sbc

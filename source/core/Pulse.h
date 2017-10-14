@@ -24,8 +24,8 @@ private:
 	bool negate;
 	int* location;
 	int tCount=0,timer=0,decay=0;
-	bool constantVolume,delayedChange,loop,eStart,block,enable;
-	int volume;
+	bool constantVolume,loop,eStart,block,enable;
+	int volume,delayedChange;
 public:
 	int lengthCount = 0;
 	bool output;
@@ -84,7 +84,7 @@ public:
 		}
 		case 3:{
 			int x = b >> 3;
-			if (enable)
+			if (enable) {
 				if (clock == 14915) {
 					if (lengthCount == 0) {
 						lengthCount = lengthLookupTable[x];
@@ -93,6 +93,7 @@ public:
 				}
 				else
 					lengthCount = lengthLookupTable[x];
+			}
 			dutynumber = 0;
 			timer &= 0b11111111;
 			timer |= (b & 0b111) << 8;

@@ -13,7 +13,6 @@ class DMC;
 class APU{
 private:
 	int output[5] = {};
-	
 	double cyclespersample;
 	int intcyclespersample;
 	double samplenum;

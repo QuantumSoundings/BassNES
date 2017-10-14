@@ -43,7 +43,7 @@ public:
 		}
 		case 3:{
 			int x = b >> 3;
-			if (enable)
+			if (enable) {
 				if (clock == 14915) {
 					if (lengthCount == 0) {
 						lengthCount = lengthlookup[x];
@@ -51,11 +51,11 @@ public:
 					}
 				}
 				else lengthCount = lengthlookup[x];
-
-				timer &= 0b11111111;
-				timer |= (b & 0b111) << 8;
-				linearReloadFlag = true;
-				break;
+			}
+			timer &= 0b11111111;
+			timer |= (b & 0b111) << 8;
+			linearReloadFlag = true;
+			break;
 		}
 		}
 	}

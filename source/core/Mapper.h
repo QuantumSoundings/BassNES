@@ -22,7 +22,7 @@ public:
     uint8_t PRG_ROM[2][0x4000];
 	uint8_t PRG_RAM[0x2000] = {0};
     uint8_t CHR_ROM[2][0x1000];
-    uint8_t cpu_mmr[0x14];
+    uint8_t cpu_mmr[0x20];
 
 	uint8_t cpu_ram[0x800] = {0};
 
