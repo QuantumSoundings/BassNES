@@ -149,7 +149,7 @@ inline int main_sdl() {
 	SDL_Event e;
 	Uint32 startTime = 0;
 	SDL_Renderer* gRender = NULL;
-	gRender = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	gRender = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);// | SDL_RENDERER_PRESENTVSYNC);
 	SDL_Texture* texture = SDL_CreateTexture(gRender, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 256, 240);
 	double totalframetime=0;
 

@@ -7,6 +7,15 @@
 class Mapper;
 class CPU_6502{
 private:
+	//flags
+	bool NFlag = false;
+	bool VFlag = false;
+	bool BFlag = false;
+	bool DFlag = false;
+	bool IFlag = false;
+	bool ZFlag = false;
+	bool CFlag = false;
+
     bool irqs[3];
     
     //other stuff
@@ -24,6 +33,7 @@ private:
 
     //Methods
     uint8_t buildFlags();
+	void setNFlag(uint8_t val);
     void setFlags(uint8_t x);
     void dma();
     void pollInterrupts();
@@ -139,7 +149,7 @@ private:
     void txs();
     void tya();
 
-	typedef void (CPU_6502::*cpu_function)();
+	/*typedef void (CPU_6502::*cpu_function)();
 	cpu_function cpuaddressing[256] = {
 		&CPU_6502::brk
 		,&CPU_6502::indx_r
@@ -398,18 +408,10 @@ private:
 		,&CPU_6502::abs_x_rw//inc
 		,&CPU_6502::abs_x_rw//isb
 
-	};
+	};*/
 
 public:
-	//flags
-	bool NFlag = false;
-	bool VFlag = false;
-	bool BFlag = false;
-	bool DFlag = false;
-	bool IFlag = false;
-	bool ZFlag = false;
-	bool CFlag = false;
-
+	
 	//registers
 	uint8_t accumulator = 0;
 	uint8_t x_index_register = 0;
@@ -438,7 +440,6 @@ public:
     void setNMI(bool donmi);
     void setIRQ(IRQSource irq);
     void removeIRQ(IRQSource irq);
-	void setNFlag(uint8_t val);
 
     int dxx = 0;
 };
