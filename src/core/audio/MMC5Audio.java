@@ -19,7 +19,7 @@ public class MMC5Audio extends Channel{
 	boolean doingIRQ;
 	private int pcmdata;
 
-	private final double mixRatio = 0.00376;
+	private final double mixRatio = 0.0226;
 	private final double pcmRatio = 0.00376;
 	private final double pcmAddRatio = pcmRatio/mixRatio;
 	

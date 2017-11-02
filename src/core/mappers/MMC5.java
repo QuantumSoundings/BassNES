@@ -36,7 +36,7 @@ public class MMC5 extends Mapper {
 		apu.addExpansionChannel(channel);
 	}
 	@Override
-	public void setPRG(byte[] prg){
+	protected void setPRG(byte[] prg){
 		PRGbanks = new byte[prg.length/0x2000][0x2000];
 		for(int i=0;i*0x2000<prg.length;i++){
 			PRGbanks[i]=Arrays.copyOfRange(prg, i*0x2000, (i*0x2000)+0x2000);
@@ -48,7 +48,7 @@ public class MMC5 extends Mapper {
 		PRG_RAM = PRG_RAM_banks[0];
 	}
 	@Override
-	public void setCHR(byte[] chr){
+	protected void setCHR(byte[] chr){
 		CHR_ROM = new byte[8][0x400];
 		if(chr.length>0){
 			CHRbanks = new byte[chr.length/0x400][0x400];

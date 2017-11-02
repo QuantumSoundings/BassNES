@@ -21,8 +21,8 @@ public class AudioMixer implements java.io.Serializable {
 
 	private int[] audioBuffer;
 	private int bufferPointer;
-	private double cyclespersample;
-	private int intcyclespersample;
+	//private double cyclespersample;
+	//private int intcyclespersample;
 	public int gainboost = 32000;
 
 	/*static double[] pulse_table = new double[]{0,
@@ -56,8 +56,8 @@ public class AudioMixer implements java.io.Serializable {
 		return audioLevels.length-1;
 	}
 	public void updateAudioSettings(){
-		cyclespersample = 1789773.0/NesSettings.sampleRate;
-		intcyclespersample = (int)cyclespersample;
+		//cyclespersample = 1789773.0/NesSettings.sampleRate;
+		//intcyclespersample = (int)cyclespersample;
 		resampler = new Decimator(map,NesSettings.sampleRate);
 		audioBuffer = new int[(int)((NesSettings.sampleRate/1000.0)*NesSettings.audioBufferSize)*2];
 		bufferPointer=0;
@@ -72,7 +72,7 @@ public class AudioMixer implements java.io.Serializable {
 			audioLevels[chan.outputLocation] = 0;
 		}
 		sample+=expansion;
-		resampler.addInputSample((sample * gainboost) * (NesSettings.masterMixLevel / 100.0));
+		resampler.addInputSample((2*(sample * gainboost)-32000) * (NesSettings.masterMixLevel / 100.0));
 	}
 	double a = 0;
 	int b = 32000;

@@ -124,9 +124,39 @@ public class NSFPlayer extends Mapper{
 		smallfont = Font.getFont(attributes);
 		nsfemode = i==1;
 	}
+	@Override
+	public void configureMapper(MapperSetting...settings){
+		for(MapperSetting s: settings){
+			switch(s.setting){
+			case NSF_data:        loadData((byte[])s.value);break;
+			case BankSwitch:      setBanking((byte[])s.value);break;
+			case ExtraSoundChips: addExtraAudio((byte)s.value);break;
+			case DataPlayAddr:    playaddr = (int)s.value;break;
+			case DataInitAddr:    initaddr = (int)s.value;break;
+			case DataLoadAddr:    loadaddr = (int)s.value;break;
+			case PlaySpeed:       playspeed = (int)s.value;
+							      playspeed = (int) (playspeed*(1789773.0/1000000.0));
+							      playspeed = 29828;break;
+			case StartSong:       currentsong = (int)s.value;break;
+			case TotalSongs:      totalsongs = (int)s.value;break;
+			case TuneRegion:break;
+			case SongName:        title = (String)s.value;break;
+			case ArtistName:      artist = (String)s.value;break;
+			//NSFe Specific
+			case TrackNames:      setTrackNames((String[])s.value);break;
+			case TrackTimes:      setTrackTimes((int[])s.value);break;
+			case FadeTimes:       setFadeTimes((int[])s.value);break;
+			case AuthInfo:        setAuthInfo((String[])s.value);break;
+			default:
+				System.err.println("Warning: Unsupported MapperSetting!");
+			}
+		}
+		doingIRQ=true;
+		cpu.setIRQ(IRQSource.External);
+	}
 	
 	
-	public void setupData(){//byte[] data, byte[] banks,int loadaddr){
+	private void setupData(){//byte[] data, byte[] banks,int loadaddr){
 		initialbanks = banks;
 		PRG_ROM = new byte[8][0x1000];
 		doingBanking=false;
@@ -169,16 +199,15 @@ public class NSFPlayer extends Mapper{
 		}
 	}
 	byte[] data;
-	public void loadData(byte[] d){
+	private void loadData(byte[] d){
 		data = d;
 	}
 	byte[] banks;
-	public void setBanking(byte[] b){
+	private void setBanking(byte[] b){
 		banks=b;
 	}
 	byte soundchip;
-	@Override
-	public void addExtraAudio(byte b){
+	private void addExtraAudio(byte b){
 		soundchip=b;
 		if(b!=0)
 			expansionInfo = "Extra Audio: ";
@@ -211,10 +240,10 @@ public class NSFPlayer extends Mapper{
 			expansionInfo += "Sunsoft5B ";
 		}
 	}
-	@Override
-	public void setNSFVariables(int play,int init,int load,int speed,int startsong,int total, int tuneregion,String name, String artist){
-		initaddr = init;
+	/*public void setNSFVariables(int play,int init,int load,int speed,int startsong,int total, int tuneregion,String name, String artist){
 		playaddr = play;
+		initaddr = init;
+		
 		loadaddr = load;
 		playspeed = speed;
 		playspeed = (int) (playspeed*(1789773.0/1000000.0));
@@ -224,29 +253,23 @@ public class NSFPlayer extends Mapper{
 		totalsongs = total;
 		title = name;
 		this.artist = artist;
-	}
-	@Override
-	public void setTrackNames(String[] tracks) {
+	}*/
+	
+	private void setTrackNames(String[] tracks) {
 		tracknames = tracks;
 	}
-	@Override
-	public void setTrackTimes(int[] times){
+	
+	private void setTrackTimes(int[] times){
 		tracktimes = times;
 	}
-	@Override
-	public void setFadeTimes(int[] fades){
+	
+	private void setFadeTimes(int[] fades){
 		fadetimes = fades;
 	}
-	@Override
-	public void setAuthInfo(String[] info){
+	
+	private void setAuthInfo(String[] info){
 		title = info[0];
 		artist = info[1];
-	}
-	@Override
-	public void setCHR(byte[] chr){
-		//init();
-		doingIRQ=true;
-		cpu.setIRQ(IRQSource.External);
 	}
 	private void soundwrite(byte b){
 		if(soundAddress<0x40){

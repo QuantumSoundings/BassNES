@@ -67,9 +67,21 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		control = cont;
 		control2 = cont2;
 	}
+	public void configureMapper(MapperSetting...settings){
+		for(MapperSetting s:settings){
+			switch(s.setting){
+			case PRG_data: setPRG((byte[])s.value);break;
+			case CHR_data: setCHR((byte[])s.value);break;
+			case BatteryExists:setPRGRAM((boolean)s.value);break;
+			case Mirroring: setMirror((int)s.value);break;
+			default:
+				System.err.println("Warning: Unsupported MapperSetting!");
+			}
+		}
+	}
 	public void setSystem(NESCallback system2){system = system2;}
 	public void setNes(NES n){ nes = n;}
-	public void setMirror(int i){
+	protected void setMirror(int i){
 		mirrormode= (i == 0);
 		if(mirrormode)
 			setNameTable(Mirror.Horizontal);
@@ -77,7 +89,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			setNameTable(Mirror.Vertical);
 		System.out.println("Mode set to:"+mirrormode);
 	}
-	public final void setNameTable(final Mapper.Mirror mirroringType){
+	protected final void setNameTable(final Mapper.Mirror mirroringType){
 		switch(mirroringType){
 		case Horizontal:
 			nametables[0]=ppu_internal_ram[0];
@@ -289,7 +301,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	public byte[] getSave(){
 		return PRG_RAM;
 	}
-	public void setPRG(byte[] prg){
+	protected void setPRG(byte[] prg){
 		if(prg.length ==16384*2){
 			PRG_ROM[0]=Arrays.copyOfRange(prg, 0,0x4000);
 			PRG_ROM[1]=Arrays.copyOfRange(prg, 0x4000, 0x8000);
@@ -300,7 +312,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		}
 	}
 	public void check(int i){}
-	public void setCHR(byte[] chr){
+	protected void setCHR(byte[] chr){
 		if(chr.length==0){
 			CHR_ROM = new byte[2][0x1000];
 			CHR_ram = true;
@@ -310,7 +322,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 			CHR_ROM[1]=Arrays.copyOfRange(chr, 0x1000, 0x2000);
 		}
 	}
-	public void setPRGRAM(boolean present){}
+	protected void setPRGRAM(boolean present){}
 	//Debug functions
 	public void printMemory(int offset,int length){
 		System.out.print("[");
@@ -351,16 +363,9 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		else
 			dodebug=true;
 	}*/
-	public void loadData(byte[] data){}
-	public void setBanking(byte[] b){}
+	
 	public void scanlinecounter(){}
-	public void addExtraAudio(byte b){};
-	public void setNSFVariables(int playaddr,int initaddr, int loadaddr ,int playspeed, int startsong, int tuneregion, int tuneregion2, String songname, String artistname){}
-	public void setTrackNames(String[] tracknames) {}
-	public void setTrackTimes(int[] tracktimes) {}
-	public void setFadeTimes(int[] fadetimes) {}//nsfe specific
-	public void setAuthInfo(String[] info) {}
-
+	
 	public static Mapper getmapper(int i) throws UnSupportedMapperException{
 		switch(i){
 		case 0:

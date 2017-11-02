@@ -13,7 +13,7 @@ public class MMC2 extends Mapper{
 
 	
 	@Override
-	public void setPRG(byte[] prg){
+	protected void setPRG(byte[] prg){
 		PRGbanks = new byte[prg.length/0x2000][0x2000];
 		for(int i=0;i*0x2000<prg.length;i++){
 			PRGbanks[i]=Arrays.copyOfRange(prg, i*0x2000, (i*0x2000)+0x2000);
@@ -24,7 +24,7 @@ public class MMC2 extends Mapper{
 		PRG_ROM[3]=PRGbanks[PRGbanks.length-1];
 	}
 	@Override
-	public void setCHR(byte[] chr){
+	protected void setCHR(byte[] chr){
 		if(chr.length>0){
 		CHRbanks = new byte[chr.length/0x1000][0x1000];
 		for(int i=0;i*0x1000<chr.length;i++)

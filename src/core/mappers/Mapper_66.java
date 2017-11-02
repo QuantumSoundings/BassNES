@@ -19,7 +19,7 @@ public class Mapper_66 extends Mapper {
         }
     }
     @Override
-    public void setPRG(byte[] prg){
+	protected void setPRG(byte[] prg){
         PRGbanks = new byte[prg.length/0x4000][0x4000];
         for(int i=0;i*0x4000<prg.length;i++){
             PRGbanks[i]= Arrays.copyOfRange(prg, i*0x4000, (i*0x4000)+0x4000);
@@ -29,7 +29,7 @@ public class Mapper_66 extends Mapper {
         PRG_ROM[1]=PRGbanks[PRGbanks.length-1];
     }
     @Override
-    public void setCHR(byte[] chr){
+	protected void setCHR(byte[] chr){
         CHRbanks = new byte[chr.length/0x1000][0x1000];
         if(chr.length>0){
             for(int i=0;i*0x1000<chr.length;i++){

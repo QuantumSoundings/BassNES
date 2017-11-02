@@ -20,7 +20,7 @@ public class CNROM extends Mapper{
 		}	
 	}
 	@Override
-	public void setPRG(byte[] prg){
+	protected void setPRG(byte[] prg){
 		if(prg.length==16384*2){
 			PRG_ROM[0]=Arrays.copyOfRange(prg, 0,0x4000);
 			PRG_ROM[1]=Arrays.copyOfRange(prg, 0x4000, 0x8000);
@@ -33,7 +33,7 @@ public class CNROM extends Mapper{
 
 	}
 	@Override
-	public void setCHR(byte[] CHR){
+	protected void setCHR(byte[] CHR){
 		CHRbanks = new byte[CHR.length/0x2000][0x2000];
 		CHR_ROM = new byte[2][0x1000];
 		System.out.println("CHR SIZE"+CHR.length/0x2000);

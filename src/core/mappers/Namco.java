@@ -36,7 +36,7 @@ public class Namco extends Mapper{
 		}
 	}
 	@Override
-	public void setPRG(byte[] prg){
+	protected void setPRG(byte[] prg){
 		PRG_ROM = new byte[4][0x2000];
 		PRGbanks = new byte[prg.length/0x2000][0x2000];
 		for(int i=0;i*0x2000<prg.length;i++){
@@ -49,7 +49,7 @@ public class Namco extends Mapper{
 		PRG_RAM = new byte[0x2000];
 	}
 	@Override
-	public void setCHR(byte[] chr){
+	protected void setCHR(byte[] chr){
 		CHR_ROM = new byte[8][0x400];
 		if(chr.length>0){
 			CHRbanks = new byte[chr.length/0x400][0x400];

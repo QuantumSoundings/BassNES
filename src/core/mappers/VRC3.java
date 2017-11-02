@@ -15,7 +15,7 @@ public class VRC3 extends Mapper {
 		System.out.println("Making a VRC3!");
 	}
 	@Override
-	public void setPRG(byte[] prg){
+	protected void setPRG(byte[] prg){
 		PRG_ROM = new byte[2][0x4000];
 		PRGbanks = new byte[prg.length/0x4000][0x4000];
 		for(int i=0;i*0x4000<prg.length;i++){

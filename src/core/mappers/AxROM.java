@@ -12,7 +12,7 @@ public class AxROM extends Mapper{
 		PRG_RAM = new byte[0x2000];
 	}
 	@Override
-	public void setCHR(byte[] chr){
+	protected void setCHR(byte[] chr){
 		if(chr.length>0){
 			CHRbanks = new byte[chr.length/0x1000][0x1000];
 		for(int i=0;i*0x1000<chr.length;i++)
@@ -42,7 +42,7 @@ public class AxROM extends Mapper{
 		
 	}
 	@Override
-	public void setPRG(byte[] prg){
+	protected void setPRG(byte[] prg){
 		PRGbanks = new byte[prg.length/0x4000][0x4000];
 		for(int i=0;i*0x4000<prg.length;i++){
 			PRGbanks[i]=Arrays.copyOfRange(prg, i*0x4000, (i*0x4000)+0x4000);

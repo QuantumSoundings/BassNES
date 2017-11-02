@@ -9,7 +9,7 @@ public class Mapper_13 extends Mapper {
 	}
 	
 	@Override
-	public void setCHR(byte[] chr){
+	protected void setCHR(byte[] chr){
 		CHRbanks = new byte[4][0x1000];
 		CHR_ROM[0] = CHRbanks[0];
 		CHR_ROM[1] = CHRbanks[1];

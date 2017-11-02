@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -12,6 +13,8 @@ import java.util.zip.ZipFile;
 
 import core.exceptions.UnSupportedMapperException;
 import core.mappers.Mapper;
+import core.mappers.MapperSetting;
+import core.mappers.MapperSetting.SettingType;
 import core.video.NesColors;
 /**
  * Object representing an NES console. This and NesSettings are the only two files that should be interacted with.
@@ -77,11 +80,13 @@ public class NES implements Runnable,NESAccess {
 			id|= Byte.toUnsignedInt(header[7])&0xf0;
 			map = Mapper.getmapper(id);
 			System.out.println("PRG_ROM:"+(PRG_ROM.length/0x400)+"KB");
-			map.setPRG(PRG_ROM);
 			System.out.println("CHR_ROM:"+(CHR_ROM.length/0x400)+"KB");
-			map.setCHR(CHR_ROM);
-			map.setPRGRAM(batteryExists);
-			map.setMirror(header[6]&1);
+			
+			map.configureMapper(new MapperSetting(SettingType.PRG_data,PRG_ROM),
+								new MapperSetting(SettingType.CHR_data,CHR_ROM),
+								new MapperSetting(SettingType.BatteryExists,batteryExists),
+								new MapperSetting(SettingType.Mirroring,header[6]&1));
+			
 			if(header[9]==1||rom.getName().contains("(E)")){
 				pal = true;
 				System.out.println("Pal Game");
@@ -119,11 +124,18 @@ public class NES implements Runnable,NESAccess {
 			
 			map = Mapper.getmapper(1001);
 			sx.read(data);
-			map.loadData(data);//, bankswitch, dataloadaddr);
-			map.setBanking(bankswitch);
-			map.addExtraAudio(extrasoundchips);
-			map.setNSFVariables(dataplayaddr, datainitaddr, dataloadaddr, playspeed,startsong,totalsongs,tuneregion,songname,artistname);
-			map.setCHR(new byte[0]);
+			map.configureMapper(new MapperSetting(SettingType.NSF_data,data),
+								new MapperSetting(SettingType.BankSwitch,bankswitch),
+								new MapperSetting(SettingType.ExtraSoundChips,extrasoundchips),
+								new MapperSetting(SettingType.DataPlayAddr,dataplayaddr),
+								new MapperSetting(SettingType.DataInitAddr,datainitaddr),
+								new MapperSetting(SettingType.DataLoadAddr,dataloadaddr),
+								new MapperSetting(SettingType.PlaySpeed,playspeed),
+								new MapperSetting(SettingType.StartSong,startsong),
+								new MapperSetting(SettingType.TotalSongs,totalsongs),
+								new MapperSetting(SettingType.TuneRegion,tuneregion),
+								new MapperSetting(SettingType.SongName,songname),
+								new MapperSetting(SettingType.ArtistName,artistname));
 			map.setSystem(system);
 			nsfplayer = true;
 		}
@@ -138,6 +150,7 @@ public class NES implements Runnable,NESAccess {
 			byte[] data;
 			int songnum=0;
 			String ncname="";
+			java.util.ArrayList<MapperSetting> settings = new ArrayList<MapperSetting>();
 			while(!ncname.equals("NEND")){
 				byte[] ncheader = new byte[8];
 				sx.read(ncheader);
@@ -155,14 +168,20 @@ public class NES implements Runnable,NESAccess {
 					int totalsongs = Byte.toUnsignedInt(data[8]);
 					songnum=totalsongs;
 					int startsong = Byte.toUnsignedInt(data[9]);
-					map.setNSFVariables(dataplayaddr, datainitaddr,dataloadaddr, 0, startsong, totalsongs, 0, "null", "null");
-					map.addExtraAudio(extrasoundchips);
+					
+					settings.add(new MapperSetting(SettingType.DataPlayAddr,dataplayaddr));
+					settings.add(new MapperSetting(SettingType.DataInitAddr,datainitaddr));
+					settings.add(new MapperSetting(SettingType.DataLoadAddr,dataloadaddr));
+					settings.add(new MapperSetting(SettingType.StartSong,startsong));
+					settings.add(new MapperSetting(SettingType.TotalSongs,totalsongs));
+					settings.add(new MapperSetting(SettingType.ExtraSoundChips,extrasoundchips));
+					settings.add(new MapperSetting(SettingType.PlaySpeed,0));
 					break;
 				case "DATA":
 					System.out.println("Reading DATA Chunk");
 					data = new byte[nclength];
 					sx.read(data);
-					map.loadData(data);
+					settings.add(new MapperSetting(SettingType.NSF_data,data));
 					break;
 				case "BANK":
 					System.out.println("Reading BANK Chunk");
@@ -180,7 +199,7 @@ public class NES implements Runnable,NESAccess {
 					}
 					else
 						out = data;
-					map.setBanking(out);
+					settings.add(new MapperSetting(SettingType.BankSwitch,out));
 					break;
 				case "tlbl":
 					System.out.println("Reading tlbl Chunk");
@@ -198,7 +217,7 @@ public class NES implements Runnable,NESAccess {
 							name+=(char)Byte.toUnsignedInt(b);
 						}
 					}
-					map.setTrackNames(tracknames);
+					settings.add(new MapperSetting(SettingType.TrackNames,tracknames));
 					break;
 				case "time":
 					System.out.println("Reading time Chunk");
@@ -213,7 +232,7 @@ public class NES implements Runnable,NESAccess {
 						else
 							tracktimes[x] = (int)(length/16.6666);
 					}
-					map.setTrackTimes(tracktimes);
+					settings.add(new MapperSetting(SettingType.TrackTimes,tracktimes));
 					break;
 				case "auth":
 					System.out.println("Reading auth Chunk");
@@ -231,7 +250,7 @@ public class NES implements Runnable,NESAccess {
 							nameinfo+=(char)Byte.toUnsignedInt(b);
 						}
 					}
-					map.setAuthInfo(info);
+					settings.add(new MapperSetting(SettingType.AuthInfo,info));
 					break;
 				case "fade":
 					System.out.println("Reading fade chunk");
@@ -246,7 +265,7 @@ public class NES implements Runnable,NESAccess {
 						else
 							fadetimes[x] = (int)(length/16.6666);
 					}
-					map.setFadeTimes(fadetimes);
+					settings.add(new MapperSetting(SettingType.FadeTimes,fadetimes));
 					break;
 				case "NEND":
 					break;
@@ -257,7 +276,10 @@ public class NES implements Runnable,NESAccess {
 					break;
 				}
 			}
-			map.setCHR(new byte[0]);
+			MapperSetting[] set = new MapperSetting[settings.size()];
+			for(int i = 0; i < set.length;i++)
+				set[i] = settings.get(i);
+			map.configureMapper(set);
 			map.setSystem(system);
 			nsfplayer = true;
 		}
