@@ -3,7 +3,9 @@ package core.mappers;
 import java.util.Arrays;
 
 public class Mapper_66 extends Mapper {
-    public Mapper_66 (){
+    
+	private static final long serialVersionUID = -4145535067907293663L;
+	public Mapper_66 (){
         super();
     }
 

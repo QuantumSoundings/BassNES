@@ -10,7 +10,7 @@ import core.exceptions.UnSupportedMapperException;
  * @author Jordan Howe
  *
  */
-public interface NESAccess {
+public interface NESAccess extends Runnable {
 	
 	/*
 	 * Nes Machine Setup

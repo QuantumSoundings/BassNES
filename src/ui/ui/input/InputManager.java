@@ -7,7 +7,6 @@ import ui.SystemUI;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Scanner;
 
 public class InputManager {
 	public static ControllerInfo[] c1controls = new ControllerInfo[8];

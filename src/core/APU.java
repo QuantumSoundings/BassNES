@@ -23,7 +23,7 @@ public class APU implements java.io.Serializable{
 	
 	//Mixing Variables
 	private double cyclespersample;
-	private int intcyclespersample;
+	//private int intcyclespersample;
 	private double samplenum;
 	public int[] samples;
 	int sampleptr;
@@ -57,7 +57,7 @@ public class APU implements java.io.Serializable{
 		expansionAudio = new ArrayList<Channel>();
 		//expansionAudioArray = new Channel[0];
 		cyclespersample = 1789773.0/NesSettings.sampleRate;
-		intcyclespersample = (int)cyclespersample;
+		//intcyclespersample = (int)cyclespersample;
 		cpucounter = 10;
 		expansion = false;
 		writeRegister(0x4015,(byte)0);
@@ -77,7 +77,7 @@ public class APU implements java.io.Serializable{
 
 	public void setSampleRate(int rate){
 		cyclespersample = 1789773.0/rate;
-		intcyclespersample = (int)cyclespersample;
+		//intcyclespersample = (int)cyclespersample;
 		mixer.updateAudioSettings();
 		//resampler=new Decimator(map,rate);
 	}

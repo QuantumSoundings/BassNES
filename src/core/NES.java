@@ -7,9 +7,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+//import java.util.Enumeration;
+//import java.util.zip.ZipEntry;
+//import java.util.zip.ZipFile;
 
 import core.exceptions.UnSupportedMapperException;
 import core.mappers.Mapper;
@@ -285,7 +285,7 @@ public class NES implements Runnable,NESAccess {
 		}
 		sx.close();
 	}
-	private void loadZip(File rom) throws IOException, UnSupportedMapperException{
+	/*private void loadZip(File rom) throws IOException, UnSupportedMapperException{
 		ZipFile romzip = new ZipFile(rom);
 		Enumeration<? extends ZipEntry> entries = romzip.entries();
 		while(entries.hasMoreElements()){
@@ -299,7 +299,7 @@ public class NES implements Runnable,NESAccess {
 				default:
 			}
 		}
-	}
+	}*/
 	public final void run(){
 		System.out.println("NES STARTED RUNNING");
 		while(flag){

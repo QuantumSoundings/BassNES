@@ -1,7 +1,6 @@
 package ui;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.JPanel;

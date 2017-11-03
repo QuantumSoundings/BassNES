@@ -1,8 +1,6 @@
 package ui;
 
 
-import java.awt.*;
-import javax.sound.sampled.SourceDataLine;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -26,7 +24,6 @@ import javax.swing.JColorChooser;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.swing.JLayeredPane;
 import javax.swing.JSpinner;
 
 public class AudioSettingsUI extends JFrame {
@@ -63,6 +60,7 @@ public class AudioSettingsUI extends JFrame {
 		comboBox.setModel(new DefaultComboBoxModel<String>(samplingrates));
 		comboBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				@SuppressWarnings("unchecked")
 				JComboBox<String> cb = (JComboBox<String>)arg0.getSource();
 				NesSettings.sampleRate=sampleratesints[cb.getSelectedIndex()];
 				if(sys.nes!=null)

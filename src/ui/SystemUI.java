@@ -14,11 +14,11 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import core.NES;
+import core.NESAccess;
 import core.NESCallback;
 import core.NesSettings;
 import core.exceptions.UnSupportedMapperException;
 import net.java.games.input.Keyboard;
-import testing.Tester;
 import ui.debugger.BreakPoint;
 import ui.debugger.Debugger;
 import ui.ui.input.InputManager;
@@ -28,7 +28,7 @@ interface UpdateEventListener extends EventListener{
 	public void doAudioFrame();
 }
 public class SystemUI implements NESCallback {
-	public NES nes;
+	public NESAccess nes;
 	public final JFileChooser fc;
 	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow,aboutWindow;
 	public InputManager input;
