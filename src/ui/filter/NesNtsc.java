@@ -5,7 +5,7 @@ import java.awt.image.DataBufferInt;
 
 import core.NesSettings;
 import core.video.NesColors;
-import ui.UISettings;
+import ui.settings.UISettings;
 
 // Port of nes_ntsc 0.2.2 by Blargg (Shay Green). 
 // http://www.slack.net/~ant/libs/ntsc.html#nes_ntsc

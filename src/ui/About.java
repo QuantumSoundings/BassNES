@@ -1,6 +1,8 @@
 package ui;
 
 
+import ui.settings.UISettings;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -33,11 +35,11 @@ public class About extends JFrame {
 		lblNewLabel.setBounds(25, 11, 128, 43);
 		contentPane.add(lblNewLabel);
 		
-		JLabel lblNewLabel_1 = new JLabel("Version: "+UISettings.version);
+		JLabel lblNewLabel_1 = new JLabel("Version: "+ UISettings.version);
 		lblNewLabel_1.setBounds(25, 51, 115, 14);
 		contentPane.add(lblNewLabel_1);
 		
-		JLabel lblNewLabel_2 = new JLabel("©2017 J. Howe (aka TheBassist95)");
+		JLabel lblNewLabel_2 = new JLabel("ï¿½2017 J. Howe (aka TheBassist95)");
 		lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblNewLabel_2.setBounds(10, 65, 254, 23);
 		contentPane.add(lblNewLabel_2);

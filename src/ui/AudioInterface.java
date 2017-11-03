@@ -14,6 +14,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 import core.NesSettings;
+import ui.settings.UISettings;
 
 public class AudioInterface implements java.io.Serializable {
 	private static final long serialVersionUID = 25781276857491755L;
@@ -80,7 +81,7 @@ public class AudioInterface implements java.io.Serializable {
 			audiobuffer[bufptr+1] = (byte) ((i>>8)&0xff);
 			bufptr+=2;
 		}
-		if((sdl.available()>=audiobuffer.length&&UISettings.AudioEnabled)){//||UISettings.lockVideoToAudio){
+		if((sdl.available()>=audiobuffer.length&& UISettings.AudioEnabled)){//||UISettings.lockVideoToAudio){
 				sdl.write(audiobuffer,0,audiobuffer.length);
 				if(scope!=null&&scope.isVisible()){
 					if(scopefrequency==scopecount++){

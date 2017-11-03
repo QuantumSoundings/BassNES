@@ -6,9 +6,10 @@ import java.util.Iterator;
 import javax.swing.JPanel;
 
 import ui.OSD.OSDElement;
-import ui.UISettings.VideoFilter;
+import ui.settings.UISettings;
+import ui.settings.UISettings.VideoFilter;
 import ui.filter.NesNtsc;
-import ui.ui.input.InputManager;
+import ui.input.ControllerManager;
 
 public class NesDisplay extends JPanel {
 	
@@ -89,13 +90,13 @@ public class NesDisplay extends JPanel {
 	}
 	private void addUiIcons(){
 		Graphics g = frame.getGraphics();
-		if(InputManager.recording){
+		if(ControllerManager.recording){
 			g.setColor(Color.black);
 			g.fillOval(219,19,12,12);
 			g.setColor(Color.red);
 			g.fillOval(220,20,10,10);
 		}
-		if(InputManager.playingback){
+		if(ControllerManager.playingback){
 			g.setColor(Color.black);
 			g.fillOval(219,19,12,12);
 			g.setColor(Color.green);

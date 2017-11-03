@@ -7,10 +7,7 @@ import java.io.IOException;
 import java.util.EventListener;
 import java.util.Properties;
 
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import core.NES;
@@ -21,7 +18,12 @@ import core.exceptions.UnSupportedMapperException;
 import net.java.games.input.Keyboard;
 import ui.debugger.BreakPoint;
 import ui.debugger.Debugger;
-import ui.ui.input.InputManager;
+import ui.input.ControllerInterface;
+import ui.input.ControllerManager;
+import ui.input.HotKeyInterface;
+import ui.input.HotKeyManager;
+import ui.settings.ConfigurationManager;
+import ui.settings.UISettings;
 
 interface UpdateEventListener extends EventListener{
 	public void doVideoFrame();
@@ -31,9 +33,11 @@ public class SystemUI implements NESCallback {
 	public NESAccess nes;
 	public final JFileChooser fc;
 	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow,aboutWindow;
-	public InputManager input;
+	public ControllerInterface input;
+	public HotKeyInterface hotkeys;
+	public ConfigurationManager configurator;
 	Debugger debugInfo;
-	public File rom;
+	public File rom,config;
 	File configuration;
 	public NesDisplay display;
 	//private KeyChecker keys;
@@ -59,12 +63,15 @@ public class SystemUI implements NESCallback {
 		}
 	}
 	public SystemUI(){
-		
+
 		configuration = new File("config.properties");
-		input = new InputManager(this);
+		config = new File("settings.xml");
+		input = new ControllerManager(this);
+		hotkeys = new HotKeyManager(this);
+		//hotkeys.getInputMap().setParent(comp.getInputMap());
 		try {
 			NesSettings.loadSettings(configuration);
-			UISettings.loadSettings(configuration);
+			//UISettings.loadSettings(configuration);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -75,6 +82,7 @@ public class SystemUI implements NESCallback {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		configurator = new ConfigurationManager(config,input,hotkeys);
 		fc = new JFileChooser();
 		fc.setFileFilter(new FileNameExtensionFilter("Nes Files","nes","nsf","nsfe","NSFE","NSFe","NES","NSF"));
 		audio = new AudioInterface(this);
@@ -82,11 +90,13 @@ public class SystemUI implements NESCallback {
 		rom = new File("gimmickj.nes");
 		mainWindow = new MainUI(this);
 		//debugWindow = new DebugUI();
-		keyconfigWindow = new ControlUI(prop,this);
+		keyconfigWindow = new ControlUI(prop,this,input);
 		audiomixerWindow = new AudioSettingsUI(this);
 		advancedGraphicsWindow = new AdvancedGraphics(this);
 		//keys = new KeyChecker();
 		display = new NesDisplay();
+		display.setInputMap(JComponent.WHEN_FOCUSED,hotkeys.getInputMap());
+		display.setActionMap(hotkeys.getActionMap());
 		display.setSize(256, 240);
 		display.updateScaling(2);		
 		listener = new UpdateEventListener(){
@@ -97,7 +107,8 @@ public class SystemUI implements NESCallback {
             	audio.setAudioFrame(audiobuffer);
             }
        };
-       setupMainWindow();    
+       setupMainWindow();
+
        //Tester test = new Tester(this);
        //test.runTests();
        //test.testRomSet();
@@ -206,8 +217,9 @@ public class SystemUI implements NESCallback {
 	}
 	public boolean[][] pollController(){
 		boolean[][] out = new boolean[2][8];
+		input.updateInputs();
 		if(mainWindow.hasFocus()||UISettings.controlwhilenotfocused){
-	        return InputManager.currentFrameInputs;
+	        return input.getCurrentControllerOutputs();
 		}
 		return out;	
 	}

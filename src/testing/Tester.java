@@ -11,7 +11,7 @@ import core.NES;
 import core.NesSettings;
 import core.exceptions.UnSupportedMapperException;
 import ui.SystemUI;
-import ui.UISettings;
+import ui.settings.UISettings;
 
 public class Tester {
 	SystemUI sys;

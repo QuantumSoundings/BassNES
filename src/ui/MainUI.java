@@ -17,7 +17,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import core.NesSettings;
-import ui.UISettings.VideoFilter;
+import ui.settings.UISettings;
+import ui.settings.UISettings.VideoFilter;
 
 import java.awt.event.ActionListener;
 import java.awt.Desktop;
@@ -149,45 +150,10 @@ public class MainUI extends JFrame {
 				OSD.addOSDMessage("Master volume: "+NesSettings.masterMixLevel+"%", 120);
 			}
 		};
-		
-		
-		this.rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_1,
-				java.awt.event.InputEvent.CTRL_DOWN_MASK),
-			"saveState1");
-		this.rootPane.getActionMap().put("saveState1", saveState1);
-		this.rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_1, 
-				java.awt.event.InputEvent.SHIFT_DOWN_MASK), "loadState1");
-		this.rootPane.getActionMap().put("loadState1", loadState1);
-		this.rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_2,
-				java.awt.event.InputEvent.CTRL_DOWN_MASK),
-			"saveState2");
-		this.rootPane.getActionMap().put("saveState2", saveState2);
-		this.rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_2, 
-				java.awt.event.InputEvent.SHIFT_DOWN_MASK), "loadState2");
-		this.rootPane.getActionMap().put("loadState2", loadState2);
-		this.rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_3,
-				java.awt.event.InputEvent.CTRL_DOWN_MASK),
-			"saveState3");
-		this.rootPane.getActionMap().put("saveState3", saveState3);
-		this.rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_3, 
-				java.awt.event.InputEvent.SHIFT_DOWN_MASK), "loadState3");
-		this.rootPane.getActionMap().put("loadState3", loadState3);
-		this.rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_4,
-				java.awt.event.InputEvent.CTRL_DOWN_MASK),
-			"saveState4");
-		this.rootPane.getActionMap().put("saveState4", saveState4);
-		this.rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_4, 
-				java.awt.event.InputEvent.SHIFT_DOWN_MASK), "loadState4");
-		this.rootPane.getActionMap().put("loadState4", loadState4);
-		
-		this.rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-				java.awt.event.InputEvent.CTRL_DOWN_MASK),
-			"startCPU");
-		this.rootPane.getActionMap().put("startCPU", startCPU);
-		this.rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP,java.awt.event.InputEvent.CTRL_DOWN_MASK),"volumeUp");
-		this.rootPane.getActionMap().put("volumeUp", volumeUp);
-		this.rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,java.awt.event.InputEvent.CTRL_DOWN_MASK),"volumeDown");
-		this.rootPane.getActionMap().put("volumeDown", volumeDown);
+
+
+		//this.rootPane.setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW,sys.hotkeys.getInputMap());
+		//this.rootPane.setActionMap(sys.hotkeys.getActionMap());
 		
 		
 		
@@ -343,7 +309,7 @@ public class MainUI extends JFrame {
 		});
 		mnScaling.add(rdbtnmntmxScaling_3);
 		videoSizeGroup.add(rdbtnmntmxScaling_3);
-		
+
 		JMenuItem mntmMoreSettings = new JMenuItem("More Settings");
 		mntmMoreSettings.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -470,7 +436,7 @@ public class MainUI extends JFrame {
 					e.printStackTrace();
 				}
 				NesSettings.saveSettings(sys.configuration);
-				UISettings.saveSettings(sys.configuration);
+				sys.configurator.saveSettings(sys.config);
 				System.exit(0);
 			}
 		});

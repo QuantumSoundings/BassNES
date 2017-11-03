@@ -99,7 +99,7 @@ public class FME_7 extends Mapper {
 			audio.registerWrite(audiocommand, b);
 		}
 	}
-	private final void doCommand(int param){
+	private void doCommand(int param){
 		switch(command){
 		case 0:case 1:case 2:case 3:
 		case 4:case 5:case 6:case 7:

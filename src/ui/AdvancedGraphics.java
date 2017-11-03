@@ -11,6 +11,7 @@ import javax.swing.border.EmptyBorder;
 import core.NES;
 import core.NesSettings;
 import ui.filter.NesNtsc;
+import ui.settings.UISettings;
 
 import javax.swing.JTabbedPane;
 import javax.swing.JCheckBox;

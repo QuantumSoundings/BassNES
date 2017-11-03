@@ -1,4 +1,4 @@
-package ui.ui.input;
+package ui.input;
 
 import java.util.Arrays;
 

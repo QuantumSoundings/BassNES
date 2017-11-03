@@ -10,6 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.event.ChangeListener;
 
 import core.NesSettings;
+import ui.settings.UISettings;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.JTabbedPane;
