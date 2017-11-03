@@ -18,6 +18,7 @@ import core.NESCallback;
 import core.NesSettings;
 import core.exceptions.UnSupportedMapperException;
 import net.java.games.input.Keyboard;
+import testing.Tester;
 import ui.debugger.BreakPoint;
 import ui.debugger.Debugger;
 import ui.ui.input.InputManager;
@@ -28,17 +29,18 @@ interface UpdateEventListener extends EventListener{
 }
 public class SystemUI implements NESCallback {
 	public NES nes;
-	final JFileChooser fc;
+	public final JFileChooser fc;
 	public JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow,aboutWindow;
 	public InputManager input;
 	Debugger debugInfo;
-	File rom,configuration;
-	NesDisplay display;
+	public File rom;
+	File configuration;
+	public NesDisplay display;
 	//private KeyChecker keys;
 	public UpdateEventListener listener;
 	private int[] pixels;
 	private int[] audiobuffer;
-	Thread current;
+	public Thread current;
 	Thread render;
 	Properties prop;
 	String testoutput;
@@ -99,7 +101,7 @@ public class SystemUI implements NESCallback {
        //Tester test = new Tester(this);
        //test.runTests();
        //test.testRomSet();
-		start();
+		//start();
 	}
 	boolean debugMode = false;
 	boolean docpucycle= false;

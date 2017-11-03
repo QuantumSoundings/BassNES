@@ -1,4 +1,4 @@
-package ui;
+package testing;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -10,6 +10,8 @@ import java.util.Arrays;
 import core.NES;
 import core.NesSettings;
 import core.exceptions.UnSupportedMapperException;
+import ui.SystemUI;
+import ui.UISettings;
 
 public class Tester {
 	SystemUI sys;
@@ -85,6 +87,7 @@ public class Tester {
 	String testoutput;
 	void runTests2() throws InterruptedException{
 		Thread.sleep(500);
+		long starttime = System.nanoTime();
 		NesSettings.frameLimit=false;
 		testoutput="";
 		boolean all = true;
@@ -268,6 +271,8 @@ public class Tester {
         	sys.nes.exit();
 		testoutput+= "\n\n Overall results: "+totalpass+"/"+total+" Passed     " +(regression>0?regression+" Regressions":"");
 		System.out.println(testoutput);
+		long stoptime = System.nanoTime();
+		System.out.println("Completed Regression testing in: "+((stoptime-starttime)/1000000000)+"seconds.");
 		NesSettings.frameLimit=true;
 	}
 	void testrom(int delay,File r,int goodhash) throws InterruptedException{
