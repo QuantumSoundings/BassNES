@@ -131,9 +131,9 @@ public class NesSettings {
 	
 	/**
 	 * Saves NES settings to a configuration file.
-	 * @param config - File to which settings will be saved.
+	 * @param  - File to which settings will be saved.
 	 */
-	public static void saveSettings(File config){
+	/*public static void saveSettings(File config){
 		FileOutputStream output;
 		try {
 			output = new FileOutputStream(config);
@@ -150,7 +150,7 @@ public class NesSettings {
 	 * @param config - File to load settings from.
 	 * @throws IOException
 	 */
-	public static void loadSettings(File config) throws IOException{
+	/*public static void loadSettings(File config) throws IOException{
 		prop = new Properties();
 		if(!config.exists()){
 		}
@@ -239,6 +239,7 @@ public class NesSettings {
 		prop.setProperty("politeframetiming", politeFrameTiming+"");
 		prop.setProperty("framelimit", frameLimit+"");
 	}
+	*/
 	static void logSampleRate(int rate){
 		sampleRate = rate;
 	}

@@ -29,7 +29,7 @@ import javax.swing.JSpinner;
 
 public class AudioSettingsUI extends JFrame {
 	private static final long serialVersionUID = 8732673441553439113L;
-	private AudioUpdateInterface sys;
+	private AudioUpdateCallback sys;
 
 	/**
 	 * Launch the application.

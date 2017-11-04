@@ -13,13 +13,12 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
-import core.NesSettings;
 import ui.settings.UISettings;
 
 public class AudioInterface implements java.io.Serializable {
 	private static final long serialVersionUID = 25781276857491755L;
 	transient SourceDataLine sdl;
-	AudioInfoInterface sys;
+	AudioInfoCallback sys;
 	transient byte[] audiobuffer;
 	transient int[] audioints;
 	int bufptr = 0;	
@@ -32,10 +31,10 @@ public class AudioInterface implements java.io.Serializable {
 		restartSDL();
 	}
 	public void restartSDL(){
-		AudioFormat form = new AudioFormat(NesSettings.sampleRate,16,2,true,false);
+		AudioFormat form = new AudioFormat(sys.getSampleRate(),16,2,true,false);
 
 		bufptr=0;
-		audioints = new int[(int)((NesSettings.sampleRate/1000.0)*NesSettings.audioBufferSize)*2];
+		audioints = new int[(int)((sys.getSampleRate()/1000.0)*sys.getBufferSize())*2];
 		if(scope!=null)
 			scope.setAudio(audioints);
 		audiobuffer = new byte[audioints.length*2];
@@ -153,7 +152,7 @@ public class AudioInterface implements java.io.Serializable {
 		savedRecording = new byte[recordingpointer];
 		java.lang.System.arraycopy(temp, 0, savedRecording, 0, recordingpointer);
 		AudioFileFormat.Type type = AudioFileFormat.Type.WAVE;
-		AudioFormat format = new AudioFormat(NesSettings.sampleRate,16,2,true,false);
+		AudioFormat format = new AudioFormat(sys.getSampleRate(),16,2,true,false);
 		ByteArrayInputStream in = new ByteArrayInputStream(savedRecording);
 		AudioInputStream stream = new AudioInputStream(in,format,savedRecording.length/4);
 		try {

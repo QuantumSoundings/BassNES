@@ -12,6 +12,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import core.NesSettings;
 import jdk.internal.util.xml.impl.Input;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -122,6 +123,42 @@ public class ConfigurationManager {
             hotKeyInterface.updateInputMapHotKey(HotKeyInterface.HotKeys.values()[i+10], KeyStroke.getKeyStroke(Integer.parseInt(key.getFirstChild().getTextContent()),Integer.parseInt(mod.getFirstChild().getTextContent())));
         }
 
+        NesSettings.frameLimit = getNodeValue("framelimit").equals("true");
+        NesSettings.politeFrameTiming= getNodeValue("politeframetiming").equals("true");
+
+        NesSettings.RenderBackground = getNodeValue("renderbackground").equals("true");
+        NesSettings.RenderSprites = getNodeValue("rendersprites").equals("true");
+        NesSettings.disableSpriteLimit = getNodeValue("disablespritelimit").equals("true");
+        NesSettings.RenderMethod = Integer.parseInt(getNodeValue("rendermethod"));
+        NesSettings.selectedPalette= getNodeValue("selectedpalette");
+
+        NesSettings.masterMixLevel = Integer.parseInt(getNodeValue("mastermixlevel"));
+        NesSettings.pulse1MixLevel = Integer.parseInt(getNodeValue("pulse1mixlevel"));
+        NesSettings.pulse2MixLevel = Integer.parseInt(getNodeValue("pulse2mixlevel"));
+        NesSettings.triangleMixLevel = Integer.parseInt(getNodeValue("trianglemixlevel"));
+        NesSettings.noiseMixLevel = Integer.parseInt(getNodeValue("noisemixlevel"));
+        NesSettings.dmcMixLevel = Integer.parseInt(getNodeValue("dmcmixlevel"));
+        NesSettings.vrc6MixLevel = Integer.parseInt(getNodeValue("vrc6mixlevel"));
+        NesSettings.mmc5MixLevel = Integer.parseInt(getNodeValue("mmc5mixlevel"));
+        NesSettings.namcoMixLevel = Integer.parseInt(getNodeValue("namcomixlevel"));
+        NesSettings.sunsoft5BMixLevel = Integer.parseInt(getNodeValue("sunsoft5bmixlevel"));
+
+        NesSettings.pulse1Panning = Integer.parseInt(getNodeValue("pulse1panning"));
+        NesSettings.pulse2Panning = Integer.parseInt(getNodeValue("pulse2panning"));
+        NesSettings.trianglePanning = Integer.parseInt(getNodeValue("trianglepanning"));
+        NesSettings.noisePanning = Integer.parseInt(getNodeValue("noisepanning"));
+        NesSettings.dmcPanning = Integer.parseInt(getNodeValue("dmcpanning"));
+        NesSettings.vrc6Panning = Integer.parseInt(getNodeValue("vrc6panning"));
+        NesSettings.mmc5Panning = Integer.parseInt(getNodeValue("mmc5panning"));
+        NesSettings.namcoPanning = Integer.parseInt(getNodeValue("namcopanning"));
+        NesSettings.sunsoft5BPanning = Integer.parseInt(getNodeValue("sunsoft5bpanning"));
+
+        NesSettings.audioBufferSize = Integer.parseInt(getNodeValue("audiobuffersize"));
+        NesSettings.sampleRate = Integer.parseInt(getNodeValue("samplerate"));
+        NesSettings.highQualitySampling = getNodeValue("highqualitysampling").equals("true");
+        NesSettings.nsfPlayerSongLength = Integer.parseInt(getNodeValue("nsfplayersonglength"));
+        NesSettings.nsfPlayerFadeLength = Integer.parseInt(getNodeValue("nsfplayerfadelength"));
+
 
     }
     public void saveSettings(File f){
@@ -200,6 +237,48 @@ public class ConfigurationManager {
             nodes.item(0).setNodeValue(foundkey.getKeyCode()+"");
             nodes.item(1).setNodeValue(foundkey.getModifiers()+"");
         }
+
+
+
+        // NES SETTINGS
+        setNodeValue("politeframetiming",NesSettings.politeFrameTiming+"");
+        setNodeValue("framelimit",NesSettings.frameLimit+"");
+
+        setNodeValue("renderbackground",NesSettings.RenderBackground+"");
+        setNodeValue("rendersprites",NesSettings.RenderSprites+"");
+        setNodeValue("disablespritelimit",NesSettings.disableSpriteLimit+"");
+        setNodeValue("rendermethod",NesSettings.RenderMethod+"");
+        setNodeValue("selectedpalette",NesSettings.selectedPalette+"");
+
+        setNodeValue("mastermixlevel",NesSettings.masterMixLevel+"");
+        setNodeValue("pulse1mixlevel",NesSettings.pulse1MixLevel+"");
+        setNodeValue("pulse2mixlevel",NesSettings.pulse2MixLevel+"");
+        setNodeValue("trianglemixlevel",NesSettings.triangleMixLevel+"");
+        setNodeValue("noisemixlevel",NesSettings.noiseMixLevel+"");
+        setNodeValue("dmcmixlevel",NesSettings.dmcMixLevel+"");
+        setNodeValue("vrc6mixlevel",NesSettings.vrc6MixLevel+"");
+        setNodeValue("namcomixlevel",NesSettings.namcoMixLevel+"");
+        setNodeValue("mmc5mixlevel",NesSettings.mmc5MixLevel+"");
+        setNodeValue("sunsoft5bmixlevel",NesSettings.sunsoft5BMixLevel+"");
+
+        setNodeValue("pulse1panning",NesSettings.pulse1Panning+"");
+        setNodeValue("pulse2panning",NesSettings.pulse2Panning+"");
+        setNodeValue("trianglepanning",NesSettings.trianglePanning+"");
+        setNodeValue("noisepanning",NesSettings.noisePanning+"");
+        setNodeValue("dmcpanning",NesSettings.dmcPanning+"");
+        setNodeValue("vrc6panning",NesSettings.vrc6Panning+"");
+        setNodeValue("namcopanning",NesSettings.namcoPanning+"");
+        setNodeValue("mmc5panning",NesSettings.mmc5Panning+"");
+        setNodeValue("sunsoft5bpanning",NesSettings.sunsoft5BPanning+"");
+
+        setNodeValue("audiobuffersize",NesSettings.audioBufferSize+"");
+        setNodeValue("samplerate",NesSettings.sampleRate+"");
+        setNodeValue("highqualitysampling",NesSettings.highQualitySampling+"");
+        setNodeValue("nsfplayersonglength",NesSettings.nsfPlayerSongLength+"");
+        setNodeValue("nsfplayerfadelength",NesSettings.nsfPlayerFadeLength+"");
+
+
+
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
@@ -220,8 +299,10 @@ public class ConfigurationManager {
             dbFactory = DocumentBuilderFactory.newInstance();
             dBuilder = dbFactory.newDocumentBuilder();
             doc = dBuilder.newDocument();
+            Element root = doc.createElement("settings");
+            doc.appendChild(root);
             Element uisettings = doc.createElement("uisettings");
-            doc.appendChild(uisettings);
+            root.appendChild(uisettings);
             createChild(uisettings,"autoload","true");
             createChild(uisettings,"showfps","true");
             createChild(uisettings,"lockvideotoaudio","false");
@@ -303,8 +384,50 @@ public class ConfigurationManager {
 
 
 
+            //NES SETTINGS.............................
+            Element nes = doc.createElement("emulation");
+            root.appendChild(nes);
+            Element thread = doc.createElement("threaded");
+            nes.appendChild(thread);
+            createChild(thread,"politeframetiming", NesSettings.politeFrameTiming+"");
+            createChild(thread,"framelimit", NesSettings.frameLimit+"");
 
+            Element graphics = doc.createElement("graphical");
+            nes.appendChild(graphics);
+            createChild(graphics,"renderbackground", NesSettings.RenderBackground+"");
+            createChild(graphics,"rendersprites", NesSettings.RenderSprites+"");
+            createChild(graphics,"disablespritelimit", NesSettings.disableSpriteLimit+"");
+            createChild(graphics,"rendermethod", NesSettings.RenderMethod+"");
+            createChild(graphics,"selectedpalette", NesSettings.selectedPalette+"");
 
+            Element audio = doc.createElement("audio");
+            nes.appendChild(audio);
+            createChild(audio,"mastermixlevel", NesSettings.masterMixLevel+"");
+            createChild(audio,"pulse1mixlevel", NesSettings.pulse1MixLevel+"");
+            createChild(audio,"pulse2mixlevel", NesSettings.pulse2MixLevel+"");
+            createChild(audio,"trianglemixlevel", NesSettings.triangleMixLevel+"");
+            createChild(audio,"noisemixlevel", NesSettings.noiseMixLevel+"");
+            createChild(audio,"dmcmixlevel", NesSettings.dmcMixLevel+"");
+            createChild(audio,"vrc6mixlevel", NesSettings.vrc6MixLevel+"");
+            createChild(audio,"namcomixlevel", NesSettings.namcoMixLevel+"");
+            createChild(audio,"mmc5mixlevel", NesSettings.mmc5MixLevel+"");
+            createChild(audio,"sunsoft5bmixlevel", NesSettings.sunsoft5BMixLevel+"");
+
+            createChild(audio,"pulse1panning", NesSettings.pulse1Panning+"");
+            createChild(audio,"pulse2panning", NesSettings.pulse2Panning+"");
+            createChild(audio,"trianglepanning", NesSettings.trianglePanning+"");
+            createChild(audio,"noisepanning", NesSettings.noisePanning+"");
+            createChild(audio,"dmcpanning", NesSettings.dmcPanning+"");
+            createChild(audio,"vrc6panning", NesSettings.vrc6Panning+"");
+            createChild(audio,"namcopanning", NesSettings.namcoPanning+"");
+            createChild(audio,"mmc5panning", NesSettings.mmc5Panning+"");
+            createChild(audio,"sunsoft5bpanning", NesSettings.sunsoft5BPanning+"");
+
+            createChild(audio,"highqualitysampling",NesSettings.highQualitySampling+"");
+            createChild(audio,"nsfplayersonglength",NesSettings.nsfPlayerSongLength+"");
+            createChild(audio,"nsfplayerfadelength",NesSettings.nsfPlayerFadeLength+"");
+            createChild(audio,"samplerate",NesSettings.sampleRate+"");
+            createChild(audio,"audiobuffersize",NesSettings.audioBufferSize+"");
 
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();

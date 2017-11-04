@@ -18,7 +18,7 @@ public final class OSD {
 			color = c;
 		}
 	}
-	public static enum position{Top_left, Bottom_left,Top_right,Bottom_right};
+	public enum position{Top_left, Bottom_left,Top_right,Bottom_right};
 	public static position selectedposition = position.Top_left;
 	public static ArrayList<OSDElement> OSD_messages = new ArrayList<OSDElement>();
 	

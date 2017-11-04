@@ -18,16 +18,19 @@ public class NesDisplay extends JPanel {
 	BufferedImage frame;
 	private int width = 256;
 	private int height = 240;
-	NesNtsc ntsc = new NesNtsc();
+	NesNtsc ntsc;
     public NesDisplay(BufferedImage img){
+		ntsc = new NesNtsc();
     	if(UISettings.currentFilter==VideoFilter.NTSC){
     		frame = new BufferedImage(602, 240, BufferedImage.TYPE_INT_RGB);
     		width = 602; height = 240;
     	}
     	else
     		frame = new BufferedImage(256, 240, BufferedImage.TYPE_INT_RGB);
+
     }
     public NesDisplay(){
+		ntsc = new NesNtsc();
     	if(UISettings.currentFilter==VideoFilter.NTSC){
     		frame = new BufferedImage(602, 240, BufferedImage.TYPE_INT_RGB);
     		width = 602; height = 240;
@@ -36,6 +39,7 @@ public class NesDisplay extends JPanel {
     	else
     		frame = new BufferedImage(256, 240, BufferedImage.TYPE_INT_RGB);
     	frame.setAccelerationPriority(1);
+
     }
 	@Override
 	public void paintComponent(Graphics g) {

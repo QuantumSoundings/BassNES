@@ -5,7 +5,6 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 import java.util.EventListener;
-import java.util.Properties;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -15,7 +14,6 @@ import core.NESAccess;
 import core.NESCallback;
 import core.NesSettings;
 import core.exceptions.UnSupportedMapperException;
-import net.java.games.input.Keyboard;
 import ui.debugger.BreakPoint;
 import ui.debugger.DebugCallback;
 import ui.debugger.Debugger;
@@ -37,15 +35,17 @@ interface MainUICallback {
 	InputMap getHotKeyInput();
 	ActionMap getHotKeyAction();
 }
-interface AudioInfoInterface {
+interface AudioInfoCallback {
 	Object[][] getAudioInfo();
+	int getSampleRate();
+	int getBufferSize();
 }
-interface AudioUpdateInterface{
+interface AudioUpdateCallback {
 	void updateSamplingRate(int rate);
 }
 
 
-public class SystemManager implements NESCallback, MainUICallback, ControllerCallback, HotKeyCallback, AudioInfoInterface, AudioUpdateInterface, DebugCallback {
+public class SystemManager implements NESCallback, MainUICallback, ControllerCallback, HotKeyCallback, AudioInfoCallback, AudioUpdateCallback, DebugCallback {
 	private NESAccess nes;
 	private final JFileChooser fc;
 	private JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow,aboutWindow;
@@ -115,12 +115,6 @@ public class SystemManager implements NESCallback, MainUICallback, ControllerCal
 	}
 	private void loadConfiguration(){
 		try {
-			NesSettings.loadSettings(configuration);
-			//UISettings.loadSettings(configuration);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e) {
@@ -138,15 +132,6 @@ public class SystemManager implements NESCallback, MainUICallback, ControllerCal
 		mainWindow.pack();
 		mainWindow.setVisible(true);
 	}
-
-
-
-
-
-
-
-
-
 
 
 
@@ -191,21 +176,6 @@ public class SystemManager implements NESCallback, MainUICallback, ControllerCal
 			}
 		}
 	}
-
-	
-	/*public void createNES(File rom){
-		nes = new NES(this);
-		nes.setCallback(this);
-			try {
-				nes.loadRom(rom);
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (UnSupportedMapperException e) {
-				e.printStackTrace();
-			}
-		resetaudio();
-	}
-	*/
 
 
 	private void saveState(int slot){
@@ -297,11 +267,12 @@ public class SystemManager implements NESCallback, MainUICallback, ControllerCal
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		NesSettings.saveSettings(configuration);
 		configurator.saveSettings(config);
 		java.lang.System.exit(0);
 	}
+	@Override
 	public InputMap getHotKeyInput(){return hotkeys.getInputMap();}
+	@Override
 	public ActionMap getHotKeyAction(){return hotkeys.getActionMap();}
 
 
@@ -325,6 +296,10 @@ public class SystemManager implements NESCallback, MainUICallback, ControllerCal
 	public Object[][] getAudioInfo(){
 		return nes.getAudioChannelInfo();
 	}
+	@Override
+    public int getSampleRate(){return NesSettings.sampleRate; }
+    @Override
+    public int getBufferSize(){return NesSettings.audioBufferSize;}
 
 	/*
 	AudioSettings UI
