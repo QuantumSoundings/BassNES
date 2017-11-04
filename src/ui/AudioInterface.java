@@ -19,14 +19,14 @@ import ui.settings.UISettings;
 public class AudioInterface implements java.io.Serializable {
 	private static final long serialVersionUID = 25781276857491755L;
 	transient SourceDataLine sdl;
-	SystemUI sys;
+	AudioInfoInterface sys;
 	transient byte[] audiobuffer;
 	transient int[] audioints;
 	int bufptr = 0;	
 	public boolean lock;
 	public boolean inaudio;
 	Visualizer scope;
-	public AudioInterface(SystemUI s){
+	public AudioInterface(SystemManager s){
 		sys = s;
 		//scope = new Visualizer();
 		restartSDL();
@@ -86,7 +86,7 @@ public class AudioInterface implements java.io.Serializable {
 				if(scope!=null&&scope.isVisible()){
 					if(scopefrequency==scopecount++){
 						scope.setAudio(audioints);
-						scope.setFreq(sys.AudioChannelInfoCallback());
+						scope.setFreq(sys.getAudioInfo());
 						scope.paintscope();
 						scopecount = 0;
 					}
@@ -97,9 +97,9 @@ public class AudioInterface implements java.io.Serializable {
 			if(recordingpointer >= savedRecording.length){
 				byte[] temp = savedRecording;
 				savedRecording = new byte[savedRecording.length*2];
-				System.arraycopy(temp, 0, savedRecording, 0, temp.length);
+				java.lang.System.arraycopy(temp, 0, savedRecording, 0, temp.length);
 			}
-			System.arraycopy(audiobuffer, 0, savedRecording, recordingpointer, audiobuffer.length);
+			java.lang.System.arraycopy(audiobuffer, 0, savedRecording, recordingpointer, audiobuffer.length);
 			recordingpointer+= audiobuffer.length;
 		}
 		bufptr=0;
@@ -133,14 +133,14 @@ public class AudioInterface implements java.io.Serializable {
 	byte[] savedRecording;
 	int recordingpointer;
 	public void startRecording(){
-		System.out.println("Starting Audio Recording");
+		java.lang.System.out.println("Starting Audio Recording");
 		OSD.addOSDMessage("Starting Audio Recording...", 120);
 		savedRecording = new byte[audiobuffer.length];
 		recordingpointer = 0;
 		recording = true;		
 	}
 	public void stopRecording(){
-		System.out.print("Stopping Audio Recording...");
+		java.lang.System.out.print("Stopping Audio Recording...");
 		OSD.addOSDMessage("Stopping Audio Recording...", 120);
 		File wave = new File(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE)+".wav");
 		if(wave.exists()){
@@ -151,14 +151,14 @@ public class AudioInterface implements java.io.Serializable {
 		}
 		byte[] temp = savedRecording;
 		savedRecording = new byte[recordingpointer];
-		System.arraycopy(temp, 0, savedRecording, 0, recordingpointer);
+		java.lang.System.arraycopy(temp, 0, savedRecording, 0, recordingpointer);
 		AudioFileFormat.Type type = AudioFileFormat.Type.WAVE;
 		AudioFormat format = new AudioFormat(NesSettings.sampleRate,16,2,true,false);
 		ByteArrayInputStream in = new ByteArrayInputStream(savedRecording);
 		AudioInputStream stream = new AudioInputStream(in,format,savedRecording.length/4);
 		try {
 			AudioSystem.write(stream, type, wave);
-			System.out.println("Saved!");
+			java.lang.System.out.println("Saved!");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

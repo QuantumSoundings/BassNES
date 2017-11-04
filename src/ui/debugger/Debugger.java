@@ -5,7 +5,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import ui.SystemUI;
+import ui.SystemManager;
 
 import javax.swing.JTextField;
 import javax.swing.JLabel;
@@ -42,7 +42,7 @@ public class Debugger extends JFrame {
 	private JCheckBox irqframe;
 	private JCheckBox irqdmc;
 	private JCheckBox nmi;
-	SystemUI sys;
+	SystemManager sys;
 	private JTextField inst;
 	private JLabel lblInst;
 	private JLabel lblPpuCycle;
@@ -56,7 +56,7 @@ public class Debugger extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public Debugger(SystemUI s) {
+	public Debugger(SystemManager s) {
 		sys = s;
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setBounds(100, 100, 611, 369);
@@ -148,7 +148,7 @@ public class Debugger extends JFrame {
 		JButton btnRunCycle = new JButton("Run Cycle");
 		btnRunCycle.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				sys.nes.runCPUCycle();
+				sys.doCpuCycle();
 				updateInfo();
 			}
 		});
@@ -269,12 +269,12 @@ public class Debugger extends JFrame {
 		this.addWindowListener(new WindowAdapter(){
 			@Override
 			public void windowClosing(WindowEvent evt){
-				sys.exitDebug();
+				sys.exitDebugging();
 			}
 		});
 	}
 	public void updateInfo(){
-		Object[] vars = sys.nes.getCPUDebugInfo();
+		Object[] vars = sys.getCPUDebuggingInformation();
 		pc.setText(Integer.toHexString((int)vars[0]));
 		a.setText(Integer.toHexString((int) vars[4]));
 		x.setText(Integer.toHexString((int) vars[5]));
@@ -291,7 +291,7 @@ public class Debugger extends JFrame {
 		irqframe.setSelected(((boolean[])vars[13])[1]);
 		irqdmc.setSelected(((boolean[])vars[13])[2]);
 		
-		Object[] ppuvars = sys.nes.getPPUDebugInfo();
+		Object[] ppuvars = sys.getPPUDebuggingInformation();
 		ppuscanline.setText((int) ppuvars[1]+"");
 		ppucycle.setText((int) ppuvars[0]+"");
 		vb.setSelected((boolean)ppuvars[2]);

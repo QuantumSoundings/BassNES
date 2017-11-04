@@ -1,7 +1,7 @@
 package ui.input;
 
 import ui.OSD;
-import ui.SystemUI;
+import ui.SystemManager;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -15,8 +15,8 @@ public class ControllerManager implements ControllerInterface {
 	private static boolean[] lasthotkey = new boolean[8];
 	public static boolean playingback = false;
 	public static boolean recording = false;
-	private SystemUI sys;
-	public ControllerManager(SystemUI s){
+	private ControllerCallback sys;
+	public ControllerManager(SystemManager s){
 		sys = s;
 	}
 	@Override
@@ -41,7 +41,6 @@ public class ControllerManager implements ControllerInterface {
 
 	@Override
 	public void configureControllerInput(int controllerNumber, ControllerInterface.ControllerButtons button, String config) {
-		System.out.println(config);
 		controls[controllerNumber][button.ordinal()] = ControllerInfo.restoreInfo(config,ControllerInfo.defaultButtonConfig);
 	}
 
@@ -73,15 +72,15 @@ public class ControllerManager implements ControllerInterface {
 	@Override
 	public void updateInputs(){
 		if(lasthotkey[0]==false&&hotkeys[0].checkPressed())
-			sys.saveState(20);
+			sys.doQuickKey(QuickKeyButtons.SaveState);
 		lasthotkey[0] = hotkeys[0].checkPressed();
 		
 		if(lasthotkey[1]==false&&hotkeys[1].checkPressed())
-			sys.restoreState(20);
+			sys.doQuickKey(QuickKeyButtons.LoadState);
 		lasthotkey[1] = hotkeys[1].checkPressed();
 		
 		if(lasthotkey[4]==false&&hotkeys[4].checkPressed())
-			sys.toggleRecording();
+			sys.doQuickKey(QuickKeyButtons.AudioRecord);
 		lasthotkey[4] = hotkeys[4].checkPressed();
 		
 		if(playingback){
@@ -91,7 +90,7 @@ public class ControllerManager implements ControllerInterface {
 			}
 			else{
 				currentFrameInputs = recorded.get(framenumber).controllerInputs;
-				//System.out.println(recorded.get(framenumber).toString());
+				//SystemManager.out.println(recorded.get(framenumber).toString());
 				framenumber++;			
 			}
 		}
@@ -126,9 +125,9 @@ public class ControllerManager implements ControllerInterface {
 				recorded = new ArrayList<InputFrame>();
 			recording=!recording;
 			if(recording ==false){
-				System.out.println(recorded.size());
+				java.lang.System.out.println(recorded.size());
 				//for(String r: recorded)
-				//	System.out.println(r);
+				//	SystemManager.out.println(r);
 			}
 		}
 		lasthotkey[2] = hotkeys[2].checkPressed();
@@ -150,7 +149,7 @@ public class ControllerManager implements ControllerInterface {
 		String s = "[ "+ Arrays.toString(currentFrameInputs[0])+" , "+ Arrays.toString(currentFrameInputs[1])+" ]";
 		String x = recorded.get(recorded.size()-1).toString();
 		if(!s.equals(x))
-			System.out.println("THEY ARNt the same!!!");
+			java.lang.System.out.println("THEY ARNt the same!!!");
 	}
 	private static void saveRecordedFrames(){
 		

@@ -34,9 +34,9 @@ import javax.swing.JRadioButton;
 public class AdvancedGraphics extends JFrame {
 
 	private static final long serialVersionUID = -6383463064016482019L;
-	SystemUI sys;
+	SystemManager sys;
 	@SuppressWarnings("unchecked")
-	public AdvancedGraphics(SystemUI s) {
+	public AdvancedGraphics(SystemManager s) {
 		sys = s;
 		setTitle("Graphics Options");
 		//noinspection MagicConstant

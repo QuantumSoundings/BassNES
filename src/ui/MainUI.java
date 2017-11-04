@@ -1,22 +1,10 @@
 package ui;
 
 
-import javax.swing.JFrame;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.KeyStroke;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 
 import core.NesSettings;
+import ui.input.HotKeyInterface;
 import ui.settings.UISettings;
 import ui.settings.UISettings.VideoFilter;
 
@@ -24,21 +12,19 @@ import java.awt.event.ActionListener;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.awt.Font;
-import javax.swing.JSeparator;
+
 @SuppressWarnings("serial")
 public class MainUI extends JFrame {
 
-	SystemUI sys;
-	public MainUI(SystemUI s) {
+	MainUICallback sys;
+	public MainUI(MainUICallback s) {
 		
 		setTitle("BassNES");
 		sys = s;
@@ -57,125 +43,23 @@ public class MainUI extends JFrame {
 		JMenu mnSystem = new JMenu("System");
 		mnSystem.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		menuBar.add(mnSystem);
-		
-		Action startCPU = new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				if(!sys.rom.equals(null)){
-					if(sys.nes!=null)
-						sys.nes.exit();
-					try {
-						Thread.sleep(500);
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-					sys.createAndStart(sys.rom);
-				}
-			}
-		};
-		Action loadRom = new AbstractAction(){
-			public void actionPerformed(ActionEvent e) {
-				sys.fc.setCurrentDirectory(new File(UISettings.lastLoadedDir));
-				int returnval = sys.fc.showOpenDialog(sys.mainWindow);
-				if(returnval == JFileChooser.APPROVE_OPTION){
-					sys.rom = sys.fc.getSelectedFile();
-					UISettings.lastLoadedDir = sys.fc.getCurrentDirectory().getAbsolutePath();
-					if(UISettings.autoLoad){
-						if(sys.nes!=null)
-							sys.nes.exit();
-						sys.createAndStart(sys.rom);
-					}
-				}
-				
-			}
-		};
-		Action autoLoad = new AbstractAction(){
-			public void actionPerformed(ActionEvent e) {
-				UISettings.autoLoad = !UISettings.autoLoad;
-			}
-		};
-		Action showFPS = new AbstractAction(){
-			public void actionPerformed(ActionEvent e) {
-				UISettings.ShowFPS = !UISettings.ShowFPS;
-			}
-		};
-		Action saveState1= new AbstractAction(){
-			public void actionPerformed(ActionEvent arg0) {
-				sys.saveState(1);
-			}
-		};
-		Action saveState2= new AbstractAction(){
-			public void actionPerformed(ActionEvent arg0) {
-				sys.saveState(2);
-			}
-		};
-		Action saveState3= new AbstractAction(){
-			public void actionPerformed(ActionEvent arg0) {
-				sys.saveState(3);
-			}
-		};
-		Action saveState4= new AbstractAction(){
-			public void actionPerformed(ActionEvent arg0) {
-				sys.saveState(4);
-			}
-		};
-		Action loadState1= new AbstractAction(){
-			public void actionPerformed(ActionEvent e) {
-				sys.restoreState(1);
-			}
-		};
-		Action loadState2= new AbstractAction(){
-			public void actionPerformed(ActionEvent e) {
-				sys.restoreState(2);
-			}
-		};
-		Action loadState3= new AbstractAction(){
-			public void actionPerformed(ActionEvent e) {
-				sys.restoreState(3);
-			}
-		};
-		Action loadState4= new AbstractAction(){
-			public void actionPerformed(ActionEvent e) {
-				sys.restoreState(4);
-			}
-		};
-		Action volumeUp = new AbstractAction(){
-			public void actionPerformed(ActionEvent e) {
-				NesSettings.masterMixLevel = Math.min(100, NesSettings.masterMixLevel+5);
-				OSD.addOSDMessage("Master volume: "+NesSettings.masterMixLevel+"%", 120);
-			}
-		};
-		Action volumeDown = new AbstractAction(){
-			public void actionPerformed(ActionEvent e) {
-				NesSettings.masterMixLevel = Math.max(0, NesSettings.masterMixLevel-5);
-				OSD.addOSDMessage("Master volume: "+NesSettings.masterMixLevel+"%", 120);
-			}
-		};
 
+		updateActionAndInputMaps();
+		
 
-		//this.rootPane.setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW,sys.hotkeys.getInputMap());
-		//this.rootPane.setActionMap(sys.hotkeys.getActionMap());
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+		ActionMap actionMap = this.rootPane.getActionMap();
 		
 		JMenuItem mntmLoadRom = new JMenuItem("Load Rom");
-		mntmLoadRom.addActionListener(loadRom);
+		mntmLoadRom.addActionListener(actionMap.get(HotKeyInterface.HotKeys.LoadRom));
 		mnSystem.add(mntmLoadRom);
 		
 		JCheckBoxMenuItem chckbxmntmAutoload = new JCheckBoxMenuItem("AutoLoad");
-		chckbxmntmAutoload.addActionListener(autoLoad);
+		chckbxmntmAutoload.addActionListener(actionMap.get(HotKeyInterface.HotKeys.AutoLoad));
 		chckbxmntmAutoload.setSelected(UISettings.autoLoad);
 		mnSystem.add(chckbxmntmAutoload);
 		
 		JCheckBoxMenuItem chckbxmntmShowFps = new JCheckBoxMenuItem("Show FPS");
-		chckbxmntmShowFps.addActionListener(showFPS);
+		chckbxmntmShowFps.addActionListener(actionMap.get(HotKeyInterface.HotKeys.ShowFPS));
 		chckbxmntmShowFps.setSelected(UISettings.ShowFPS);
 		mnSystem.add(chckbxmntmShowFps);
 		
@@ -184,49 +68,44 @@ public class MainUI extends JFrame {
 		
 		JMenuItem mntmState_4 = new JMenuItem("State 1");
 		mnSaveState.add(mntmState_4);
-		mntmState_4.addActionListener(saveState1);
+		mntmState_4.addActionListener(actionMap.get(HotKeyInterface.HotKeys.SaveState1));
 		
 		JMenuItem mntmState_5 = new JMenuItem("State 2");
 		mnSaveState.add(mntmState_5);
-		mntmState_5.addActionListener(saveState2);
+		mntmState_5.addActionListener(actionMap.get(HotKeyInterface.HotKeys.SaveState2));
 		JMenuItem mntmState_6 = new JMenuItem("State 3");
 		mnSaveState.add(mntmState_6);
-		mntmState_6.addActionListener(saveState3);
+		mntmState_6.addActionListener(actionMap.get(HotKeyInterface.HotKeys.SaveState3));
 		JMenuItem mntmState_7 = new JMenuItem("State 4");
 		mnSaveState.add(mntmState_7);
-		mntmState_7.addActionListener(saveState4);
+		mntmState_7.addActionListener(actionMap.get(HotKeyInterface.HotKeys.SaveState4));
 		JMenu mnLoadState = new JMenu("Load State");
 		mnSystem.add(mnLoadState);
 		
 		JMenuItem mntmState = new JMenuItem("State 1");
 		mnLoadState.add(mntmState);
-		mntmState.addActionListener(loadState1);
+		mntmState.addActionListener(actionMap.get(HotKeyInterface.HotKeys.LoadState1));
 		JMenuItem mntmState_1 = new JMenuItem("State 2");
 		mnLoadState.add(mntmState_1);
-		mntmState_1.addActionListener(loadState2);
+		mntmState_1.addActionListener(actionMap.get(HotKeyInterface.HotKeys.LoadState2));
 		JMenuItem mntmState_2 = new JMenuItem("State 3");
 		mnLoadState.add(mntmState_2);
-		mntmState_2.addActionListener(loadState3);
+		mntmState_2.addActionListener(actionMap.get(HotKeyInterface.HotKeys.LoadState3));
 
 		JMenuItem mntmState_3 = new JMenuItem("State 4");
 		mnLoadState.add(mntmState_3);
-		mntmState_3.addActionListener(loadState4);
+		mntmState_3.addActionListener(actionMap.get(HotKeyInterface.HotKeys.LoadState4));
 
 		JMenu mnCpu = new JMenu("CPU");
 		mnCpu.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		menuBar.add(mnCpu);
 		
 		JMenuItem mntmStartCpu = new JMenuItem("Start/Reset CPU");
-		mntmStartCpu.addActionListener(startCPU);
+		mntmStartCpu.addActionListener(actionMap.get(HotKeyInterface.HotKeys.StartCPU));
 		mnCpu.add(mntmStartCpu);
 		
 		JMenuItem mntmPauseCpu = new JMenuItem("Pause CPU");
-		mntmPauseCpu.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(sys.nes!=null)
-					sys.nes.togglePause();
-			}
-		});
+		mntmPauseCpu.addActionListener(actionMap.get(HotKeyInterface.HotKeys.PauseCPU));
 		mnCpu.add(mntmPauseCpu);
 		
 		JMenu mnNewMenu = new JMenu("Audio");
@@ -246,7 +125,7 @@ public class MainUI extends JFrame {
 		JMenuItem mntmAudioMixer = new JMenuItem("Audio Settings");
 		mntmAudioMixer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				sys.audiomixerWindow.setVisible(true);
+				sys.changeWindowVisibility(SystemManager.UIWindows.AudioSettings,true);
 			}
 		});
 		mnNewMenu.add(mntmAudioMixer);
@@ -254,7 +133,7 @@ public class MainUI extends JFrame {
 		JMenuItem mntmShowOscillascope = new JMenuItem("Show Visualizer");
 		mntmShowOscillascope.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				sys.showscope();
+				sys.changeWindowVisibility(SystemManager.UIWindows.Scope,true);
 			}
 		});
 		mnNewMenu.add(mntmShowOscillascope);
@@ -269,9 +148,9 @@ public class MainUI extends JFrame {
 		JRadioButtonMenuItem rdbtnmntmxScaling = new JRadioButtonMenuItem("1x Scaling");
 		rdbtnmntmxScaling.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sys.display.updateScaling(1);
-				sys.mainWindow.getContentPane().setPreferredSize(new Dimension(256,240));
-				sys.mainWindow.pack();
+				sys.updateNesDisplay(1);
+				getContentPane().setPreferredSize(new Dimension(256,240));
+				pack();
 			}
 		});
 		ButtonGroup videoSizeGroup = new ButtonGroup();
@@ -282,9 +161,9 @@ public class MainUI extends JFrame {
 		rdbtnmntmxScaling_1.setSelected(true);
 		rdbtnmntmxScaling_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sys.display.updateScaling(2);
-				sys.mainWindow.getContentPane().setPreferredSize(new Dimension(256*2,240*2));
-				sys.mainWindow.pack();
+				sys.updateNesDisplay(2);
+				getContentPane().setPreferredSize(new Dimension(256*2,240*2));
+				pack();
 			}
 		});
 		mnScaling.add(rdbtnmntmxScaling_1);
@@ -292,9 +171,9 @@ public class MainUI extends JFrame {
 		JRadioButtonMenuItem rdbtnmntmxScaling_2 = new JRadioButtonMenuItem("3x Scaling");
 		rdbtnmntmxScaling_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sys.display.updateScaling(3);
-				sys.mainWindow.getContentPane().setPreferredSize(new Dimension(256*3,240*3));
-				sys.mainWindow.pack();
+				sys.updateNesDisplay(3);
+				getContentPane().setPreferredSize(new Dimension(256*3,240*3));
+				pack();
 			}
 		});
 		mnScaling.add(rdbtnmntmxScaling_2);
@@ -302,9 +181,9 @@ public class MainUI extends JFrame {
 		JRadioButtonMenuItem rdbtnmntmxScaling_3 = new JRadioButtonMenuItem("4x Scaling");
 		rdbtnmntmxScaling_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sys.display.updateScaling(4);
-				sys.mainWindow.getContentPane().setPreferredSize(new Dimension(256*4,240*4));
-				sys.mainWindow.pack();
+				sys.updateNesDisplay(4);
+				getContentPane().setPreferredSize(new Dimension(256*4,240*4));
+				pack();
 			}
 		});
 		mnScaling.add(rdbtnmntmxScaling_3);
@@ -313,7 +192,7 @@ public class MainUI extends JFrame {
 		JMenuItem mntmMoreSettings = new JMenuItem("More Settings");
 		mntmMoreSettings.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sys.advancedGraphicsWindow.setVisible(true);
+				sys.changeWindowVisibility(SystemManager.UIWindows.GraphicsSettings,true);
 			}
 		});
 		
@@ -336,7 +215,7 @@ public class MainUI extends JFrame {
 		chckbxmntmNtsc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				resetImage();
-				sys.display.updateImage(602, 240);
+				sys.updateNesImage(602,240);
 				NesSettings.RenderMethod = 3;
 				UISettings.currentFilter = VideoFilter.NTSC;
 			}
@@ -369,7 +248,7 @@ public class MainUI extends JFrame {
 		JMenuItem mntmConfigure = new JMenuItem("Configure");
 		mntmConfigure.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sys.keyconfigWindow.setVisible(true);
+				sys.changeWindowVisibility(SystemManager.UIWindows.KeyConfig,true);
 			}
 		});
 		mnControl.add(mntmConfigure);
@@ -381,9 +260,7 @@ public class MainUI extends JFrame {
 		JCheckBoxMenuItem chckbxmntmShowDebug = new JCheckBoxMenuItem("Show Debug");
 		chckbxmntmShowDebug.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(sys.debugWindow==null)
-					sys.debugWindow= new DebugUI();
-				sys.debugWindow.setVisible(!sys.debugWindow.isVisible());
+				sys.changeWindowVisibility(SystemManager.UIWindows.Debug,true);
 			}
 		});
 		mnDebug.add(chckbxmntmShowDebug);
@@ -391,7 +268,7 @@ public class MainUI extends JFrame {
 		JMenuItem mntmDebugInfo = new JMenuItem("Debugger");
 		mntmDebugInfo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sys.enterDebug();
+				sys.startdebugging();
 			}
 		});
 		mnDebug.add(mntmDebugInfo);
@@ -419,30 +296,20 @@ public class MainUI extends JFrame {
 		JMenuItem mntmAbout = new JMenuItem("About");
 		mntmAbout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(sys.aboutWindow==null)
-					sys.aboutWindow= new About();
-				sys.aboutWindow.setVisible(!sys.aboutWindow.isVisible());
+				sys.changeWindowVisibility(SystemManager.UIWindows.About,true);
 			}
 		});
 		mnHelp.add(mntmAbout);
 		this.addWindowListener(new WindowAdapter(){
 			@Override
 			public void windowClosing(WindowEvent evt){
-				if(sys.nes!=null)
-					sys.nes.exit();
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				NesSettings.saveSettings(sys.configuration);
-				sys.configurator.saveSettings(sys.config);
-				System.exit(0);
+				System.out.println("Closing......");
+				sys.exit();
 			}
 		});
 	}
 	private void resetImage(){
-		sys.display.updateImage(256, 240);
+		sys.updateNesImage(256,240);
 		NesSettings.RenderMethod = 2;
 	}
 	private void openWebpage(URI uri) {
@@ -462,6 +329,18 @@ public class MainUI extends JFrame {
 	    } catch (URISyntaxException e) {
 	        e.printStackTrace();
 	    }
+	}
+	private void updateActionAndInputMaps(){
+		InputMap inputMap = sys.getHotKeyInput();
+		ActionMap actionMap = sys.getHotKeyAction();
+
+		InputMap thismap = this.rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+		this.rootPane.setActionMap(actionMap);
+
+		for(KeyStroke key: inputMap.keys()){
+			thismap.put(key,inputMap.get(key));
+		}
+
 	}
 
 }

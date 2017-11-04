@@ -1,13 +1,13 @@
 package ui.debugger;
 
-import ui.SystemUI;
+import ui.SystemManager;
 
 public class BreakPoint {
 	public enum Variable{ProgramCounter,A,X,Y,SP,Nflag,Vflag,Dflag,Iflag,Zflag,Cflag,Scanline,ppucycle,Verticalblank,Sprite0,Spriteoverflow,Irqexternal,Irqframe,Irqdmc,Nmi};
 	private Variable var;
 	private Object value;
 	private boolean enabled;
-	private static SystemUI sys;
+	private static DebugCallback sys;
 	private static Object[] lastcpudata;
 	private static Object[] lastppudata;
 	public BreakPoint(Variable var, Object value){
@@ -15,12 +15,12 @@ public class BreakPoint {
 		this.value = value;
 		enabled = true;
 	}
-	public static void setsystem(SystemUI s){
+	public static void setsystem(SystemManager s){
 		sys = s;
 	}
 	public static void updateData(){
-		lastcpudata = sys.nes.getCPUDebugInfo();
-		lastppudata = sys.nes.getPPUDebugInfo();
+		lastcpudata = sys.getCPUDebuggingInformation();
+		lastppudata = sys.getPPUDebuggingInformation();
 	}
 	public void toggleEnable(){
 		enabled = !enabled;

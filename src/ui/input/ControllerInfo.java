@@ -78,9 +78,9 @@ class ControllerInfo {
 		info = d.split(";");
 		info[1] = temp;
 		for(Controller c: cont){
-			System.out.println(c.getName()+" "+c.getType().toString());
+			//System.out.println(c.getName()+" "+c.getType().toString());
 			if(c.getType()==Controller.Type.KEYBOARD){
-				System.out.println(c.getName());
+				//System.out.println(c.getName());
 				for(Component comp:c.getComponents())
 					if(comp.getIdentifier().getName().equals(info[1])){
 						return new ControllerInfo(c,comp.getIdentifier(),var);
@@ -106,7 +106,7 @@ class ControllerInfo {
 		}
 		while(true) {
 			if(controllers.length==0) {
-				System.out.println("Found no controllers.");
+				//System.out.println("Found no controllers.");
 				System.exit(0);
 			}
 
@@ -126,10 +126,10 @@ class ControllerInfo {
 					if(comp.isAnalog()) {
 						buffer.append(value);
 					} else {
-						System.out.println(controllers[i].getName()+":"+controllers[i].getPortNumber());
+						//System.out.println(controllers[i].getName()+":"+controllers[i].getPortNumber());
 						return new ControllerInfo(controllers[i],comp.getIdentifier(),value);
 					}
-					System.out.println(buffer.toString());
+					//System.out.println(buffer.toString());
 				}
 			}
 

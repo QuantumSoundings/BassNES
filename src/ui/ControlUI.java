@@ -12,7 +12,6 @@ import ui.settings.UISettings;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import java.util.Properties;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -24,13 +23,9 @@ public class ControlUI extends JFrame {
 	private static final long serialVersionUID = -7060080516930936378L;
 	public JPanel contentPane;
 	boolean awaitingkey;
-	Properties prop;
-	SystemUI sys;
 	private ControllerInterface input;
-	public ControlUI(Properties p, SystemUI s, ControllerInterface in) {
+	public ControlUI(ControllerInterface in) {
 		setTitle("Control Settings");
-		sys = s;
-		prop = p;
 		input = in;
         //noinspection MagicConstant
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

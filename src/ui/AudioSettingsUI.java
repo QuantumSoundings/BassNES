@@ -29,7 +29,7 @@ import javax.swing.JSpinner;
 
 public class AudioSettingsUI extends JFrame {
 	private static final long serialVersionUID = 8732673441553439113L;
-	final SystemUI sys;
+	private AudioUpdateInterface sys;
 
 	/**
 	 * Launch the application.
@@ -37,11 +37,11 @@ public class AudioSettingsUI extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public AudioSettingsUI(SystemUI s) {
+	public AudioSettingsUI(SystemManager s) {
         setTitle("Audio Settings");
 		sys =s;
 		//noinspection MagicConstant
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -64,9 +64,7 @@ public class AudioSettingsUI extends JFrame {
 				@SuppressWarnings("unchecked")
 				JComboBox<String> cb = (JComboBox<String>)arg0.getSource();
 				NesSettings.sampleRate=sampleratesints[cb.getSelectedIndex()];
-				if(sys.nes!=null)
-					sys.nes.setSampleRate(NesSettings.sampleRate);
-				sys.resetaudio();	
+				sys.updateSamplingRate(NesSettings.sampleRate);
 			}
 		});
 		comboBox.setBounds(10, 53, 84, 20);
@@ -107,9 +105,7 @@ public class AudioSettingsUI extends JFrame {
 				JSpinner spin = (JSpinner)e.getSource();
 				int value =(int) spin.getValue();
 				NesSettings.audioBufferSize = value;
-				sys.resetaudio();
-				if(sys.nes!=null)
-					sys.nes.setSampleRate(NesSettings.sampleRate);
+				sys.updateSamplingRate(NesSettings.sampleRate);
 			}
 		});
 		spinner.setValue(NesSettings.audioBufferSize);
