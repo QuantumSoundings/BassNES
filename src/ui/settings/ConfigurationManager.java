@@ -239,7 +239,7 @@ public class ConfigurationManager {
 
 
 
-        // NES SETTINGS
+        // DefaultNES SETTINGS
         setNodeValue("politeframetiming",NesSettings.politeFrameTiming+"");
         setNodeValue("framelimit",NesSettings.frameLimit+"");
 
@@ -383,7 +383,7 @@ public class ConfigurationManager {
 
 
 
-            //NES SETTINGS.............................
+            //DefaultNES SETTINGS.............................
             Element nes = doc.createElement("emulation");
             root.appendChild(nes);
             Element thread = doc.createElement("threaded");

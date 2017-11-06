@@ -2,14 +2,14 @@ package testing;
 
 import java.io.File;
 
-import core.NES;
+import core.DefaultNES;
 import ui.SystemManager;
 
 public class TestMain {
 	static TestDisplay sys;
 	static SystemManager sys2;
 	static File rom;
-	static NES nes;
+	static DefaultNES nes;
 	static int pass;
 	static int fail;
 	static int totalpass;

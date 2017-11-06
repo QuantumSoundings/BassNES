@@ -9,10 +9,7 @@ import java.util.EventListener;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import core.NES;
-import core.NESAccess;
-import core.NESCallback;
-import core.NesSettings;
+import core.*;
 import core.exceptions.UnSupportedMapperException;
 import ui.debugger.BreakPoint;
 import ui.debugger.DebugCallback;
@@ -46,7 +43,7 @@ interface AudioUpdateCallback {
 
 
 public class SystemManager implements NESCallback, MainUICallback, ControllerCallback, HotKeyCallback, AudioInfoCallback, AudioUpdateCallback, DebugCallback {
-	private NESAccess nes;
+	private NES nes;
 	private final JFileChooser fc;
 	private JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow,aboutWindow;
 
@@ -86,7 +83,7 @@ public class SystemManager implements NESCallback, MainUICallback, ControllerCal
 
 		//Setup the filechooser for rom selection
 		fc = new JFileChooser();
-		fc.setFileFilter(new FileNameExtensionFilter("Nes Files","nes","nsf","nsfe","NSFE","NSFe","NES","NSF"));
+		fc.setFileFilter(new FileNameExtensionFilter("Nes Files","nes","nsf","nsfe","NSFE","NSFe","DefaultNES","NSF"));
 
 		audio = new AudioInterface(this);
 		debugInfo = new Debugger(this);
@@ -341,7 +338,7 @@ public class SystemManager implements NESCallback, MainUICallback, ControllerCal
 		audio.showscope();
 	}
 	/*
-	NES CALLBACK METHODS
+	DefaultNES CALLBACK METHODS
 	 */
 
 	@Override
@@ -423,7 +420,7 @@ public class SystemManager implements NESCallback, MainUICallback, ControllerCal
 		}
 	}
 	private void createAndStart(File rom){
-		nes = new NES(this);
+		nes = NESBuilder.buildNes(this);
 		try {
 			nes.loadRom(rom);
 			current = new Thread(nes);

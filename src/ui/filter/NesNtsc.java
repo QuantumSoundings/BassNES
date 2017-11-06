@@ -73,7 +73,7 @@ public final class NesNtsc{
 
     int[] palette_out;  /* optional RGB palette out, 3 bytes per color */
 
-    /* You can replace the standard NES color generation with an RGB palette. 
+    /* You can replace the standard DefaultNES color generation with an RGB palette.
     The first replaces all color generation, while the second replaces only the 
     core 64-color generation and does standard color emphasis calculations on 
     it. */

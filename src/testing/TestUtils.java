@@ -5,14 +5,15 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import core.NES;
+import core.NESBuilder;
 import core.NESCallback;
 import core.exceptions.UnSupportedMapperException;
 
 public class TestUtils {
 	
 	
-	static NES createNES(File rom,NESCallback sys){
-		NES nes = new NES(sys);
+	static NES createNES(File rom, NESCallback sys){
+		NES nes = NESBuilder.buildNes(sys);
 		nes.setCallback(sys);
 			try {
 				nes.loadRom(rom);
@@ -27,7 +28,7 @@ public class TestUtils {
 	static int getPixelArrayHash(int[] pixels){
 		return Arrays.hashCode(pixels);
 	}
-	static void runTest(int framecount,NES nes) {
+	static void runTest(int framecount, NES nes) {
 		for(int i = 0; i<framecount;i++)
 			nes.runFrame();
 	}

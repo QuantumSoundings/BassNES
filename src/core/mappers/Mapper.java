@@ -4,7 +4,7 @@ import java.util.Arrays;
 import core.APU;
 import core.CPU_6502;
 import core.Controller;
-import core.NES;
+import core.DefaultNES;
 import core.NESCallback;
 import core.ppu2C02;
 import core.exceptions.UnSupportedMapperException;
@@ -17,7 +17,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 	public transient NESCallback system;
 	
 	//System Components
-	transient NES nes;
+	transient DefaultNES nes;
 	public CPU_6502 cpu;
 	public APU apu;
 	public ppu2C02 ppu;
@@ -80,7 +80,7 @@ public class Mapper implements java.io.Serializable {//There will be class that 
 		}
 	}
 	public void setSystem(NESCallback system2){system = system2;}
-	public void setNes(NES n){ nes = n;}
+	public void setNes(DefaultNES n){ nes = n;}
 	protected void setMirror(int i){
 		mirrormode= (i == 0);
 		if(mirrormode)

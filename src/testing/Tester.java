@@ -1,17 +1,6 @@
 package testing;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-
-import core.NES;
-import core.NesSettings;
-import core.exceptions.UnSupportedMapperException;
 import ui.SystemManager;
-import ui.settings.UISettings;
 
 public class Tester {
 	SystemManager sys;
@@ -50,7 +39,7 @@ public class Tester {
 			total++;
 			totalroms++;
 			try {
-				sys.nes = new NES(sys);
+				sys.nes = new DefaultNES(sys);
 				sys.nes.loadRom(rom);
 			} catch (UnSupportedMapperException e) {
 				//e.printStackTrace();
