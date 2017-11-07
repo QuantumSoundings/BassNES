@@ -39,7 +39,7 @@ public class Tester {
 			total++;
 			totalroms++;
 			try {
-				sys.nes = new DefaultNES(sys);
+				sys.nes = new NES(sys);
 				sys.nes.loadRom(rom);
 			} catch (UnSupportedMapperException e) {
 				//e.printStackTrace();

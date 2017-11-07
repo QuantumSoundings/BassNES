@@ -8,8 +8,8 @@ import java.util.Properties;
 
 import core.video.NesColors;
 /**
- * Contains settings vital to the functioning of an DefaultNES object. All changes are reflected immediately in
- * all running DefaultNES objects unless otherwise noted.
+ * Contains settings vital to the functioning of an NES object. All changes are reflected immediately in
+ * all running NES objects unless otherwise noted.
  * @author Jordan Howe
  *
  */
@@ -17,22 +17,22 @@ public class NesSettings {
 	static Properties prop;
 	//Emulation Settings
 	/**
-	 * Determines whether a threaded DefaultNES instance will sleep between frames.
+	 * Determines whether a threaded NES instance will sleep between frames.
 	 */
 	public static boolean politeFrameTiming = true;
 	/**
-	 * Determines whether a threaded DefaultNES instance will limit its framerate.
+	 * Determines whether a threaded NES instance will limit its framerate.
 	 */
 	public static boolean frameLimit = true;
 	
 	
 	//Graphics Settings
 	/**
-	 * Determines whether a DefaultNES instance will output background graphics.
+	 * Determines whether a NES instance will output background graphics.
 	 */
 	public static boolean RenderBackground=true;
 	/**
-	 * Determines whether a DefaultNES instance will output sprite graphics.
+	 * Determines whether a NES instance will output sprite graphics.
 	 */
 	public static boolean RenderSprites=true;
 	/**
@@ -99,8 +99,8 @@ public class NesSettings {
 	 */
 	public static int sunsoft5BMixLevel=100;
 	/**
-	 * Internal sampling rate of a DefaultNES instance. READ ONLY. Changes to this value will not
-	 * effect a DefaultNES instance. Changes should be made using DefaultNES.setSampleRate(int rate).
+	 * Internal sampling rate of a NES instance. READ ONLY. Changes to this value will not
+	 * effect a NES instance. Changes should be made using NES.setSampleRate(int rate).
 	 */
 	public static int sampleRate = 44100;
 	/**
@@ -130,7 +130,7 @@ public class NesSettings {
 	public NesSettings(){}
 	
 	/**
-	 * Saves DefaultNES settings to a configuration file.
+	 * Saves NES settings to a configuration file.
 	 * @param  - File to which settings will be saved.
 	 */
 	/*public static void saveSettings(File config){
@@ -146,7 +146,7 @@ public class NesSettings {
 		}
 	}
 	/**
-	 * Loads DefaultNES settings from a saved configuration file. Or loads default values.
+	 * Loads NES settings from a saved configuration file. Or loads default values.
 	 * @param config - File to load settings from.
 	 * @throws IOException
 	 */

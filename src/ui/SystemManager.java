@@ -43,7 +43,7 @@ interface AudioUpdateCallback {
 
 
 public class SystemManager implements NESCallback, MainUICallback, ControllerCallback, HotKeyCallback, AudioInfoCallback, AudioUpdateCallback, DebugCallback {
-	private NES nes;
+	private NESAccess nes;
 	private final JFileChooser fc;
 	private JFrame mainWindow,debugWindow,keyconfigWindow,audiomixerWindow,advancedGraphicsWindow,aboutWindow;
 
@@ -83,7 +83,7 @@ public class SystemManager implements NESCallback, MainUICallback, ControllerCal
 
 		//Setup the filechooser for rom selection
 		fc = new JFileChooser();
-		fc.setFileFilter(new FileNameExtensionFilter("Nes Files","nes","nsf","nsfe","NSFE","NSFe","DefaultNES","NSF"));
+		fc.setFileFilter(new FileNameExtensionFilter("Nes Files","nes","nsf","nsfe","NSFE","NSFe","NES","NSF"));
 
 		audio = new AudioInterface(this);
 		debugInfo = new Debugger(this);
@@ -338,7 +338,7 @@ public class SystemManager implements NESCallback, MainUICallback, ControllerCal
 		audio.showscope();
 	}
 	/*
-	DefaultNES CALLBACK METHODS
+	NES CALLBACK METHODS
 	 */
 
 	@Override
@@ -420,7 +420,7 @@ public class SystemManager implements NESCallback, MainUICallback, ControllerCal
 		}
 	}
 	private void createAndStart(File rom){
-		nes = NESBuilder.buildNes(this);
+		nes = new NES(this);
 		try {
 			nes.loadRom(rom);
 			current = new Thread(nes);

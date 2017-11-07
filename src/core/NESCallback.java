@@ -1,6 +1,6 @@
 package core;
 /**
- * Interface for an DefaultNES object's callback functions.
+ * Interface for an NES object's callback functions.
  * @author Jordan Howe
  *
  */
