@@ -13,6 +13,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import core.NesSettings;
+import jdk.internal.util.xml.impl.Input;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -21,10 +22,10 @@ import ui.input.ControllerInterface;
 import ui.input.HotKeyInterface;
 
 public class ConfigurationManager {
-    private File configFile;
-    private DocumentBuilderFactory dbFactory;
-    private DocumentBuilder dBuilder;
-    private Document doc;
+    File configFile;
+    DocumentBuilderFactory dbFactory;
+    DocumentBuilder dBuilder;
+    Document doc;
     private ControllerInterface inputInterface;
     private HotKeyInterface hotKeyInterface;
     public ConfigurationManager(File f,ControllerInterface in,HotKeyInterface hot){
