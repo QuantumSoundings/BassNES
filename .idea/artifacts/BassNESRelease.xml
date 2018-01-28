@@ -1,0 +1,16 @@
+<component name="ArtifactManager">
+  <artifact name="BassNESRelease">
+    <output-path>$PROJECT_DIR$/classes/artifacts/BassNESRelease</output-path>
+    <root id="root">
+      <element id="archive" name="BassNES.jar">
+        <element id="module-output" name="BassNES.UI" />
+        <element id="module-output" name="BassNES.Core" />
+      </element>
+      <element id="library" level="project" name="Jinput Wrappers" />
+      <element id="dir-copy" path="$PROJECT_DIR$/lib/native" />
+      <element id="directory" name="Libraries">
+        <element id="library" level="project" name="jinput" />
+      </element>
+    </root>
+  </artifact>
+</component>
