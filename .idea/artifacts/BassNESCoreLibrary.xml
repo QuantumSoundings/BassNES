@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="BassNESCoreLibrary">
+    <output-path>$PROJECT_DIR$/classes/artifacts/BassNESCoreLibrary</output-path>
+    <root id="archive" name="BassNESCoreLib.jar">
+      <element id="module-output" name="BassNES.Core" />
+    </root>
+  </artifact>
+</component>
