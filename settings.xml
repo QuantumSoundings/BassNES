@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<settings>
+    <uisettings>
+        <autoload>true</autoload>
+        <showfps>true</showfps>
+        <lockvideotoaudio>false</lockvideotoaudio>
+        <audioenabled>true</audioenabled>
+        <lastloadeddir>C:\Users\Jordan\workspace\BassNES</lastloadeddir>
+        <controlwhilenotfocused>true</controlwhilenotfocused>
+        <videosettings>
+            <ntsc>
+                <ntsc_hue>0.0</ntsc_hue>
+                <ntsc_saturation>0.0</ntsc_saturation>
+                <ntsc_contrast>0.0</ntsc_contrast>
+                <ntsc_brightness>0.0</ntsc_brightness>
+                <ntsc_sharpness>0.0</ntsc_sharpness>
+                <ntsc_gamma>0.0</ntsc_gamma>
+                <ntsc_resolution>0.0</ntsc_resolution>
+                <ntsc_artifacts>0.0</ntsc_artifacts>
+                <ntsc_fringing>0.0</ntsc_fringing>
+                <ntsc_bleed>0.0</ntsc_bleed>
+                <ntsc_merge>true</ntsc_merge>
+            </ntsc>
+            <currentfilter>None</currentfilter>
+            <scanlinethickness>0.5</scanlinethickness>
+            <scanlinesenabled>false</scanlinesenabled>
+        </videosettings>
+        <controller>
+            <controller1>
+                <c1a>Standard PS/2 Keyboard:0;A;1.0</c1a>
+                <c1b>Standard PS/2 Keyboard:0;S;1.0</c1b>
+                <c1select>Standard PS/2 Keyboard:0;W;1.0</c1select>
+                <c1start>Standard PS/2 Keyboard:0;Q;1.0</c1start>
+                <c1up>Standard PS/2 Keyboard:0;Up;1.0</c1up>
+                <c1down>Standard PS/2 Keyboard:0;Down;1.0</c1down>
+                <c1left>Standard PS/2 Keyboard:0;Left;1.0</c1left>
+                <c1right>Standard PS/2 Keyboard:0;Right;1.0</c1right>
+            </controller1>
+            <controller2>
+                <c2a>Standard PS/2 Keyboard:0;A;1.0</c2a>
+                <c2b>Standard PS/2 Keyboard:0;S;1.0</c2b>
+                <c2select>Standard PS/2 Keyboard:0;W;1.0</c2select>
+                <c2start>Standard PS/2 Keyboard:0;Q;1.0</c2start>
+                <c2up>Standard PS/2 Keyboard:0;Up;1.0</c2up>
+                <c2down>Standard PS/2 Keyboard:0;Down;1.0</c2down>
+                <c2left>Standard PS/2 Keyboard:0;Left;1.0</c2left>
+                <c2right>Standard PS/2 Keyboard:0;Right;1.0</c2right>
+            </controller2>
+            <controllerhotkeys>
+                <quicksave>Standard PS/2 Keyboard:0;Z;1.0</quicksave>
+                <quickload>Standard PS/2 Keyboard:0;X;1.0</quickload>
+                <inputrecord>Standard PS/2 Keyboard:0;C;1.0</inputrecord>
+                <inputplay>Standard PS/2 Keyboard:0;V;1.0</inputplay>
+                <togglerecording>Standard PS/2 Keyboard:0;O;1.0</togglerecording>
+            </controllerhotkeys>
+        </controller>
+        <hotkeys>
+            <savestate0>48<keynum>48</keynum>
+                <modifier>128</modifier>
+            </savestate0>
+            <savestate1>49<keynum>49</keynum>
+                <modifier>128</modifier>
+            </savestate1>
+            <savestate2>50<keynum>50</keynum>
+                <modifier>128</modifier>
+            </savestate2>
+            <savestate3>51<keynum>51</keynum>
+                <modifier>128</modifier>
+            </savestate3>
+            <savestate4>52<keynum>52</keynum>
+                <modifier>128</modifier>
+            </savestate4>
+            <savestate5>53<keynum>53</keynum>
+                <modifier>128</modifier>
+            </savestate5>
+            <savestate6>54<keynum>54</keynum>
+                <modifier>128</modifier>
+            </savestate6>
+            <savestate7>55<keynum>55</keynum>
+                <modifier>128</modifier>
+            </savestate7>
+            <savestate8>56<keynum>56</keynum>
+                <modifier>128</modifier>
+            </savestate8>
+            <savestate9>57<keynum>57</keynum>
+                <modifier>128</modifier>
+            </savestate9>
+            <loadstate0>48<keynum>48</keynum>
+                <modifier>64</modifier>
+            </loadstate0>
+            <loadstate1>49<keynum>49</keynum>
+                <modifier>64</modifier>
+            </loadstate1>
+            <loadstate2>50<keynum>50</keynum>
+                <modifier>64</modifier>
+            </loadstate2>
+            <loadstate3>51<keynum>51</keynum>
+                <modifier>64</modifier>
+            </loadstate3>
+            <loadstate4>52<keynum>52</keynum>
+                <modifier>64</modifier>
+            </loadstate4>
+            <loadstate5>53<keynum>53</keynum>
+                <modifier>64</modifier>
+            </loadstate5>
+            <loadstate6>54<keynum>54</keynum>
+                <modifier>64</modifier>
+            </loadstate6>
+            <loadstate7>55<keynum>55</keynum>
+                <modifier>64</modifier>
+            </loadstate7>
+            <loadstate8>56<keynum>56</keynum>
+                <modifier>64</modifier>
+            </loadstate8>
+            <loadstate9>57<keynum>57</keynum>
+                <modifier>64</modifier>
+            </loadstate9>
+        </hotkeys>
+    </uisettings>
+    <emulation>
+        <threaded>
+            <politeframetiming>true</politeframetiming>
+            <framelimit>true</framelimit>
+        </threaded>
+        <graphical>
+            <renderbackground>true</renderbackground>
+            <rendersprites>true</rendersprites>
+            <disablespritelimit>false</disablespritelimit>
+            <rendermethod>2</rendermethod>
+            <selectedpalette>defaultPalette</selectedpalette>
+        </graphical>
+        <audio>
+            <mastermixlevel>100</mastermixlevel>
+            <pulse1mixlevel>100</pulse1mixlevel>
+            <pulse2mixlevel>100</pulse2mixlevel>
+            <trianglemixlevel>100</trianglemixlevel>
+            <noisemixlevel>100</noisemixlevel>
+            <dmcmixlevel>100</dmcmixlevel>
+            <vrc6mixlevel>100</vrc6mixlevel>
+            <namcomixlevel>100</namcomixlevel>
+            <mmc5mixlevel>100</mmc5mixlevel>
+            <sunsoft5bmixlevel>100</sunsoft5bmixlevel>
+            <pulse1panning>0</pulse1panning>
+            <pulse2panning>0</pulse2panning>
+            <trianglepanning>0</trianglepanning>
+            <noisepanning>0</noisepanning>
+            <dmcpanning>0</dmcpanning>
+            <vrc6panning>0</vrc6panning>
+            <namcopanning>0</namcopanning>
+            <mmc5panning>0</mmc5panning>
+            <sunsoft5bpanning>0</sunsoft5bpanning>
+            <highqualitysampling>false</highqualitysampling>
+            <nsfplayersonglength>7200</nsfplayersonglength>
+            <nsfplayerfadelength>300</nsfplayerfadelength>
+            <samplerate>44100</samplerate>
+            <audiobuffersize>20</audiobuffersize>
+        </audio>
+    </emulation>
+</settings>
