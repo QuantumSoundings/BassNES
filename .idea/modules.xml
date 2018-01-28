@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/BassNES.Core/BassNES.Core.iml" filepath="$PROJECT_DIR$/BassNES.Core/BassNES.Core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BassNES.Testing/BassNES.Testing.iml" filepath="$PROJECT_DIR$/BassNES.Testing/BassNES.Testing.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BassNES.UI/BassNES.UI.iml" filepath="$PROJECT_DIR$/BassNES.UI/BassNES.UI.iml" />
+    </modules>
+  </component>
+</project>
