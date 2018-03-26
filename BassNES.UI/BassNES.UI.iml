@@ -8,7 +8,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="BassNES.Core" />
-    <orderEntry type="library" name="jinput" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Jinput Wrappers" level="project" />
+    <orderEntry type="library" name="jinput" level="project" />
   </component>
 </module>

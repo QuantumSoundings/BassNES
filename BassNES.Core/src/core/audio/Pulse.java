@@ -32,19 +32,45 @@ public class Pulse extends Channel {
 	}
 	@Override
 	public final void clockTimer(){
-		if(tCount ==0){
+		if(timer<=0) {
+			tCount=timer;
+			clockCount=0;
+			return;
+		}
+		int x = clockCount - tCount;
+		do {
+			if (x >= 0) {
+				if (!(lengthCount == 0 || !output || decay == 0 || timer < 8))
+					AudioMixer.audioLevels[outputLocation] += decay * tCount;
+				tCount = timer;
+				dutynumber++;
+				output = current_duty[dutynumber % 8];
+				if(x==0||tCount==0)
+					break;
+			} else {
+				if (!(lengthCount == 0 || !output || decay == 0 || timer < 8))
+					AudioMixer.audioLevels[outputLocation] += decay * clockCount;
+				tCount -= clockCount;
+				break;
+			}
+			clockCount=x;
+			x = clockCount-tCount;
+		}while(true);
+		clockCount=0;
+		/*if(tCount ==0){
 			tCount =timer;
 			dutynumber++;
 			output = current_duty[dutynumber%8];
 		}
 		else
 			tCount--;
-		if(lengthCount ==0||!output||decay==0||timer<8)
-			return;
-		AudioMixer.audioLevels[outputLocation] += decay;
+		if(!(lengthCount ==0||!output||decay==0||timer<8))
+			AudioMixer.audioLevels[outputLocation] += decay;
+			*/
 	}
 	
 	public void registerWrite(int index,byte b,int clock){
+		clockTimer();
 		switch(index%4){
 		case 0: 
 			duty = (0xff&b)>>>6;

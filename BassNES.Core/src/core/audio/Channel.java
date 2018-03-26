@@ -25,7 +25,7 @@ public abstract class Channel implements java.io.Serializable {
 			12, 16, 24, 18, 48, 20, 96, 22, 192, 24, 72, 26, 16, 28, 32, 30};
 	int delayedChange;
 	boolean block;
-	
+	public int clockCount=0;
 
 	public Channel(int location) {
 		outputLocation = location;

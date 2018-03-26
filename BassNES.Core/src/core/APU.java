@@ -18,6 +18,7 @@ public class APU implements java.io.Serializable{
 	private DMC dmc;
 	//Expansion Audio Channels
 	private ArrayList<Channel> expansionAudio;
+	private Channel[] eAudio;
 	//private Channel[] expansionAudioArray;
 	//public AudioInterface audio;
 	
@@ -68,6 +69,9 @@ public class APU implements java.io.Serializable{
 
 	public void addExpansionChannel(Channel chan){
 		expansionAudio.add(chan);
+		eAudio = new Channel[expansionAudio.size()];
+		for(int i = 0; i < eAudio.length;i++)
+			eAudio[i] = expansionAudio.get(i);
 		expansion = true;
 		freq = new Object[3+expansionAudio.size()][];
 	}
@@ -297,17 +301,21 @@ public class APU implements java.io.Serializable{
 			delay =-1;
 		}
 
-		triangle.clockTimer();
-		noise.clockTimer();
+		//triangle.clockTimer();
+		triangle.clockCount++;
+		//noise.clockTimer();
+		noise.clockCount++;
 		dmc.clockTimer();
 		if(evenclock){
-			pulse1.clockTimer();
-			pulse2.clockTimer();
+			//pulse1.clockTimer();
+			//pulse2.clockTimer();
+			pulse1.clockCount++;
+			pulse2.clockCount++;
 			cyclenum++;
 		}
 		evenclock=!evenclock;
 		if(expansion)
-			for(Channel chan:expansionAudio)
+			for(Channel chan:eAudio)
 				chan.clockTimer();
 		if(stepmode4){
 			switch(cpucounter){
@@ -346,6 +354,10 @@ public class APU implements java.io.Serializable{
 		if(NesSettings.highQualitySampling)
 			mixer.mixHighQualitySample();
 		else if(samplenum-cyclespersample>0){
+			pulse2.clockTimer();
+			pulse1.clockTimer();
+			triangle.clockTimer();
+			noise.clockTimer();
 			mixer.mixSample();
 			samplecounter=0;
 			samplenum-=cyclespersample;

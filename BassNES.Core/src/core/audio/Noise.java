@@ -14,6 +14,7 @@ public class Noise extends Channel{
 	int[] noiselookup= new int[]{
 			4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068};
 	public void registerWrite(int index,byte b,int clock){
+		clockTimer();
 		switch(index%4){
 		case 0: 
 			if(clock ==14195)
@@ -53,7 +54,38 @@ public class Noise extends Channel{
 	}
 	@Override
 	public final void clockTimer(){
-		if(tCount ==0){
+		if(timer<=0) {
+			tCount=timer;
+			clockCount=0;
+			return;
+		}
+		int x = clockCount - tCount;
+		do {
+			//System.out.println("Clock: "+clockCount +" t: "+tCount);
+			if (x >= 0) {
+				if(!(lengthCount ==0||(shiftreg&1)==1))
+					AudioMixer.audioLevels[outputLocation]+= decay*tCount;
+				int feedback;
+				tCount =timer;
+				if(mode)
+					feedback = ((shiftreg>>6)&1)^(shiftreg&1);
+				else
+					feedback = ((shiftreg>>1)&1)^(shiftreg&1);
+				shiftreg>>=1;
+				shiftreg|= (feedback<<14);
+				if(x==0||tCount==0)
+					break;
+			} else {
+				if(!(lengthCount ==0||(shiftreg&1)==1))
+					AudioMixer.audioLevels[outputLocation]+= decay*clockCount;
+				tCount -= clockCount;
+				break;
+			}
+			clockCount=x;
+			x = clockCount-tCount;
+		}while(true);
+		clockCount=0;
+		/*if(tCount ==0){
 			int feedback;
 			tCount =timer;
 			if(mode)
@@ -72,6 +104,7 @@ public class Noise extends Channel{
 		//else
 			AudioMixer.audioLevels[outputLocation]+= decay;
 		return;
+		*/
 	}
 	//@Override
 	public double getOutput(){
