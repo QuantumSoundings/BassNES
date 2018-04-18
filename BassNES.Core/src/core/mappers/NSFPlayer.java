@@ -547,6 +547,9 @@ public class NSFPlayer extends Mapper{
 		stringRender.drawStringToBuffer(ppu.renderer.colorized,"NSF Player Status:",0,80);
 		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Title: "+title,0,145);
 		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Artist: "+artist,0,180);
+		if(nsfemode&&tracknames!=null){
+			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Song: "+tracknames[currentsong]+"                    ",0,160);
+		}
 	}
 	private void drawscreen(){
 		stringRender.drawStringToBuffer(ppu.renderer.colorized,(!pause?"Playing   ":"Paused   "),0,91);

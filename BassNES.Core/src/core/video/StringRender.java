@@ -67,7 +67,7 @@ public class StringRender {
     public void drawStringToBuffer(int[] buf, String s, int x, int y){
         for(char c:s.toCharArray()){
             int index = c-'!';
-            if(index == -1)
+            if(index <0)
                 index = 94;
             drawLetter(buf,index,x,y);
             x+=10;
