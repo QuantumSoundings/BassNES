@@ -17,7 +17,6 @@ import core.audio.Sunsoft5B;
 import core.audio.VRC6Pulse;
 import core.audio.VRC6Saw;
 import core.video.StringRender;
-import core.video.StringRender.fontsize;
 
 public class NSFPlayer extends Mapper{
 
@@ -459,6 +458,7 @@ public class NSFPlayer extends Mapper{
 	private void init(){
 		cpu.program_counter=0x3f03;
 		setupData();
+		drawStaticStrings();
 	}
 	int pauseirq= -1;
 	private void nextTrack(){
@@ -472,6 +472,9 @@ public class NSFPlayer extends Mapper{
 		}
 		nextirq=0;
 		tracktimer=0;
+		if(nsfemode&&tracknames!=null){
+			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Song: "+tracknames[currentsong]+"                    ",0,160);
+		}
 	}
 	private void prevTrack(){
 		if(tracktimer/60<5){
@@ -483,6 +486,9 @@ public class NSFPlayer extends Mapper{
 			pauseirq=0;
 		nextirq=0;
 		tracktimer=0;
+		if(nsfemode&&tracknames!=null){
+			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Song: "+tracknames[currentsong]+"                    ",0,160);
+		}
 	}
 	boolean initdone = false;
 	
@@ -530,36 +536,28 @@ public class NSFPlayer extends Mapper{
 		//g.dispose();
 		image.getRGB(0, 0, 256, 240, ppu.renderer.colorized, 0, 256);	
 	}*/
+	private void drawStaticStrings(){
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Key Bindings",0,5);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Next Track: Right",0,16);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Prev Track: Left",0,27);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Pause: Start",0,38);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Loop: A",0,49);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Forever Mode: B",0,60);
+
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"NSF Player Status:",0,80);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Title: "+title,0,145);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Artist: "+artist,0,180);
+	}
 	private void drawscreen(){
-		//Arrays.fill(ppu.renderer.colorized,0b11111111000000000000000000000000);
-		//for(int i = 0; i < 256*240; i++)
-		//	ppu.renderer.colorized[i] = 0;
-		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Key Bindings",0,20, fontsize.SMALL);
-		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Next Track: Right",0,35,fontsize.SMALL);
-		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Prev Track: Left",0,45,fontsize.SMALL);
-		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Pause: Start",0,55,fontsize.SMALL);
-		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Loop: A",0,65,fontsize.SMALL);
-		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Forever Mode: B",0,75,fontsize.SMALL);
-
-		stringRender.drawStringToBuffer(ppu.renderer.colorized,"NSF Player Status:",0,100,fontsize.SMALL);
-		stringRender.drawStringToBuffer(ppu.renderer.colorized,(!pause?"Playing   ":"Paused   "),0,115,fontsize.SMALL);
-		stringRender.drawStringToBuffer(ppu.renderer.colorized,(playingforever?"Playing Song Forever":"                                                                 "),0,125,fontsize.SMALL);
-		stringRender.drawStringToBuffer(ppu.renderer.colorized,(looping?"Looping Current Song":"                                                  "),0,135,fontsize.SMALL);
-
-		stringRender.drawStringToBuffer(ppu.renderer.colorized,expansionInfo,0,160,fontsize.SMALL);
-		if(nsfemode&&tracknames!=null){
-			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Song: "+tracknames[currentsong]+"                    ",0,195,fontsize.SMALL);
-		}
-		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Artist: "+artist,0,210,fontsize.SMALL);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,(!pause?"Playing   ":"Paused   "),0,91);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,(playingforever?"Playing Song Forever":"                                                                 "),0,102);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,(looping?"Looping Current Song":"                                                  "),0,113);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,expansionInfo,0,130);
 		if(nsfemode&&tracktimes!=null){
-			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Track "+(currentsong+1)+"/"+totalsongs+" "+timeformat(tracktimer)+"/"+timeformat(tracktimes[currentsong])+"   ",0,230,fontsize.SMALL);
+			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Track "+(currentsong+1)+"/"+totalsongs+" "+timeformat(tracktimer)+"/"+timeformat(tracktimes[currentsong])+"   ",0,210);
 		}
 		else
-			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Track "+(currentsong+1)+"/"+totalsongs+" "+timeformat(tracktimer)+"/"+timeformat(NesSettings.nsfPlayerSongLength)+"   ",0,230,fontsize.SMALL);
-
-
-
-
+			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Track "+(currentsong+1)+"/"+totalsongs+" "+timeformat(tracktimer)+"/"+timeformat(NesSettings.nsfPlayerSongLength)+"   ",0,210);
 	}
 	private void pollPlayerControls(){
 		boolean[] controls =system.pollController()[0];
