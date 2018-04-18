@@ -1,10 +1,10 @@
 package core.mappers;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.font.TextAttribute;
-import java.awt.image.BufferedImage;
+//import java.awt.Color;
+//import java.awt.Font;
+//import java.awt.Graphics;
+//import java.awt.font.TextAttribute;
+//import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +16,8 @@ import core.audio.NamcoSound;
 import core.audio.Sunsoft5B;
 import core.audio.VRC6Pulse;
 import core.audio.VRC6Saw;
+import core.video.StringRender;
+import core.video.StringRender.fontsize;
 
 public class NSFPlayer extends Mapper{
 
@@ -66,9 +68,10 @@ public class NSFPlayer extends Mapper{
 	//private String tracktimestring = timeformat(trackcutoff);
 	private String expansionInfo;
 	private boolean doingBanking;
-	private Font largefont;
-	private Font smallfont;
+	//private Font largefont;
+	//private Font smallfont;
 	private boolean nsfemode;
+	StringRender stringRender;
 	
 	
 	//Player Control Variables
@@ -112,7 +115,10 @@ public class NSFPlayer extends Mapper{
 		super();
 		
 		System.out.println("Making an NSF Player!");
-		Map<TextAttribute, Object> attributes = new HashMap<>();
+		stringRender = new StringRender();
+		Arrays.fill(ppu.renderer.colorized,0b11111111000000000000000000000000);
+
+		/*Map<TextAttribute, Object> attributes = new HashMap<>();
 
 		attributes.put(TextAttribute.FAMILY, "Default");
 		attributes.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_SEMIBOLD);
@@ -122,6 +128,7 @@ public class NSFPlayer extends Mapper{
 		attributes.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_SEMIBOLD);
 		attributes.put(TextAttribute.SIZE, 10);
 		smallfont = Font.getFont(attributes);
+		*/
 		nsfemode = i==1;
 	}
 	@Override
@@ -481,15 +488,15 @@ public class NSFPlayer extends Mapper{
 	
 	
 	
-	BufferedImage image = new BufferedImage(256,240,BufferedImage.TYPE_INT_RGB);
+	//BufferedImage image = new BufferedImage(256,240,BufferedImage.TYPE_INT_RGB);
 	private String timeformat(int i){
 		String out = i/(60*60)+":";
 		int seconds = (i/60)%60;
 		out += seconds<10?"0"+seconds:seconds;
 		return out;
 	}
-	Graphics g=image.getGraphics();
-	private void drawscreen(){
+	//Graphics g=image.getGraphics();
+	/*private void drawscreen(){
 		//Graphics g = image.getGraphics();
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, 256, 240);
@@ -522,6 +529,37 @@ public class NSFPlayer extends Mapper{
 		g.drawString((looping?"Looping Current Song":""), 0, 135);
 		//g.dispose();
 		image.getRGB(0, 0, 256, 240, ppu.renderer.colorized, 0, 256);	
+	}*/
+	private void drawscreen(){
+		//Arrays.fill(ppu.renderer.colorized,0b11111111000000000000000000000000);
+		//for(int i = 0; i < 256*240; i++)
+		//	ppu.renderer.colorized[i] = 0;
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Key Bindings",0,20, fontsize.SMALL);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Next Track: Right",0,35,fontsize.SMALL);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Prev Track: Left",0,45,fontsize.SMALL);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Pause: Start",0,55,fontsize.SMALL);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Loop: A",0,65,fontsize.SMALL);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Forever Mode: B",0,75,fontsize.SMALL);
+
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"NSF Player Status:",0,100,fontsize.SMALL);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,(!pause?"Playing":"Paused"),0,115,fontsize.SMALL);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,(playingforever?"Playing Current Song Forever":"                                                                 "),0,125,fontsize.SMALL);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,(looping?"Looping Current Song":"                                                  "),0,135,fontsize.SMALL);
+
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,expansionInfo,0,160,fontsize.SMALL);
+		if(nsfemode&&tracknames!=null){
+			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Song: "+tracknames[currentsong],0,195,fontsize.SMALL);
+		}
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Artist: "+artist,0,210,fontsize.SMALL);
+		if(nsfemode&&tracktimes!=null){
+			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Track "+(currentsong+1)+"/"+totalsongs+" "+timeformat(tracktimer)+"/"+timeformat(tracktimes[currentsong]),0,230,fontsize.SMALL);
+		}
+		else
+			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Track "+(currentsong+1)+"/"+totalsongs+" "+timeformat(tracktimer)+"/"+timeformat(NesSettings.nsfPlayerSongLength),0,230,fontsize.SMALL);
+
+
+
+
 	}
 	private void pollPlayerControls(){
 		boolean[] controls =system.pollController()[0];

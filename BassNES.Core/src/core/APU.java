@@ -72,6 +72,7 @@ public class APU implements java.io.Serializable{
 		eAudio = new Channel[expansionAudio.size()];
 		for(int i = 0; i < eAudio.length;i++)
 			eAudio[i] = expansionAudio.get(i);
+		mixer.setEAudio(eAudio);
 		expansion = true;
 		freq = new Object[3+expansionAudio.size()][];
 	}

@@ -38,6 +38,30 @@ public class Pulse extends Channel {
 			return;
 		}
 		int x = clockCount - tCount;
+		/*if(x>=0){
+			addOutput(tCount);
+			onClockRollover();
+			if(tCount==0)
+				return;
+			int times = x/tCount;
+			int remain = x%tCount;
+			if(times>=1){
+				for(int i = 0; i < times;i++){
+					addOutput(tCount);
+					onClockRollover();
+				}
+
+			}
+			if(remain>0){
+				addOutput(remain);
+				tCount-=remain;
+			}
+		}
+		else{
+			addOutput(clockCount);
+			tCount-=clockCount;
+		}
+		clockCount=0;*/
 		do {
 			if (x >= 0) {
 				if (!(lengthCount == 0 || !output || decay == 0 || timer < 8))
@@ -68,7 +92,15 @@ public class Pulse extends Channel {
 			AudioMixer.audioLevels[outputLocation] += decay;
 			*/
 	}
-	
+	protected void onClockRollover(){
+		tCount = timer;
+		dutynumber++;
+		output = current_duty[dutynumber % 8];
+	}
+	protected void addOutput(int multiplier){
+		if (!(lengthCount == 0 || !output || decay == 0 || timer < 8))
+			AudioMixer.audioLevels[outputLocation] += decay * multiplier;
+	}
 	public void registerWrite(int index,byte b,int clock){
 		clockTimer();
 		switch(index%4){

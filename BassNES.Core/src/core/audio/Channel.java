@@ -33,6 +33,8 @@ public abstract class Channel implements java.io.Serializable {
 
 	//Each channel needs its own timer implementation
 	public abstract void clockTimer();
+	//protected abstract void onClockRollover();
+	//protected abstract void addOutput(int multiplier);
 	//Used by just about every channel
 	public void lengthClock(){
 		if(enable&&!block){

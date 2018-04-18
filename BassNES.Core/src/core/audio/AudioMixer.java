@@ -16,6 +16,7 @@ public class AudioMixer implements java.io.Serializable {
 	private final Noise noise;
 	private final DMC dmc;
 	private ArrayList<Channel> expansionAudio;
+	private Channel[] eAudio;
 	protected static double[] audioLevels;
 	private Decimator resampler;
 
@@ -49,6 +50,7 @@ public class AudioMixer implements java.io.Serializable {
 		dmc = d;
 		expansionAudio=exp;
 		audioLevels=new double[5];
+		eAudio = new Channel[0];
 		updateAudioSettings();
 	}
 	public int requestNewOutputLocation(){
@@ -62,12 +64,15 @@ public class AudioMixer implements java.io.Serializable {
 		audioBuffer = new int[(int)((NesSettings.sampleRate/1000.0)*NesSettings.audioBufferSize)*2];
 		bufferPointer=0;
 	}
+	public void setEAudio(Channel[] channels){
+		eAudio = channels;
+	}
 	public final void mixHighQualitySample(){
 		double pulse_out = (95.88/(8128.0/(pulse1.getOutput()+pulse2.getOutput())+100));//0.00752 * (p1+p2);
 		double tnd_out = (163.67/(24329.0/(3*triangle.getOutput()+2*noise.getOutput()+dmc.getOutput())+100));//0.00851*t + 0.00494*n + 0.00335*d;
 		double sample = pulse_out + tnd_out;
 		double expansion = 0;
-		for(Channel chan: expansionAudio) {
+		for(Channel chan: eAudio) {
 			expansion +=audioLevels[chan.outputLocation]*(chan.getUserMixLevel()/100.0)*chan.getChannelMixingRatio();
 			audioLevels[chan.outputLocation] = 0;
 		}
@@ -93,7 +98,7 @@ public class AudioMixer implements java.io.Serializable {
 		//Get left and right expansion audio levels
 		double expansionLeft=0;
 		double expansionRight=0;
-		for(Channel chan: expansionAudio){
+		for(Channel chan: eAudio){
 			expansionLeft +=audioLevels[chan.outputLocation]*(chan.getUserMixLevel()/100.0)*chan.getChannelMixingRatio()*(chan.getUserPanning()>0?(100-chan.getUserPanning())/100.0:1);
 			expansionRight+=audioLevels[chan.outputLocation]*(chan.getUserMixLevel()/100.0)*chan.getChannelMixingRatio() * (chan.getUserPanning() < 0 ? (chan.getUserPanning() + 100) / 100.0 : 1);
 		}
