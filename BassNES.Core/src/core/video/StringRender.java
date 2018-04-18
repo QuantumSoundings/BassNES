@@ -19,8 +19,6 @@ public class StringRender {
         int[] expandedsmall = new int[248*25];
         expandedsmall = decompress(is,expandedsmall);
         buildAllSmallLetters(expandedsmall);
-        System.out.println(Arrays.toString(bigletters[0]));
-        System.out.println(Arrays.toString(smallletters[0]));
         int[] temp = smallletters[25];
         smallletters[25] = smallletters[24];
         smallletters[24] = temp;
@@ -135,44 +133,25 @@ public class StringRender {
                     case '(': index = 43;break;
                     case ')': index = 44;break;
                     case ' ': index = 50;break;
+                    default: index = 50;break;
                 }
             switch(size){
                 case SMALL:
                     if(index!=-1)
                         drawSmallLetter(buf,index,x,y);
-                    x += 10;break;
+                    x += 10;
+                    if(x + 20 > 256)
+                        return;
+                    break;
                 case BIG:
                     if(index!=-1)
                         drawBigLetter(buf,index,x,y);
-                    x += 18;break;
-            }
-            if(x>256)
-                return;
-        }
-        /*switch (size){
-            case BIG:
-                for(char c:s.toCharArray()){
-                    if(Character.isLetter(c))
-                        drawBigLetter(buf,c-'a',x,y);
-                    else if(Character.isDigit(c))
-                        drawBigLetter(buf,26+c-'0',x,y);
                     x += 18;
-                    if(x > 256)
-                        return;
-                }
-                break;
-            case SMALL:
-                for(char c:s.toCharArray()){
-                    if(Character.isLetter(c))
-                        drawSmallLetter(buf,c-'a',x,y);
-                    else if(Character.isDigit(c))
-                        drawSmallLetter(buf,26+c-'0',x,y);
-                    x += 10;
-                    if(x > 256)
-                        return;
-                }
-        }*/
+                    if(x+18>256)return;
+                    break;
+            }
 
+        }
     }
 
 

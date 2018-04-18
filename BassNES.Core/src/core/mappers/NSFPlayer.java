@@ -542,20 +542,20 @@ public class NSFPlayer extends Mapper{
 		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Forever Mode: B",0,75,fontsize.SMALL);
 
 		stringRender.drawStringToBuffer(ppu.renderer.colorized,"NSF Player Status:",0,100,fontsize.SMALL);
-		stringRender.drawStringToBuffer(ppu.renderer.colorized,(!pause?"Playing":"Paused"),0,115,fontsize.SMALL);
-		stringRender.drawStringToBuffer(ppu.renderer.colorized,(playingforever?"Playing Current Song Forever":"                                                                 "),0,125,fontsize.SMALL);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,(!pause?"Playing   ":"Paused   "),0,115,fontsize.SMALL);
+		stringRender.drawStringToBuffer(ppu.renderer.colorized,(playingforever?"Playing Song Forever":"                                                                 "),0,125,fontsize.SMALL);
 		stringRender.drawStringToBuffer(ppu.renderer.colorized,(looping?"Looping Current Song":"                                                  "),0,135,fontsize.SMALL);
 
 		stringRender.drawStringToBuffer(ppu.renderer.colorized,expansionInfo,0,160,fontsize.SMALL);
 		if(nsfemode&&tracknames!=null){
-			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Song: "+tracknames[currentsong],0,195,fontsize.SMALL);
+			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Song: "+tracknames[currentsong]+"                    ",0,195,fontsize.SMALL);
 		}
 		stringRender.drawStringToBuffer(ppu.renderer.colorized,"Artist: "+artist,0,210,fontsize.SMALL);
 		if(nsfemode&&tracktimes!=null){
-			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Track "+(currentsong+1)+"/"+totalsongs+" "+timeformat(tracktimer)+"/"+timeformat(tracktimes[currentsong]),0,230,fontsize.SMALL);
+			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Track "+(currentsong+1)+"/"+totalsongs+" "+timeformat(tracktimer)+"/"+timeformat(tracktimes[currentsong])+"   ",0,230,fontsize.SMALL);
 		}
 		else
-			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Track "+(currentsong+1)+"/"+totalsongs+" "+timeformat(tracktimer)+"/"+timeformat(NesSettings.nsfPlayerSongLength),0,230,fontsize.SMALL);
+			stringRender.drawStringToBuffer(ppu.renderer.colorized,"Track "+(currentsong+1)+"/"+totalsongs+" "+timeformat(tracktimer)+"/"+timeformat(NesSettings.nsfPlayerSongLength)+"   ",0,230,fontsize.SMALL);
 
 
 
